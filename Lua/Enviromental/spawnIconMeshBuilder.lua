@@ -1,0 +1,161 @@
+----this = SceneNode()
+--
+--SpawnIconMeshBuilder = {}
+--
+--function SpawnIconMeshBuilder.initIconBuilder()
+--	--set values that will define how the icon will look
+--	local scale = 0.8
+--	radius = 0.6 * scale
+--	innerDropShadowRadius = 0.55 * scale
+--	innerRadius = 0.54 * scale
+--	
+--	innerTopColor = Vec3(0.35,0.35,0.6)
+--	innerBottomColor = Vec3(0.25,0.25,0.25)
+--end
+--
+--local function addBox(aMesh, boxPos, boxSize, topColor, bottomColor, uvCoord)
+--	
+--	aMesh:addUvCoord(Vec2(uvCoord.x, 0))
+--	aMesh:addUvCoord(Vec2(uvCoord.x, uvCoord.y))
+--	aMesh:addUvCoord(Vec2(0, uvCoord.y))
+--	aMesh:addUvCoord(Vec2(0, 0))
+--	
+--	index = aMesh:addPosition(boxPos + Vec3(0, boxSize.y, boxSize.x))
+--	aMesh:addColor(topColor)
+--	
+--	aMesh:addPosition(boxPos + Vec3(0, -boxSize.y, boxSize.x))
+--	aMesh:addColor(bottomColor)
+--	
+--	aMesh:addPosition(boxPos + Vec3(0, -boxSize.y, -boxSize.x))
+--	aMesh:addColor(bottomColor)
+--	
+--	aMesh:addPosition(boxPos + Vec3(0, boxSize.y, -boxSize.x))
+--	aMesh:addColor(topColor)
+--	
+--	aMesh:addIndex(index+2); aMesh:addIndex(index+1); aMesh:addIndex(index+0);
+--	aMesh:addIndex(index+0); aMesh:addIndex(index+3); aMesh:addIndex(index+2);
+--	
+--end
+--
+--function SpawnIconMeshBuilder.loadIconMesh(shader)
+--	local aMesh = NodeMesh()
+--	aMesh:setVisible(false)
+--	this:addChild(aMesh)
+--	
+--	aMesh:setBoundingSphere(Sphere(Vec3(), 2.0))
+--	aMesh:setShader(shader)
+--	aMesh:setColor(Vec4(1))
+--	aMesh:setRenderLevel(2)
+--	
+--	aMesh:clearMesh()
+--		
+--	aMesh:addPosition(Vec3(0, 0, 0));
+--	aMesh:addColor(Vec4(math.interPolate(innerBottomColor, innerTopColor,0.5), 1.0))
+--	aMesh:addUvCoord(Vec2(0.5, 0.5))
+--	
+--	index = 0
+--	local stepSize = math.pi / 16
+--	for rad = 0, math.pi*2+stepSize*0.5, stepSize do
+--		local at = Vec3(0, math.cos(rad), math.sin(rad))
+--		aMesh:addPosition(at * innerRadius)
+--		aMesh:addPosition(at * innerDropShadowRadius)
+--		aMesh:addPosition(at * radius)
+--		
+--		local innerYWeight = (at.y * innerRadius + innerRadius) / (innerRadius*2) 
+--		local innerXWeight = (at.z * innerRadius + innerRadius) / (innerRadius*2) 
+--		
+--		aMesh:addColor(Vec4(math.interPolate(innerBottomColor, innerTopColor, innerYWeight), 1.0))
+--		aMesh:addColor(Vec4(0.1,0.1,0.1, 0.0))
+--		aMesh:addColor(Vec4(0.1,0.1,0.1, 0.0))
+--		
+--		aMesh:addUvCoord(Vec2(innerXWeight, innerYWeight))
+--		aMesh:addUvCoord(Vec2(innerXWeight, innerYWeight))
+--		aMesh:addUvCoord(Vec2(innerXWeight, innerYWeight))
+--		
+--		print("index: "..index)
+--		index = index + 3
+--		
+--		if rad > 0 then
+--			aMesh:addIndex(index-3); aMesh:addIndex(index-1); aMesh:addIndex(index-0);
+--			aMesh:addIndex(index-4); aMesh:addIndex(index-1); aMesh:addIndex(index-3);
+--			
+--			aMesh:addIndex(index-4); aMesh:addIndex(index-2); aMesh:addIndex(index-1);
+--			aMesh:addIndex(index-5); aMesh:addIndex(index-2); aMesh:addIndex(index-4);
+--			
+--			aMesh:addIndex(index-2); aMesh:addIndex(index-5); aMesh:addIndex(0);
+--		end
+--	end
+--	
+--	addBox(aMesh,Vec3(0.01,-innerRadius,0), Vec2(0.325,0.15), Vec4(0.13,0.13,0.13, 1.0), Vec4(0.1,0.1,0.1, 1.0), Vec2())
+--	addBox(aMesh,Vec3(0.02,-innerRadius,0), Vec2(0.3,0.125), Vec4(0.3,0.3,0.3, 1.0), Vec4(0.2,0.2,0.2, 1.0), Vec2())
+--	
+--	aMesh:compile()
+--	
+--	
+--	return aMesh
+--end
+--
+--
+--function SpawnIconMeshBuilder.loadCharMesh(parrent, xToYRation, maxUvCoord, shaderText)
+--		
+--	local aMesh = NodeMesh()
+--	aMesh:setVisible(false)
+--	parrent:addChild(aMesh)
+--	
+--	aMesh:setBoundingSphere(Sphere(Vec3(), 5.0))
+--	aMesh:setShader(shaderText)
+--	aMesh:setColor(Vec4(1))
+--	aMesh:setRenderLevel(2)
+--	
+--	aMesh:clearMesh()
+--	local yHeight = 0.1
+--	
+--	addBox(aMesh,Vec3(0.03,-innerRadius,0), Vec2(xToYRation*yHeight,yHeight), Vec4(0.9,0.9,0.9, 1.0), Vec4(0.9,0.9,0.9, 1.0), maxUvCoord)
+--	
+--	aMesh:compile()
+--	
+--	
+--	return aMesh, (xToYRation*yHeight*2+0.01)
+--end
+--
+--function SpawnIconMeshBuilder.setVisible(tabel, visble)
+--	tabel["icon"]:setVisible(visble)
+--	
+--	for i=1,tabel["LoadedChar"] do
+--		tabel[i]:setVisible(visble)
+--	end
+--end
+--
+--function SpawnIconMeshBuilder.updateNumberOfNpc(tabel, numNpc, forceUpdate, shaderText)
+--	if tabel["numNpc"] == numNpc and not forceUpdate then
+--		return
+--	end
+--	tabel["numNpc"] = numNpc
+--	
+--	local numNpcString = tostring(numNpc)
+--	local length = numNpcString:len()
+--	
+--	for i=1,tabel["LoadedChar"] do
+--		tabel[i]:setVisible(i<length+1)
+--	end
+--
+--	
+--	tabel["charSize"] = length 
+--	local numSelect = math.pow(10, length-1)
+--	for i=1, length do
+--		local char = math.floor(numNpc/numSelect)
+--		numNpc = numNpc - char * numSelect
+--		numSelect = numSelect /10
+--		
+--		local character = Core.getFontCharacter(Text("FreeMono"), 32, Text(char))
+--		if tabel["LoadedChar"]+1 == i then
+--			tabel["LoadedChar"] = i
+--			tabel[i], charOffset = SpawnIconMeshBuilder.loadCharMesh(tabel["icon"], character:getSize().x/character:getSize().y, character:getUvCoord(), shaderText)
+--			tabel[i]:setVisible(true)
+--		end
+--		
+--		local startOffset = -(charOffset*length) * 0.5 + charOffset * 0.5
+--		tabel[i]:setTexture(shaderText,character:getTexture(),0)
+--		tabel[i]:setUniform(shaderText,"offset", tabel["offset"] + Vec2(startOffset + charOffset * (i-1),0))
+--	end
+--end
