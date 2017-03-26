@@ -81,7 +81,7 @@ function MultiplayerMenuServerList.new(panel)
 	local function showServerInfo(button)
 		local tab = totable(button:getTag():toString()) 
 		joinButton:setEnabled(true)
-		if serverInfo.data == nil or (serverInfo.data.ip ~= tab.ip and serverInfo.data.port ~= tab.port) then
+--		if serverInfo.data == nil or (serverInfo.data.ip ~= tab.ip and serverInfo.data.port ~= tab.port) then
 			if tab.info then
 				--set texture
 				local mapInfoData = MapInformation.getMapInfoFromFileNameAndHash( tab.info.map, tab.info.mapHash )
@@ -98,7 +98,7 @@ function MultiplayerMenuServerList.new(panel)
 				serverInfo.playerLabel:setText(tab.info.players)
 			end
 			serverInfo.data = tab 
-		end
+--		end
 	end
 	
 	local function updateServerList()

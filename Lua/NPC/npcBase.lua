@@ -45,6 +45,7 @@ function NpcBase.new()
 	local eventListener
 	local prevState = -1
 	local sentUpdateTimer = 0
+	local debug_allready_init = false
 	
 	local function destroyUpdate()
 		this:destroyTree()
@@ -52,6 +53,11 @@ function NpcBase.new()
 	end
 	
 	local function restartMap()
+		if debug_allready_init then
+			abort()
+		end
+		debug_allready_init = true
+
 		local npcData = {node=this,id=comUnit:getIndex()}
 		eventListener:pushEvent("removeSoul", npcData )
 		
@@ -388,7 +394,7 @@ function NpcBase.new()
 	--removed from soulmanager, so we can't be targeted
 	function self.deathCleanup()
 		soul.manageDeath()
-		--soulNode:removeThis()
+		--soulNode:removeThis()	
 		local npcData = {node=this,id=comUnit:getIndex()}
 		eventListener:pushEvent("removeSoul", npcData )
 		
@@ -592,7 +598,7 @@ function NpcBase.new()
 				if createDeadBody()then
 					return true
 				else
-					if endUpdate or type(endUpdate)=="function" then
+					if endUpdate and type(endUpdate)=="function" then
 						update = endUpdate
 					else
 						error("unable to set new update for dead body")
@@ -605,7 +611,8 @@ function NpcBase.new()
 						--something is wrong, kill the npc (BAD SOLUTION)
 						local d1 = self
 						local d2 = Core.getNetworkName()
-						local d3 = Core.getTime()
+						local d3 = this:getGlobalPosition()
+						local d4 = startPos
 						error("This should not actually happen!!!")
 						--comUnit:sendNetworkSyncSafe("Net-death","byTower")
 						--syncConfirmedDeath = true (this is bad, will trigger saftey test)

@@ -617,7 +617,7 @@ function update()
 			towerWorld:update();	
 		end
 		
-		if buildCost > gold then
+		if buildCost > gold and currentTower then
 			local screenPos = camera:getScreenCoordFromglobalPos(currentTower:getLocalPosition() + Vec3(0,1.0,0))
 			noMoneyIcon:setVisible(true)
 			noMoneyIcon:setLocalPosition(screenPos)
