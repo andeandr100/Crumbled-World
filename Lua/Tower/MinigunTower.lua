@@ -356,11 +356,14 @@ function MinigunTower.new()
 		targetSelector.deselect()
 	end
 	function self.handleUpgrade(param)
+		if tonumber(param)<=upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade1",param)
+		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade1",tostring(upgrade.getLevel("upgrade")))
-		end
 		print("upgrade.getLevel(\"upgrade\") == "..upgrade.getLevel("upgrade"))
 		print("self = "..tostring(self))
 		--Achievements
@@ -440,7 +443,10 @@ function MinigunTower.new()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
-		if param==nil or (type(param)=="string" and param=="") then
+		if tonumber(param)<=upgrade.getLevel("boost") then
+			return
+		end
+		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
 		overHeatPer = 0.0
@@ -457,8 +463,11 @@ function MinigunTower.new()
 		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function upgradeRange(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade3","1")
+		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade3",param)
 		end
 		upgrade.upgrade("range")
 		particleEffectBeam = particleEffectBeam or ParticleSystem( ParticleEffect.LaserSight1 )
@@ -480,24 +489,22 @@ function MinigunTower.new()
 			comUnit:sendTo("SteamAchievement","Range","")
 		end
 	end
---	local function upgradeSmartTargeting(param)
---		if param==nil or (type(param)=="string" and param=="") then
---			comUnit:sendNetworkSyncSafe("upgrade6","1")
---		end
---		upgrade.upgrade("smartTargeting")
---		model:getMesh( "masterAim" ):setVisible(true)
---		smartTargetingRetargetTimer = 0.0
---		setCurrentInfo()
---	end
 	local function doMeshUpgradeForLevel(name,meshName)
+		local d1 = meshName
+		local d2 = upgrade.getLevel(name)
+		local d3 = meshName..upgrade.getLevel(name)
+		local d4 = model
 		model:getMesh(meshName..upgrade.getLevel(name)):setVisible(true)
 		if upgrade.getLevel(name)>1 then
 			model:getMesh(meshName..(upgrade.getLevel(name)-1)):setVisible(false)
 		end
 	end
 	local function upgradeGreaseBullet(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade5","1")
+		if tonumber(param)<=upgrade.getLevel("fireCrit") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade5",param)
 		end
 		upgrade.upgrade("fireCrit")
 		doMeshUpgradeForLevel("fireCrit","oil")
@@ -509,8 +516,11 @@ function MinigunTower.new()
 	end
 	
 	local function upgradeOverCharge(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade4","1")
+		if tonumber(param)<=upgrade.getLevel("overCharge") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade4",param)
 		end
 		upgrade.upgrade("overCharge")
 		if not particleEffectSmoke then
@@ -659,38 +669,38 @@ function MinigunTower.new()
 		upgrade.addDisplayStats("range")
 		upgrade.addDisplayStats("text")
 		
-		upgrade.addUpgrade({	cost = 100,
+		upgrade.addUpgrade({	cost = 200,
 								name = "upgrade",
 								info = "minigun tower level",
 								order = 1,
 								icon = 56,
 								value1 = 1,
 								stats = {range =	{ upgrade.add, 5.0, ""},
-										damage = 	{ upgrade.add, 50, ""},
+										damage = 	{ upgrade.add, 100, ""},
 										RPS = 		{ upgrade.add, 2.5, ""},
 										rotationSpeed =	{ upgrade.add, 1.20, ""} }
 							} )
 		--DPSpG == Damage*RPS/cost*0.111 == 40*2.5/100 = 0.99
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = 400,
 								name = "upgrade",
 								info = "minigun tower level",
 								order = 1,
 								icon = 56,
 								value1 = 2,
 								stats = {range =	{ upgrade.add, 5.0, ""},
-										damage = 	{ upgrade.add, 140, ""},
+										damage = 	{ upgrade.add, 280, ""},
 										RPS = 		{ upgrade.add, 2.5, ""},
 										rotationSpeed =	{ upgrade.add, 1.40, ""} }
 							}, 0 )
 		--DPSpG == Damage*RPS/cost == 81*3.75/300 == 1.01
-		upgrade.addUpgrade( {	cost = 400,
+		upgrade.addUpgrade( {	cost = 800,
 								name = "upgrade",
 								info = "minigun tower level",
 								order = 1,
 								icon = 56,
 								value1 = 3,
 								stats = {range =	{ upgrade.add, 5.0, ""},
-										damage = 	{ upgrade.add, 175, ""},
+										damage = 	{ upgrade.add, 350, ""},
 										RPS = 		{ upgrade.add, 5.0, ""},
 										rotationSpeed =	{ upgrade.add, 1.60, ""} }
 							}, 0 )
@@ -713,7 +723,7 @@ function MinigunTower.new()
 										rotationSpeed =	{ upgrade.mul, 2.5, ""} }
 							} )
 		-- RANGE
-		upgrade.addUpgrade( {	cost = 50,
+		upgrade.addUpgrade( {	cost = 100,
 								name = "range",
 								info = "minigun tower range",
 								order = 2,
@@ -722,7 +732,7 @@ function MinigunTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
 								stats = {range = 		{ upgrade.add, 0.75, ""}}
 							} )
-		upgrade.addUpgrade( {	cost = 100,
+		upgrade.addUpgrade( {	cost = 200,
 								name = "range",
 								info = "minigun tower range",
 								order = 2,
@@ -731,7 +741,7 @@ function MinigunTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
 								stats = {range = 		{ upgrade.add, 1.50, ""}}
 							} )
-		upgrade.addUpgrade( {	cost = 150,
+		upgrade.addUpgrade( {	cost = 300,
 								name = "range",
 								info = "minigun tower range",
 								order = 2,

@@ -286,8 +286,11 @@ function SwarmTower.new()
 		end
 	end
 	function self.handleUpgrade(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade1","1")
+		if tonumber(param)<=upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade1",param)
 		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
@@ -309,7 +312,10 @@ function SwarmTower.new()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
-		if param==nil or (type(param)=="string" and param=="") then
+		if tonumber(param)<=upgrade.getLevel("boost") then
+			return
+		end
+		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
 		upgrade.upgrade("boost")
@@ -320,8 +326,11 @@ function SwarmTower.new()
 		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function handleUpgradeBurnDamage(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade4","1")
+		if tonumber(param)<=upgrade.getLevel("burnDamage") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade4",param)
 		end
 		upgrade.upgrade("burnDamage")
 		doMeshUpgradeForLevel("burnDamage","speed")
@@ -332,8 +341,11 @@ function SwarmTower.new()
 		end
 	end
 	local function handleUpgradeFuel(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade5","1")
+		if tonumber(param)<=upgrade.getLevel("fuel") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade5",param)
 		end
 		upgrade.upgrade("fuel")
 		doMeshUpgradeForLevel("fuel","fuel")
@@ -343,13 +355,12 @@ function SwarmTower.new()
 			comUnit:sendTo("SteamAchievement","FireDPS","")
 		end
 	end
---	local function handleUpgradeHardHitting()
---		upgrade.upgrade("hardHitting")
---		setCurrentInfo()
---	end
 	local function handleUpgradeRange(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade3","1")
+		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade3",param)
 		end
 		upgrade.upgrade("range")
 		setCurrentInfo()
@@ -358,21 +369,10 @@ function SwarmTower.new()
 			comUnit:sendTo("SteamAchievement","Range","")
 		end
 	end
---	local function handleUpgradeSmartTargeting(param)
---		if param==nil or (type(param)=="string" and param=="") then
---			comUnit:sendNetworkSyncSafe("upgrade6","1")
---		end
---		upgrade.upgrade("smartTargeting")
---		model:getMesh("masterAim"):setVisible(true)
---		setCurrentInfo()
---	end
 	function self.update()
 
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
-	--		if upgrade.getLevel("upgrade")>1 then
-	--			model:getMesh("notBoosted"):setVisible( true )
-	--		end
 			setCurrentInfo()
 		end
 		while comUnit:hasMessage() do

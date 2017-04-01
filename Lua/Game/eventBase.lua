@@ -1229,7 +1229,7 @@ function EventBase.new()
 		--
 		--	Cheat for development
 		--
-		--if DEBUG then
+		if DEBUG then
 		 	if Core.getInput():getKeyPressed(Key.p) then
 				comUnit:sendTo("log", "println", "cheat-addGold")
 				statsBilboard = Core.getBillboard("stats")
@@ -1245,7 +1245,7 @@ function EventBase.new()
 --					a = a + Core.getDeltaTime() + i
 --				end
 --			end
-		--end
+		end
 		--
 		--
 		--

@@ -494,6 +494,7 @@ function DeathManager.new()
 --		end
 		--
 		if animation==nil and bodyTableSize==0 and effectList.size==0 and pointLigthList.size==0 then
+			print("selfDestroy("..Core.getNetworkName()..")")
 			--destroy the script if there is nothing to update
 			if enableSelfDestruct then
 				this:destroy()

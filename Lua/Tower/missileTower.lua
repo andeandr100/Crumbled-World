@@ -169,8 +169,11 @@ function MissileTower.new()
 		end
 	end
 	function self.handleUpgrade(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade1","1")
+		if tonumber(param)<=upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade1",param)
 		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
@@ -191,7 +194,10 @@ function MissileTower.new()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
-		if param==nil or (type(param)=="string" and param=="") then
+		if tonumber(param)<=upgrade.getLevel("boost") then
+			return
+		end
+		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
 		upgrade.upgrade("boost")
@@ -201,8 +207,11 @@ function MissileTower.new()
 		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function handleFuel(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade5","1")
+		if tonumber(param)<=upgrade.getLevel("fuel") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade5",param)
 		end
 		upgrade.upgrade("fuel")
 		doMeshUpgradeForLevel("fuel","pipe")
@@ -213,8 +222,11 @@ function MissileTower.new()
 		end
 	end
 	local function handleRange(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade3","1")
+		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade3",param)
 		end
 		upgrade.upgrade("range")
 		setCurrentInfo()
@@ -224,8 +236,11 @@ function MissileTower.new()
 		end
 	end
 	local function handleBlaster(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade4","1")
+		if tonumber(param)<=upgrade.getLevel("Blaster") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade4",param)
 		end
 		upgrade.upgrade("Blaster")
 		setCurrentInfo()
@@ -235,8 +250,11 @@ function MissileTower.new()
 		end
 	end
 	local function handleShieldSmasher(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade6","1")
+		if tonumber(param)<=upgrade.getLevel("ShieldSmasher") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade6",param)
 		end
 		upgrade.upgrade("shieldSmasher")
 		setCurrentInfo()

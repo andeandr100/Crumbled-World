@@ -264,6 +264,12 @@ function ElectricTower.new()
 		end
 	end
 	function self.handleUpgrade(param)
+		if tonumber(param)<=upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade1",param)
+		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		--Achievements
@@ -271,10 +277,6 @@ function ElectricTower.new()
 		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
 		if upgrade.getLevel("upgrade")==3 then
 			comUnit:sendTo("SteamAchievement","Upgrader","")
-		end
-		--
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade1","1")
 		end
 		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
 			local matrixList = {}
@@ -294,7 +296,10 @@ function ElectricTower.new()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
-		if param==nil or (type(param)=="string" and param=="") then
+		if tonumber(param)<=upgrade.getLevel("boost") then
+			return
+		end
+		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
 		upgrade.upgrade("boost")
@@ -304,15 +309,21 @@ function ElectricTower.new()
 		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function handleUpgradeRange(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade3","1")
+		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade3",param)
 		end
 		upgrade.upgrade("range")
 		setCurrentInfo()
 	end
 	local function handleUpgradeSlow(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade4","1")
+		if tonumber(param)<=upgrade.getLevel("slow") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade4",param)
 		end
 		upgrade.upgrade("ampedSlow")
 		doMeshUpgradeForLevel("ampedSlow","slow")
@@ -323,8 +334,11 @@ function ElectricTower.new()
 		end
 	end
 	local function handleUpgradeEnergyPool(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade5","1")
+		if tonumber(param)<=upgrade.getLevel("energyPool") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade5",param)
 		end
 		upgrade.upgrade("energyPool")
 		doMeshUpgradeForLevel("energyPool","range")--this is just reusing the same model
@@ -335,8 +349,11 @@ function ElectricTower.new()
 		end
 	end
 	local function handleUpgradeWeakSpot(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade6","1")
+		if tonumber(param)<=upgrade.getLevel("energy") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade6",param)
 		end
 		upgrade.upgrade("energy")
 		doMeshUpgradeForLevel("energy","amplifier")

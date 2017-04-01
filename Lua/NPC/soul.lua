@@ -2,6 +2,7 @@ require("NPC/state.lua")
 require("Game/timedValues.lua")
 require("Game/particleEffect.lua")
 --this = SceneNode()
+
 TheSoul = {}
 function TheSoul.new()
 	local self = {}
@@ -331,12 +332,10 @@ function TheSoul.new()
 	local function handleMarkOfGold(param,fromIndex)
 		if param.type=="area" or not isAttackedBlocked(fromIndex) then
 			--print("soul.handleMarkOfGold\n")
-			local percentage = param.per
-			local timer = param.timer
-			percentage = tonumber(percentage)
-			timer = tonumber(timer)
-			markOfGold.set(percentage,timer)
-			markOfGoldOwner.set(percentage,fromIndex)
+			local goldGain = tonumber(param.goldGain)
+			local timer = tonumber(param.timer)
+			markOfGold.set(goldGain,timer)
+			markOfGoldOwner.set(goldGain,fromIndex)
 			--markOfGoldOwner.set(percentage,fromIndex)
 		end
 	end

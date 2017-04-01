@@ -336,7 +336,7 @@ end
 
 function towerUpgrade(param)
 	local tab = totable(param)
-	comUnit:sendTo(Core.getScriptOfNetworkName(tab.netId):getIndex(),tab.msg,"")
+	comUnit:sendTo(Core.getScriptOfNetworkName(tab.netId):getIndex(),tab.msg,tab.param or "")
 end
 
 
@@ -617,7 +617,7 @@ function update()
 			towerWorld:update();	
 		end
 		
-		if buildCost > gold and currentTower then
+		if buildCost > gold then
 			local screenPos = camera:getScreenCoordFromglobalPos(currentTower:getLocalPosition() + Vec3(0,1.0,0))
 			noMoneyIcon:setVisible(true)
 			noMoneyIcon:setLocalPosition(screenPos)

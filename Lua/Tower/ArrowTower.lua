@@ -241,8 +241,11 @@ function ArrowTower.new()
 		reloadTimeLeft = (reloadTimeLeft>0.25) and reloadTimeLeft or 0.25--0.25 is the inactivity time when changing rotation of the tower
 	end
 	function self.handleUpgrade(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade1",tostring(upgrade.getLevel("upgrade")))
+		if tonumber(param)<=upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade1",param)
 		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
@@ -285,7 +288,10 @@ function ArrowTower.new()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
-		if param==nil or (type(param)=="string" and param=="") then
+		if tonumber(param)<=upgrade.getLevel("boost") then
+			return
+		end
+		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
 		upgrade.upgrade("boost")
@@ -299,8 +305,11 @@ function ArrowTower.new()
 		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function handleUpgradeScope(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade3","1")
+		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade3",param)
 		end
 		upgrade.upgrade("range")
 		model:getMesh("scope"..upgrade.getLevel("range")):setVisible(true)
@@ -317,8 +326,11 @@ function ArrowTower.new()
 		end
 	end
 	local function handleFireball(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade4","1")
+		if tonumber(param)<=upgrade.getLevel("hardArrow") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade4",param)
 		end
 		upgrade.upgrade("hardArrow")
 		setCurrentInfo()
@@ -336,8 +348,11 @@ function ArrowTower.new()
 		this:loadLuaScript("Game/buildRotater.lua")
 	end
 	local function handleWeakenTarget(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade5","1")
+		if tonumber(param)<=upgrade.getLevel("markOfDeath") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade5",param)
 		end
 		upgrade.upgrade("markOfDeath")
 		if upgrade.getLevel("markOfDeath")>1 then
@@ -729,7 +744,7 @@ function ArrowTower.new()
 										detonationRange =	{ upgrade.add, 2.0}}
 							} )
 		-- RANGE
-		upgrade.addUpgrade( {	cost = 75,
+		upgrade.addUpgrade( {	cost = 100,
 								name = "range",
 								info = "Arrow tower range",
 								order = 2,
@@ -738,7 +753,7 @@ function ArrowTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
 								stats ={range =		{ upgrade.add, 1.5, ""} }
 							} )
-		upgrade.addUpgrade( {	cost = 150,
+		upgrade.addUpgrade( {	cost = 200,
 								name = "range",
 								info = "Arrow tower range",
 								order = 2,
@@ -747,7 +762,7 @@ function ArrowTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
 								stats ={range =		{ upgrade.add, 3.0, ""} }
 							} )
-		upgrade.addUpgrade( {	cost = 225,
+		upgrade.addUpgrade( {	cost = 300,
 								name = "range",
 								info = "Arrow tower range",
 								order = 2,

@@ -45,7 +45,6 @@ function NpcBase.new()
 	local eventListener
 	local prevState = -1
 	local sentUpdateTimer = 0
-	local debug_allready_init = false
 	
 	local function destroyUpdate()
 		this:destroyTree()
@@ -53,17 +52,13 @@ function NpcBase.new()
 	end
 	
 	local function restartMap()
-		if debug_allready_init then
-			abort()
-		end
-		debug_allready_init = true
-
 		local npcData = {node=this,id=comUnit:getIndex()}
 		eventListener:pushEvent("removeSoul", npcData )
 		
 		comUnit:sendTo("SoulManager","remove","")
 		if destroyUpdate and type(destroyUpdate)=="function" then
 			update = destroyUpdate
+			print("Changed-restartMap[update = "..tostring(update).."]("..Core.getNetworkName()..")")
 		else
 			error("unable to set new update function")
 		end
@@ -394,7 +389,7 @@ function NpcBase.new()
 	--removed from soulmanager, so we can't be targeted
 	function self.deathCleanup()
 		soul.manageDeath()
-		--soulNode:removeThis()	
+		--soulNode:removeThis()
 		local npcData = {node=this,id=comUnit:getIndex()}
 		eventListener:pushEvent("removeSoul", npcData )
 		
@@ -450,6 +445,7 @@ function NpcBase.new()
 			--success, we have a death animation
 			if deathManager.update and type(deathManager.update)=="function" then
 				update = deathManager.update -- npcBase.update is just our local functions
+				print("Changed[update = "..tostring(update).."]("..Core.getNetworkName()..")")
 				return true
 			else
 				error("unable to set new update function")
@@ -461,6 +457,7 @@ function NpcBase.new()
 			if deathManager.enableSelfDestruct then
 				this:destroyTree()
 			end
+			print("Dead-no honor("..Core.getNetworkName()..")")
 			return false--destroy this script
 		end
 		error("This code should never be reached!!!")
@@ -598,8 +595,9 @@ function NpcBase.new()
 				if createDeadBody()then
 					return true
 				else
-					if endUpdate and type(endUpdate)=="function" then
+					if endUpdate or type(endUpdate)=="function" then
 						update = endUpdate
+						print("Changed-endUpdate[update = "..tostring(update).."]("..Core.getNetworkName()..")")
 					else
 						error("unable to set new update for dead body")
 					end
@@ -611,8 +609,7 @@ function NpcBase.new()
 						--something is wrong, kill the npc (BAD SOLUTION)
 						local d1 = self
 						local d2 = Core.getNetworkName()
-						local d3 = this:getGlobalPosition()
-						local d4 = startPos
+						local d3 = Core.getTime()
 						error("This should not actually happen!!!")
 						--comUnit:sendNetworkSyncSafe("Net-death","byTower")
 						--syncConfirmedDeath = true (this is bad, will trigger saftey test)

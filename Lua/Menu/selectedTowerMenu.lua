@@ -341,7 +341,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	
-	local function handleUpgrade(cost,buyMessage)
+	local function handleUpgrade(cost,buyMessage,paramMessage)
 		--print("uppgrade building\n")
 		if buildingLastSelected then
 			
@@ -351,7 +351,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				--print("Lua index: " .. buildingScript:getIndex() .. " Message: " .. buyMessage .. "\n")
 				--print("comUnit:sendTo(...,"..buyMessage..")\n")
 				comUnit:sendTo("stats","removeGold",tostring(cost))
-				comUnit:sendTo("builder", "buildingSubUpgrade", tabToStrMinimal({netId=buildingScript:getNetworkName(),msg=buyMessage}))
+				comUnit:sendTo("builder", "buildingSubUpgrade", tabToStrMinimal({netId=buildingScript:getNetworkName(),msg=buyMessage,param=paramMessage}))
 			end
 		end
 	end
@@ -415,9 +415,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	
 		--print("button:getTag()="..button:getTag().."\n")
 		if button:getTag():toString() ~= "" then
+			--upgrade1;400;2	name;cost;level
 			local subString, size = split(button:getTag():toString(), ";")
-			if size == 2 and tonumber(subString[2]) then
-				handleUpgrade(tonumber(subString[2]), subString[1])
+			if size == 3 and tonumber(subString[2]) then
+				handleUpgrade(tonumber(subString[2]), subString[1], tonumber(subString[1]=="upgrade2" and 1 or subString[3]) )
 			else
 				handleUpgrade(0, subString[1])	
 			end
@@ -723,12 +724,19 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			
 			if buttoninfo.button then
 				
+				if buttoninfo.level ~= nil and buttoninfo.level.level ~= buttoninfo.level.value and buttoninfo.level.levelPanel ~= nil then
+					local level = buttoninfo.level.value
+					local texture = Core.getTexture("icon_table.tga")
+					buttoninfo.level.level = level
+					buttoninfo.level.levelPanel:setBackground(Sprite( texture, Vec2(0.625 + (level-1) * 0.125,0.3125), Vec2(0.625 + level * 0.125, 0.375)))
+				end
+				
 				if buttoninfo.cost ~= nil and buttoninfo.costLabel and tonumber(buttoninfo.cost.value) > 0 then
 					local text = Text(tostring(buttoninfo.cost.value))
 					buttoninfo.costLabel:setPanelSize(PanelSize(Vec2(-1),Vec2((text:getTextScale().x/4*3)+0.5,1)))
 					buttoninfo.costLabel:setText( text )
 					--update tag
-					buttoninfo.button:setTag(name..";"..tostring(buttoninfo.cost and buttoninfo.cost.value or 0))
+					buttoninfo.button:setTag(name..";"..tostring(buttoninfo.cost and buttoninfo.cost.value or 0)..";"..tostring(buttoninfo.level.level))
 					
 					if name ~= "sell" then
 						local enable = tonumber(buttoninfo.cost.value) <= billboardStats:getDouble("gold")
@@ -777,16 +785,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					end
 				end
 				
-				
-				
-				
-				if buttoninfo.level ~= nil and buttoninfo.level.level ~= buttoninfo.level.value and buttoninfo.level.levelPanel ~= nil then
-					local level = buttoninfo.level.value
-					local texture = Core.getTexture("icon_table.tga")
-					buttoninfo.level.level = level
-					buttoninfo.level.levelPanel:setBackground(Sprite( texture, Vec2(0.625 + (level-1) * 0.125,0.3125), Vec2(0.625 + level * 0.125, 0.375)))
-				end
-				
 				if buttoninfo.isOwner ~= nil then
 					buttoninfo.button:setEnabled(false)
 				end
@@ -817,25 +815,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				--make usre we have a icon id
 				if not buttoninfo.icon then buttoninfo.icon = {value=0} end
 				
-				
-				
 				local texture = Core.getTexture("icon_table.tga")
 				local offset = Vec2((buttoninfo.icon.value%8)*0.125, math.floor(buttoninfo.icon.value/8)*0.0625)
 				local button = Button(PanelSize(Vec2(-1), Vec2(1)), ButtonStyle.SIMPLE, texture, offset, offset+Vec2(0.125, 0.0625))
 				
-				if name ~= "sell" then
-					button:setEnabled( buttoninfo.cost ~= nil and (tonumber(buttoninfo.cost.value) <= billboardStats:getDouble("gold")) )
-					button:addEventCallbackExecute(onExecute)
-				else
-					button:setEnabled(buildingBillBoard:getBool("isNetOwner"))
-					button:addEventCallbackExecute(sellTower)
-				end
-				button:setTag(name..";"..tostring(buttoninfo.cost and buttoninfo.cost.value or 0))
-	
-				button:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
-				button:setInnerHoverColor(Vec4(Vec3(1.3),0.2),Vec4(Vec3(1.3),0.4), Vec4(Vec3(1.3),0.2))
-				button:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
-	
 				local levelPanel = nil
 				local level = 0
 				if buttoninfo.level ~= nil and buttoninfo["name"].value ~= "rotate" and buttoninfo["name"].value ~= "boost" then
@@ -847,6 +830,19 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					buttoninfo.level.level = level
 					buttoninfo.level.levelPanel = levelPanel
 				end
+				
+				if name ~= "sell" then
+					button:setEnabled( buttoninfo.cost ~= nil and (tonumber(buttoninfo.cost.value) <= billboardStats:getDouble("gold")) )
+					button:addEventCallbackExecute(onExecute)
+				else
+					button:setEnabled(buildingBillBoard:getBool("isNetOwner"))
+					button:addEventCallbackExecute(sellTower)
+				end
+				button:setTag(name..";"..tostring(buttoninfo.cost and buttoninfo.cost.value or 0)..(buttoninfo.level and ";"..tostring(buttoninfo.level.level) or ""))
+	
+				button:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
+				button:setInnerHoverColor(Vec4(Vec3(1.3),0.2),Vec4(Vec3(1.3),0.4), Vec4(Vec3(1.3),0.2))
+				button:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
 				
 				local costPanel = nil
 				local costLabel = nil
@@ -1558,7 +1554,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		if getTowerInfo() then
 			local cost = getUpgradeInfo("upgrade1")
 			if cost then
-				handleUpgrade(cost, "upgrade1")
+				handleUpgrade(cost, "upgrade1", tostring(building:getScriptByName("tower"):getBillboard():getInt("level")+1) )
 			end
 		end
 		
@@ -1597,7 +1593,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		if getTowerInfo() then
 			local cost = getUpgradeInfo("upgrade2")
 			if cost then
-				handleUpgrade(cost, "upgrade2")
+				handleUpgrade(cost, "upgrade2", "1")
 			end
 		end
 		

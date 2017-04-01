@@ -162,11 +162,14 @@ function QuakeTower.new()
 		end
 	end
 	function self.handleUpgrade(param)
+		if tonumber(param)<=upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade1",param)
+		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		if upgrade.getLevel("upgrade")>1 and (param==nil or (type(param)=="string" and param=="")) then
-			comUnit:sendNetworkSyncSafe("upgrade1","1")
-		end
 		--Achievements
 		local level = upgrade.getLevel("upgrade")
 		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
@@ -193,7 +196,10 @@ function QuakeTower.new()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
-		if param==nil or (type(param)=="string" and param=="") then
+		if tonumber(param)<=upgrade.getLevel("boost") then
+			return
+		end
+		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
 		upgrade.upgrade("boost")
@@ -203,8 +209,11 @@ function QuakeTower.new()
 		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function handleFireCrit(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade3","1")
+		if tonumber(param)<=upgrade.getLevel("fireCrit") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade3",param)
 		end
 		if upgrade.getLevel("fireCrit")==0 then
 			quakeDustBlast = ParticleSystem(ParticleEffect.QuakeDustEffect)
@@ -224,8 +233,11 @@ function QuakeTower.new()
 		end
 	end
 	local function handleFlameStrike(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade4","1")
+		if tonumber(param)<=upgrade.getLevel("fireStrike") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade4",param)
 		end
 		if upgrade.getLevel("fireStrike")==0 then
 			quakeFlameBlast = ParticleSystem(ParticleEffect.qukeFireBlast)
@@ -250,8 +262,11 @@ function QuakeTower.new()
 		end
 	end
 	local function handleElectricStrike(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade5","1")
+		if tonumber(param)<=upgrade.getLevel("electricStrike") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade5",param)
 		end
 		if upgrade.getLevel("electricStrike")==0 then
 			electricBall = ParticleSystem(ParticleEffect.SparkSpirit)
@@ -745,7 +760,7 @@ function QuakeTower.new()
 							} )
 		supportManager.setUpgrade(upgrade)
 		supportManager.addHiddenUpgrades()
-		self.handleUpgrade()
+		self.handleUpgrade("1")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		billboard:setString("targetMods","")
 		billboard:setInt("currentTargetMode",0)

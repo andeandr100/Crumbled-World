@@ -367,6 +367,12 @@ function BladeTower.new()
 		return false
 	end
 	function self.handleUpgrade(param)
+		if tonumber(param)<=upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade1",param)
+		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		--Achievements
@@ -405,7 +411,10 @@ function BladeTower.new()
 		setCurrentInfo()--updates variables
 	end
 	local function handleBoost(param)
-		if (type(param)=="string" and param=="") then
+		if tonumber(param)<=upgrade.getLevel("boost") then
+			return
+		end
+		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
 		upgrade.upgrade("boost")
@@ -419,8 +428,11 @@ function BladeTower.new()
 		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function handleAttackSpeed(param)
-		if (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade3","1")
+		if tonumber(param)<=upgrade.getLevel("attackSpeed") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade3",param)
 		end
 		upgrade.upgrade("attackSpeed")
 		model:getMesh("speed"..upgrade.getLevel("attackSpeed")):setVisible(true)
@@ -434,8 +446,11 @@ function BladeTower.new()
 		end
 	end
 	local function handleMasterBlade(param)
-		if (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade4","1")
+		if tonumber(param)<=upgrade.getLevel("masterBlade") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade4",param)
 		end
 		upgrade.upgrade("masterBlade")
 		local percentage = upgrade.getLevel("masterBlade")/3.0
@@ -458,8 +473,11 @@ function BladeTower.new()
 		end
 	end
 	local function handleShieldBypass(param)
-		if (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade6","1")
+		if tonumber(param)<=upgrade.getLevel("shieldBreaker") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade6",param)
 		end
 		upgrade.upgrade("shieldBreaker")
 		model:getMesh("shield"):setVisible(upgrade.getLevel("shieldBreaker")>0)
@@ -864,7 +882,7 @@ function BladeTower.new()
 		supportManager.addHiddenUpgrades()
 		supportManager.addSetCallbackOnChange(updateStats)
 	
-		self.handleUpgrade()
+		self.handleUpgrade(1)
 	
 		myStatsReset()
 	
