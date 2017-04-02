@@ -7,7 +7,7 @@ require("Game/targetSelector.lua")
 NpcBase = {}
 function NpcBase.new()
 	local self = {}
-	local deathManager
+	local deathManager = DeathManager.new()
 	local soul = TheSoul.new()
 	local model
 	local gainGoldOnDeath = 1.0
@@ -70,7 +70,6 @@ function NpcBase.new()
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
 		--
-		deathManager = DeathManager.new()
 		--set name for the scene
 		idName = name
 		this:setSceneName("npc_"..name)
@@ -595,12 +594,13 @@ function NpcBase.new()
 				if createDeadBody()then
 					return true
 				else
-					if endUpdate or type(endUpdate)=="function" then
+					if endUpdate and type(endUpdate)=="function" then
 						update = endUpdate
 						print("Changed-endUpdate[update = "..tostring(update).."]("..Core.getNetworkName()..")")
 					else
 						error("unable to set new update for dead body")
 					end
+					print("endScript["..tostring(index).."]("..Core.getNetworkName()..") return false")
 					return false
 				end
 			else

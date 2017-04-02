@@ -2,6 +2,7 @@ require("NPC/npcBase.lua")
 --this = SceneNode()
 local npcBase = NpcBase.new()
 function destroy()
+	print("Destroy = "..tostring(Core.getNetworkName()) )
 end
 function create()
 	npcBase.init("scorpion","npc_scorpion1.mym",0.225,0.6,0.45,2.0)
