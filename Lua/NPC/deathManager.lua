@@ -16,8 +16,6 @@ function DeathManager.new()
 	local bodyTableSize = 			0
 	local enableSelfDestruct = 		true
 	local groundTestEvery = 		0.1
-	--debug
-	local debugShouldBeDeleted =	nil
 	--data
 	local animation =				nil
 	local effectList =				{size=0}
@@ -498,10 +496,6 @@ function DeathManager.new()
 		if animation==nil and bodyTableSize==0 and effectList.size==0 and pointLigthList.size==0 then
 			local index = Core.getComUnit():getIndex()
 			print("endScript["..tostring(index).."]("..Core.getNetworkName()..")")
-			if debugShouldBeDeleted then
-				error("Should have been deleted last frame")
-			end
-			debugShouldBeDeleted = true
 			--destroy the script if there is nothing to update
 			if enableSelfDestruct then
 				print("Do self destruct["..tostring(index).."]("..Core.getNetworkName()..")")

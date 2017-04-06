@@ -832,22 +832,22 @@ function EventBase.new()
 					local cost = 0
 					local index = 1
 					groupCountForWave = groupCountForWave + 1
+					--
 					--select a group to spawn and remove groups that cant be used any more
+					--
 					local group = {}
 					if fixedGroupToSpawn[i] and fixedGroupToSpawn[i][groupCountForWave] then
+						--the group is fixed  used function  self:addGroupToSpawn
 						group = getCopyOfTable(fixedGroupToSpawn[i][groupCountForWave])
 					else
-						local countinue = true
-						while countinue do
-							--print("=========================================================0\n")
-							countinue = false
+						--select a random npc group and make sure it is allowed to spawn or remove it
+						while true do
 							local groupIndex = rand:range(1,math.min(#groupComp,hardestGroupThatCanSpawn))
 							--print("groupIndex("..#groupComp..","..hardestGroupThatCanSpawn..") == "..groupIndex.."\n")
 							group = getCopyOfTable(groupComp[groupIndex])
 							if isGroupContainingLimitedUnits(groupComp[groupIndex]) then
 								--if the group contains a unit that has reached limited spawn count, for this wave
 								popItem(groupComp,groupIndex)--try again
-								countinue = true
 							elseif groupComp[groupIndex].waveUseLimit then
 								--if the group has reach it limited spawn count, for this wave
 								groupComp[groupIndex].waveUseLimit = groupComp[groupIndex].waveUseLimit-1
@@ -857,16 +857,14 @@ function EventBase.new()
 							elseif groupComp[groupIndex].groupSpawnDepthMax and groupCountForWave>groupComp[groupIndex].groupSpawnDepthMax then
 								--if the npc has missed its spawn window
 								popItem(groupComp,groupIndex)--try again
-								countinue = true
+							else
+								break
 							end
 						end
 					end
-					--print("------ Adding group ------\n")
 					--
-					--event.addGroupToSpawn(1,1,{{npc="skeleton",delay=0.0},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}})
-					--print("event.addGroupToSpawn("..i..","..groupCountForWave..",table="..tabToStrMinimal(group)..")\n")
+					--adding selected group to wave
 					--
-					--add group to wave
 					local groupUnit = group[index]
 					while groupUnit do
 						--statistics
@@ -892,12 +890,7 @@ function EventBase.new()
 						if waveDetailsInfo[groupUnit.npc] then
 							waveDetailsInfo[groupUnit.npc].numEnemies = waveDetailsInfo[groupUnit.npc].numEnemies + 1
 						else
-							--waveDetailsInfo[groupUnit.npc] = EnemyInfo( groupUnit.npc, npc[groupUnit.npc].script, 1, npc[groupUnit.npc].size)
 							waveDetailsInfo[groupUnit.npc] = { name=groupUnit.npc, scriptName=npc[groupUnit.npc].script, numEnemies=1, npcSize=npc[groupUnit.npc].size}
-							--.def_readwrite("name", &EnemyInfo::_enemyName)
-							--.def_readwrite("scriptName", &EnemyInfo::_modelName)
-							--.def_readwrite("npcSize", &EnemyInfo::_enemySize)
-							--.def_readwrite("numEnemies", &EnemyInfo::_numEnemies)
 						end
 						-- continue
 						index = index + 1
@@ -933,7 +926,7 @@ function EventBase.new()
 				--
 				waves[i] = waveDetails
 				waveTotalTime = waveTotalTime + nextWaveDelayTime
-				playTime = playTime + waveTotalTime + waitBase + 15.0 -- 15s time to kill last unit after it has spawn ;-)
+				playTime = playTime + waveTotalTime + waitBase + 15.0 -- 15s time to kill last unit after it has spawned ;-)
 				longestWave = math.max(longestWave,waveTotalTime)
 				--print("==== WAVE"..i..".time=="..waveTotalTime.."\n")
 			end

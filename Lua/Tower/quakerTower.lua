@@ -674,13 +674,13 @@ function QuakeTower.new()
 								stats = {	fireCrit = 	{ upgrade.add, 1.20, ""}}
 							} )
 		--fire strike
-		function fireDamage1() return upgrade.getStats("damage") * 0.20 end
+		function fireDamage1() return upgrade.getStats("damage") * 0.15 end
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "fireStrike",
 								info = "quak tower fire",
 								order = 3,
 								icon = 38,
-								value1 = 20,--20% fire damage
+								value1 = 15,--15% fire damage
 								value2 = 1,--1 seconds
 								levelRequirement = cTowerUpg.getLevelRequierment("fireStrike",1),
 								requirementNotUpgraded1 = "fireCrit",
@@ -688,25 +688,25 @@ function QuakeTower.new()
 								stats ={fireDPS =		{ upgrade.set, fireDamage1},
 										burnTime =		{ upgrade.add, 1.0} }
 							} )
-		function fireDamage2() return upgrade.getStats("damage") * 0.22 end
+		function fireDamage2() return upgrade.getStats("damage") * 0.17 end
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "fireStrike",
 								info = "quak tower fire",
 								order = 3,
 								icon = 38,
-								value1 = 22,
+								value1 = 17,
 								value2 = 1.75,
 								levelRequirement = cTowerUpg.getLevelRequierment("fireStrike",2),
 								stats ={fireDPS =		{ upgrade.set, fireDamage2},
 										burnTime =		{ upgrade.add, 1.75} }
 							} )
-		function fireDamage3() return upgrade.getStats("damage") * 0.24 end
+		function fireDamage3() return upgrade.getStats("damage") * 0.18 end
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "fireStrike",
 								info = "quak tower fire",
 								order = 3,
 								icon = 38,
-								value1 = 24,
+								value1 = 18,
 								value2 = 2.5,
 								levelRequirement = cTowerUpg.getLevelRequierment("fireStrike",3),
 								stats ={fireDPS =		{ upgrade.set, fireDamage3},
@@ -719,7 +719,7 @@ function QuakeTower.new()
 								info = "quak tower electric",
 								order = 4,
 								icon = 50,
-								value1 = 25,--20% extra damage
+								value1 = 25,--25% extra damage
 								value2 = 15,--15% slow
 								value3 = 2,--2 seconds
 								levelRequirement = cTowerUpg.getLevelRequierment("electricStrike",1),
@@ -735,7 +735,7 @@ function QuakeTower.new()
 								info = "quak tower electric",
 								order = 4,
 								icon = 50,
-								value1 = 50,--40% extra damage
+								value1 = 50,--50% extra damage
 								value2 = 28,--28% slow
 								value3 = 2,--2 seconds
 								levelRequirement = cTowerUpg.getLevelRequierment("electricStrike",2),
@@ -749,7 +749,7 @@ function QuakeTower.new()
 								info = "quak tower electric",
 								order = 4,
 								icon = 50,
-								value1 = 75,--60% extra damage
+								value1 = 75,--75% extra damage
 								value2 = 39,--39% slow
 								value3 = 2,--2 seconds
 								levelRequirement = cTowerUpg.getLevelRequierment("electricStrike",3),

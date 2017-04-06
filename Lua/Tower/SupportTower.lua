@@ -459,7 +459,7 @@ function SwarmTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 1,
-								stats ={range =				{ upgrade.add, 3.0},
+								stats ={range =				{ upgrade.add, 2.8},
 										model = 			{ upgrade.set, "tower_support_l1.mym"} }
 							} )
 		upgrade.addUpgrade( {	cost = 200,
@@ -468,7 +468,7 @@ function SwarmTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 2,
-								stats ={range =				{ upgrade.add, 3.0},
+								stats ={range =				{ upgrade.add, 2.8},
 										model = 			{ upgrade.set, "tower_support_l2.mym"}}
 							},0 )
 		upgrade.addUpgrade( {	cost = 200,
@@ -477,7 +477,7 @@ function SwarmTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 3,
-								stats ={range =				{ upgrade.add, 3.0},
+								stats ={range =				{ upgrade.add, 2.8},
 										model = 			{ upgrade.set, "tower_support_l3.mym"}}
 							},0 )
 		upgrade.addUpgrade( {	cost = 0,
@@ -582,7 +582,7 @@ function SwarmTower.new()
 								info = "support tower gold",
 								order = 5,
 								icon = 67,
-								value1 = 3,
+								value1 = 2,
 								levelRequirement = cTowerUpg.getLevelRequierment("gold",1),
 								stats = {supportGold =	{ upgrade.add, 3} }
 							} )
@@ -591,7 +591,7 @@ function SwarmTower.new()
 								info = "support tower gold",
 								order = 5,
 								icon = 67,
-								value1 = 6,
+								value1 = 4,
 								levelRequirement = cTowerUpg.getLevelRequierment("gold",2),
 								stats = {supportGold =	{ upgrade.add, 6} }
 							} )
@@ -600,7 +600,7 @@ function SwarmTower.new()
 								info = "support tower gold",
 								order = 5,
 								icon = 67,
-								value1 = 9,
+								value1 = 6,
 								levelRequirement = cTowerUpg.getLevelRequierment("gold",3),
 								stats = {supportGold =	{ upgrade.add, 9} }
 							} )
