@@ -153,6 +153,7 @@ function CampaignGameMenu.new(panel)
 			if selectedButton then
 				setDefaultButtonColor(selectedButton)
 			end
+			selectedButton = files[mNum].button
 			setSelectedButtonColor(files[mNum].button)
 			local beatenLevel = math.max(5,campaignData.getMapModeBeatenLevel(mNum,levelInfo.getGameMode())+1)
 			fillDificulty(beatenLevel,levelInfo.getLevel())

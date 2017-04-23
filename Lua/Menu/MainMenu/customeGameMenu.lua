@@ -23,6 +23,10 @@ function CustomeGameMenu.new(panel)
 	local mapListPanel
 	local diffNames = {}
 	local labels = {}
+	--Select
+	local gameModes = {"default", "survival", "training", "leveler"}
+	local menuPrevSelect	--menuPrevSelect=Config()
+	local files
 	
 	function self.languageChanged()
 		for i=1, #labels do
@@ -62,10 +66,9 @@ function CustomeGameMenu.new(panel)
 	end
 	local function mapInfoLoaded()
 		local mapFolder = Core.getDataFolder(curentDirectory)
-		local files = mapFolder:getFiles()
 		
 		for i=1, #files do
-			local file = files[i]
+			local file = files[i].file
 			--file = File()
 			
 			local panels = mapTable[file:getPath()]
@@ -84,11 +87,16 @@ function CustomeGameMenu.new(panel)
 	local function changeDifficulty(tag, index)
 		--set difficulty
 		levelInfo.setLevel(index)
+		--
+		menuPrevSelect:get("custom"):get("selectedDifficulty"):setInt(index)
 	end
 
-	local function changeGameMode(tag, index, items)
+	local function changeGameMode(tag, index)
 		--set game mode
-		levelInfo.setGameMode(items[index])
+		levelInfo.setGameMode(gameModes[index])
+		--	+
+		
+		menuPrevSelect:get("custom"):get("selectedGameMode"):setInt(index)
 	end
 
 	local function startMap(button)
@@ -108,6 +116,8 @@ function CustomeGameMenu.new(panel)
 			end
 			levelInfo.setLevel(difficutyBox.getIndex())
 		end
+		--
+		menuPrevSelect:save()
 		--
 		Core.startMap(selectedFile)
 		Worker("Menu/loadingScreen.lua", true)
@@ -135,9 +145,8 @@ function CustomeGameMenu.new(panel)
 		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
 		labels[2] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("game mode"), Vec3(0.7)))
 		labels[2]:setTag("game mode")
-		local optionsNames = {"default", "survival", "training", "leveler"}
 		local optionsTooltip = {"default tooltip", "survival tooltip", "training tooltip", "leveler tooltip"}
-		gameModeBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), optionsNames, "game mode", optionsNames[1], changeGameMode, optionsTooltip )
+		gameModeBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), gameModes, "game mode", gameModes[1], changeGameMode, optionsTooltip )
 		
 		local startAGameButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("start game")))
 		startAGameButton:setTag("start game")
@@ -145,39 +154,55 @@ function CustomeGameMenu.new(panel)
 		labels[3] = startAGameButton
 		
 	end
+	local function getMapIndex(filePath)
+		for i=1, #files do	
+			local file = files[i].file
+			if file:isFile() and file:getPath()==filePath then
+				return i
+			end
+		end
+		return 0
+	end
 	local function workMapName(mapName)
 		if mapName:sub(1,5)=="Co-op" then
 			return mapName:sub(7)
 		end
 		return mapName
 	end
-	local function customeGameChangedMap(button)
-		local mNum,path = string.match(button:getTag():toString(),"(.*):(.*)")
-		selectedFile = path
-		local mapFile = File(path)
-	
-		if mapFile:isFile() then
-			mapLabel:setText( workMapName(mapFile:getName()) )
-			local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
-			local imageName = mapInfo and mapInfo.icon or nil
-			local texture = Core.getTexture(imageName and imageName or "noImage")
-			levelInfo.setIsCartMap(mapInfo and mapInfo.gameMode=="Cart" or false)
-			levelInfo.setWaveCount(mapInfo and mapInfo.waveCount or 25)
-			if mapInfo then
-				levelInfo.setChangedDifficultyMax(mapInfo.difficultyIncreaseMax)
-				levelInfo.setChangedDifficultyMin(mapInfo.difficultyIncreaseMin)
+	local function changeMapTo(filePath)
+		local mNum = getMapIndex(filePath)
+		if mNum>=1 then
+			selectedFile = filePath
+			local mapFile = File(filePath)
+		
+			if mapFile:isFile() then
+				mapLabel:setText( workMapName(mapFile:getName()) )
+				local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
+				local imageName = mapInfo and mapInfo.icon or nil
+				local texture = Core.getTexture(imageName and imageName or "noImage")
+				levelInfo.setIsCartMap(mapInfo and mapInfo.gameMode=="Cart" or false)
+				levelInfo.setWaveCount(mapInfo and mapInfo.waveCount or 25)
+				if mapInfo then
+					levelInfo.setChangedDifficultyMax(mapInfo.difficultyIncreaseMax)
+					levelInfo.setChangedDifficultyMin(mapInfo.difficultyIncreaseMin)
+				end
+				menuPrevSelect:get("custom"):get("selectedMap"):setString(filePath)
+				
+				iconImage:setTexture(texture)
 			end
 			
-			iconImage:setTexture(texture)
+			--set selected color
+			if selectedMapButton then
+				setDefaultButtonColor(selectedMapButton)
+			end
+			selectedMapButton = files[mNum].button
+			setSelectedButtonColor(selectedMapButton)
 		end
-		
-		--set selected color
-		if selectedMapButton then
-			setDefaultButtonColor(selectedMapButton)
-		end
-		selectedMapButton = button
-		setSelectedButtonColor(selectedMapButton)
-		
+	end
+	local function customeGameChangedMap(button)
+		local mNum,path = string.match(button:getTag():toString(),"(.*):(.*)")
+		--mNum = tonumber(mNum)
+		changeMapTo(path)
 	end
 	local function changeFolder(button)
 		print("changeFolder: "..button:getTag():toString().."\n")
@@ -260,7 +285,11 @@ function CustomeGameMenu.new(panel)
 	function self.updateMaps()
 		
 		local mapFolder = Core.getDataFolder(curentDirectory)
-		local files = mapFolder:getFiles()
+		local tFiles = mapFolder:getFiles()
+		files = {}
+		for i=1, #tFiles do
+			files[i]={file = tFiles[i], button=nil}
+		end
 		
 		mapTable = {}
 		selectedMapButton = nil
@@ -275,7 +304,7 @@ function CustomeGameMenu.new(panel)
 		end
 		
 		for i=1, #files do
-			local file = files[i]
+			local file = files[i].file
 			--file = File()
 			if file:isDirectory() and file:getName() ~= "hidden" and file:getName() ~= "Campaign" then
 			
@@ -286,17 +315,18 @@ function CustomeGameMenu.new(panel)
 		end
 		
 		for i=1, #files do
-			local file = files[i]
+			local file = files[i].file
 			--file = File()
 			
 			if file:isFile() then
 				count = count + 1
 				
 				local button = addRowButton(file, count)
+				files[i].button = button
 				
-				if selectedMapButton == nil and MapInformation.getMapInfoFromFileName(file:getName(), file:getPath()) then
-					selectedMapButton = button
-				end
+--				if selectedMapButton == nil and MapInformation.getMapInfoFromFileName(file:getName(), file:getPath()) then
+--					selectedMapButton = button
+--				end
 			end
 		end
 	end
@@ -329,6 +359,8 @@ function CustomeGameMenu.new(panel)
 	function init()
 		selectedFile = ""
 	
+		--Previosly selected
+		menuPrevSelect = Config("menuPrevSelect")
 		
 		--Options panel
 		mainPanel = panel:add(Panel(PanelSize(Vec2(-1))))
@@ -348,8 +380,35 @@ function CustomeGameMenu.new(panel)
 		--Add info panel
 		addMapInfoPanel(sPanel)
 		
-		if selectedMapButton then
-			customeGameChangedMap(selectedMapButton)
+--		if selectedMapButton then
+--			customeGameChangedMap(selectedMapButton)
+--		end
+
+		--set previous selected settings or a default setting
+		if menuPrevSelect:get("custom"):exist("selectedMap") then
+			--previous selection available
+			changeMapTo(menuPrevSelect:get("custom"):get("selectedMap"):getString())
+		else
+			--no previous selection available
+			changeMapTo(files[1].file:getPath())
+		end
+		if menuPrevSelect:get("custom"):exist("selectedDifficulty") then
+			--previous selection available
+			local diffIndex = menuPrevSelect:get("custom"):get("selectedDifficulty"):getInt()
+			changeDifficulty("",diffIndex)
+			difficutyBox.setIndex(diffIndex)
+		else
+			--no previous selection available
+			changeDifficulty("",2)
+		end
+		if menuPrevSelect:get("custom"):exist("selectedGameMode") then
+			--previous selection available
+			local selIndex = menuPrevSelect:get("custom"):get("selectedGameMode"):getInt()
+			changeGameMode("", selIndex)
+			gameModeBox.setIndex(selIndex)
+		else
+			--no previous selection available
+			changeGameMode("", 1)
 		end
 		
 		MapInformation.setMapInfoLoadedFunction(mapInfoLoaded)
