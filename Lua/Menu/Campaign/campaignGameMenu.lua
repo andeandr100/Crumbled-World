@@ -24,6 +24,10 @@ function CampaignGameMenu.new(panel)
 	local gameModeBox
 	local mainPanel
 	local rewardLabel
+	--Game modes
+	local gameModes = {"default", "survival", "training", "leveler"}
+	--Select
+	local menuPrevSelect	--menuPrevSelect=Config()
 	--
 	local campaignList = {}
 	local diffNames = {}
@@ -95,6 +99,8 @@ function CampaignGameMenu.new(panel)
 	local function changeDifficulty(tag, index)
 		levelInfo.setLevel(index)
 		--
+		menuPrevSelect:get("campaign"):get("selectedDifficulty"):setInt(index)
+		--
 		updateIcons()
 		updateRewardInfo()
 	end
@@ -107,41 +113,55 @@ function CampaignGameMenu.new(panel)
 		difficutyBox.setItems(diffNames)
 		difficutyBox.setIndex(currentLevel)
 	end
-	
+	local function getMapIndex(filePath)
+		for i=1, #files do	
+			local file = files[i].file
+			if file:isFile() and file:getPath()==filePath then
+				return i
+			end
+		end
+		return 0
+	end
+	local function changeMapTo(filePath)
+		local mNum = getMapIndex(filePath)
+		if mNum>=1 then
+			local mapFile = File(filePath)
+			levelInfo.setMapNumber(mNum)
+			levelInfo.setSead(files[mNum].sead)
+		
+			if mapFile:isFile() then
+				--set current active map
+				selectedFile = filePath
+				--update GUI
+				mapLabel:setText( mapFile:getName() )
+				local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
+				local imageName = mapInfo and mapInfo.icon or nil
+				local texture = Core.getTexture(imageName and imageName or "noImage")
+				if mapInfo then
+					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
+					levelInfo.setChangedDifficultyMax(mapInfo.difficultyIncreaseMax)
+					levelInfo.setChangedDifficultyMin(mapInfo.difficultyIncreaseMin)
+					levelInfo.setWaveCount(mapInfo.waveCount)
+					levelInfo.setLevel(difficutyBox.getIndex())
+					--changing default selected map
+					menuPrevSelect:get("campaign"):get("selectedMap"):setString(filePath)
+				end
+				
+				iconImage:setTexture(texture)
+			end
+			
+			if selectedButton then
+				setDefaultButtonColor(selectedButton)
+			end
+			setSelectedButtonColor(files[mNum].button)
+			local beatenLevel = math.max(5,campaignData.getMapModeBeatenLevel(mNum,levelInfo.getGameMode())+1)
+			fillDificulty(beatenLevel,levelInfo.getLevel())
+		end
+	end
 	local function customeGameChangedMap(button)
 		local mNum,path = string.match(button:getTag():toString(),"(.*):(.*)")
-		mNum = tonumber(mNum)
-		selectedFile = path
-		local mapFile = File(selectedFile)
-		levelInfo.setMapNumber(mNum)
-		levelInfo.setSead(files[mNum].sead)
-	
-		if mapFile:isFile() then
-			
-	
-			mapLabel:setText( mapFile:getName() )
-			local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
-			local imageName = mapInfo and mapInfo.icon or nil
-			local texture = Core.getTexture(imageName and imageName or "noImage")
-			if mapInfo then
-				levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
-			end
-			if mapInfo then
-				levelInfo.setChangedDifficultyMax(mapInfo.difficultyIncreaseMax)
-				levelInfo.setChangedDifficultyMin(mapInfo.difficultyIncreaseMin)
-				levelInfo.setWaveCount(mapInfo.waveCount)
-				levelInfo.setLevel(difficutyBox.getIndex())
-			end
-			
-			iconImage:setTexture(texture)
-		end
-		
-		if selectedButton then
-			setDefaultButtonColor(selectedButton)
-		end
-		setSelectedButtonColor(button)
-		local beatenLevel = math.max(5,campaignData.getMapModeBeatenLevel(mNum,levelInfo.getGameMode())+1)
-		fillDificulty(beatenLevel,levelInfo.getLevel())
+		--mNum = tonumber(mNum)
+		changeMapTo(path)
 	end
 	local function setLabelListItemColor(label,available)
 		if available>0 then
@@ -221,6 +241,7 @@ function CampaignGameMenu.new(panel)
 
 				if campaignData.isMapAvailable(i)>0 then
 					button:addEventCallbackExecute(customeGameChangedMap)
+					files[i].button = button
 				else
 					button:setEnabled(false)
 				end
@@ -235,8 +256,11 @@ function CampaignGameMenu.new(panel)
 		end
 	end
 	
-	local function changeGameMode(tag, index, items)
-		levelInfo.setGameMode(items[index])
+	local function changeGameMode(tag, index)
+		levelInfo.setGameMode(gameModes[index])
+		--
+		menuPrevSelect:get("campaign"):get("selectedGameMode"):setInt(index)
+		--
 		updateIcons()
 		updateRewardInfo()
 	end
@@ -263,6 +287,8 @@ function CampaignGameMenu.new(panel)
 			end
 			levelInfo.setLevel(difficutyBox.getIndex())
 		end
+		--save default selection
+		menuPrevSelect:save()
 		--
 		Core.startMap(selectedFile)
 		Worker("Menu/loadingScreen.lua", true)
@@ -292,7 +318,6 @@ function CampaignGameMenu.new(panel)
 		local optionsNames = {"easy", "normal", "hard", "extreme", "insane"}
 		local difficultLevel = 2
 		difficutyBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), optionsNames, "difficulty", optionsNames[difficultLevel], changeDifficulty )
-		changeDifficulty("",difficultLevel)
 		
 		--
 		--	Game modes
@@ -301,11 +326,9 @@ function CampaignGameMenu.new(panel)
 		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
 		labels[2] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("game mode"), Vec3(0.7)))
 		labels[2]:setTag("game mode")
-		local optionsNames = {"default", "survival", "training", "leveler"}
 		local optionsTooltip = {"default tooltip", "survival tooltip", "training tooltip", "leveler tooltip"}
 		local defaultMode = 1
-		gameModeBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), optionsNames, "game mode", optionsNames[defaultMode], changeGameMode, optionsTooltip )
-		changeGameMode("",defaultMode,optionsNames)
+		gameModeBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), gameModes, "game mode", gameModes[defaultMode], changeGameMode, optionsTooltip )
 		
 		--
 		--	Reward
@@ -355,7 +378,9 @@ function CampaignGameMenu.new(panel)
 		end
 		--CampaignGameMenu.mapTable = {}
 		selectedFile = ""
-	
+		
+		--Previosly selected
+		menuPrevSelect = Config("menuPrevSelect")
 		
 		--Options panel
 		mainPanel = panel:add(Panel(PanelSize(Vec2(-1))))
@@ -380,11 +405,38 @@ function CampaignGameMenu.new(panel)
 		--updated the icon list and the wave count
 		updateIcons()
 		
-		if firstMapButton then
-			customeGameChangedMap(firstMapButton)
-		end
+--		if firstMapButton then
+--			customeGameChangedMap(firstMapButton)
+--		end
 		
 		MapInformation.setMapInfoLoadedFunction(mapInfoLoaded)
+		
+		--set previous selected settings or a default setting
+		if menuPrevSelect:get("campaign"):exist("selectedMap") then
+			--previous selection available
+			changeMapTo(menuPrevSelect:get("campaign"):get("selectedMap"):getString())
+		else
+			--no previous selection available
+			changeMapTo(files[1].file.getPath())
+		end
+		if menuPrevSelect:get("campaign"):exist("selectedDifficulty") then
+			--previous selection available
+			local diffIndex = menuPrevSelect:get("campaign"):get("selectedDifficulty"):getInt()
+			changeDifficulty("",diffIndex)
+			difficutyBox.setIndex(diffIndex)
+		else
+			--no previous selection available
+			changeDifficulty("",2)
+		end
+		if menuPrevSelect:get("campaign"):exist("selectedGameMode") then
+			--previous selection available
+			local selIndex = menuPrevSelect:get("campaign"):get("selectedGameMode"):getInt()
+			changeGameMode("", selIndex)
+			gameModeBox.setIndex(selIndex)
+		else
+			--no previous selection available
+			changeGameMode("", 1)
+		end
 	
 		mainPanel:setVisible(false)
 	end

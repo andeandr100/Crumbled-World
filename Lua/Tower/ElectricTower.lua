@@ -6,6 +6,7 @@ require("stats.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 ElectricTower = {}
 function ElectricTower.new()
@@ -62,6 +63,8 @@ function ElectricTower.new()
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	local energySent = 0
+	--stats
+	local mapName = MapInfo.new().getMapName()
 	--Achievements
 	--
 	
@@ -405,9 +408,9 @@ function ElectricTower.new()
 				myStats.dmgLost = nil
 				--
 				local key = "ampedSlow"..upgrade.getLevel("ampedSlow").."_energy"..upgrade.getLevel("energy").."_equalizer"..upgrade.getLevel("equalizer").."_smartTargeting"..upgrade.getLevel("smartTargeting").."_energyPool"..upgrade.getLevel("energyPool")
-				tStats.addValue({"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+				tStats.addValue({mapName,"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				for variable, value in pairs(myStats) do
-					tStats.setValue({"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+					tStats.setValue({mapName,"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
 				end
 			end
 			myStatsReset()
@@ -781,7 +784,8 @@ function ElectricTower.new()
 							},0 )
 		--MDPSpG == RPS*DMG/cost = 3.2
 		--ADPSpG = RPS*damge/cost == (8/36)*2700/1400 = 0.42
-		function boostDamage() return upgrade.getStats("damage")*1.2*(waveCount/20+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*1.2*(waveCount/25+1.0) end
+		--(total)	0=1.2x	25=2.4x	50=3.6x	(+ unlimited energy)
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
 								info = "electric tower boost",

@@ -7,6 +7,7 @@ require("Projectile/SwarmBall.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 SwarmTower = {}
 function SwarmTower.new()
@@ -47,6 +48,8 @@ function SwarmTower.new()
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
+	--stats
+	local mapName = MapInfo.new().getMapName()
 	
 	-- function:	myStatsReset
 	-- purpose:		resets the stats collected for the tower during the previous wave
@@ -97,10 +100,10 @@ function SwarmTower.new()
 				--myStats.hitts=nil
 				if upgrade.getLevel("overCharge")==0 then myStats.inoverHeatTimer=nil end
 				local key = "burnDamage"..upgrade.getLevel("burnDamage").."_fuel"..upgrade.getLevel("fuel").."_smartTargeting"..upgrade.getLevel("smartTargeting")
-				tStats.addValue({"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+				tStats.addValue({mapName,"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				if myStats.activeTimer>1.0 then
 					for variable, value in pairs(myStats) do
-						tStats.setValue({"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+						tStats.setValue({mapName,"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
 					end
 				end
 			end
@@ -110,6 +113,7 @@ function SwarmTower.new()
 			--update billboard
 			upgrade.fixBillboardAndStats()
 		end
+		sendSupporUpgrade()
 	end
 	-- function:	dmgDealtMarkOfDeath
 	-- purpose:		called when a unit has taken increased damage because of weaken
@@ -362,8 +366,8 @@ function SwarmTower.new()
 		if goldGainAmount then
 			goldUpdateTimer = goldUpdateTimer - Core.getDeltaTime()
 			if goldUpdateTimer<0.0 then
-				goldUpdateTimer = 0.25
-				comUnit:broadCast(this:getGlobalPosition(),range,"markOfGold",{goldGain=goldGainAmount,timer=1.0,type="area"})
+				goldUpdateTimer = 0.125
+				comUnit:broadCast(this:getGlobalPosition(),range,"markOfGold",{goldGain=goldGainAmount,timer=0.25,type="area"})
 			end
 		end
 		
@@ -401,7 +405,7 @@ function SwarmTower.new()
 	-- purpose:		
 	local function init()
 		--this:setIsStatic(true)
-		Core.setUpdateHz(20.0)
+		Core.setUpdateHz(12.0)
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
@@ -582,27 +586,27 @@ function SwarmTower.new()
 								info = "support tower gold",
 								order = 5,
 								icon = 67,
-								value1 = 2,
+								value1 = 1,
 								levelRequirement = cTowerUpg.getLevelRequierment("gold",1),
-								stats = {supportGold =	{ upgrade.add, 3} }
+								stats = {supportGold =	{ upgrade.add, 1} }
 							} )
 		upgrade.addUpgrade( {	cost = 200,
 								name = "gold",
 								info = "support tower gold",
 								order = 5,
 								icon = 67,
-								value1 = 4,
+								value1 = 2,
 								levelRequirement = cTowerUpg.getLevelRequierment("gold",2),
-								stats = {supportGold =	{ upgrade.add, 6} }
+								stats = {supportGold =	{ upgrade.add, 2} }
 							} )
 		upgrade.addUpgrade( {	cost = 300,
 								name = "gold",
 								info = "support tower gold",
 								order = 5,
 								icon = 67,
-								value1 = 6,
+								value1 = 3,
 								levelRequirement = cTowerUpg.getLevelRequierment("gold",3),
-								stats = {supportGold =	{ upgrade.add, 9} }
+								stats = {supportGold =	{ upgrade.add, 3} }
 							} )
 	
 		upgrade.upgrade("upgrade")

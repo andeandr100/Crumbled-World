@@ -6,6 +6,7 @@ require("Projectile/projectileManager.lua")
 require("Projectile/missile.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 MissileTower = {}
 function MissileTower.new()
@@ -45,6 +46,8 @@ function MissileTower.new()
 	--local targetingSystem
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
+	--stats
+	local mapName = MapInfo.new().getMapName()
 	
 	local function reloadMissiles()
 		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
@@ -303,9 +306,9 @@ function MissileTower.new()
 				myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
 				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
 				local key = "damage"..upgrade.getLevel("damage").."_speed"..upgrade.getLevel("speed")--.."_smartTargeting"..upgrade.getLevel("smartTargeting")
-				tStats.addValue({"wave"..name,"missileTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+				tStats.addValue({mapName,"wave"..name,"missileTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				for variable, value in pairs(myStats) do
-					tStats.setValue({"wave"..name,"missileTower_l"..level,key,variable},value)
+					tStats.setValue({mapName,"wave"..name,"missileTower_l"..level,key,variable},value)
 				end
 			end
 			myStatsReset()
@@ -591,7 +594,8 @@ function MissileTower.new()
 		--AUH == Average Units Hitts == (2.0*1.6) == 3.2
 		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 1310*(2.0*1.6)*(5/12)/1800 == 0.97
 		--boost
-		function boostDamage() return upgrade.getStats("dmg")*2.0*math.min(2.0,waveCount/20+1.0) end
+		function boostDamage() return upgrade.getStats("dmg")*2.0*(waveCount/25+1.0) end
+		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
 								info = "missile tower boost",

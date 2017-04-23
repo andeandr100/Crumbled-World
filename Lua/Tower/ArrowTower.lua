@@ -9,6 +9,7 @@ require("Projectile/Arrow.lua")
 require("Projectile/ArrowMortar.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 ArrowTower = {}
 function ArrowTower.new()
@@ -56,6 +57,8 @@ function ArrowTower.new()
 	local targetSelector = TargetSelector.new(activeTeam)
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this	
+	--stats
+	local mapName = MapInfo.new().getMapName()
 	--
 	local function myStatsReset()
 		if myStats.dmgDone then
@@ -128,9 +131,9 @@ function ArrowTower.new()
 				myStats.dmgLost = nil
 				--
 				local key = "range"..upgrade.getLevel("range").."_hardArrow"..upgrade.getLevel("hardArrow").."_markOfDeath"..upgrade.getLevel("markOfDeath").."_smartTargeting"..upgrade.getLevel("smartTargeting")
-				tStats.addValue({"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+				tStats.addValue({mapName,"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				for variable, value in pairs(myStats) do
-					tStats.setValue({"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+					tStats.setValue({mapName,"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
 				end
 			end
 			myStatsReset()
@@ -731,7 +734,8 @@ function ArrowTower.new()
 							},0 )
 		--DPSpG == Damage*RPS*(radius/2+3)*0.111/cost == 1920*(1/1.1)/1400 == 1.25
 		-- BOOST (increases damage output with 400%)
-		function boostDamage() return upgrade.getStats("damage")*3.0*math.min(2.0,waveCount/20+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
 								info = "Arrow tower boost",

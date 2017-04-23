@@ -381,8 +381,8 @@ function EventBase.new()
 				end
 			end
 			if waveCount>0 then
-				local waveStart = math.floor((waveCount-1)/5)
-				comUnit:broadCast(Vec3(),512,"waveChanged",tostring(waveStart*5+1).."_"..(waveStart*5+5)..";"..waveCount)
+				--local waveStart = math.floor((waveCount-1)/5)
+				comUnit:broadCast(Vec3(),512,"waveChanged",tostring(waveCount)..";"..waveCount)
 			end
 			--
 			--

@@ -6,6 +6,7 @@ require("stats.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
 require("Game/particleEffect.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 
 QuakeTower = {}
@@ -55,6 +56,8 @@ function QuakeTower.new()
 	local electricPointLight--electricStrike
 	local electrikStrike	--electricStrike
 	local soundAttack		--electricStrike
+	--stats
+	local mapName = MapInfo.new().getMapName()
 	--sound
 	
 	--
@@ -99,9 +102,9 @@ function QuakeTower.new()
 				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
 				--
 				local key = "fireCrit"..upgrade.getLevel("fireCrit").."_fireStrike"..upgrade.getLevel("fireStrike").."_electricStrike"..upgrade.getLevel("electricStrike")
-				tStats.addValue({"wave"..name,"quakeTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+				tStats.addValue({mapName,"wave"..name,"quakeTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				for variable, value in pairs(myStats) do
-					tStats.setValue({"wave"..name,"quakeTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+					tStats.setValue({mapName,"wave"..name,"quakeTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
 				end
 			end
 			myStatsReset()
@@ -362,10 +365,11 @@ function QuakeTower.new()
 		elseif upgrade.getLevel("electricStrike")>0 then
 			electricPointLigth:pushRangeChange(3,1.0)
 			targetSelector.scoreHP(10)
-			targetSelector.scoreClosestToExit(10)
+			targetSelector.scoreClosestToExit(20)
 			targetSelector.scoreName("rat",10)
 			targetSelector.scoreName("rat_tank",10)
-			local targets = targetSelector.selectTargetCountAfterMaxScore(-100,6)
+			targetSelector.scoreName("electroSpirit",-1000)
+			local targets = targetSelector.selectTargetCountAfterMaxScore(-500,6)
 			local dmg = tostring(upgrade.getValue("damage"))
 			local slow = upgrade.getValue("slow")
 			local duration = upgrade.getValue("slowTimer")
@@ -603,7 +607,7 @@ function QuakeTower.new()
 								icon = 56,
 								value1 = 1,
 								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 345},
+										damage = 	{ upgrade.add, 275},
 										RPS = 		{ upgrade.add, 0.28},--1.0/3.5},
 										model = 	{ upgrade.set, "tower_quaker_l1.mym"} }
 							} )
@@ -615,7 +619,7 @@ function QuakeTower.new()
 								icon = 56,
 								value1 = 2,
 								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 950},
+										damage = 	{ upgrade.add, 760},
 										RPS = 		{ upgrade.add, 0.34},--1.0/3.0},
 										model = 	{ upgrade.set, "tower_quaker_l2.mym"} }
 							}, 0 )
@@ -627,11 +631,12 @@ function QuakeTower.new()
 								icon = 56,
 								value1 = 3,
 								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 1900},
+										damage = 	{ upgrade.add, 1520},
 										RPS = 		{ upgrade.add, 0.4},--1.0/2.5},
 										model = 	{ upgrade.set, "tower_quaker_l3.mym"} }
 							}, 0 )
-		function boostDamage() return upgrade.getStats("damage")*1.2*(waveCount/20+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
 								info = "quak tower boost",
@@ -713,7 +718,6 @@ function QuakeTower.new()
 										burnTime =		{ upgrade.add, 2.5} }
 							} )
 		--electric strike
-		--average spawngroup consist of roughly 7 units 7/6=1.16
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "electricStrike",
 								info = "quak tower electric",

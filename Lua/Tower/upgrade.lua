@@ -272,13 +272,26 @@ function Upgrade.new()
 		--calculate the stats
 		self.calculateStats( name, toBillboard )
 	end
+	function self.clearCooldown()
+		for key, value in pairs(upgradesAvailable) do
+			--get the next level for that upgrade
+			local level = (not upgraded[value[1].order]) and 1 or upgraded[value[1].order].level+1
+			if  value[level] and (not value[level].hidden) then
+				local onCooldown = (value[1].cooldown and value[1].isOnCoolDown==true and value[1].startWaveCooldown and (value[1].startWaveCooldown+value[1].cooldown)>Core.getBillboard("stats"):getInt("wave") )
+				if onCooldown then
+					value[1].isOnCoolDown = false
+					self.fixBillboardAndStats()
+				end
+			end
+		end
+	end
 	function self.updateAllUpgradeBillboard()
 		--loop threw all upgrades there is
 		for key, value in pairs(upgradesAvailable) do
 			--get the next level for that upgrade
 			local level = (not upgraded[value[1].order]) and 1 or upgraded[value[1].order].level+1
 			if  value[level] and (not value[level].hidden) then
-				local onCooldown = (value[1].cooldown and value[1].startWaveCooldown and (value[1].startWaveCooldown+value[1].cooldown)>Core.getBillboard("stats"):getInt("wave") )
+				local onCooldown = (value[1].cooldown and value[1].isOnCoolDown==true and value[1].startWaveCooldown and (value[1].startWaveCooldown+value[1].cooldown)>Core.getBillboard("stats"):getInt("wave") )
 				--if there is a new level available for that upgrade
 				local str = ""
 				--create a table with all stats  before the upgrade, so we can get out the difference

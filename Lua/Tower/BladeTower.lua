@@ -9,6 +9,7 @@ require("NPC/deathManager.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 BladeTower = {}
 function BladeTower.new()
@@ -64,6 +65,8 @@ function BladeTower.new()
 	local targetSelector = TargetSelector.new(activeTeam)
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
+	--stats
+	local mapName = MapInfo.new().getMapName()
 	
 	local function myStatsReset()
 		if myStats.dmgDone then
@@ -104,9 +107,9 @@ function BladeTower.new()
 				local key = "attackSpeed"..upgrade.getLevel("attackSpeed").."_masterBlade"..upgrade.getLevel("masterBlade").."_electricBlade"..upgrade.getLevel("electricBlade")
 				myStats.hittsPerBlade = myStats.hitts/myStats.attacks
 				myStats.hitts = nil
-				tStats.addValue({"wave"..name,"bladeTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+				tStats.addValue({mapName,"wave"..name,"bladeTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				for variable, value in pairs(myStats) do
-					tStats.setValue({"wave"..name,"bladeTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+					tStats.setValue({mapName,"wave"..name,"bladeTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
 				end
 			end
 			myStatsReset()
@@ -769,7 +772,8 @@ function BladeTower.new()
 		--DPSpG = (RPS*AHB(Average hits per blade)*damage)/cost = (1/2.75)*5.5*670))/1400 == 0.96
 		--DPSpG = 1/3*6*750(*0.8 = 0.96
 		-- BOOST (increases damage output with 400%)
-		function boostDamage() return upgrade.getStats("damage")*4.0*math.min(2.0,waveCount/20+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
 								info = "blade tower boost",

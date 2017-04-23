@@ -9,6 +9,7 @@ require("stats.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 MinigunTower = {}
 function MinigunTower.new()
@@ -65,6 +66,7 @@ function MinigunTower.new()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
 	--stats
+	local mapName = MapInfo.new().getMapName()
 	local machinegunActiveTimeWithoutOverheat = 0.0
 	--other
 	local syncTargetTimer = 0.0
@@ -127,10 +129,10 @@ function MinigunTower.new()
 				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
 				if upgrade.getLevel("overCharge")==0 then myStats.inoverHeatTimer=nil end
 				local key = "range"..upgrade.getLevel("range").."_overCharge"..upgrade.getLevel("overCharge").."_fireCrit"..upgrade.getLevel("fireCrit")
-				tStats.addValue({"wave"..name,"minigunTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+				tStats.addValue({mapName,"wave"..name,"minigunTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				table.sort( myStats, cmp_multitype )
 				for variable, value in pairs(myStats) do
-					tStats.setValue({"wave"..name,"minigunTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+					tStats.setValue({mapName,"wave"..name,"minigunTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
 				end
 			end
 			myStatsReset()
@@ -440,9 +442,11 @@ function MinigunTower.new()
 			--
 			cTowerUpg.fixAllPermBoughtUpgrades()--fix the permanant upgrades from the shop
 		end
+		upgrade.clearCooldown()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
+		print("handleBoost!!!")
 		if tonumber(param)<=upgrade.getLevel("boost") then
 			return
 		end
@@ -450,7 +454,10 @@ function MinigunTower.new()
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
 		overHeatPer = 0.0
+		print("===================")
+		print("upgrade(boost)bef = "..upgrade.getLevel("boost"))
 		upgrade.upgrade("boost")
+		print("upgrade(boost)aft = "..upgrade.getLevel("boost"))
 		model:getMesh( "pipeBoost" ):setVisible(true)
 		model:getMesh( "cabels" ):setVisible(false)
 		model:getMesh( "pipe1" ):setVisible(false)
@@ -706,8 +713,11 @@ function MinigunTower.new()
 							}, 0 )
 		--DPSpG == Damage*RPS/cost == 146*5/700 = 1.04
 		-- BOOST
-		local function fireDamage() return upgrade.getStats("damage")*(waveCount/20+1.0) end
-		local function boostDamage() return upgrade.getStats("damage")*7.0*(waveCount/20+1.0) end
+		local function fireDamage() return upgrade.getStats("damage")*(waveCount/25+1.0) end
+		--(boost)	0=1x	25=2x	50=3x
+		local function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		--(boost)	0=1x	25=2x	50=3x
+		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
 								info = "minigun tower boost",

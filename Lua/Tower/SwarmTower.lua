@@ -8,6 +8,7 @@ require("Projectile/SwarmBall.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 SwarmTower = {}
 function SwarmTower.new()
@@ -46,6 +47,8 @@ function SwarmTower.new()
 	local targetSelector = TargetSelector.new(activeTeam)
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
+	--stats
+	local mapName = MapInfo.new().getMapName()
 	
 	
 	local function myStatsReset()
@@ -89,10 +92,10 @@ function SwarmTower.new()
 				--myStats.hitts=nil
 				if upgrade.getLevel("overCharge")==0 then myStats.inoverHeatTimer=nil end
 				local key = "burnDamage"..upgrade.getLevel("burnDamage").."_fuel"..upgrade.getLevel("fuel").."_smartTargeting"..upgrade.getLevel("smartTargeting")
-				tStats.addValue({"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+				tStats.addValue({mapName,"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				if myStats.activeTimer>1.0 then
 					for variable, value in pairs(myStats) do
-						tStats.setValue({"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+						tStats.setValue({mapName,"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
 					end
 				end
 			end
@@ -573,8 +576,9 @@ function SwarmTower.new()
 										model = 			{ upgrade.set, "tower_swarm_l3.mym"}}
 							},0 )
 		--bestEstimateDPSPG = (13/2)*0.5*((790+(395*2))/3)*0.69/1400 = 0.84
-		function boostDamage() return upgrade.getStats("damage")*1.0*math.min(2.0,waveCount/20+1.0) end
-		function boostFireDamage() return upgrade.getStats("fireDPS")*1.0*math.min(2.0,waveCount/20+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		function boostFireDamage() return upgrade.getStats("fireDPS")*2.0*(waveCount/25+1.0) end
+		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
 								info = "swarm tower boost",

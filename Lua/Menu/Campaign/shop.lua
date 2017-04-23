@@ -59,7 +59,7 @@ function Shop.new(camera)
 			range = {text="support tower range",[1]={["value1"]="8"},[2]={["value1"]="16"},[3]={["value1"]="24"}},
 			damage = {text="support tower damage",[1]={["value1"]="8"},[2]={["value1"]="16"},[3]={["value1"]="24"}},
 			weaken = {text="support tower weaken",[1]={["value1"]="8"},[2]={["value1"]="16"},[3]={["value1"]="24"}},
-			gold = {text="support tower gold",[1]={["value1"]="3"},[2]={["value1"]="6"},[3]={["value1"]="9"}}
+			gold = {text="support tower gold",[1]={["value1"]="1"},[2]={["value1"]="2"},[3]={["value1"]="3"}}
 		},
 	}
 	local textPanels = {}
@@ -161,7 +161,7 @@ function Shop.new(camera)
 		end
 	end
 	--
-	--	Purpose: update a label for a certain upgrade
+	--	Purpose: update a specific button and label
 	--
 	local function updateLabel(towerName,upgName)
 		local unlocked = data.getBoughtUpg(towerName,upgName,false)
@@ -185,7 +185,7 @@ function Shop.new(camera)
 			if data.getBoughtUpg(towerName,upgName,false)==3 and (upgName=="overCharge" or (towerName=="Tower/quakerTower.lua" and (upgName=="fireCrit" or upgName=="fireStrike" or upgName=="electricStrike"))) then
 				textPanels[towerName][upgName]["0"].button:setEnabled(false)
 			end
-			if permUnlockLeft<=0 then
+			if permUnlockLeft<=0 and upgName=="freeUpgrade" then
 				textPanels[towerName][upgName]["0"].button:setEnabled(false)
 			end
 		else

@@ -163,7 +163,7 @@ function Rotator.new()
 		return false
 	end
 	function self.isAtVerticalLimit()
-		print("Is not implemented")
+		error("Is not implemented")
 		crash = just + crash
 		return false
 	end
