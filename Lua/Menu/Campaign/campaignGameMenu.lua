@@ -417,7 +417,7 @@ function CampaignGameMenu.new(panel)
 			changeMapTo(menuPrevSelect:get("campaign"):get("selectedMap"):getString())
 		else
 			--no previous selection available
-			changeMapTo(files[1].file.getPath())
+			changeMapTo(files[1].file:getPath())
 		end
 		if menuPrevSelect:get("campaign"):exist("selectedDifficulty") then
 			--previous selection available

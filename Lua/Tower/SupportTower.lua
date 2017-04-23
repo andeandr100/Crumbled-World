@@ -85,6 +85,12 @@ function SwarmTower.new()
 			upgrade.fixBillboardAndStats()
 		end
 	end
+	-- function:	sendSupporUpgrade
+	-- purpose:		broadcasting what upgrades the towers close by should use
+	local function sendSupporUpgrade()
+		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportRange",upgrade.getLevel("range"))
+		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportDamage",upgrade.getLevel("damage"))
+	end
 	-- function:	waveChanged
 	-- purpose:		called on wavechange. updates the towers stats
 	local function waveChanged(param)
@@ -128,12 +134,7 @@ function SwarmTower.new()
 		myStats.goldEarned = myStats.goldEarned + tonumber(param)
 		billboard:setDouble("goldEarnedCurrentWave",myStats.goldEarned)
 	end
-	-- function:	sendSupporUpgrade
-	-- purpose:		broadcasting what upgrades the towers close by should use
-	local function sendSupporUpgrade()
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportRange",upgrade.getLevel("range"))
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportDamage",upgrade.getLevel("damage"))
-	end
+	
 	-- function:	setCurrentInfo
 	-- purpose:		
 	local function setCurrentInfo()
