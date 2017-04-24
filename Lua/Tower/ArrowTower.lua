@@ -288,6 +288,7 @@ function ArrowTower.new()
 			--
 			cTowerUpg.fixAllPermBoughtUpgrades()
 		end
+		upgrade.clearCooldown()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)

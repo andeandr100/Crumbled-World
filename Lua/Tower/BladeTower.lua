@@ -410,6 +410,7 @@ function BladeTower.new()
 				model:getMesh( "showSpear" ):setUniform(model:getMesh( "showSpear" ):getShader(), "heat", percentage)
 			end
 		end
+		upgrade.clearCooldown()
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		setCurrentInfo()--updates variables
 	end

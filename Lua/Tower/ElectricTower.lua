@@ -296,6 +296,7 @@ function ElectricTower.new()
 			initModel()
 			cTowerUpg.fixAllPermBoughtUpgrades()
 		end
+		upgrade.clearCooldown()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)

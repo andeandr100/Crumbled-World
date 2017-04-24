@@ -39,6 +39,10 @@ function SettingsComboBox.new(parentPanel, panelSize, inItems, tag, settings, aC
 		comboBox:setEnabled(enable)
 	end
 	
+	function self.isEnabled()
+		return comboBox:getEnabled()
+	end
+
 	function self.getComboBox()
 		return comboBox
 	end

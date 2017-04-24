@@ -87,7 +87,7 @@ function CampaignGameMenu.new(panel)
 		if gameModeBox then
 			if gameModeBox.getIndexText()=="survival" then
 				for i=1, #files do
-					campaignList[i].waveLabel:setText(tostring(files[i].waveCount*2))
+					campaignList[i].waveLabel:setText("999")
 				end
 			else
 				for i=1, #files do
@@ -97,12 +97,16 @@ function CampaignGameMenu.new(panel)
 		end
 	end
 	local function changeDifficulty(tag, index)
-		levelInfo.setLevel(index)
-		--
-		menuPrevSelect:get("campaign"):get("selectedDifficulty"):setInt(index)
-		--
-		updateIcons()
-		updateRewardInfo()
+		if difficutyBox.isEnabled()==true then
+			levelInfo.setLevel(index)
+			--
+			menuPrevSelect:get("campaign"):get("selectedDifficulty"):setInt(index)
+			--
+			updateIcons()
+			updateRewardInfo()
+			--
+			difficutyBox.setIndex(index)
+		end
 	end
 	
 	local function fillDificulty(levels,currentLevel)
@@ -260,7 +264,15 @@ function CampaignGameMenu.new(panel)
 	local function changeGameMode(tag, index)
 		levelInfo.setGameMode(gameModes[index])
 		--
+		gameModeBox.setIndex(index)
+		--
 		menuPrevSelect:get("campaign"):get("selectedGameMode"):setInt(index)
+		if gameModes[index]=="survival" then
+			changeDifficulty("",2)
+			difficutyBox.setEnabled(false)
+		else
+			difficutyBox.setEnabled(true)
+		end
 		--
 		updateIcons()
 		updateRewardInfo()
@@ -319,7 +331,6 @@ function CampaignGameMenu.new(panel)
 		local optionsNames = {"easy", "normal", "hard", "extreme", "insane"}
 		local difficultLevel = 2
 		difficutyBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), optionsNames, "difficulty", optionsNames[difficultLevel], changeDifficulty )
-		
 		--
 		--	Game modes
 		--
@@ -424,7 +435,6 @@ function CampaignGameMenu.new(panel)
 			--previous selection available
 			local diffIndex = menuPrevSelect:get("campaign"):get("selectedDifficulty"):getInt()
 			changeDifficulty("",diffIndex)
-			difficutyBox.setIndex(diffIndex)
 		else
 			--no previous selection available
 			changeDifficulty("",2)
@@ -433,7 +443,6 @@ function CampaignGameMenu.new(panel)
 			--previous selection available
 			local selIndex = menuPrevSelect:get("campaign"):get("selectedGameMode"):getInt()
 			changeGameMode("", selIndex)
-			gameModeBox.setIndex(selIndex)
 		else
 			--no previous selection available
 			changeGameMode("", 1)

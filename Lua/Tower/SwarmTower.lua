@@ -312,6 +312,7 @@ function SwarmTower.new()
 			billboard:setModel("tower",model)
 			cTowerUpg.fixAllPermBoughtUpgrades()
 		end
+		upgrade.clearCooldown()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)

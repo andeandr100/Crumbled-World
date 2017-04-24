@@ -85,16 +85,43 @@ function CustomeGameMenu.new(panel)
 		MapInformation.setMapInfoLoadedFunction(mapInfoLoaded)
 	end
 	local function changeDifficulty(tag, index)
-		--set difficulty
-		levelInfo.setLevel(index)
-		--
-		menuPrevSelect:get("custom"):get("selectedDifficulty"):setInt(index)
+		if difficutyBox.isEnabled()==true then
+			--set difficulty
+			levelInfo.setLevel(index)
+			--
+			menuPrevSelect:get("custom"):get("selectedDifficulty"):setInt(index)
+			--
+			difficutyBox.setIndex(index)
+		end
 	end
 
+	local function updateWaveCount()
+		for i=1, #files do
+			if files[i].waveCountLabel then
+				local file = files[i].file
+				local filePath =  file:getPath()
+				local mapInfoItem = MapInformation.getMapInfoFromFileName(file:getName(), file:getPath())
+				if levelInfo.getGameMode()=="survival" then
+					files[i].waveCountLabel:setText( mapInfoItem and "999" or "" )
+				else
+					files[i].waveCountLabel:setText( mapInfoItem and tostring(mapInfoItem.waveCount) or "" )
+				end
+			end
+		end
+	end
 	local function changeGameMode(tag, index)
 		--set game mode
 		levelInfo.setGameMode(gameModes[index])
-		--	+
+		--
+		gameModeBox.setIndex(index)
+		--
+		if gameModes[index]=="survival" then
+			changeDifficulty("",2)
+			difficutyBox.setEnabled(false)
+		else
+			difficutyBox.setEnabled(true)
+		end
+		updateWaveCount()
 		
 		menuPrevSelect:get("custom"):get("selectedGameMode"):setInt(index)
 	end
@@ -198,30 +225,35 @@ function CustomeGameMenu.new(panel)
 			selectedMapButton = files[mNum].button
 			setSelectedButtonColor(selectedMapButton)
 		end
+		updateWaveCount()
 	end
 	local function customeGameChangedMap(button)
 		local mNum,path = string.match(button:getTag():toString(),"(.*):(.*)")
 		--mNum = tonumber(mNum)
 		changeMapTo(path)
 	end
-	local function changeFolder(button)
-		print("changeFolder: "..button:getTag():toString().."\n")
-		curentDirectory = button:getTag():toString()
+	local function changeFolder(dirPath)
+		curentDirectory = dirPath
 		self.updateMaps()
 		
 		if selectedMapButton then
 			customeGameChangedMap(selectedMapButton)
 		end
 	end
+	local function changeFolderButton(button)
+		print("changeFolder: "..button:getTag():toString().."\n")
+		changeFolder(button:getTag():toString())
+	end
 	local function addRowButton(file, num)
 		local button = mapListPanel:add(Button(PanelSize(Vec2(-1,0.03)), "", ButtonStyle.SQUARE))
+		local waveCountLabel = nil
 		
 		button:setLayout(FlowLayout(Alignment.TOP_LEFT))
 		
 		if file then
 			if file:isDirectory() then
 				button:setTag(curentDirectory.."/"..file:getName())
-				button:addEventCallbackExecute(changeFolder)
+				button:addEventCallbackExecute(changeFolderButton)
 				local img = button:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
 				img:setUvCoord(Vec2(0.75,0.0),Vec2(0.875,0.125))
 			elseif file:isFile() then
@@ -246,7 +278,7 @@ function CustomeGameMenu.new(panel)
 			
 			--wave counter
 			local str = mapInfoItem.waveCount and tostring(mapInfoItem.waveCount) or ""
-			local waveCountLabel = button:add(Label(PanelSize(Vec2(-1, -1)), str, Vec3(0.85)))
+			waveCountLabel = button:add(Label(PanelSize(Vec2(-1, -1)), str, Vec3(0.85)))
 			waveCountLabel:setCanHandleInput(false)
 			
 			mapTable[file:getPath()] = {gameMode = gameModeLabel}
@@ -260,7 +292,7 @@ function CustomeGameMenu.new(panel)
 			button:setTag(strDirectory)
 			local img = button:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
 			img:setUvCoord(Vec2(0.75,0.0),Vec2(0.875,0.0625))
-			button:addEventCallbackExecute(changeFolder)
+			button:addEventCallbackExecute(changeFolderButton)
 			
 			
 			local label = button:add(Label(PanelSize(Vec2(-0.80, -1)), " ..", Vec4(0.85)))
@@ -280,7 +312,7 @@ function CustomeGameMenu.new(panel)
 		button:setInnerHoverColor(Vec4(1,1,1,0.4), Vec4(1,1,1,0.45), Vec4(1,1,1,0.4))
 		button:setInnerDownColor(Vec4(1,1,1,0.3), Vec4(1,1,1,0.4), Vec4(1,1,1,0.3))	
 		
-		return button
+		return button, waveCountLabel
 	end
 	function self.updateMaps()
 		
@@ -321,14 +353,17 @@ function CustomeGameMenu.new(panel)
 			if file:isFile() then
 				count = count + 1
 				
-				local button = addRowButton(file, count)
+				local button, waveCountLabel = addRowButton(file, count)
 				files[i].button = button
+				files[i].waveCountLabel = waveCountLabel
 				
 --				if selectedMapButton == nil and MapInformation.getMapInfoFromFileName(file:getName(), file:getPath()) then
 --					selectedMapButton = button
 --				end
 			end
 		end
+		--update wave count
+		updateWaveCount()
 	end
 	
 	local function addMapsPanel(panel)
@@ -352,6 +387,29 @@ function CustomeGameMenu.new(panel)
 		mapListPanel:setEnableYScroll()	
 
 		self.updateMaps()
+	end
+	--
+	local function getDir(path)
+		local dir = {}
+		for str in string.gmatch(path,"([^/]+)") do
+			dir[#dir+1] = str
+		end
+		--remove last as this should only be the file
+		if #dir>=1 then
+			dir[#dir] = nil
+		end
+		return dir
+	end
+	local function replaceAllWrongPath(path)
+		local ret = ""
+		for str in string.gmatch(path,"([^\\]+)") do
+			if ret~="" then
+				ret = ret.."/"..str
+			else
+				ret = str
+			end
+		end
+		return ret
 	end
 	--
 	--
@@ -386,8 +444,23 @@ function CustomeGameMenu.new(panel)
 
 		--set previous selected settings or a default setting
 		if menuPrevSelect:get("custom"):exist("selectedMap") then
+			--manage if the map is in a sub folder
+			local path = menuPrevSelect:get("custom"):get("selectedMap"):getString()
+			local dir = getDir(replaceAllWrongPath(path))
+			if #dir>2 then
+				--the map is in a sub folder
+				local folder
+				for i=2, #dir do--i=2 because the first is "Data" wich is not used for map path
+					if i~=2 then
+						folder = folder.."/"..dir[i]
+					else
+						folder = dir[i]
+					end
+				end
+				changeFolder(folder)
+			end
 			--previous selection available
-			changeMapTo(menuPrevSelect:get("custom"):get("selectedMap"):getString())
+			changeMapTo(path)
 		else
 			--no previous selection available
 			changeMapTo(files[1].file:getPath())
@@ -396,7 +469,6 @@ function CustomeGameMenu.new(panel)
 			--previous selection available
 			local diffIndex = menuPrevSelect:get("custom"):get("selectedDifficulty"):getInt()
 			changeDifficulty("",diffIndex)
-			difficutyBox.setIndex(diffIndex)
 		else
 			--no previous selection available
 			changeDifficulty("",2)
@@ -405,7 +477,6 @@ function CustomeGameMenu.new(panel)
 			--previous selection available
 			local selIndex = menuPrevSelect:get("custom"):get("selectedGameMode"):getInt()
 			changeGameMode("", selIndex)
-			gameModeBox.setIndex(selIndex)
 		else
 			--no previous selection available
 			changeGameMode("", 1)

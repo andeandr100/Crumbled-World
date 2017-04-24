@@ -196,6 +196,7 @@ function QuakeTower.new()
 		if upgrade.getLevel("fireCrit")>0 then
 			log:addChild(blasterFlame)
 		end
+		upgrade.clearCooldown()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)

@@ -193,6 +193,7 @@ function MissileTower.new()
 			this:addChild(model)
 			initModel()
 		end
+		upgrade.clearCooldown()
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		setCurrentInfo()
 	end
@@ -536,14 +537,14 @@ function MissileTower.new()
 		
 		
 		--upgrade
-		upgrade.addUpgrade( {	cost = 400,
+		upgrade.addUpgrade( {	cost = 200,
 								name = "upgrade",
 								info = "missile tower level",
 								order = 1,
 								icon = 56,
 								value1 = 1,
 								stats = {range =		{ upgrade.add, 7.0},
-										dmg = 			{ upgrade.add, 615},
+										dmg = 			{ upgrade.add, 310},
 										RPS = 			{ upgrade.add, 3.0/12.0,},
 										replaceTime =	{ upgrade.add, 12},
 										fieringTime =	{ upgrade.add, 1.25},
@@ -554,15 +555,15 @@ function MissileTower.new()
 										model =			{ upgrade.set, "tower_missile_l1.mym"} }
 							} )
 		--AUH == Average Units Hitts
-		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 615*(1.5*1.6)*(3/12)/400 == 0.92
-		upgrade.addUpgrade( {	cost = 600,
+		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 310*(1.5*1.6)*(3/12)/200 == 0.93
+		upgrade.addUpgrade( {	cost = 400,
 								name = "upgrade",
 								info = "missile tower level",
 								order = 1,
 								icon = 56,
 								value1 = 2,
 								stats = {range =		{ upgrade.add, 7.0},
-										dmg = 			{ upgrade.add, 1040},
+										dmg = 			{ upgrade.add, 630},
 										RPS = 			{ upgrade.add, 4.0/12.0,},
 										replaceTime =	{ upgrade.add, 12},
 										fieringTime =	{ upgrade.add, 1.25},
@@ -573,7 +574,7 @@ function MissileTower.new()
 										model =			{ upgrade.set, "tower_missile_l2.mym"} }
 							},0 )
 		--AUH == Average Units Hitts == (1.75*1.6) == 2.8	(wave11-15==2.95)(wave16-20==3.85)
-		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 1040*(1.75*1.6)*(4/12)/1000 == 0.95
+		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 630*(1.75*1.6)*(4/12)/600 == 0.98
 		upgrade.addUpgrade( {	cost = 800,
 								name = "upgrade",
 								info = "missile tower level",
@@ -581,7 +582,7 @@ function MissileTower.new()
 								icon = 56,
 								value1 = 3,
 								stats = {range =		{ upgrade.add, 7.0},
-										dmg = 			{ upgrade.add, 1310},
+										dmg = 			{ upgrade.add, 1080},
 										RPS = 			{ upgrade.add, 5.0/12.0,},
 										replaceTime =	{ upgrade.add, 12},
 										fieringTime =	{ upgrade.add, 1.25},
@@ -592,7 +593,7 @@ function MissileTower.new()
 										model =			{ upgrade.set, "tower_missile_l3.mym"} }
 							},0 )
 		--AUH == Average Units Hitts == (2.0*1.6) == 3.2
-		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 1310*(2.0*1.6)*(5/12)/1800 == 0.97
+		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 1080*(2.0*1.6)*(5/12)/1400 == 1.03
 		--boost
 		function boostDamage() return upgrade.getStats("dmg")*2.0*(waveCount/25+1.0) end
 		--(total)	0=2x	25=4x	50=6x
