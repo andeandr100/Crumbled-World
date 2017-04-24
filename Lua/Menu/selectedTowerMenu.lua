@@ -278,7 +278,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				costLabel:setTextHeight(-0.75)
 				local costIcon = Panel(PanelSize(Vec2(-1),Vec2(1)))
 				local costIconSprite = Sprite(texture)
-				costIconSprite:setUvCoord(Vec2(), Vec2(0.0625))
+				costIconSprite:setUvCoord(Vec2(), Vec2(0.125,0.0625))
 				costIcon:setBackground(costIconSprite)
 				
 				costPanel:setLayout(FlowLayout(Alignment.TOP_CENTER))
@@ -323,7 +323,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			local row1 = row1Panel:add(Panel(PanelSize(Vec2(-2/3,-1))))
 			wallTowerSellPanel = row1Panel:add(Panel(PanelSize(Vec2(-1))))
 			
-			createWallTowerPanel(row1, 2, {8,-1})
+			createWallTowerPanel(row1, 2, {8,9,-1})
 			createWallTowerPanel(row2, 3, {2,3,4})
 			createWallTowerPanel(row3, 3, {5,6,7})
 			
@@ -594,7 +594,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(4,1)))
 				
 				local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
-				icon:setUvCoord(Vec2(0),Vec2(0.0625))
+				icon:setUvCoord(Vec2(0),Vec2(0.125,0.0625))
 					
 				
 				local notifyText = "<font color=rgb(40,255,40)>+"..(info.towerValue and tostring(info.towerValue) or "0").."</font>"
@@ -1064,7 +1064,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				icon:setUvCoord(minCoord,maxCoord)
 				icon:setToolTip(text)
 								
-				local notifyText = "?"
+				local notifyText = nil
 				if data[2] and data[3] then
 					local fontTag = "<font color=rgb(255,255,255)>"
 					if data[2] > 0 then
@@ -1075,11 +1075,16 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					notifyText = fontTag .. data[2] .. data[3] .. "</font>\n"
 				end
 				
-				row:add(icon)
-				local label = row:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
-				panel:add(row)
-							
-				totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.025 * Core.getScreenResolution().y )
+				print("\n\n----(1)  "..(data[2] and data[2] or "<null>"))
+				print("----(2)  "..(data[3] and data[3] or "<null>").."\n\n")
+				
+				if notifyText then
+					row:add(icon)
+					local label = row:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
+					panel:add(row)
+					totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.025 * Core.getScreenResolution().y )
+				end
+				
 			end				
 		end
 		
