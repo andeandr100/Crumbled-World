@@ -94,7 +94,7 @@ function showPoster(button)
 				
 				local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
 				if name=="damage" or name=="dmg" then
-					icon:setUvCoord(Vec2(0.25,0.0),Vec2(0.375,0.125))
+					icon:setUvCoord(Vec2(0.25,0.0),Vec2(0.375,0.0625))
 				elseif name=="RPS" or name=="rps" then
 					icon:setUvCoord(Vec2(0.25,0.25),Vec2(0.375,0.3125))
 				elseif name=="range" then
@@ -168,6 +168,18 @@ function destroy()
 
 end
 
+local function getTowerInfo(towerId, value)
+	local buildingNodeBillboard = Core.getBillboard("buildings") 
+	local towerNode = buildingNodeBillboard:getSceneNode(tostring(towerId).."Node")
+	--print("\n\n\nShow Node\n")
+	if towerNode then
+		local buildingScript = towerNode:getScriptByName("tower")
+		--get the cost of the new tower
+		return math.round(buildingScript:getBillboard():getFloat(value)*100.0) * 0.01
+	end
+	return 0
+end
+
 function create()
 	print("TOWERMENU:::Create()\n")
 	if this:getNodeType() == NodeId.playerNode then
@@ -187,15 +199,15 @@ function create()
 	else
 		statsOrder =  {"damage","rps","range","slow","fireDPS","burnTime","dmg_range"}
 		buildings = {}
-		buildings[1] = {name="Wall tower", cost=35}
-		buildings[2] = {name="Minigun tower", range=5,damage=42,rps=2.5,cost=100}
-		buildings[3] = {name="Arrow tower", range=9,damage=268,rps=1.0/1.5,cost=150}
-		buildings[4] = {name="Swarm tower", range=6.5,damage=108, burnTime=2, fireDPS=54,cost=200}
-		buildings[5] = {name="Electric tower", range=4,damage=574,rps=1, slow=0.15,cost=200}
-		buildings[6] = {name="Blade tower", damage=110, rps=math.round((1.0/2.75)*100)/100,cost=200}
-		buildings[7] = {name="Missile tower", range=7,damage=615,dmg_range=1.5,cost = 400}
-		buildings[8] = {name="Quake tower", range=2.5,damage=615,dmg_range=1.5,cost = 200}
-		buildings[9] = {name="Support tower", range=2.5,cost = 200}
+		buildings[1] = {name="Wall tower", cost=0}
+		buildings[2] = {name="Minigun tower", range=0,damage=0,rps=0,cost=10}
+		buildings[3] = {name="Arrow tower", range=0,damage=0,rps=0,cost=200}
+		buildings[4] = {name="Swarm tower", range=0,damage=0, burnTime=0, fireDPS=0,cost=0}
+		buildings[5] = {name="Electric tower", range=0,damage=0,rps=0, slow=-1,cost=0}
+		buildings[6] = {name="Blade tower", damage=0, rps=0,cost=0}
+		buildings[7] = {name="Missile tower", range=0,damage=0,dmg_range=-1,cost = 0}
+		buildings[8] = {name="Quake tower", range=0,damage=0,dmg_range=-1,cost = 0}
+		buildings[9] = {name="Support tower", range=0,cost = 0}
 		
 		local keyBinds = Core.getBillboard("keyBind")
 		local keyBind = {}
@@ -299,6 +311,36 @@ function create()
 		else
 			print("No camera was ever found\n");
 		end
+		
+		for i=1, 9 do
+			buildings[i].cost = getTowerInfo(i, "cost")
+			if i~=1 and i~= 6 then
+				buildings[i].range = getTowerInfo(i, "range")
+			end
+			if i~=1 and i~= 9 then
+				buildings[i].damage = getTowerInfo(i, "damage")
+			end
+			if i==2 or i==3 or i==5 or i==6 then
+				buildings[i].rps = getTowerInfo(i, "RPS")
+			end
+			if i==7 or i==8 then
+				buildings[i].dmg_range = getTowerInfo(i, "dmg_range")
+			end
+		end
+		buildings[4].burnTime = getTowerInfo(4, "burnTime")
+		buildings[4].fireDPS = getTowerInfo(4, "fireDPS")
+		buildings[5].slow = getTowerInfo(5, "slow")
+		
+--		buildings[1] = {name="Wall tower", cost=35}
+--		buildings[2] = {name="Minigun tower", range=5,damage=42,rps=2.5,cost=getTowerInfo(2, "cost")}
+--		buildings[3] = {name="Arrow tower", range=9,damage=268,rps=1.0/1.5,cost=200}
+--		buildings[4] = {name="Swarm tower", range=6.5,damage=108, burnTime=2, fireDPS=54,cost=200}
+--		buildings[5] = {name="Electric tower", range=4,damage=574,rps=1, slow=0.15,cost=200}
+--		buildings[6] = {name="Blade tower", damage=110, rps=math.round((1.0/2.75)*100)/100,cost=200}
+--		buildings[7] = {name="Missile tower", range=7,damage=615,dmg_range=1.5,cost = 400}
+--		buildings[8] = {name="Quake tower", range=2.5,damage=615,dmg_range=1.5,cost = 200}
+--		buildings[9] = {name="Support tower", range=2.5,cost = 200}
+		
 	end
 	print("TOWERMENU:::Create()->return=true\n")
 	return true
