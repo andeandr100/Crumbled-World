@@ -162,7 +162,8 @@ function Upgrade.new()
 			upgradesAvailable[name][1].isOnDuration = true
 			upgradesAvailable[name][1].startTimerDuration = Core.getGameTime()
 			--self.timerName = name
-		elseif upgradesAvailable[name][1].cooldown then
+		end
+		if upgradesAvailable[name][1].cooldown then
 			--if not temporary upgrade then set cooldown directly
 			upgradesAvailable[name][1].startWaveCooldown = Core.getBillboard("stats"):getInt("wave")
 			upgradesAvailable[name][1].isOnCoolDown = true
@@ -249,7 +250,7 @@ function Upgrade.new()
 		end
 		--fix cooldown timer
 		if upgradesAvailable[name][1].cooldown then
-			upgradesAvailable[name][1].startWaveCooldown = Core.getBillboard("stats"):getInt("wave")
+			--upgradesAvailable[name][1].startWaveCooldown = Core.getBillboard("stats"):getInt("wave")
 			upgradesAvailable[name][1].isOnCoolDown = true
 			--self.timer = upgradesAvailable[name][1].cooldown
 			--self.timerName = ""

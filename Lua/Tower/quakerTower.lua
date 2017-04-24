@@ -600,7 +600,7 @@ function QuakeTower.new()
 		
 		
 		--AUHpR = 1.6
-		--DPSpG = (DMG*SplashRange*AUHpR*RPS)/cost = (200*2.5*1.6*(1/4))/200 = 1.0
+		--DPSpG = (DMG*SplashRange*AUHpR*RPS)/cost = (235*2.75*1.6*(1/3.5))/200 = 1.47
 		upgrade.addUpgrade( {	cost = 200,
 								name = "upgrade",
 								info = "quak tower level",
@@ -608,11 +608,11 @@ function QuakeTower.new()
 								icon = 56,
 								value1 = 1,
 								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 275},
+										damage = 	{ upgrade.add, 235},
 										RPS = 		{ upgrade.add, 0.28},--1.0/3.5},
 										model = 	{ upgrade.set, "tower_quaker_l1.mym"} }
 							} )
-		--DPSpG = (DMG*SplashRange*AUHpR*RPS)/cost = (540*2.5*1.6*(1/3.5))/600 = 1.029
+		--DPSpG = (DMG*SplashRange*AUHpR*RPS)/cost = (645*2.75*1.6*(1/3.0))/600 = 1.58
 		upgrade.addUpgrade( {	cost = 400,
 								name = "upgrade",
 								info = "quak tower level",
@@ -620,11 +620,11 @@ function QuakeTower.new()
 								icon = 56,
 								value1 = 2,
 								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 760},
+										damage = 	{ upgrade.add, 645},
 										RPS = 		{ upgrade.add, 0.34},--1.0/3.0},
 										model = 	{ upgrade.set, "tower_quaker_l2.mym"} }
 							}, 0 )
-		--DPSpG = (DMG*SplashRange*AUHpR*RPS)/cost = (1100*2.5*1.6*(1/3))/1400 = 1.048
+		--DPSpG = (DMG*SplashRange*AUHpR*RPS)/cost = (1330*2.75*1.6*(1/2.5))/1400 = 1.67
 		upgrade.addUpgrade( {	cost = 800,
 								name = "upgrade",
 								info = "quak tower level",
@@ -632,7 +632,7 @@ function QuakeTower.new()
 								icon = 56,
 								value1 = 3,
 								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 1520},
+										damage = 	{ upgrade.add, 1330},
 										RPS = 		{ upgrade.add, 0.4},--1.0/2.5},
 										model = 	{ upgrade.set, "tower_quaker_l3.mym"} }
 							}, 0 )

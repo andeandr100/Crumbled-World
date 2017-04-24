@@ -124,7 +124,8 @@ function MinigunTower.new()
 			name,waveCount = string.match(param, "(.*);(.*)")
 			if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
 				myStats.disqualified=nil
-				myStats.DPS =myStats.dmgDone/myStats.activeTimer
+				myStats.cost = upgrade.getTotalCost()
+				myStats.DPS = myStats.dmgDone/myStats.activeTimer
 				myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
 				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
 				if upgrade.getLevel("overCharge")==0 then myStats.inoverHeatTimer=nil end
@@ -715,7 +716,7 @@ function MinigunTower.new()
 		-- BOOST
 		local function fireDamage() return upgrade.getStats("damage")*(waveCount/25+1.0) end
 		--(boost)	0=1x	25=2x	50=3x
-		local function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		local function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.5) end
 		--(boost)	0=1x	25=2x	50=3x
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,

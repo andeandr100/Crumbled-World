@@ -463,7 +463,13 @@ function CustomeGameMenu.new(panel)
 			changeMapTo(path)
 		else
 			--no previous selection available
-			changeMapTo(files[1].file:getPath())
+			for i=1, #files do
+				local file = files[i].file
+				if file:isFile() then
+					changeMapTo(file:getPath())
+					break
+				end
+			end
 		end
 		if menuPrevSelect:get("custom"):exist("selectedDifficulty") then
 			--previous selection available

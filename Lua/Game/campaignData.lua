@@ -12,9 +12,9 @@ function CampaignData.new()
 	local files = { 
 		{file=File("Data/Map/Campaign/Beginning.map"), 		statId="Begining",		type="Crystal",	sead=258187458,	waveCount=10},--5500
 		{file=File("Data/Map/Campaign/Intrusion.map"), 		statId="Intrusion",		type="Crystal",	sead=334652485,	waveCount=15},--8500
-		{file=File("Data/Map/Campaign/Expansion.map"), 		statId="Expansion",		type="Crystal",	sead=864885368,	waveCount=15},--9300
 		{file=File("Data/Map/Campaign/Stockpile.map"),		statId="Stockpile",		type="Crystal",	sead=294158370,	waveCount=20},--11800		X
-		{file=File("Data/Map/Campaign/Repair station.map"),	statId="RepairStation",	type="Cart",	sead=256546887,	waveCount=15},--12000
+		{file=File("Data/Map/Campaign/Expansion.map"), 		statId="Expansion",		type="Crystal",	sead=864885368,	waveCount=25},
+		{file=File("Data/Map/Campaign/Repair station.map"),	statId="RepairStation",	type="Cart",	sead=256546887,	waveCount=20},--12000
 		{file=File("Data/Map/Campaign/Bridges.map"),		statId="Bridges",		type="Crystal",	sead=617196048,	waveCount=20},
 		{file=File("Data/Map/Campaign/Spiral.map"),			statId="Spiral",		type="Crystal",	sead=109720780,	waveCount=25},--			X
 		{file=File("Data/Map/Campaign/Town.map"),			statId="Town",			type="Crystal",	sead=956148502,	waveCount=25},--			LONGEST AVG PLAYTIME
