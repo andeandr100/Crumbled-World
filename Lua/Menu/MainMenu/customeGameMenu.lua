@@ -96,12 +96,16 @@ function CustomeGameMenu.new(panel)
 	end
 
 	local function updateWaveCount()
+		--force game mode update
+		local activeGameMode = gameModeBox and gameModeBox.getIndexText() or ""
+		--
+		print("updateWaveCount("..levelInfo.getGameMode()..")")
 		for i=1, #files do
 			if files[i].waveCountLabel then
 				local file = files[i].file
 				local filePath =  file:getPath()
 				local mapInfoItem = MapInformation.getMapInfoFromFileName(file:getName(), file:getPath())
-				if levelInfo.getGameMode()=="survival" then
+				if activeGameMode=="survival" then
 					files[i].waveCountLabel:setText( mapInfoItem and "999" or "" )
 				else
 					files[i].waveCountLabel:setText( mapInfoItem and tostring(mapInfoItem.waveCount) or "" )
@@ -110,12 +114,13 @@ function CustomeGameMenu.new(panel)
 		end
 	end
 	local function changeGameMode(tag, index)
+		print("changeGameMode("..gameModes[index]..")")
 		--set game mode
 		levelInfo.setGameMode(gameModes[index])
 		--
 		gameModeBox.setIndex(index)
 		--
-		if gameModes[index]=="survival" then
+		if levelInfo.getGameMode()=="survival" then
 			changeDifficulty("",2)
 			difficutyBox.setEnabled(false)
 		else
@@ -225,12 +230,14 @@ function CustomeGameMenu.new(panel)
 			selectedMapButton = files[mNum].button
 			setSelectedButtonColor(selectedMapButton)
 		end
-		updateWaveCount()
 	end
 	local function customeGameChangedMap(button)
+		print("==================================================================")
+		print("customeGameChangedMap()")
 		local mNum,path = string.match(button:getTag():toString(),"(.*):(.*)")
 		--mNum = tonumber(mNum)
 		changeMapTo(path)
+		updateWaveCount()
 	end
 	local function changeFolder(dirPath)
 		curentDirectory = dirPath
@@ -442,6 +449,8 @@ function CustomeGameMenu.new(panel)
 --			customeGameChangedMap(selectedMapButton)
 --		end
 
+		MapInformation.setMapInfoLoadedFunction(mapInfoLoaded)
+
 		--set previous selected settings or a default setting
 		if menuPrevSelect:get("custom"):exist("selectedMap") then
 			--manage if the map is in a sub folder
@@ -487,8 +496,6 @@ function CustomeGameMenu.new(panel)
 			--no previous selection available
 			changeGameMode("", 1)
 		end
-		
-		MapInformation.setMapInfoLoadedFunction(mapInfoLoaded)
 	
 		mainPanel:setVisible(false)
 	end
