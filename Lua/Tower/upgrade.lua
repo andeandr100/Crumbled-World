@@ -128,7 +128,7 @@ function Upgrade.new()
 	end
 	
 	function self.upgrade( name )
-		assert(upgradesAvailable[name],"no upgrade available with name:\""..name.."\" in upgradesAvailable:"..tostring(upgradesAvailable))
+		--assert(upgradesAvailable[name],"no upgrade available with name:\""..name.."\" in upgradesAvailable:"..tostring(upgradesAvailable))
 		--add cost to value
 		local order = upgradesAvailable[name][1].order
 		local prevInterpolation = interpolation

@@ -56,7 +56,7 @@ function TargetSelector.new(pteam)
 		end
 	end
 	function self.setPosition(pos)
-		assert(pos, "When TargetSelector.setPosition(pos), pos must be a Vec3()")
+		--assert(pos, "When TargetSelector.setPosition(pos), pos must be a Vec3()")
 		position = pos
 		updateTablesToUse(true)
 	end

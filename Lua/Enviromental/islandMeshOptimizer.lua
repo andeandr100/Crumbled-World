@@ -259,9 +259,9 @@ function IslandMeshOptimizer.combineMeshes()
 						parent:removeChild(meshList[i].mesh)
 					end
 				
-					if meshList[i].mesh:getParent() and IslandMeshOptimizer.moveNodes then
-						assert(false,"Something failed hard")
-					end
+					--if meshList[i].mesh:getParent() and IslandMeshOptimizer.moveNodes then
+					--	assert(false,"Something failed hard")
+					--end
 					--Try to add mesh and if so remove all triangles facing down and have a dot value greater then 0.6
 					local added = false
 					for n=1, #areaMeshes do

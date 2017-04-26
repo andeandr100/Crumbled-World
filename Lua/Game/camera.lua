@@ -299,7 +299,7 @@ end
 
 function countDownUpdate()
 	resetTime = resetTime - Core.getRealDeltaTime()
-		
+	print("\ncamera pre update\n")
 	--only render the world when it's ready to be shown, or when a a very long time has passed
 	if (resetTime < 0.0 and pathBilboard and pathBilboard:exist("spawnPortals")) or resetTime < -15 then
 		Core.setMainCamera(this)
@@ -313,7 +313,6 @@ function countDownUpdate()
 end
 
 function update()
-
 	if not worldNode then
 		if backgroundSource then
 			backgroundSource:stopFadeOut(0.5)

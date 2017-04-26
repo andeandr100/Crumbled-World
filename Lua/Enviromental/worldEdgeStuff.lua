@@ -5,7 +5,7 @@ worldEdgeStuff = {}
 function worldEdgeStuff.init(island, staticNode, dynamicNode)
 	local self = worldEdgeStuff
 	--Core.setUpdateHzRealTime(16)
-	assert(island,"no island in in parameter")
+	--assert(island,"no island in in parameter")
 	print("island:getNodeType()="..island:getNodeType().."\n")
 	--Dust
 	self.g1 = Core.getModel( "Data/Models/nature/stone/gravel1.mym" )
@@ -47,7 +47,7 @@ function worldEdgeStuff.load(importTable, island, staticNode, dynamicNode)
 	--{ counter = self.counter, worldEdgePos = self.worldEdgePos, worldEdgeMatrix = self.worldEdgeMatrix}
 	local self = worldEdgeStuff
 	--Core.setUpdateHzRealTime(16)
-	assert(island,"no island in in parameter")
+	--assert(island,"no island in in parameter")
 	print("island:getNodeType()="..island:getNodeType().."\n")
 	--Dust
 	self.g1 = Core.getModel( "Data/Models/nature/stone/gravel1.mym" )
@@ -293,7 +293,7 @@ function worldEdgeStuff.generateGravel(startPos,endPos,atVec,rightVec,upVec)
 			local file = string.format("Data/Models/nature/stone/stone%d.mym", rand)
 			local model = Core.getModel( file )--:getMesh(0)
 			local mesh = model:getMesh(0)
-			assert(mesh,"no mesh found for "..file)
+			--assert(mesh,"no mesh found for "..file)
 			
 			mesh:setSceneName("dynamicStone")
 			model:removeChild(mesh)

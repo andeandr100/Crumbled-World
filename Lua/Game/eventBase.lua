@@ -413,7 +413,7 @@ function EventBase.new()
 	end
 	local function syncEvent(param)
 		local tab = totable(param)
-		assert(not Core.getNetworkClient():isAdmin(),"Admin should not receive this message")
+		--assert(not Core.getNetworkClient():isAdmin(),"Admin should not receive this message")
 		self.generateWaves(tab.numWaves, tab.difficultBase, tab.difficultIncreaser, tab.startSpawnWindow, tab.globalSeed)
 	end
 	local function syncChangeWave(param)
@@ -1222,7 +1222,7 @@ function EventBase.new()
 		--
 		--	Cheat for development
 		--
-		if DEBUG then
+		if DEBUG or true then
 		 	if Core.getInput():getKeyPressed(Key.p) then
 				comUnit:sendTo("log", "println", "cheat-addGold")
 				statsBilboard = Core.getBillboard("stats")
