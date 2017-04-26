@@ -56,9 +56,9 @@ function Shop.new(camera)
 			freeUpgrade = {text="free sub upgrade"}
 		},
 		["Tower/SupportTower.lua"]={
-			range = {text="support tower range",[1]={["value1"]="8"},[2]={["value1"]="16"},[3]={["value1"]="24"}},
-			damage = {text="support tower damage",[1]={["value1"]="8"},[2]={["value1"]="16"},[3]={["value1"]="24"}},
-			weaken = {text="support tower weaken",[1]={["value1"]="8"},[2]={["value1"]="16"},[3]={["value1"]="24"}},
+			range = {text="support tower range",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}},
+			damage = {text="support tower damage",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}},
+			weaken = {text="support tower weaken",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}},
 			gold = {text="support tower gold",[1]={["value1"]="1"},[2]={["value1"]="2"},[3]={["value1"]="3"}}
 		},
 	}

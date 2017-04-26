@@ -142,7 +142,7 @@ function SupportManager.new()
 									icon = 65,
 									order = 6,
 									hidden = true,
-									value1 = 8,
+									value1 = 10,
 									stats = {	range = 	{ upgrade.mul, 1.08 }}
 								} )
 			upgrade.addUpgrade( {	cost = 0,
@@ -151,7 +151,7 @@ function SupportManager.new()
 									icon = 65,
 									order = 6,
 									hidden = true,
-									value1 = 16,
+									value1 = 20,
 									stats = {	range = 	{ upgrade.mul, 1.16 }}
 								} )
 			upgrade.addUpgrade( {	cost = 0,
@@ -160,7 +160,7 @@ function SupportManager.new()
 									icon = 65,
 									order = 6,
 									hidden = true,
-									value1 = 24,
+									value1 = 30,
 									stats = {	range = 	{ upgrade.mul, 1.24 }}
 								} )
 			upgrade.addUpgrade( {	cost = 0,
@@ -169,7 +169,7 @@ function SupportManager.new()
 									icon = 64,
 									order = 7,
 									hidden = true,
-									value1 = 8,
+									value1 = 10,
 									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*1) }}
 								} )
 			upgrade.addUpgrade( {	cost = 0,
@@ -178,7 +178,7 @@ function SupportManager.new()
 									icon = 64,
 									order = 7,
 									hidden = true,
-									value1 = 16,
+									value1 = 20,
 									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*2) }}
 								} )
 			upgrade.addUpgrade( {	cost = 0,
@@ -187,7 +187,7 @@ function SupportManager.new()
 									icon = 64,
 									order = 7,
 									hidden = true,
-									value1 = 24,
+									value1 = 30,
 									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*3) }}
 								} )
 		end

@@ -100,6 +100,7 @@ function QuakeTower.new()
 				myStats.DPS = myStats.dmgDone/myStats.activeTimer
 				myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
 				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
+				myStats.hittsPerAttack = myStats.hitts/myStats.attacks
 				--
 				local key = "fireCrit"..upgrade.getLevel("fireCrit").."_fireStrike"..upgrade.getLevel("fireStrike").."_electricStrike"..upgrade.getLevel("electricStrike")
 				tStats.addValue({mapName,"wave"..name,"quakeTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
@@ -344,6 +345,9 @@ function QuakeTower.new()
 		end
 	end
 	local function attack()
+		--stats
+		myStats.attacks = myStats.attacks + 1
+		--
 		local damageDone = 0
 		targetSelector.setRange(upgrade.getValue("range"))
 		targetSelector.selectAllInRange()

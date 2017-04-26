@@ -1077,8 +1077,9 @@ function EventBase.new()
 							local quakeBuilt = bilboardStats:exist("bladeTowerBuilt")
 							local bladeBuilt = bilboardStats:exist("quakeTowerBuilt")
 							local missileBuilt = bilboardStats:exist("missileTowerBuilt")
+							local supportBuilt = bilboardStats:exist("supportTowerBuilt")
 							local soldTowers = bilboardStats:getInt("towerSold")
-							local towerBuilt = bilboardStats:getInt("minigunTowerBuilt") + bilboardStats:getInt("arrowTowerBuilt") + bilboardStats:getInt("swarmTowerBuilt") + bilboardStats:getInt("electricTowerBuilt") + bilboardStats:getInt("bladeTowerBuilt") + bilboardStats:getInt("quakeTowerBuilt") + bilboardStats:getInt("missileTowerBuilt") - soldTowers
+							local towerBuilt = bilboardStats:getInt("minigunTowerBuilt") + bilboardStats:getInt("arrowTowerBuilt") + bilboardStats:getInt("swarmTowerBuilt") + bilboardStats:getInt("electricTowerBuilt") + bilboardStats:getInt("bladeTowerBuilt") + bilboardStats:getInt("quakeTowerBuilt") + bilboardStats:getInt("missileTowerBuilt") + bilboardStats:getInt("supportTowerBuilt") - soldTowers
 							if minigunBuilt and not (arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt) then
 								comUnit:sendTo("SteamAchievement","MinigunOnly","")
 							elseif arrowBuilt and not (minigunBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt) then
@@ -1161,8 +1162,6 @@ function EventBase.new()
 									comUnit:sendTo("SteamAchievement","MapTown","")
 								elseif mapInfo.getMapName()=="Train station" then
 									comUnit:sendTo("SteamAchievement","MapTrainStation","")
-								elseif mapInfo.getMapName()=="Cabin" then
-									comUnit:sendTo("SteamAchievement","MapCabin","")
 								elseif mapInfo.getMapName()=="Square" then
 									comUnit:sendTo("SteamAchievement","MapSquare","")
 								elseif mapInfo.getMapName()=="Co-op Crossfire" then

@@ -735,7 +735,7 @@ function BladeTower.new()
 								stats ={range =				{ upgrade.add, maxRange},
 										damage = 			{ upgrade.add, 110},
 										RPS = 				{ upgrade.add, 1.0/2.75},
-										bladeSpeed =		{ upgrade.add, 7.0},
+										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
 										model = 			{ upgrade.set, "tower_cutter_l1.mym"} }
 							} )
@@ -750,7 +750,7 @@ function BladeTower.new()
 								stats ={range =				{ upgrade.add, maxRange},
 										damage = 			{ upgrade.add, 340},
 										RPS = 				{ upgrade.add, 1.0/2.75},
-										bladeSpeed =		{ upgrade.add, 7.0},
+										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
 										model = 			{ upgrade.set, "tower_cutter_l2.mym"} }
 							},0 )
@@ -765,7 +765,7 @@ function BladeTower.new()
 								stats ={range =				{ upgrade.add, maxRange},
 										damage = 			{ upgrade.add, 810},
 										RPS = 				{ upgrade.add, 1.0/2.75},
-										bladeSpeed =		{ upgrade.add, 7.0},
+										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
 										model = 			{ upgrade.set, "tower_cutter_l3.mym"} }
 							},0 )
@@ -793,8 +793,7 @@ function BladeTower.new()
 								icon = 58,
 								value1 = 15,
 								levelRequirement = cTowerUpg.getLevelRequierment("attackSpeed",1),
-								stats ={RPS = 			{ upgrade.mul, 1.15},
-										bladeSpeed =	{ upgrade.mul, 1.15} }
+								stats ={RPS = 			{ upgrade.mul, 1.15} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "attackSpeed",
@@ -803,8 +802,7 @@ function BladeTower.new()
 								icon = 58,
 								value1 = 30,
 								levelRequirement = cTowerUpg.getLevelRequierment("attackSpeed",2),
-								stats ={RPS = 			{ upgrade.mul, 1.30},
-										bladeSpeed =	{ upgrade.mul, 1.30} }
+								stats ={RPS = 			{ upgrade.mul, 1.30} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "attackSpeed",
@@ -813,8 +811,7 @@ function BladeTower.new()
 								icon = 58,
 								value1 = 45,
 								levelRequirement = cTowerUpg.getLevelRequierment("attackSpeed",3),
-								stats ={RPS = 			{ upgrade.mul, 1.45},
-										bladeSpeed =	{ upgrade.mul, 1.45}}
+								stats ={RPS = 			{ upgrade.mul, 1.45}}
 							} )
 		-- MasterBlade
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,

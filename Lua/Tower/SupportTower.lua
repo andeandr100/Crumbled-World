@@ -501,7 +501,7 @@ function SwarmTower.new()
 								info = "support tower range",
 								order = 2,
 								icon = 65,
-								value1 = 8,
+								value1 = 10,
 								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
 								stats = {SupportRange =			{ upgrade.add, 1}}
 							} )
@@ -510,7 +510,7 @@ function SwarmTower.new()
 								info = "support tower range",
 								order = 2,
 								icon = 65,
-								value1 = 16,
+								value1 = 20,
 								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
 								stats = {SupportRange =			{ upgrade.add, 2}}
 							} )
@@ -519,7 +519,7 @@ function SwarmTower.new()
 								info = "support tower range",
 								order = 2,
 								icon = 65,
-								value1 = 24,
+								value1 = 30,
 								levelRequirement = cTowerUpg.getLevelRequierment("range",3),
 								stats = {SupportRange =			{ upgrade.add, 3}}
 							} )
@@ -529,7 +529,7 @@ function SwarmTower.new()
 								info = "support tower damage",
 								order = 3,
 								icon = 64,
-								value1 = 8,
+								value1 = 10,
 								levelRequirement = cTowerUpg.getLevelRequierment("damage",1),
 								stats = {supportDamage =		{ upgrade.add, 1}}
 							} )
@@ -538,7 +538,7 @@ function SwarmTower.new()
 								info = "support tower damage",
 								order = 3,
 								icon = 64,
-								value1 = 16,
+								value1 = 20,
 								levelRequirement = cTowerUpg.getLevelRequierment("damage",2),
 								stats = {supportDamage =		{ upgrade.add, 2}}
 							} )
@@ -547,7 +547,7 @@ function SwarmTower.new()
 								info = "support tower damage",
 								order = 3,
 								icon = 64,
-								value1 = 24,
+								value1 = 30,
 								levelRequirement = cTowerUpg.getLevelRequierment("damage",3),
 								stats = {supportDamage =		{ upgrade.add, 3}}
 							} )
@@ -557,7 +557,7 @@ function SwarmTower.new()
 								info = "support tower weaken",
 								order = 4,
 								icon = 66,
-								value1 = 8,
+								value1 = 10,
 								levelRequirement = cTowerUpg.getLevelRequierment("weaken",1),
 								stats = {weaken =		{ upgrade.add, 0.08},
 										 weakenTimer =	{ upgrade.add, 1} }
@@ -567,7 +567,7 @@ function SwarmTower.new()
 								info = "support tower weaken",
 								order = 4,
 								icon = 66,
-								value1 = 16,
+								value1 = 20,
 								levelRequirement = cTowerUpg.getLevelRequierment("weaken",2),
 								stats = {weaken =		{ upgrade.add, 0.16},
 										 weakenTimer =	{ upgrade.add, 1} }
@@ -577,7 +577,7 @@ function SwarmTower.new()
 								info = "support tower weaken",
 								order = 4,
 								icon = 66,
-								value1 = 24,
+								value1 = 30,
 								levelRequirement = cTowerUpg.getLevelRequierment("weaken",3),
 								stats = {weaken =		{ upgrade.add, 0.24},
 										 weakenTimer =	{ upgrade.add, 1} }
