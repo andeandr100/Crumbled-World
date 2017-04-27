@@ -2,7 +2,6 @@ require("Menu/MainMenu/optionsMenuStyle.lua")
 require("Menu/MainMenu/mainMenuStyle.lua")
 require("Menu/MainMenu/settingsCombobox.lua")
 require("Menu/settings.lua")
-require("Config/resolutions.lua")
 --this = SceneNode()
 
 GamePanel = {}

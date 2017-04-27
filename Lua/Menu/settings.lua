@@ -22,40 +22,6 @@ end
 
 
 
-Settings.resolution = {}
-Settings.resolution.options = nil
-Settings.resolution.configName = "resolution"
-function Settings.resolution.getSettings()
-	if not Settings.config:exist(Settings.resolution.configName) then
-		return tostring(Core.getNativScreenResolution().x).."x"..tostring(Core.getNativScreenResolution().y)
-	end
-	return Settings.config:get(Settings.resolution.configName):getString()
-end
-
-
-function Settings.resolution.getResolution()
-	function split(str,sep)
-		local array = {}
-		local size = 0
-		local reg = string.format("([^%s]+)",sep)
-		for mem in string.gmatch(str,reg) do
-			table.insert(array, mem)
-			size = size + 1
-		end	
-		return array, size
-	end
-	
-	
-	local text = Settings.resolution.getSettings()
-	local numbers = split(text, "x")
-	if #numbers == 2 then
-		return Vec2(tonumber(numbers[1]),tonumber(numbers[2]))
-	else
-		return Core.getNativScreenResolution()
-	end
-end
-
-
 
 Settings.renderScale = {}
 Settings.renderScale.options = {"50%", "75%", "100%", "150%", "200%"}

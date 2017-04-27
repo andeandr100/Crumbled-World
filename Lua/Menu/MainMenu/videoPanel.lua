@@ -2,7 +2,6 @@ require("Menu/MainMenu/optionsMenuStyle.lua")
 require("Menu/MainMenu/mainMenuStyle.lua")
 require("Menu/MainMenu/settingsCombobox.lua")
 require("Menu/settings.lua")
-require("Config/resolutions.lua")
 require("Menu/questionForm.lua")
 --this = SceneNode()
 
@@ -22,12 +21,16 @@ function VideoPanel.languageChanged()
 	
 	local labels = VideoPanel.labels	
 	for i=1, #labels do
-		labels[i]:setText(language:getText(VideoPanel.labelsText[i]))
+		if labels[i] then
+			labels[i]:setText(language:getText(VideoPanel.labelsText[i]))
+		end
 	end
 	
 	--update comboboxes
 	for i=1, #VideoPanel.optionsBoxes do
-		VideoPanel.optionsBoxes[i].updateLanguage()
+		if VideoPanel.optionsBoxes[i] then
+			VideoPanel.optionsBoxes[i].updateLanguage()
+		end
 	end
 end
 
@@ -44,7 +47,9 @@ function VideoPanel.create(mainPanel)
 	--set text
 	local labels = VideoPanel.labels	
 	for i=1, #labels do
-		labels[i]:setText(language:getText(VideoPanel.labelsText[i]))
+		if labels[i] then
+			labels[i]:setText(language:getText(VideoPanel.labelsText[i]))
+		end
 	end
 	
 	VideoPanel.videoPanel = videoPanel
@@ -57,7 +62,6 @@ function VideoPanel.create(mainPanel)
 	if Settings.config:get("machineId","0-0"):getString() ~= Core.getMachineId() then
 		Settings.config:get("machineId"):setString(Core.getMachineId())
 		Settings.config:get(Settings.fullscreen.configName):setBool(true)
-		Settings.config:get(Settings.resolution.configName):setString(tostring(Core.getNativScreenResolution().x).."x"..tostring(Core.getNativScreenResolution().y))
 	end
 	
 	return videoPanel
@@ -70,33 +74,18 @@ end
 function VideoPanel.changedSettingsBool(tag, index, items)
 	local value = (index == 1)
 	
-	if tag == Settings.fullscreen.configName and VideoPanel.videoPanel:getVisible() then
-		print("config name: "..tag.."\n")
-		print("fullscreen settings: "..tostring(Settings.config:get(tag):getBool()).."\n")
-		print("fullscreen value: "..tostring(value).."\n")
-		if Settings.config:exist(tag) and Settings.config:get(tag):getBool() ~= value and value ~= Core.isInFullscreen() then
-			VideoPanel.questionForm.setVisible(true)
-		end
+	if tag == Settings.fullscreen.configName then
+		Core.setFullscreen(value)
 	end
 	
 	Settings.config:get(tag):setBool(value)
 	Settings.config:save()	
 	
-	resolutionComboBox:setEnabled(Settings.fullscreen.getIsVisible())
 	settingsListener:pushEvent("Changed")
 end
 
 
 function VideoPanel.changedSettingsInt(tag, index, items)
-	
-
-	if tag == Settings.resolution.configName and VideoPanel.videoPanel:getVisible() and Core.isInFullscreen() then
-		local currentResolution = (items[index] == tostring(Core.getCurrentScreenResolution().x).."x"..tostring(Core.getCurrentScreenResolution().y))
-		if Settings.config:exist(tag) and (Settings.config:get(tag):getString() ~= items[index] and not currentResolution ) then
-			VideoPanel.questionForm.setVisible(true)
-		end
-	end
-	
 	
 	Settings.config:get(tag):setString(items[index])
 	Settings.config:save()
@@ -134,12 +123,9 @@ function VideoPanel.createResolutionOptions(panel)
 	conf = Settings.fullscreen
 	VideoPanel.optionsBoxes[1] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), VideoPanel.changedSettingsBool )
 	
-	rowPanel, labels[3] = OptionsMenuStyle.addRow(panel, "Resolution")
-	conf = Settings.resolution
-	VideoPanel.resolutions = resolutions.getResolutionListString()
-	VideoPanel.optionsBoxes[2] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), VideoPanel.resolutions, conf.configName, conf.getSettings(), VideoPanel.changedSettingsInt )
-	resolutionComboBox = VideoPanel.optionsBoxes[2].getComboBox()
-	resolutionComboBox:setEnabled(Settings.fullscreen.getIsVisible())
+
+	labels[3] = nil
+	VideoPanel.optionsBoxes[2] = nil
 	
 	rowPanel, labels[4] = OptionsMenuStyle.addRow(panel, "Render scale")
 	conf = Settings.renderScale
