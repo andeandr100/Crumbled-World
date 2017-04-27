@@ -728,13 +728,13 @@ function QuakeTower.new()
 								info = "quak tower electric",
 								order = 4,
 								icon = 50,
-								value1 = 25,--25% extra damage
+								value1 = 30,--30% extra damage
 								value2 = 15,--15% slow
 								value3 = 2,--2 seconds
 								levelRequirement = cTowerUpg.getLevelRequierment("electricStrike",1),
 								requirementNotUpgraded1 = "fireCrit",
 								requirementNotUpgraded2 = "fireStrike",
-								stats ={damage =	{ upgrade.mul, 1.25},
+								stats ={damage =	{ upgrade.mul, 1.30},
 										slow = 		{ upgrade.add, 0.15},
 										slowTimer =	{ upgrade.add, 2.0},
 										count =		{ upgrade.add, 6}}
@@ -744,11 +744,11 @@ function QuakeTower.new()
 								info = "quak tower electric",
 								order = 4,
 								icon = 50,
-								value1 = 50,--50% extra damage
+								value1 = 60,--60% extra damage
 								value2 = 28,--28% slow
 								value3 = 2,--2 seconds
 								levelRequirement = cTowerUpg.getLevelRequierment("electricStrike",2),
-								stats ={damage =	{ upgrade.mul, 1.50},
+								stats ={damage =	{ upgrade.mul, 1.60},
 										slow = 		{ upgrade.add, 0.28},
 										slowTimer =	{ upgrade.add, 2.0},
 										count =		{ upgrade.add, 6}}
@@ -758,11 +758,11 @@ function QuakeTower.new()
 								info = "quak tower electric",
 								order = 4,
 								icon = 50,
-								value1 = 75,--75% extra damage
+								value1 = 90,--90% extra damage
 								value2 = 39,--39% slow
 								value3 = 2,--2 seconds
 								levelRequirement = cTowerUpg.getLevelRequierment("electricStrike",3),
-								stats ={damage =	{ upgrade.mul, 1.75},
+								stats ={damage =	{ upgrade.mul, 1.90},
 										slow = 		{ upgrade.add, 0.39},
 										slowTimer =	{ upgrade.add, 2.0},
 										count =		{ upgrade.add, 6}}
