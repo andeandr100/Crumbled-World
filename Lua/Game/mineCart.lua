@@ -66,7 +66,11 @@ function create()
 end
 
 function init(inPoints)
-	points = inPoints
+	if type(inPoints)=="string" then
+		points = totable(inPoints)
+	else
+		points = inPoints
+	end
 	numPoints = #points
 end
 

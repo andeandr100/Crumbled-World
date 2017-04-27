@@ -52,7 +52,7 @@ function Shop.new(camera)
 		["Tower/quakerTower.lua"]={
 			fireCrit = {text="quak tower firecrit",[1]={["value1"]="40"},[2]={["value1"]="80"},[3]={["value1"]="120"}},
 			fireStrike = {text="quak tower fire",[1]={["value1"]="20",["value2"]="1"},[2]={["value1"]="22",["value2"]="1.75"},[3]={["value1"]="24",["value2"]="2.5"}},
-			electricStrike = {text="quak tower electric",[1]={["value1"]="25",["value2"]="15"},[2]={["value1"]="50",["value2"]="28"},[3]={["value1"]="75",["value2"]="39"}},
+			electricStrike = {text="quak tower electric",[1]={["value1"]="30",["value2"]="15"},[2]={["value1"]="60",["value2"]="28"},[3]={["value1"]="90",["value2"]="39"}},
 			freeUpgrade = {text="free sub upgrade"}
 		},
 		["Tower/SupportTower.lua"]={
