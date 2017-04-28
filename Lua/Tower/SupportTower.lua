@@ -198,8 +198,11 @@ function SwarmTower.new()
 	-- function:	handleUpgrade
 	-- purpose:		upgrades the tower and all the meshes and stats for the new level
 	function self.handleUpgrade(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade1","1")
+		if tonumber(param)<=upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
+			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
@@ -225,7 +228,10 @@ function SwarmTower.new()
 	-- function:	handleBoost
 	-- purpose:		boost has been upgraded
 	local function handleBoost(param)
-		if param==nil or (type(param)=="string" and param=="") then
+		if tonumber(param)<=upgrade.getLevel("boost") then
+			return
+		end
+		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
 		upgrade.upgrade("boost")
@@ -238,8 +244,11 @@ function SwarmTower.new()
 	-- function:	handleUpgradeRange
 	-- purpose:		do all changes for upgrading the range
 	local function handleUpgradeRange(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade3","1")
+		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
 		upgrade.upgrade("range")
 		if meshRange then
@@ -260,8 +269,11 @@ function SwarmTower.new()
 	-- function:	handleUpgradeDamage
 	-- purpose:		do all changes for upgrading the damage
 	local function handleUpgradeDamage(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade4","1")
+		if tonumber(param)<=upgrade.getLevel("damage") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
 		upgrade.upgrade("damage")
 		doMeshUpgradeForLevel("damage","dmg")
@@ -276,8 +288,11 @@ function SwarmTower.new()
 	-- function:	handleUpgradeWeaken
 	-- purpose:		do all changes for upgrading the weakening
 	local function handleUpgradeWeaken(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade5","1")
+		if tonumber(param)<=upgrade.getLevel("weaken") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
 		upgrade.upgrade("weaken")
 		model:getMesh("weaken"):setVisible(true)
@@ -323,8 +338,11 @@ function SwarmTower.new()
 	-- function:	Upgrades the towers gold upgrade.
 	-- callback:	Is called when the tower has been upgraded
 	local function handleUpgradegold(param)
-		if param==nil or (type(param)=="string" and param=="") then
-			comUnit:sendNetworkSyncSafe("upgrade6","1")
+		if tonumber(param)<=upgrade.getLevel("gold") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade6",tostring(param))
 		end
 		upgrade.upgrade("gold")
 		--model:getMesh("gold"):setVisible(true)
@@ -611,7 +629,7 @@ function SwarmTower.new()
 								stats = {supportGold =	{ upgrade.add, 3} }
 							} )
 	
-		upgrade.upgrade("upgrade")
+		self.handleUpgrade("1")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		
 		--target modes (default stats)

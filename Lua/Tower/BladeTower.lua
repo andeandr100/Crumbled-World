@@ -373,8 +373,8 @@ function BladeTower.new()
 		if tonumber(param)<=upgrade.getLevel("upgrade") then
 			return
 		end
-		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade1",param)
+		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
+			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
@@ -436,7 +436,7 @@ function BladeTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade3",param)
+			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
 		upgrade.upgrade("attackSpeed")
 		model:getMesh("speed"..upgrade.getLevel("attackSpeed")):setVisible(true)
@@ -454,7 +454,7 @@ function BladeTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade4",param)
+			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
 		upgrade.upgrade("masterBlade")
 		local percentage = upgrade.getLevel("masterBlade")/3.0
@@ -481,7 +481,7 @@ function BladeTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade6",param)
+			comUnit:sendNetworkSyncSafe("upgrade6",tostring(param))
 		end
 		upgrade.upgrade("shieldBreaker")
 		model:getMesh("shield"):setVisible(upgrade.getLevel("shieldBreaker")>0)

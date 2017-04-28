@@ -169,8 +169,8 @@ function QuakeTower.new()
 		if tonumber(param)<=upgrade.getLevel("upgrade") then
 			return
 		end
-		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade1",param)
+		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
+			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
@@ -218,7 +218,7 @@ function QuakeTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade3",param)
+			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
 		if upgrade.getLevel("fireCrit")==0 then
 			quakeDustBlast = ParticleSystem(ParticleEffect.QuakeDustEffect)
@@ -242,7 +242,7 @@ function QuakeTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade4",param)
+			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
 		if upgrade.getLevel("fireStrike")==0 then
 			quakeFlameBlast = ParticleSystem(ParticleEffect.qukeFireBlast)
@@ -271,7 +271,7 @@ function QuakeTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade5",param)
+			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
 		if upgrade.getLevel("electricStrike")==0 then
 			electricBall = ParticleSystem(ParticleEffect.SparkSpirit)

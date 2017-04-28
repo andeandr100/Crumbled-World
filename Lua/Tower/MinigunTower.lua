@@ -362,8 +362,8 @@ function MinigunTower.new()
 		if tonumber(param)<=upgrade.getLevel("upgrade") then
 			return
 		end
-		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade1",param)
+		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
+			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
@@ -475,7 +475,7 @@ function MinigunTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade3",param)
+			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
 		upgrade.upgrade("range")
 		particleEffectBeam = particleEffectBeam or ParticleSystem( ParticleEffect.LaserSight1 )
@@ -512,7 +512,7 @@ function MinigunTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade5",param)
+			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
 		upgrade.upgrade("fireCrit")
 		doMeshUpgradeForLevel("fireCrit","oil")
@@ -528,7 +528,7 @@ function MinigunTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade4",param)
+			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
 		upgrade.upgrade("overCharge")
 		if not particleEffectSmoke then

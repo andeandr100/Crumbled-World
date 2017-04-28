@@ -292,8 +292,8 @@ function SwarmTower.new()
 		if tonumber(param)<=upgrade.getLevel("upgrade") then
 			return
 		end
-		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade1",param)
+		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
+			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
@@ -334,7 +334,7 @@ function SwarmTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade4",param)
+			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
 		upgrade.upgrade("burnDamage")
 		doMeshUpgradeForLevel("burnDamage","speed")
@@ -349,7 +349,7 @@ function SwarmTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade5",param)
+			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
 		upgrade.upgrade("fuel")
 		doMeshUpgradeForLevel("fuel","fuel")
@@ -364,7 +364,7 @@ function SwarmTower.new()
 			return
 		end
 		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade3",param)
+			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
 		upgrade.upgrade("range")
 		setCurrentInfo()
