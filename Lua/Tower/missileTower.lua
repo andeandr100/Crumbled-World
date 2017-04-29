@@ -129,7 +129,7 @@ function MissileTower.new()
 		billboard:setInt("FirestormLevel",upgrade.getLevel("fuel"))
 		reloadMissiles()
 		--achievment
-		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("shieldSmasher")==1 and upgrade.getLevel("damage")==3 and upgrade.getLevel("Blaster")==3 then
+		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("shieldSmasher")==1 and upgrade.getLevel("fuel")==3 and upgrade.getLevel("Blaster")==3 then
 			comUnit:sendTo("SteamAchievement","MissileMaxed","")
 		end
 	end
@@ -143,12 +143,12 @@ function MissileTower.new()
 		level = upgrade.getLevel("upgrade")
 		for index =1, 3, 1 do
 			model:getMesh( "range"..index ):setVisible(upgrade.getLevel("range")==index)
-			model:getMesh( "pipe"..index ):setVisible(upgrade.getLevel("damage")==index)
+			model:getMesh( "pipe"..index ):setVisible(upgrade.getLevel("fuel")==index)
 		end
 		model:getMesh( "physic" ):setVisible(false)
 		model:getMesh( "hull" ):setVisible(false)
 		model:getMesh( "boost" ):setVisible(upgrade.getLevel("boost")==1)
-		model:getMesh( "masterAim1" ):setVisible(false)--upgrade.getLevel("smartTargeting")==1)
+		model:getMesh( "masterAim1" ):setVisible(false)
 		if upgrade.getLevel("range")>0 then
 			activeRangeMesh = model:getMesh( "range"..upgrade.getLevel("range") )
 		end
@@ -306,7 +306,7 @@ function MissileTower.new()
 				myStats.DPS = myStats.dmgDone/myStats.activeTimer
 				myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
 				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-				local key = "damage"..upgrade.getLevel("damage").."_speed"..upgrade.getLevel("speed")--.."_smartTargeting"..upgrade.getLevel("smartTargeting")
+				local key = "blaster"..upgrade.getLevel("Blaster").."_fuel"..upgrade.getLevel("fuel").."_shieldSmasher"..upgrade.getLevel("shieldSmasher").."_range"..upgrade.getLevel("range")
 				tStats.addValue({mapName,"wave"..name,"missileTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				for variable, value in pairs(myStats) do
 					tStats.setValue({mapName,"wave"..name,"missileTower_l"..level,key,variable},value)

@@ -117,11 +117,7 @@ function ArrowTower.new()
 				--damage lost
 				if myStats.attacks>myStats.hitts then
 					if upgrade.getLevel("hardArrow")>0 then
-						if upgrade.getLevel("smartTargeting")>0 then
-							myStats.dmgLost = myStats.dmgLost + ((upgrade.getValue("damage")+(upgrade.getValue("fireDPS")*upgrade.getValue("burnTime")))*(myStats.attacks-myStats.hitts))
-						else
-							myStats.dmgLost = myStats.dmgLost + ((upgrade.getValue("damage")+upgrade.getValue("fireDPS"))*(myStats.attacks-myStats.hitts))
-						end
+						myStats.dmgLost = myStats.dmgLost + ((upgrade.getValue("damage"))*(myStats.attacks-myStats.hitts))
 					else
 						myStats.dmgLost = myStats.dmgLost + (upgrade.getValue("damage")*(myStats.attacks-myStats.hitts))
 					end
@@ -130,7 +126,7 @@ function ArrowTower.new()
 				myStats.DPSpGWithDamageLostInc = (myStats.DPS+(myStats.dmgLost/myStats.activeTimer))/upgrade.getTotalCost()
 				myStats.dmgLost = nil
 				--
-				local key = "range"..upgrade.getLevel("range").."_hardArrow"..upgrade.getLevel("hardArrow").."_markOfDeath"..upgrade.getLevel("markOfDeath").."_smartTargeting"..upgrade.getLevel("smartTargeting")
+				local key = "range"..upgrade.getLevel("range").."_hardArrow"..upgrade.getLevel("hardArrow").."_markOfDeath"..upgrade.getLevel("markOfDeath")
 				tStats.addValue({mapName,"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				for variable, value in pairs(myStats) do
 					tStats.setValue({mapName,"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
@@ -150,8 +146,7 @@ function ArrowTower.new()
 			model:getMesh( string.format("flamer%d", index) ):setVisible( false )
 			model:getMesh( string.format("markForDeath%d", index) ):setVisible( upgrade.getLevel("markOfDeath")==index )
 		end
-		model:getMesh( "masterAim" ):setVisible( upgrade.getLevel("SmartTargeting")==1 )
-		
+		model:getMesh( "masterAim" ):setVisible(false)
 		model:getMesh( "physic" ):setVisible(false)
 		model:getMesh( "hull" ):setVisible(false)
 		model:getMesh( "space0" ):setVisible(false)
@@ -368,13 +363,6 @@ function ArrowTower.new()
 			comUnit:sendTo("SteamAchievement","MarkForDeath","")
 		end
 	end
---	local function handleSmartTargeting(param)
---		if param==nil or (type(param)=="string" and param=="") then
---			comUnit:sendNetworkSyncSafe("upgrade6","1")
---		end
---		upgrade.upgrade("smartTargeting")
---		model:getMesh( "masterAim" ):setVisible(true)
---	end
 	local function attack()
 		local target = targetSelector.getTargetIfAvailable()
 		if target>0 then
@@ -399,17 +387,14 @@ function ArrowTower.new()
 			else 
 				projectiles.launch(Arrow,{})
 			end
-			--print("========================================================")
-			--print("model:getAnimation():getLengthOfClip(\"attack\")=="..model:getAnimation():getLengthOfClip("attack"))
-			--print("reloadTimeLeft == "..reloadTimeLeft)
+			
 			local animationSpeed = model:getAnimation():getLengthOfClip("attack")/reloadTimeLeft
-			--print("animationSpeed == "..animationSpeed)
 			model:getAnimation():play("attack",animationSpeed,PlayMode.stopSameLayer)
 			crossbowMesh:rotate(Vec3(1.0, 0.0, 0.0),RECOIL_ON_ATTACK )--add some recoil for more kick in the tower
 			
-			if upgrade.getValue("smartTargeting")>0.5 then
-				targetSelector.deselect()
-			end
+--			if upgrade.getValue("smartTargeting")>0.5 then
+--				targetSelector.deselect()
+--			end
 			
 			soundNode:play(1.1,false)
 		end
@@ -857,7 +842,7 @@ function ArrowTower.new()
 								info = "Arrow tower rotate",
 								order = 6,
 								icon = 60,
-								stats = {	smartTargeting =	{ upgrade.add, 1.0, ""} }
+								stats = {}
 							} )
 		supportManager.setUpgrade(upgrade)
 		supportManager.addHiddenUpgrades()
@@ -884,7 +869,6 @@ function ArrowTower.new()
 		cTowerUpg.addUpg("range",handleUpgradeScope)
 		cTowerUpg.addUpg("hardArrow",handleFireball)
 		cTowerUpg.addUpg("markOfDeath",handleWeakenTarget)
-		cTowerUpg.addUpg("smartTargeting",handleSmartTargeting)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		return true
 	end

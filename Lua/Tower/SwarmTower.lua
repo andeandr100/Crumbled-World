@@ -90,8 +90,7 @@ function SwarmTower.new()
 				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
 				myStats.hittsPerProjectile = myStats.hitts / myStats.projectileLaunched
 				--myStats.hitts=nil
-				if upgrade.getLevel("overCharge")==0 then myStats.inoverHeatTimer=nil end
-				local key = "burnDamage"..upgrade.getLevel("burnDamage").."_fuel"..upgrade.getLevel("fuel").."_smartTargeting"..upgrade.getLevel("smartTargeting")
+				local key = "burnDamage"..upgrade.getLevel("burnDamage").."_fuel"..upgrade.getLevel("fuel").."_range"..upgrade.getLevel("range")
 				tStats.addValue({mapName,"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				if myStats.activeTimer>1.0 then
 					for variable, value in pairs(myStats) do
@@ -508,7 +507,6 @@ function SwarmTower.new()
 		upgrade.addBillboardStats("fireballSpeed")
 		upgrade.addBillboardStats("fireballLifeTime")
 		upgrade.addBillboardStats("detonationRange")
-		upgrade.addBillboardStats("smartTargeting")
 		--upgrade.addBillboardStats("targetingSystem")
 		
 		
@@ -682,15 +680,6 @@ function SwarmTower.new()
 								stats ={fireDPS =		{ upgrade.mul, 1.52},
 										burnTimeMul =	{ upgrade.add, 0.45,} }
 							} )
---		-- SMART TARGETING (not super smart, it will not change target)
---		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
---								name = "smartTargeting",
---								info = "Tower Will not attack fire spirits",
---								order = 5,
---								icon = 62,
---								levelRequirement = cTowerUpg.getLevelRequierment("smartTargeting",1),
---								stats = {	smartTargeting =	{ upgrade.add, 1.0, ""} }
---							} )
 		-- to calculate values together
 		function burnTimeCalc() return upgrade.getStats("burnTime") * upgrade.getStats("burnTimeMul") end
 		upgrade.addUpgrade( {	cost = 0,
@@ -723,7 +712,6 @@ function SwarmTower.new()
 		cTowerUpg.addUpg("range",handleUpgradeRange)
 		cTowerUpg.addUpg("burnDamage",handleUpgradeBurnDamage)
 		cTowerUpg.addUpg("fuel",handleUpgradeFuel)
-		cTowerUpg.addUpg("smartTargeting",handleUpgradeSmartTargeting)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 	
 		--ParticleEffects

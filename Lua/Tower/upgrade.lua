@@ -449,12 +449,10 @@ function Upgrade.new()
 	function self.getLevel( name )
 		if upgradesAvailable[name] then
 			if upgraded[upgradesAvailable[name][1].order] then
---				if name=="upgrade" and isInXpMode then
---					return (upgraded[upgradesAvailable[name][1].order].level-1)/3+1
---				else
-					return upgraded[upgradesAvailable[name][1].order].level
---				end
+				return upgraded[upgradesAvailable[name][1].order].level
 			end
+		else
+			error("no upgrade with the name(\""..name.."\")")
 		end
 		return 0
 	end

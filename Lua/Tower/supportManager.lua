@@ -8,8 +8,8 @@ function SupportManager.new()
 	local comUnit = Core.getComUnit()
 	local onChangeCallback
 	--
-	local PERUNITDAMGINCPERLEVEL = 8
-	local PERDAMGINCPERLEVEL = 0.08
+	local PERUNITDAMGINCPERLEVEL = 10
+	local PERDAMGINCPERLEVEL = 0.10
 	--
 	local waveCount = 1
 	
@@ -43,7 +43,7 @@ function SupportManager.new()
 	end
 	
 	-- function:	handleSupportDamage
-	-- purpose:		a help function for handleSupportRange, handleSupportDamage
+	-- purpose:		a help function for calculating who the damge should be attributed to
 	-- upg:			The name of the upgrade
 	-- damage:		The amount of damage dealt
 	-- return:		The amount of damage the tower actual did by it self
@@ -143,7 +143,7 @@ function SupportManager.new()
 									order = 6,
 									hidden = true,
 									value1 = 10,
-									stats = {	range = 	{ upgrade.mul, 1.08 }}
+									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*1) }}
 								} )
 			upgrade.addUpgrade( {	cost = 0,
 									name = "supportRange",
@@ -152,7 +152,7 @@ function SupportManager.new()
 									order = 6,
 									hidden = true,
 									value1 = 20,
-									stats = {	range = 	{ upgrade.mul, 1.16 }}
+									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*2) }}
 								} )
 			upgrade.addUpgrade( {	cost = 0,
 									name = "supportRange",
@@ -161,7 +161,7 @@ function SupportManager.new()
 									order = 6,
 									hidden = true,
 									value1 = 30,
-									stats = {	range = 	{ upgrade.mul, 1.24 }}
+									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*3) }}
 								} )
 			upgrade.addUpgrade( {	cost = 0,
 									name = "supportDamage",

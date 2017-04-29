@@ -104,12 +104,11 @@ function SwarmTower.new()
 				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
 				myStats.hittsPerProjectile = myStats.hitts / myStats.projectileLaunched
 				--myStats.hitts=nil
-				if upgrade.getLevel("overCharge")==0 then myStats.inoverHeatTimer=nil end
-				local key = "burnDamage"..upgrade.getLevel("burnDamage").."_fuel"..upgrade.getLevel("fuel").."_smartTargeting"..upgrade.getLevel("smartTargeting")
-				tStats.addValue({mapName,"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+				local key = "damage"..upgrade.getLevel("damage").."_range"..upgrade.getLevel("range").."_weaken"..upgrade.getLevel("weaken").."_gold"..upgrade.getLevel("gold")
+				tStats.addValue({mapName,"wave"..name,"supportTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				if myStats.activeTimer>1.0 then
 					for variable, value in pairs(myStats) do
-						tStats.setValue({mapName,"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+						tStats.setValue({mapName,"wave"..name,"supportTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
 					end
 				end
 			end
@@ -281,7 +280,7 @@ function SwarmTower.new()
 		--
 		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportDamage",upgrade.getLevel("damage"))
 		--Achievement
-		if upgrade.getLevel("burnDamage")==3 then
+		if upgrade.getLevel("damage")==3 then
 			comUnit:sendTo("SteamAchievement","SupportDamage","")
 		end
 	end

@@ -229,7 +229,7 @@ function ElectricTower.new()
 	
 		updateStats()
 		--achievment
-		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("energyPool")==3 and upgrade.getLevel("slow")==3 and upgrade.getLevel("weakSpot")==3 and upgrade.getLevel("equalizer")==3 then
+		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("energyPool")==3 and upgrade.getLevel("ampedSlow")==3 and upgrade.getLevel("energy")==3 and upgrade.getLevel("range")==3 then
 			comUnit:sendTo("SteamAchievement","ElectricMaxed","")
 		end
 	end
@@ -240,9 +240,9 @@ function ElectricTower.new()
 	
 		for index =1, 3, 1 do
 			model:getMesh( string.format("range%d", index) ):setVisible( upgrade.getLevel("energyPool")==index )--this is just reusing the smae model
-			model:getMesh( string.format("slow%d", index) ):setVisible( upgrade.getLevel("slow")==index )
-			model:getMesh( string.format("amplifier%d", index) ):setVisible( upgrade.getLevel("weakSpot")==index )
-			model:getMesh( string.format("equalizer%d", index) ):setVisible( upgrade.getLevel("equalizer")==index )
+			model:getMesh( string.format("slow%d", index) ):setVisible( upgrade.getLevel("ampedSlow")==index )
+			model:getMesh( string.format("amplifier%d", index) ):setVisible( upgrade.getLevel("energy")==index )
+			model:getMesh( string.format("equalizer%d", index) ):setVisible( upgrade.getLevel("range")==index )
 			model:getMesh( string.format("masterAim%d", index) ):setVisible( false )
 		end
 		--model:getMesh( "physic" ):setVisible(false)
@@ -323,7 +323,7 @@ function ElectricTower.new()
 		setCurrentInfo()
 	end
 	local function handleUpgradeSlow(param)
-		if tonumber(param)<=upgrade.getLevel("slow") or tonumber(param)>upgrade.getLevel("upgrade") then
+		if tonumber(param)<=upgrade.getLevel("ampedSlow") or tonumber(param)>upgrade.getLevel("upgrade") then
 			return
 		end
 		if Core.isInMultiplayer() then
@@ -333,8 +333,8 @@ function ElectricTower.new()
 		doMeshUpgradeForLevel("ampedSlow","slow")
 		setCurrentInfo()
 		--Achievement
-		if upgrade.getLevel("slow")==3 then
-			comUnit:sendTo("SteamAchievement","Slow","")
+		if upgrade.getLevel("ampedSlow")==3 then
+			comUnit:sendTo("SteamAchievement","ampedSlow","")
 		end
 	end
 	local function handleUpgradeEnergyPool(param)
@@ -408,7 +408,7 @@ function ElectricTower.new()
 				myStats.dmgLost = nil
 				myStats.dmgLost = nil
 				--
-				local key = "ampedSlow"..upgrade.getLevel("ampedSlow").."_energy"..upgrade.getLevel("energy").."_equalizer"..upgrade.getLevel("equalizer").."_smartTargeting"..upgrade.getLevel("smartTargeting").."_energyPool"..upgrade.getLevel("energyPool")
+				local key = "ampedSlow"..upgrade.getLevel("ampedSlow").."_energy"..upgrade.getLevel("energy").."_energyPool"..upgrade.getLevel("energyPool").."_range"..upgrade.getLevel("range")
 				tStats.addValue({mapName,"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
 				for variable, value in pairs(myStats) do
 					tStats.setValue({mapName,"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
@@ -924,15 +924,6 @@ function ElectricTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("energy",3),
 								stats ={energyReg =	{ upgrade.mul, 1.45}}
 							} )
---		-- SMART TARGETING (not super smart, it will not change target)
---		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
---								name = "smartTargeting",
---								info = "Tower Will not attack electric spirit",
---								order = 6,
---								icon = 62,
---								levelRequirement = cTowerUpg.getLevelRequierment("smartTargeting",1),
---								stats = {	smartTargeting =	{ upgrade.add, 1.0, ""} }
---							} )
 		function calcSlow() return 1.0-( (1.0-upgrade.getStats("slow"))*(1.0-upgrade.getStats("slowInc")) ) end
 		upgrade.addUpgrade( {	cost = 0,
 								name = "calculate",
@@ -997,7 +988,6 @@ function ElectricTower.new()
 		cTowerUpg.addUpg("ampedSlow",handleUpgradeSlow)
 		cTowerUpg.addUpg("energyPool",handleUpgradeEnergyPool)
 		cTowerUpg.addUpg("energy",handleUpgradeWeakSpot)
-		cTowerUpg.addUpg("smartTargeting",handleUpgradeSmartTargeting)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		return true
 	end

@@ -52,6 +52,7 @@ function BladeTower.new()
 	local range = 0.0
 	local maxRange
 	local bulletStartPos
+	local ABSOLUTE_MAX_RANGE = 10.0
 	--comunication
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
@@ -103,7 +104,6 @@ function BladeTower.new()
 				myStats.DPS = myStats.dmgDone/myStats.activeTimer
 				myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
 				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-				if upgrade.getLevel("overCharge")==0 then myStats.inoverHeatTimer=nil end
 				local key = "attackSpeed"..upgrade.getLevel("attackSpeed").."_masterBlade"..upgrade.getLevel("masterBlade").."_electricBlade"..upgrade.getLevel("electricBlade")
 				myStats.hittsPerBlade = myStats.hitts/myStats.attacks
 				myStats.hitts = nil
@@ -671,7 +671,7 @@ function BladeTower.new()
 			this:addChild(particleEffectUpgradeAvailable)
 		end
 		
-		maxRange = 12.0
+		maxRange = ABSOLUTE_MAX_RANGE
 	
 		--upgrade
 		
@@ -733,7 +733,7 @@ function BladeTower.new()
 								icon = 56,
 								value1 = 1,
 								stats ={range =				{ upgrade.add, maxRange},
-										damage = 			{ upgrade.add, 110},
+										damage = 			{ upgrade.add, 125},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
@@ -748,7 +748,7 @@ function BladeTower.new()
 								icon = 56,
 								value1 = 2,
 								stats ={range =				{ upgrade.add, maxRange},
-										damage = 			{ upgrade.add, 340},
+										damage = 			{ upgrade.add, 395},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
@@ -763,7 +763,7 @@ function BladeTower.new()
 								icon = 56,
 								value1 = 3,
 								stats ={range =				{ upgrade.add, maxRange},
-										damage = 			{ upgrade.add, 810},
+										damage = 			{ upgrade.add, 935},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
