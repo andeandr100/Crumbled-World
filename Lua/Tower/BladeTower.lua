@@ -52,7 +52,6 @@ function BladeTower.new()
 	local range = 0.0
 	local maxRange
 	local bulletStartPos
-	local ABSOLUTE_MAX_RANGE = 10.0
 	--comunication
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
@@ -353,10 +352,10 @@ function BladeTower.new()
 		myStats.attacks = myStats.attacks + 1
 	end
 	local function isAnyTargetInRange()
-		if targetSelector.isAnyInCapsule(Line3D(this:getGlobalPosition(),this:getGlobalPosition()+(pipeAt*range)),1.5) then
+		if targetSelector.isAnyInCapsule(Line3D(this:getGlobalPosition(),this:getGlobalPosition()+(pipeAt*upgrade.getValue("range"))),1.5) then
 			if lastEnemyInRange>1.5 then
 				--if the npc are entering close to the tower we will wait 1.25s for him and his friend to get in the line before attack (otherwise first blade will only hitt 1-2npcs)
-				targetSelector.selectAllInCapsule(Line3D(this:getGlobalPosition(),this:getGlobalPosition()+(pipeAt*range)),1.5)
+				targetSelector.selectAllInCapsule(Line3D(this:getGlobalPosition(),this:getGlobalPosition()+(pipeAt*upgrade.getValue("range"))),1.5)
 				targetSelector.scoreClosest(10)
 				targetSelector.selectTargetAfterMaxScore()
 				local pos = targetSelector.getTargetPosition()
@@ -486,6 +485,20 @@ function BladeTower.new()
 		upgrade.upgrade("shieldBreaker")
 		model:getMesh("shield"):setVisible(upgrade.getLevel("shieldBreaker")>0)
 		setCurrentInfo()
+	end
+	local function handleRange(param)
+		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
+			return
+		end
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("upgrade7",tostring(param))
+		end
+		upgrade.upgrade("range")
+		setCurrentInfo()
+--		--Acievement
+--		if upgrade.getLevel("range")==3 then
+--			comUnit:sendTo("SteamAchievement","Range","")
+--		end
 	end
 	local function handleElectrified(param)
 		if (type(param)=="string" and param=="") then
@@ -670,8 +683,6 @@ function BladeTower.new()
 		if particleEffectUpgradeAvailable then
 			this:addChild(particleEffectUpgradeAvailable)
 		end
-		
-		maxRange = ABSOLUTE_MAX_RANGE
 	
 		--upgrade
 		
@@ -707,6 +718,7 @@ function BladeTower.new()
 		comUnitTable["upgrade4"] = handleMasterBlade
 		comUnitTable["upgrade5"] = handleElectrified
 		comUnitTable["upgrade6"] = handleShieldBypass
+		comUnitTable["upgrade7"] = handleRange
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["checkRange"] = checkRange
 		comUnitTable["NetAttack"] = NetAttack
@@ -732,7 +744,7 @@ function BladeTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 1,
-								stats ={range =				{ upgrade.add, maxRange},
+								stats ={range =				{ upgrade.add, 9.0},
 										damage = 			{ upgrade.add, 125},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
@@ -747,7 +759,7 @@ function BladeTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 2,
-								stats ={range =				{ upgrade.add, maxRange},
+								stats ={range =				{ upgrade.add, 9.0},
 										damage = 			{ upgrade.add, 395},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
@@ -762,7 +774,7 @@ function BladeTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 3,
-								stats ={range =				{ upgrade.add, maxRange},
+								stats ={range =				{ upgrade.add, 9.0},
 										damage = 			{ upgrade.add, 935},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
@@ -880,6 +892,34 @@ function BladeTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("shieldBreaker",3),
 								stats ={shieldBypass =	{ upgrade.add, 1.0}}
 							} )
+		-- RANGE
+		upgrade.addUpgrade( {	cost = 100,
+								name = "range",
+								info = "Arrow tower range",
+								order = 6,
+								icon = 59,
+								value1 = 9 + 1.5,
+								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
+								stats ={range =		{ upgrade.add, 1.5, ""} }
+							} )
+		upgrade.addUpgrade( {	cost = 200,
+								name = "range",
+								info = "Arrow tower range",
+								order = 6,
+								icon = 59,
+								value1 = 9 + 3.0,
+								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
+								stats ={range =		{ upgrade.add, 3.0, ""} }
+							} )
+		upgrade.addUpgrade( {	cost = 300,
+								name = "range",
+								info = "Arrow tower range",
+								order = 6,
+								icon = 59,
+								value1 = 9 + 4.5,
+								levelRequirement = cTowerUpg.getLevelRequierment("range",3),
+								stats ={range =		{ upgrade.add, 4.5, ""} }
+							} )
 		supportManager.setUpgrade(upgrade)
 		supportManager.addHiddenUpgrades()
 		supportManager.addSetCallbackOnChange(updateStats)
@@ -908,6 +948,7 @@ function BladeTower.new()
 		cTowerUpg.addUpg("masterBlade",handleMasterBlade)
 		cTowerUpg.addUpg("electricBlade",handleElectrified)
 		cTowerUpg.addUpg("shieldBreaker",handleShieldBypass)
+		cTowerUpg.addUpg("range",handleRange)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		return true
 	end

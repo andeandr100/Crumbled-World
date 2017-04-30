@@ -318,7 +318,12 @@ function QuakeTower.new()
 	--
 	local function isAnyOneInRange()
 		targetSelector.selectAllInRange()
-		return targetSelector.isAnyInRange()
+		if upgrade.getLevel("electricStrike")>0 then
+			targetSelector.scoreName("electroSpirit",-1000)
+			return targetSelector.selectTargetAfterMaxScore(-500)>=1
+		else
+			return targetSelector.isAnyInRange()
+		end
 	end
 	--
 	--
@@ -773,20 +778,20 @@ function QuakeTower.new()
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		billboard:setString("targetMods","")
 		billboard:setInt("currentTargetMode",0)
-		for i=1, 3 do
-			if cTowerUpg.getIsPermUpgraded("freeUpgrade",i) then
-				upgrade.addFreeSubUpgrade()
-			end
-		end
 	
 		--soulManager
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})
 		targetSelector.setPosition(this:getGlobalPosition())
 		targetSelector.setRange(1.0)
 		
+		--manage campaign shop
 		setCurrentInfo()
 		cTowerUpg.addUpg("fireCrit",handleFireCrit)
 		cTowerUpg.fixAllPermBoughtUpgrades()
+		--add free upgrade if unlocked
+		if cTowerUpg.getIsPermUpgraded("freeUpgrade",1) then
+			upgrade.addFreeSubUpgrade()
+		end
 		return true
 	end
 	init()

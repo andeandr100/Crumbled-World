@@ -75,6 +75,7 @@ function SwarmTower.new()
 	-- purpose:		called when the tower have done some damage
 	-- param:		the amount of damage dealt
 	local function damageDealt(param)
+		abort()
 		myStats.dmgDone = myStats.dmgDone + tonumber(param)
 		billboard:setDouble("DamageCurrentWave",myStats.dmgDone)
 		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+myStats.dmgDone+(myStats.dmgDoneMarkOfDeath or 0.0))
@@ -451,7 +452,7 @@ function SwarmTower.new()
 		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
 		billboard:setModel("tower",model)
 		billboard:setString("TargetArea","sphere")
-		billboard:setString("Name", "Swarm tower")
+		billboard:setString("Name", "Support tower")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
 	

@@ -254,7 +254,7 @@ function MissileTower.new()
 		end
 	end
 	local function handleShieldSmasher(param)
-		if tonumber(param)<=upgrade.getLevel("ShieldSmasher") or tonumber(param)>upgrade.getLevel("upgrade") then
+		if tonumber(param)<=upgrade.getLevel("shieldSmasher") or tonumber(param)>upgrade.getLevel("upgrade") then
 			return
 		end
 		if Core.isInMultiplayer() then

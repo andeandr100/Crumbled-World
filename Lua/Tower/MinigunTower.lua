@@ -79,7 +79,12 @@ function MinigunTower.new()
 	
 	local function myStatsReset()
 		if myStats.dmgDone then
+--			if myStats.dmgDone<0.0 then
+--				local tabMyStats = myStats
+--				abort()
+--			end
 			billboard:setDouble("DamagePreviousWave",myStats.dmgDone)
+			billboard:setDouble("DamagePreviousWavePassive",0.0)
 			comUnit:sendTo("stats", "addTotalDmg", myStats.dmgDone )
 		end
 		myStats = {	activeTimer=0.0,	
@@ -863,7 +868,6 @@ function MinigunTower.new()
 		cTowerUpg.addUpg("range",upgradeRange)
 		cTowerUpg.addUpg("overCharge",upgradeOverCharge)
 		cTowerUpg.addUpg("fireCrit",upgradeGreaseBullet)
-		cTowerUpg.addUpg("smartTargeting",upgradeSmartTargeting)
 		cTowerUpg.fixAllPermBoughtUpgrades()--fix the permanant upgrades from the shop
 		
 		myStatsReset()

@@ -129,11 +129,11 @@ function ArrowMortar.new()
 				local damageDone = 0.0
 				--if target is alive send damage info
 				if targetSelector.isTargetAlive(targetIndex)==true then
-					comUnit:sendTo(targetIndex,"attack",tostring(damage*0.75))
-					damageDone = damageDone + damage*0.75
 					if weaken>0.01 then
 						comUnit:sendTo(targetIndex,"markOfDeath",{per=weaken,timer=weakenTimer,type="area"})
 					end
+					comUnit:sendTo(targetIndex,"attack",tostring(damage*0.75))
+					damageDone = damageDone + damage*0.75
 				end
 				targetSelector.setPosition(lastLocationOnTarget)
 				targetSelector.setRange(detonationRange)

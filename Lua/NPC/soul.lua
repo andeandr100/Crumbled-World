@@ -159,14 +159,21 @@ function TheSoul.new()
 	-- purpose:		remove hp from the npc and manage all amplifing effects
 	-- returns:		the amount of damage the npc has actually taken
 	local function takeDamage(amount)
-		local multiplyer = (markOfDeath.isEmpty() and 1.0 or 1.0+markOfDeath.getMaxKey())
-		amount = amount * multiplyer
-		hp = hp - amount
 		if hp>0.0 then
-			return amount
+			--npc is still alive
+			local multiplyer = (markOfDeath.isEmpty() and 1.0 or 1.0+markOfDeath.getMaxKey())
+			amount = amount * multiplyer
+			hp = hp - amount
+			if hp>0.0 then
+				return amount
+			end
+			soulHasDied()
+			return hp+amount--returns the amount of health before taking damage, as the npc is now dead
+		else
+			--npc was already dead
+			hp = -1.0
+			return 0.0
 		end
-		soulHasDied()
-		return hp+amount--returns the amount of health before taking damage, as the npc is now dead
 	end
 	-- function:	handleAttacked
 	-- purpose:		handeling damage taken, and send info to scripts that want's to know the resault

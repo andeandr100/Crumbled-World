@@ -1133,9 +1133,9 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			local buildingScript = buildingList[i]:getScriptByName("tower")
 			if buildingScript then
 				local billBoard = buildingScript:getBillboard()
-				if billBoard:getBool("isNetOwner") then
+				if billBoard:getBool("isNetOwner") and billBoard:getString("Name")~="Support tower" then
 					local towerDamage = billBoard:getDouble("DamagePreviousWave")
-					towerDamage = buildingBillBoard:exist("DamagePreviousWavePassive") and (towerDamage + buildingBillBoard:getDouble("DamagePreviousWavePassive")) or towerDamage
+					--towerDamage = billBoard:exist("DamagePreviousWavePassive") and (towerDamage + billBoard:getDouble("DamagePreviousWavePassive")) or towerDamage
 					totalDamage = totalDamage + towerDamage
 					maxTowerDamage = math.max(maxTowerDamage, towerDamage)
 				end
@@ -1194,7 +1194,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		local damageToolTip = getDamageToolTipText()
 		local damageValues = {damage / maxDamage, 0, 0}
 		if buildingBillBoard:exist("DamagePreviousWavePassive") then
-			passivDamage = buildingBillBoard:getDouble("DamagePreviousWavePassive")
+			local passivDamage = buildingBillBoard:getDouble("DamagePreviousWavePassive")
 			damage = damage + passivDamage
 			if passivDamage > 1 then
 				damageValues[2] = passivDamage / maxDamage
@@ -1207,7 +1207,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				damageValues[3] = goldEarnedPreviousWave / 300
 			end
 		end
-		
 		progressBar:setValue(damageValues)
 		progressBar:setToolTip( damageToolTip )
 		progressBar:setText( tostring((math.round((damage / maxDamage)*1000)/10)).."%" )

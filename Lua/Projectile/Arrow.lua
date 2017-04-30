@@ -94,10 +94,12 @@ function Arrow.new()
 		end
 		if lengthLeft-frameMovment<0.25 then
 			--direct hit on enemy target
-			comUnit:sendTo(targetSelector.getTarget(),"attackPhysical",tostring(damage))
+			--mark of death,first so that it can be used by our own attack
 			if markOfDeathPer>0.001 then
 			 	comUnit:sendTo(targetSelector.getTarget(),"markOfDeath",{per=markOfDeathPer,timer=weakenTimer,type="targeted"})
 			end
+			--do the attack
+			comUnit:sendTo(targetSelector.getTarget(),"attackPhysical",tostring(damage))
 			model:setVisible(false)
 			return false
 		elseif shieldAreaIndex~=targetSelector.getIndexOfShieldCovering(currentPos) then

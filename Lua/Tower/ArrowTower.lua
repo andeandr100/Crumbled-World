@@ -359,8 +359,8 @@ function ArrowTower.new()
 		end
 		model:getMesh("markForDeath"..upgrade.getLevel("markOfDeath")):setVisible(true)
 		setCurrentInfo()
-		if upgrade.getLevel("markForDeath")==3 then
-			comUnit:sendTo("SteamAchievement","MarkForDeath","")
+		if upgrade.getLevel("markOfDeath")==3 then
+			comUnit:sendTo("SteamAchievement","MarkOfDeath","")
 		end
 	end
 	local function attack()
@@ -801,9 +801,9 @@ function ArrowTower.new()
 								info = "Arrow tower mark of death",
 								order = 4,
 								icon = 61,
-								value1 = 15,
+								value1 = 12,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",1),
-								stats ={weaken =		{ upgrade.add, 0.15, ""},
+								stats ={weaken =		{ upgrade.add, 0.12, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -811,9 +811,9 @@ function ArrowTower.new()
 								info = "Arrow tower mark of death",
 								order = 4,
 								icon = 61,
-								value1 = 30,
+								value1 = 24,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",2),
-								stats ={weaken =		{ upgrade.add, 0.30, ""},
+								stats ={weaken =		{ upgrade.add, 0.24, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -821,9 +821,9 @@ function ArrowTower.new()
 								info = "Arrow tower mark of death",
 								order = 4,
 								icon = 61,
-								value1 = 45,
+								value1 = 36,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",3),
-								stats ={weaken =		{ upgrade.add, 0.45, ""},
+								stats ={weaken =		{ upgrade.add, 0.36, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 --		-- SMART TARGETING

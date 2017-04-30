@@ -63,25 +63,6 @@ function EventBase.new()
 	local startTime = Core.getGameTime()
 	--this:addChild(soundWind)
 	--
-	local waveUnitLimitOriginal = {
-		rat = math.huge,
-		skeleton =	math.huge,
-		scorpion =	math.huge,
-		rat_tank =	math.huge,
-		fireSpirit = math.huge,
-		electroSpirit =	math.huge,
-		skeleton_cf = 2,
-		skeleton_cb = 2,
-		turtle = 2,
-		dino =	5,
-		reaper = 2,
-		stoneSpirit = 2,
-		hydra1 = 1,
-		hydra2 = 1,
-		hydra3 = 1,
-		hydra4 = 1,
-		hydra5 = 1
-	}
 	--
 	local totalSpawned = 0
 	local spawnedThisWave = 0
@@ -724,7 +705,26 @@ function EventBase.new()
 				{waveUseLimit=1,{npc="stoneSpirit",delay=0.0},{npc="turtle",delay=1.0},{npc="stoneSpirit",delay=1.0}},
 				--(4*2500)/(((12/2)+(3*1))*455) == 2.254(unbeatable)
 				--{{npc="stoneSpirit",delay=0.0},{npc="stoneSpirit",delay=1.25},{npc="stoneSpirit",delay=1.25},{npc="stoneSpirit",delay=1.25}}
-			}--.size==40
+			}
+			local waveUnitLimitOriginal = {
+				rat = math.huge,
+				skeleton =	math.huge,
+				scorpion =	math.huge,
+				rat_tank =	math.huge,
+				fireSpirit = math.huge,
+				electroSpirit =	math.huge,
+				skeleton_cf = 2,
+				skeleton_cb = 2,
+				turtle = 2,
+				dino =	5,
+				reaper = 2,
+				stoneSpirit = 2,
+				hydra1 = 1,
+				hydra2 = 1,
+				hydra3 = 1,
+				hydra4 = 1,
+				hydra5 = 1
+			}
 			--
 			--
 			--
@@ -739,8 +739,7 @@ function EventBase.new()
 				local maxSpawnTime = 30.0
 				local totalSpawnTime = math.min(maxSpawnTime,20+(i*0.30))--the calculated time to spawn npcs
 				--launch difficulty (1.0 i max, and should never be used)[Because 1.0 is damge output limit and a of many other factors will make it unsustanable]{0.85 is probably max, increase difficultIncreaser instead}
-				-- over how many waves will it increase [directly impacted by difficultIncreaser and is almost the same value]
-				local difficlutIncreaseToWave = 20
+				
 				--adds time between spawned groups making powerful groups easier to handle, as you get more time to kill them
 				--an exponential equation that picks up speed by how many levels that have passed. with the goul to out run the interest gain for gold 
 				local difficult = (difficultIncreaser^i)+(i*(0.2/30))-math.max(0.0,(1.0-difficultBase))--((1.033+(0.0001*x))^x)
@@ -748,8 +747,7 @@ function EventBase.new()
 				local spawnHealthPerSecond = totalGoldEarned*0.7*difficult--0.7 magic number with no ties to reality anymore
 				local hpMultiplyer = ((totalGoldEarned*difficultBase) / (defaultGoldEarned+50))*difficult--this directly increases the hp on the npcs (+50 is just to flatten the curve)
 				--
-				local hardestGroupThatCanSpawn = startSpawnWindow + math.min( #groupCompOriginal-startSpawnWindow, math.floor(i*1.35)) + 1--hardestGroupThatCanSpawn (+1) is for bad algorithm and added dummy spawn
-				--hardestGroupThatCanSpawn = #groupComp
+				local hardestGroupThatCanSpawn = startSpawnWindow + math.min( #groupCompOriginal-startSpawnWindow, math.floor(i*1.75)) + 1--hardestGroupThatCanSpawn (+1) is for bad algorithm and added dummy spawn
 				--this is the total health points that can be sent out this wave
 				local totalSpawnHP = spawnHealthPerSecond*totalSpawnTime*unitBypassMultiplyer*(isInMultiplayer and 1.5 or 1.0)
 				local usedSpawnHP = 0.0
@@ -785,18 +783,18 @@ function EventBase.new()
 				while groupComp[index] do
 					if (groupComp[index].waveMin and i<groupComp[index].waveMin) or (groupComp[index].waveMax and i>groupComp[index].waveMax) then
 						popItem(groupComp,index)
-						index = index-1
-					end
-					local index2 = 1
-					while groupComp[index][index2] do
-						if disableUnits[groupComp[index][index2].npc] then
-							popItem(groupComp,index)
-							index = index-1
-							break
+					else
+						local index2 = 1
+						while groupComp[index][index2] do
+							if disableUnits[groupComp[index][index2].npc] then
+								popItem(groupComp,index)
+								index = index-1
+								break
+							end
+							index2 = index2 + 1
 						end
-						index2 = index2 + 1
+						index = index + 1
 					end
-					index = index + 1
 				end
 				
 				--statistics
@@ -848,16 +846,16 @@ function EventBase.new()
 							if isGroupContainingLimitedUnits(groupComp[groupIndex]) then
 								--if the group contains a unit that has reached limited spawn count, for this wave
 								popItem(groupComp,groupIndex)--try again
-							elseif groupComp[groupIndex].waveUseLimit then
+							elseif groupComp[groupIndex].waveUseLimit and groupComp[groupIndex].waveUseLimit<=0 then
 								--if the group has reach it limited spawn count, for this wave
-								groupComp[groupIndex].waveUseLimit = groupComp[groupIndex].waveUseLimit-1
-								if groupComp[groupIndex].waveUseLimit<=0 then
-									popItem(groupComp,groupIndex)--we broke the limit with this pass, continue
-								end
+								popItem(groupComp,groupIndex)--we broke the limit with this pass, continue
 							elseif groupComp[groupIndex].groupSpawnDepthMax and groupCountForWave>groupComp[groupIndex].groupSpawnDepthMax then
 								--if the npc has missed its spawn window
 								popItem(groupComp,groupIndex)--try again
 							else
+								if groupComp[groupIndex].waveUseLimit then
+									groupComp[groupIndex].waveUseLimit = groupComp[groupIndex].waveUseLimit-1
+								end
 								break
 							end
 						end
@@ -934,7 +932,7 @@ function EventBase.new()
 			playTime = playTime - (hours*3600)
 			local minutes=math.floor(playTime/60)
 			--playTime = playTime - (minutes*60)
---			print(tostring(waves).."\n")
+--			print(tostring(waves))
 --			print("=== longestWave="..longestWave.."s\n")
 --			print("=== totalNpcSpawned="..totalNpcSpawned.."\n")
 --			print("=== totalGoldEarned(guaranteed)="..totalGoldEarned.."\n")

@@ -140,7 +140,7 @@ function SupportManager.new()
 									name = "supportRange",
 									info = "support manager range",
 									icon = 65,
-									order = 6,
+									order = 7,
 									hidden = true,
 									value1 = 10,
 									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*1) }}
@@ -149,7 +149,7 @@ function SupportManager.new()
 									name = "supportRange",
 									info = "support manager range",
 									icon = 65,
-									order = 6,
+									order = 7,
 									hidden = true,
 									value1 = 20,
 									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*2) }}
@@ -158,7 +158,7 @@ function SupportManager.new()
 									name = "supportRange",
 									info = "support manager range",
 									icon = 65,
-									order = 6,
+									order = 7,
 									hidden = true,
 									value1 = 30,
 									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*3) }}
@@ -167,7 +167,7 @@ function SupportManager.new()
 									name = "supportDamage",
 									info = "support manager damage",
 									icon = 64,
-									order = 7,
+									order = 8,
 									hidden = true,
 									value1 = 10,
 									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*1) }}
@@ -176,7 +176,7 @@ function SupportManager.new()
 									name = "supportDamage",
 									info = "support manager damage",
 									icon = 64,
-									order = 7,
+									order = 8,
 									hidden = true,
 									value1 = 20,
 									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*2) }}
@@ -185,7 +185,7 @@ function SupportManager.new()
 									name = "supportDamage",
 									info = "support manager damage",
 									icon = 64,
-									order = 7,
+									order = 8,
 									hidden = true,
 									value1 = 30,
 									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*3) }}

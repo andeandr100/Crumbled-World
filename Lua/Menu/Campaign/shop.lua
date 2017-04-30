@@ -38,6 +38,7 @@ function Shop.new(camera)
 			energy = {text="electric tower energy regen",[1]={["value1"]="15"},[2]={["value1"]="30"},[3]={["value1"]="45"}}
 		},
 		["Tower/BladeTower.lua"]={
+			range = {text="Arrow tower range",[1]={["value1"]="10.5"},[2]={["value1"]="12"},[3]={["value1"]="13.5"}},
 			attackSpeed = {text="blade tower attackSpeed",[1]={["value1"]="15"},[2]={["value1"]="30"},[3]={["value1"]="45"}},
 			masterBlade = {text="blade tower firecrit",[1]={["value1"]="20"},[2]={["value1"]="40"},[3]={["value1"]="60"}},
 			electricBlade = {text="blade tower slow",[1]={["value1"]="15"},[2]={["value1"]="28"},[3]={["value1"]="39"}},
@@ -341,7 +342,7 @@ function Shop.new(camera)
 	end
 	function addTowerButtons(towerIndex)
 		
-		local buttonPanel = shopPanel:add(Panel(PanelSize(Vec2(-0.9, 0.070), Vec2(7.5,1))))
+		local buttonPanel = shopPanel:add(Panel(PanelSize(Vec2(-1.0, 0.070), Vec2(7.5,1))))
 		--buttonPanel:setBackground( Sprite( Vec4(1,0,0,0.5) ))--DEBUG coloring
 		buttonPanel:setLayout(FlowLayout(PanelSize(Vec2(-1,-1))))
 		--
@@ -362,56 +363,66 @@ function Shop.new(camera)
 		--Add BreakLine
 		local upgradeAreaPanel = buttonPanel:add(Panel(PanelSize(Vec2(-1))))--add panel to the right of the Tower icon
 		upgradeAreaPanel:add(Panel(PanelSize(Vec2(-1,0.02))))--add some top spacing
+		--upgradeAreaPanel:setBackground( Sprite( Vec4(0,1,0,0.5) ))--DEBUG coloring(covers up the red area)
 		--"Available unlocks"
 		local upper = upgradeAreaPanel:add(Panel(PanelSize(Vec2(-1,0.030))))
 		upper:add(Panel(PanelSize(Vec2(1,0.03),Vec2(0.25,1))))--spacing
+		--upper:setBackground( Sprite( Vec4(0,0,1,0.5) ))--DEBUG coloring
 		if towerIndex==1 then
 			addShopButton(upper,false,59,towerIndex,"range")--range
 			addShopButton(upper,true,63,towerIndex,"overCharge")--overCharge
 			addShopButton(upper,true,36,towerIndex,"fireCrit")--fireCrit
+			addShopButton(upper,true)--[Not Available]
 			addShopButton(upper,true)--[Not Available]
 		elseif towerIndex==2 then
 			addShopButton(upper,false,59,towerIndex,"range")--range
 			addShopButton(upper,true,54,towerIndex,"hardArrow")--hardArrow
 			addShopButton(upper,true,61,towerIndex,"markOfDeath")--markOfDeath
 			addShopButton(upper,true)--[Not Available]
+			addShopButton(upper,true)--[Not Available]
 		elseif towerIndex==3 then
 			addShopButton(upper,false,59,towerIndex,"range")--range
 			addShopButton(upper,true,2,towerIndex,"burnDamage")--burn
 			addShopButton(upper,true,38,towerIndex,"fuel")--fuel
+			addShopButton(upper,true)--[Not Available]
 			addShopButton(upper,true)--[Not Available]
 		elseif towerIndex==4 then
 			addShopButton(upper,false,59,towerIndex,"range")--range
 			addShopButton(upper,true,55,towerIndex,"ampedSlow")--slow
 			addShopButton(upper,true,41,towerIndex,"energyPool")--energy
 			addShopButton(upper,true,50,towerIndex,"energy")--energy
+			addShopButton(upper,true)--[Not Available]
 		elseif towerIndex==5 then
-			addShopButton(upper,false,58,towerIndex,"attackSpeed")--attackSpeed
+			addShopButton(upper,false,59,towerIndex,"range")--range
+			addShopButton(upper,true,58,towerIndex,"attackSpeed")--attackSpeed
 			addShopButton(upper,true,36,towerIndex,"masterBlade")--masterBlade
 			addShopButton(upper,true,55,towerIndex,"electricBlade")--electricBlade
 			addShopButton(upper,true,40,towerIndex,"shieldBreaker")--shieldBreaker
-			--addShopButton(upgradeAreaPanel,true)--[Not Available]
 		elseif towerIndex==6 then
 			addShopButton(upper,false,59,towerIndex,"range")--range
 			addShopButton(upper,true,39,towerIndex,"Blaster")--damage
 			addShopButton(upper,true,38,towerIndex,"fuel")--speed
 			addShopButton(upper,true,42,towerIndex,"shieldSmasher")
-			--addShopButton(upgradeAreaPanel,true)--[Not Available]
+			addShopButton(upper,true)--[Not Available]
 		elseif towerIndex==7 then
 			addShopButton(upper,false,36,towerIndex,"fireCrit")
 			addShopButton(upper,true,38,towerIndex,"fireStrike")
 			addShopButton(upper,true,50,towerIndex,"electricStrike")
 			addShopButton(upper,true,53,towerIndex,"freeUpgrade")
+			addShopButton(upper,true)--[Not Available]
 		elseif towerIndex==8 then
 			addShopButton(upper,false,65,towerIndex,"range")
 			addShopButton(upper,true,64,towerIndex,"damage")
 			addShopButton(upper,true,66,towerIndex,"weaken")
 			addShopButton(upper,true,67,towerIndex,"gold")
+			addShopButton(upper,true)--[Not Available]
 		end
 		upper:add(Panel(PanelSize(Vec2(-1,0.03),Vec2(1,1))))--spacing
 		local str = tostring(data.getTotalBuyablesBoughtForTower(towers[towerIndex],false)).."/"..data.getBuyablesLimitForTower(towers[towerIndex],false).."(+1)"
-		textPanels[towers[towerIndex]].buyable = upper:add(Label(PanelSize(Vec2(-1,0.025),Vec2(5,1)), str, Vec3(0.94)))
-		upper:add(Panel(PanelSize(Vec2(-1,0.03))))--line breaker
+		textPanels[towers[towerIndex]].buyable = upper:add(Label(PanelSize(Vec2(-1,0.025),Vec2(3.5,1)), str, Vec3(0.94)))
+		--textPanels[towers[towerIndex]].buyable:setBackground( Sprite( Vec4(1,1,0,0.5) ))--DEBUG coloring
+		local stuff = upper:add(Panel(PanelSize(Vec2(-1,0.03))))--line breaker
+		--stuff:setBackground( Sprite( Vec4(0,1,1,0.5) ))--DEBUG coloring
 		--
 		data.fixCrystalLimits()
 --		local breakLinePanel = shopPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
@@ -485,6 +496,7 @@ function Shop.new(camera)
 		shopPanel = form:add(Panel(PanelSize(Vec2(-1))))
 		
 		shopPanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, Vec4(0,0,0,0.5)))
+		--shopPanel:setBackground( Sprite(Vec4(1,1,1,0.5)) )--DEBUG coloring
 		shopPanel:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)),MainMenuStyle.borderColor))
 		
 		--Add the title
