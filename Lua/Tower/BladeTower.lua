@@ -534,7 +534,7 @@ function BladeTower.new()
 		sparkCenter2:setScale( upgradeElectricScale )
 		setCurrentInfo()
 		--Achievement
-		if upgrade.getLevel("electric")==3 then
+		if upgrade.getLevel("electricBlade")==3 then
 			comUnit:sendTo("SteamAchievement","ElectricBlade","")
 		end
 	end
