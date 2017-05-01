@@ -356,6 +356,7 @@ function netSellTower(paramNetworkName)
 		if this:removeBuilding( buildingToSell ) then
 			if billBoard:getBool("isNetOwner") then
 				comUnit:sendTo("stats", "addGold", tostring(buildingValue))
+				comUnit:sendTo("stats","addTowersSold","")
 			end
 			--comUnit:sendTo("builder", "soldTower", tostring(buildingId))
 			
@@ -365,10 +366,14 @@ function netSellTower(paramNetworkName)
 				targetArea.hiddeTargetMesh()
 			end
 		else
-			abort()
+			if DEBUG then
+				error("Removing building failed!!!")
+			else
+				print("Removing building failed!!!")
+			end
 		end
 	else
-		abort()
+		print("No script found for selected building, during remove")
 	end
 
 end
@@ -617,7 +622,7 @@ function update()
 			towerWorld:update();	
 		end
 		
-		if buildCost > gold then
+		if currentTower and buildCost > gold then
 			local screenPos = camera:getScreenCoordFromglobalPos(currentTower:getLocalPosition() + Vec3(0,1.0,0))
 			noMoneyIcon:setVisible(true)
 			noMoneyIcon:setLocalPosition(screenPos)

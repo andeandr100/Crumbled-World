@@ -41,6 +41,7 @@ function QuakeTower.new()
 	local startReloadTime = 0.0
 	local dropTable = {}
 	local hold = {}
+	local boostedOnLevel = 0
 	--communication
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
@@ -207,6 +208,7 @@ function QuakeTower.new()
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
+		boostedOnLevel = upgrade.getLevel("upgrade")
 		upgrade.upgrade("boost")
 		model:getMesh("boost"):setVisible(true)
 		setCurrentInfo()
@@ -455,6 +457,10 @@ function QuakeTower.new()
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
+			--if the tower was upgraded while boosted, then the boost should be available
+			if boostedOnLevel~=upgrade.getLevel("upgrade") then
+				upgrade.clearCooldown()
+			end
 		end
 		
 		--handle communication

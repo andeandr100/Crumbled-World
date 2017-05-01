@@ -55,6 +55,7 @@ function MinigunTower.new()
 	local heatPointLight2
 	local particleEffectSmoke
 	local increasedDamageToFire = 0.0
+	local boostedOnLevel = 0
 	--effects
 	local particleEffectGun = {}
 	local particleEffectGunLaser = {}
@@ -452,18 +453,15 @@ function MinigunTower.new()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
-		print("handleBoost!!!")
 		if tonumber(param)<=upgrade.getLevel("boost") then
 			return
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
+		boostedOnLevel = upgrade.getLevel("upgrade")
 		overHeatPer = 0.0
-		print("===================")
-		print("upgrade(boost)bef = "..upgrade.getLevel("boost"))
 		upgrade.upgrade("boost")
-		print("upgrade(boost)aft = "..upgrade.getLevel("boost"))
 		model:getMesh( "pipeBoost" ):setVisible(true)
 		model:getMesh( "cabels" ):setVisible(false)
 		model:getMesh( "pipe1" ):setVisible(false)
@@ -894,6 +892,10 @@ function MinigunTower.new()
 			pipeRotateTimer = 0.0
 			initModel()
 			setCurrentInfo()
+			--if the tower was upgraded while boosted, then the boost should be available
+			if boostedOnLevel~=upgrade.getLevel("upgrade") then
+				upgrade.clearCooldown()
+			end
 		end
 		
 		--change update speed

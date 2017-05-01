@@ -37,6 +37,7 @@ function MissileTower.new()
 	local activeRangeMesh
 	--attack
 	local targetMode = 1
+	local boostedOnLevel = 0
 	--communication
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
@@ -204,6 +205,7 @@ function MissileTower.new()
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
+		boostedOnLevel = upgrade.getLevel("upgrade")
 		upgrade.upgrade("boost")
 		model:getMesh( "boost" ):setVisible(true)
 		setCurrentInfo()
@@ -444,6 +446,10 @@ function MissileTower.new()
 			myStats.disqualified = true
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
+			--if the tower was upgraded while boosted, then the boost should be available
+			if boostedOnLevel~=upgrade.getLevel("upgrade") then
+				upgrade.clearCooldown()
+			end
 		end
 		while comUnit:hasMessage() do
 			local msg = comUnit:popMessage()

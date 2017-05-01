@@ -33,6 +33,7 @@ function SwarmTower.new()
 	local targetMode = 1
 	local currentAttackCountOnTarget = 0
 	local reloadTimeLeft = 0.0
+	local boostedOnLevel = 0
 	--effects
 	local fireCenter = ParticleSystem(ParticleEffect.SwarmTowerFlame)
 	local pointLight
@@ -321,6 +322,7 @@ function SwarmTower.new()
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
+		boostedOnLevel = upgrade.getLevel("upgrade")
 		upgrade.upgrade("boost")
 		model:getMesh("boost"):setVisible( true )
 		--model:getMesh("notBoosted"):setVisible( false )
@@ -377,6 +379,10 @@ function SwarmTower.new()
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
+			--if the tower was upgraded while boosted, then the boost should be available
+			if boostedOnLevel~=upgrade.getLevel("upgrade") then
+				upgrade.clearCooldown()
+			end
 		end
 		while comUnit:hasMessage() do
 			local msg = comUnit:popMessage()

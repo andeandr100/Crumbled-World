@@ -40,6 +40,7 @@ function ElectricTower.new()
 	local oneDamageCost = 0.0
 	local minAttackCost = 0.0
 	local equalizer =	false
+	local boostedOnLevel = 0
 	--effect
 	local energyLightShow = 2.0
 	local pointLightBaseRange = 1.75
@@ -306,6 +307,7 @@ function ElectricTower.new()
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
+		boostedOnLevel = upgrade.getLevel("upgrade")
 		upgrade.upgrade("boost")
 		model:getMesh("boost"):setVisible(true)
 		setCurrentInfo()
@@ -334,7 +336,7 @@ function ElectricTower.new()
 		setCurrentInfo()
 		--Achievement
 		if upgrade.getLevel("ampedSlow")==3 then
-			comUnit:sendTo("SteamAchievement","ampedSlow","")
+			comUnit:sendTo("SteamAchievement","Slow","")
 		end
 	end
 	local function handleUpgradeEnergyPool(param)
@@ -559,6 +561,10 @@ function ElectricTower.new()
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
+			--if the tower was upgraded while boosted, then the boost should be available
+			if boostedOnLevel~=upgrade.getLevel("upgrade") then
+				upgrade.clearCooldown()
+			end
 		end
 	
 		updateEnergy()

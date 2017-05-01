@@ -52,6 +52,7 @@ function BladeTower.new()
 	local range = 0.0
 	local maxRange
 	local bulletStartPos
+	local boostedOnLevel = 0
 	--comunication
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
@@ -420,6 +421,7 @@ function BladeTower.new()
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
+		boostedOnLevel = upgrade.getLevel("upgrade")
 		upgrade.upgrade("boost")
 		model:getMesh( "boost" ):setVisible(true)
 		model:getMesh( "showSpear" ):setVisible(true)
@@ -572,6 +574,10 @@ function BladeTower.new()
 			model:getMesh( "showBlade" ):setVisible( upgrade.getLevel("masterBlade")>0 )
 			model:getMesh( "showSpear" ):setVisible( false )
 			setCurrentInfo()
+			--if the tower was upgraded while boosted, then the boost should be available
+			if boostedOnLevel~=upgrade.getLevel("upgrade") then
+				upgrade.clearCooldown()
+			end
 		end
 	
 		reloadTimeLeft = reloadTimeLeft - deltaTime
