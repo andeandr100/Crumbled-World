@@ -2,7 +2,7 @@ require("Enviromental/worldEdgeStuff.lua")
 require("Enviromental/islandMeshExporter.lua")
 require("Enviromental/islandMeshImporter.lua")
 require("Enviromental/MineEntrance.lua")
-require("NPC/deathManager.lua")
+
 --this = Island()
 local deathManager
 
@@ -79,22 +79,13 @@ function load(message)
 	else
 		worldEdgeStuff.init(this, meshImporter.getStaticNode(), dynamicNode)
 	end
-	
---	local meshList = this:findAllNodeByTypeTowardsLeaf(NodeId.islandMesh)
---	
---	for i=1, #meshList do
---		local node = meshList[i]
---		node:setLocalPosition( node:getLocalPosition() + Vec3(0,math.randomFloat(0,5),0))		
---	end
-	
---	local mesh2List = this:findAllNodeByTypeTowardsLeaf(NodeId.nodeMesh)
---	for i=1, #mesh2List do
---		local node = mesh2List[i]
---		node:setLocalPosition( node:getLocalPosition() + Vec3(0,math.randomFloat(0,5),0))		
---	end
+
 end
 
 function create()
+	
+	this:loadLuaScript("Enviromental/waterMelon.lua")
+	
 	islandTimeOffset = math.randomFloat(0,32)
 	timeOffset = 0
 	islandStartPosition = this:getLocalPosition()
@@ -113,18 +104,13 @@ function create()
 	
 	statsBilboard = Core.getBillboard("stats")
 	
-	
-	deathManagerUpdate = false
-	deathManager = DeathManager.new()
-	deathManager.setEnableSelfDestruct(false)
 	--
 	Core.setUpdateHzRealTime(24)
 	
 	local staticIslandBilboard = Core.getGameSessionBillboard("staticIslandMeshList")
 
 	
-	--find the camera
-	camera = this:getRootNode():findNodeByName("MainCamera")
+	
 	
 	for i=1, #mineLocation do
 		MineEntrance.create(this, mineLocation[i])
@@ -151,19 +137,6 @@ function update()
 	
 	worldEdgeStuff.update()
 	
-	if Core.getInput():getMousePressed(MouseKey.left) and camera then	
-		local cameraLine = camera:getWorldLineFromScreen(Core.getInput():getMousePos())
-		local collisionMesh = this:collisionTree(cameraLine)
-		if collisionMesh then
-			print( "collision mesh name: "..collisionMesh:getSceneName().."\n")
-		end
-		if collisionMesh and collisionMesh:getSceneName()=="watermelon" then
-			destroyWatermelon(collisionMesh)
-		end
-	end
-	if deathManagerUpdate then
-		deathManagerUpdate = deathManager.update()
-	end
 	
 	if timeOffset == 0 and statsBilboard and statsBilboard:getInt("wave") == 1 then
 		--this is needed for network gameSync
@@ -176,21 +149,4 @@ function update()
 	
 
 	return true
-end
-
-function destroyWatermelon(watermelonNode)
-	Core.getComUnit():sendTo("SteamStats","WatermelonsDestroyed",1)
-	deathManagerUpdate = true
-	--physic
-	local model=Core.getModel("watermelonCracked.mym")
-	model:setLocalMatrix(watermelonNode:getLocalMatrix())
-	watermelonNode:getParent():addChild(model)
-	model:setVisible(false)
-	for i=1, 24 do
-		--local atVec = model:getMesh("watermelon"..i):getLocalPosition():normalizeV()
-		local atVec = math.randomVec3()
-		atVec = Vec3(atVec.x,math.abs(atVec.y)+0.2,atVec.z)*3.0
-		deathManager.addRigidBody(RigidBody(this:findNodeByType(NodeId.island),model:getMesh("watermelon"..i),atVec))
-	end
-	watermelonNode:getParent():removeChild(watermelonNode)
 end
