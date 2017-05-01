@@ -318,7 +318,7 @@ function create()
 				buildings[i].range = getTowerInfo(i, "range")
 			end
 			if i~=1 and i~= 9 then
-				buildings[i].damage = getTowerInfo(i, "damage")
+				buildings[i].damage = i==7 and getTowerInfo(i, "dmg") or getTowerInfo(i, "damage")
 			end
 			if i==2 or i==3 or i==5 or i==6 then
 				buildings[i].rps = getTowerInfo(i, "RPS")

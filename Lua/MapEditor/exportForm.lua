@@ -129,7 +129,7 @@ function ExportForm.new()
 		local texture = Core.getTexture("icon_table")
 		loadingSprite = Sprite(texture)
 		loadingSprite:setAnchor(Anchor.MIDDLE_CENTER)
-		loadingSprite:setUvCoord(Vec2(0.775,0.125), Vec2(1.0,0.375))
+		loadingSprite:setUvCoord(Vec2(0.775,0.0625), Vec2(1.0,0.1875))
 
 		local height = Core.getScreenResolution().y * 0.035
 		loadingSprite:setSize(Vec2(height))
