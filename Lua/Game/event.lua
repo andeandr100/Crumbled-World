@@ -39,6 +39,7 @@ function create()
 	if Core.isInMultiplayer() then
 		numWaves = 999
 	end
+	numWaves = 3
 	--
 	--
 	event.init(startGold,waveFinishedGold,interestOnKill,goldMultiplayerOnKills,startLives,level)		--create event system

@@ -1049,9 +1049,6 @@ function EventBase.new()
 							-- Achievements
 							--
 							--game modes
-							if mapInfo.getLevel()>=5 and bilboardStats:getInt("life")==20 then
-								comUnit:sendTo("SteamAchievement","Flawless","")
-							end
 							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="default" then
 								comUnit:sendTo("SteamAchievement","BeatDefaultInsane","")
 							end
@@ -1067,33 +1064,37 @@ function EventBase.new()
 							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="only interest" then
 								comUnit:sendTo("SteamAchievement","BeatInflationInsane","")
 							end
+							--Flawless game
+							if mapInfo.getLevel()>=5 then
+								comUnit:sendTo("SteamStats","MaxLifeAtEndOfMapOnInsane",bilboardStats:getInt("life"))
+							end
 							--purity
 							local minigunBuilt = bilboardStats:exist("minigunTowerBuilt")
 							local arrowBuilt = bilboardStats:exist("arrowTowerBuilt")
 							local swarmBuilt = bilboardStats:exist("swarmTowerBuilt")
 							local electricBuilt = bilboardStats:exist("electricTowerBuilt")
-							local quakeBuilt = bilboardStats:exist("bladeTowerBuilt")
-							local bladeBuilt = bilboardStats:exist("quakeTowerBuilt")
+							local bladeBuilt = bilboardStats:exist("bladeTowerBuilt")
+							local quakeBuilt = bilboardStats:exist("quakeTowerBuilt")
 							local missileBuilt = bilboardStats:exist("missileTowerBuilt")
 							local supportBuilt = bilboardStats:exist("supportTowerBuilt")
-							local soldTowers = bilboardStats:getInt("towerSold")
+							local soldTowers = bilboardStats:getInt("towersSold")
 							local towerBuilt = bilboardStats:getInt("minigunTowerBuilt") + bilboardStats:getInt("arrowTowerBuilt") + bilboardStats:getInt("swarmTowerBuilt") + bilboardStats:getInt("electricTowerBuilt") + bilboardStats:getInt("bladeTowerBuilt") + bilboardStats:getInt("quakeTowerBuilt") + bilboardStats:getInt("missileTowerBuilt") + bilboardStats:getInt("supportTowerBuilt") - soldTowers
-							if minigunBuilt and not (arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt) then
+							if minigunBuilt and not (arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
 								comUnit:sendTo("SteamAchievement","MinigunOnly","")
-							elseif arrowBuilt and not (minigunBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt) then
+							elseif arrowBuilt and not (minigunBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
 								comUnit:sendTo("SteamAchievement","CrossbowOnly","")
-							elseif swarmBuilt and not (minigunBuilt or arrowBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt) then
+							elseif swarmBuilt and not (minigunBuilt or arrowBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
 								comUnit:sendTo("SteamAchievement","SwarmOnly","")
-							elseif electricBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or quakeBuilt or bladeBuilt or missileBuilt) then
+							elseif electricBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
 								comUnit:sendTo("SteamAchievement","ElectricOnly","")
-							elseif quakeBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or bladeBuilt or missileBuilt) then
+							elseif quakeBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or bladeBuilt or missileBuilt or supportBuilt) then
 								comUnit:sendTo("SteamAchievement","QuakeOnly","")
-							elseif bladeBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or missileBuilt) then
+							elseif bladeBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or missileBuilt or supportBuilt) then
 								comUnit:sendTo("SteamAchievement","BladeOnly","")
-							elseif missileBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt) then
+							elseif missileBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or supportBuilt) then
 								comUnit:sendTo("SteamAchievement","MissileOnly","")
 							end
-							if minigunBuilt and arrowBuilt and swarmBuilt and electricBuilt and quakeBuilt and bladeBuilt and missileBuilt then
+							if minigunBuilt and arrowBuilt and swarmBuilt and electricBuilt and quakeBuilt and bladeBuilt and missileBuilt and supportBuilt then
 								comUnit:sendTo("SteamAchievement","OneOfEverything","")
 							end
 							if soldTowers==0 then

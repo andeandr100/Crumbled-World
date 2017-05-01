@@ -20,6 +20,7 @@ function SwarmTower.new()
 	local upgrade = Upgrade.new()
 	local cTowerUpg = CampaignTowerUpg.new("Tower/SupportTower.lua",upgrade)
 	local range = 2.5
+	local boostedOnLevel = 0
 	--Weaken
 	local weakenPer
 	local weakeningArea
@@ -234,6 +235,7 @@ function SwarmTower.new()
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
+		boostedOnLevel = upgrade.getLevel("upgrade")
 		upgrade.upgrade("boost")
 		setCurrentInfo()
 		--
@@ -363,6 +365,10 @@ function SwarmTower.new()
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
+			--if the tower was upgraded while boosted, then the boost should be available
+			if boostedOnLevel~=upgrade.getLevel("upgrade") then
+				upgrade.clearCooldown()
+			end
 		end
 		while comUnit:hasMessage() do
 			local msg = comUnit:popMessage()

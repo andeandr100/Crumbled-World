@@ -185,7 +185,7 @@ function TargetSelector.new(pteam)
 	function self.isTargetAlive(target)
 		updateSoulsTable()
 		local soul = soulTable[target]
-		return target>0 and soul~=nil-- and soul.hp>0.0
+		return target>0 and soul~=nil
 	end
 	function self.isTargetInState(target,inState)
 		--print("self.isTargetInState("..target..", "..inState..")")
@@ -203,7 +203,7 @@ function TargetSelector.new(pteam)
 	end
 	function self.isTargetAvailable()
 		updateSoulsTable()
-		return (currentTarget>0 and soulTable[currentTarget] and soulTable[currentTarget].hp>0.0 and isInRange(currentTarget))
+		return (currentTarget>0 and soulTable[currentTarget] and isInRange(currentTarget))--hp has nothing to do with if the npc can be targeted
 	end
 	function self.getTargetPosition(target)
 		updateSoulsTable()

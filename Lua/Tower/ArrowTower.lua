@@ -43,6 +43,7 @@ function ArrowTower.new()
 	local activeProjectileBoost = "ArrowMortar"
 	local reloadTime = 0.0
 	local reloadTimeLeft = 0.0
+	local boostedOnLevel = 0
 	--Upgrades
 	local reRotateTowerCostMultiplyer = 0   
 	local isSettingRotation = 0.0
@@ -293,6 +294,7 @@ function ArrowTower.new()
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade2","1")
 		end
+		boostedOnLevel = upgrade.getLevel("upgrade")
 		upgrade.upgrade("boost")
 		setCurrentInfo()
 		model:getMesh( "ammoDrumBoost" ):setVisible(true)
@@ -494,6 +496,10 @@ function ArrowTower.new()
 			if upgrade.getLevel("range")>0 then
 		 	   model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), -SCOPE_ROTATION_ON_BOOST)
 			end
+			--if the tower was upgraded while boosted, then the boost should be available
+			if boostedOnLevel~=upgrade.getLevel("upgrade") then
+				upgrade.clearCooldown()
+			end
 		end
 	
 		--Handle communication
@@ -519,6 +525,10 @@ function ArrowTower.new()
 			--only boost that uses timer
 			if upgrade.getLevel("range")>0 then
 		 	   model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), -SCOPE_ROTATION_ON_BOOST)
+			end
+			--if the tower was upgraded while boosted, then the boost should be available
+			if boostedOnLevel~=upgrade.getLevel("upgrade") then
+				upgrade.clearCooldown()
 			end
 		end
 		if xpManager then

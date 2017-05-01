@@ -41,6 +41,7 @@ function create()
 	comUnitTable["addTotalDmg"] = handleAddTotalDamage
 	comUnitTable["goldInterest"] = handleGoldInterest
 	comUnitTable["removeGold"] = handleRemoveGold
+	comUnitTable["addTowersSold"] = handleAddTowerSold
 	comUnitTable["npcReachedEnd"] = handleNpcReachedEnd
 	comUnitTable["setWave"] = handleSetwave
 	comUnitTable["setMaxWave"] = handleSetMaxwave
@@ -120,6 +121,12 @@ function handleNpcReachedEnd(param)
 	billboard:setInt("life", billboard:getInt("life")-tonumber(param))
 	if billboard:getInt("life")<0 then
 		billboard:setInt("life",0)
+	end
+end
+function handleAddTowerSold()
+	billboard:setInt("towersSold", billboard:getInt("towersSold")+1)
+	if billboard:getInt("towersSold")==5 then
+		Core.getComUnit():sendTo("SteamAchievement","Seller","")
 	end
 end
 function handleSetBillboardInt(param)
