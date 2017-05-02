@@ -192,6 +192,7 @@ function Upgrade.new()
 		end
 		--fix the billboard
 		self.updateAllUpgradeBillboard()
+		self.calculateStats( "upgrade", true )
 		--extra billboard stats
 		for index, value in ipairs(statsToBillboard) do
 			--print("["..index.."] = "..value.."\n")

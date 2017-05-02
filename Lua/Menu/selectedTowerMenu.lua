@@ -457,16 +457,16 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		
 		--check if the stats need to be reloaded
 		if reload then
-			print("\n\nupdateText()\n")
+			--print("\n\nupdateText()\n")
 			
 			--infoPanel:clear()	towerInfo
 			if towerInfo.info then
 				--update info
 				storedShowText = buildingBillBoard:getString("currentStats")
 				local info = towerInfo.info
-				print("displayStats"..storedShowText)
+				--print("displayStats"..storedShowText)
 				for splitedStr in (storedShowText .. ";"):gmatch("([^;]*);") do 
-					print("Splited:".. splitedStr)
+					--print("Splited:".. splitedStr)
 					local array = splitFirst(splitedStr, "=")
 					local name = array[1]
 					local value = array[2]
@@ -481,9 +481,9 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				local info = {}
 				towerInfo.info = info
 				storedShowText = buildingBillBoard:getString("currentStats")
-				print("displayStats"..storedShowText)
+				--print("displayStats"..storedShowText)
 				for splitedStr in (storedShowText .. ";"):gmatch("([^;]*);") do 
-					print("Splited:".. splitedStr)
+					--print("Splited:".. splitedStr)
 					local array = splitFirst(splitedStr, "=")
 					info[array[1]] = {value=array[2]}
 					

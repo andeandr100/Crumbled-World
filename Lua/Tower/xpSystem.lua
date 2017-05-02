@@ -140,11 +140,11 @@ function XpSystem.new(upg)
 			end
 			if xp>xpToNextLevel then
 				xp = xp - xpToNextLevel
-				xpForLevel = upgrade.getLevel("upgrade")
+				xpForLevel = upgrade.getLevel("upgrade")+1
 				if whatIsLeveling==SUBUPGRADE then
 					upgrade.addFreeSubUpgrade()
 				else
-					xpCallback(tostring(upgrade.getLevel("upgrade")+1))
+					xpCallback(tostring(xpForLevel))
 				end
 				xpSetUpgradeDiscount(0.0)
 				self.updateXpToNextLevel()
