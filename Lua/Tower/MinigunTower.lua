@@ -111,8 +111,39 @@ function MinigunTower.new()
 		reloadTime		= 1.0/upgrade.getValue("RPS")
 		setRotatorSpeed(upgrade.getValue("rotationSpeed"))
 		--
+		billboard:setFloat("damage",dmg)
+		--
 		overheatDec = (1.0/upgrade.getValue("cooldown"))
 		overheatAdd = (1.0/upgrade.getValue("overheat")/upgrade.getValue("RPS") + (overheatDec*reloadTime))
+	end
+	local function setCurrentInfo()
+		if xpManager then
+			xpManager.updateXpToNextLevel()
+		end
+		if myStats.activeTimer and myStats.activeTimer>0.01 then
+			myStats.disqualified = true
+		end
+		
+		updateStats()
+		reloadTimeLeft  = 0.0--instant fire after upgrade
+		
+		overHeatPer = 0.0
+		overheated = false
+		-- overheatAdd = percent increase per bullet = percent increase per secound/RPS
+		
+		increasedDamageToFire = 1.0+upgrade.getValue("fireCrit")
+		
+		if upgrade.getLevel("upgrade")==1 then
+			rotationSpeed = math.pi*2.0*(upgrade.getValue("RPS")/3.0)
+		elseif upgrade.getLevel("upgrade")==2 then
+			rotationSpeed = math.pi*2.0*(upgrade.getValue("RPS")/6.0)
+		else
+			rotationSpeed = math.pi*2.0*(upgrade.getValue("RPS")*0.5/6.0)
+		end
+		--achivment
+		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("overCharge")==3 and upgrade.getLevel("fireCrit")==3 then
+			comUnit:sendTo("SteamAchievement","MinigunMaxed","")
+		end
 	end
 	local function damageDealt(param)
 		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
@@ -148,35 +179,6 @@ function MinigunTower.new()
 			xpManager.payStoredXp(waveCount)
 			--update billboard
 			upgrade.fixBillboardAndStats()
-		end
-	end
-	local function setCurrentInfo()
-		if xpManager then
-			xpManager.updateXpToNextLevel()
-		end
-		if myStats.activeTimer and myStats.activeTimer>0.01 then
-			myStats.disqualified = true
-		end
-		
-		updateStats()
-		reloadTimeLeft  = 0.0--instant fire after upgrade
-		
-		overHeatPer = 0.0
-		overheated = false
-		-- overheatAdd = percent increase per bullet = percent increase per secound/RPS
-		
-		increasedDamageToFire = 1.0+upgrade.getValue("fireCrit")
-		
-		if upgrade.getLevel("upgrade")==1 then
-			rotationSpeed = math.pi*2.0*(upgrade.getValue("RPS")/3.0)
-		elseif upgrade.getLevel("upgrade")==2 then
-			rotationSpeed = math.pi*2.0*(upgrade.getValue("RPS")/6.0)
-		else
-			rotationSpeed = math.pi*2.0*(upgrade.getValue("RPS")*0.5/6.0)
-		end
-		--achivment
-		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("overCharge")==3 and upgrade.getLevel("fireCrit")==3 then
-			comUnit:sendTo("SteamAchievement","MinigunMaxed","")
 		end
 	end
 	local function initModel()
@@ -215,6 +217,7 @@ function MinigunTower.new()
 				activePipe = (activePipe==1) and 0 or 1
 			end
 		
+			print("damage = "..dmg)
 			local targetPosition = targetSelector.getTargetPosition()
 			local length = -(this:getGlobalPosition()-targetPosition):length()
 		

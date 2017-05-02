@@ -339,7 +339,9 @@ function Upgrade.new()
 	--			if value[1].duration then
 	--				str = str.."duration="..value[level].duration..";"
 	--			end
-				if onCooldown then
+				if isInXpMode and value[level].name=="upgrade" and statsBilboard:getInt("wave")<(level-1)*10 then
+					str = str.."duration="..value[level].cooldown..";timerStart="..value[1].startWaveCooldown..";"
+				elseif onCooldown then
 					str = str.."duration="..value[level].cooldown..";timerStart="..value[1].startWaveCooldown..";"
 				end
 				--add specific information

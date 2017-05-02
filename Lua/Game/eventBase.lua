@@ -1052,9 +1052,6 @@ function EventBase.new()
 							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="default" then
 								comUnit:sendTo("SteamAchievement","BeatDefaultInsane","")
 							end
-							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="survival" then
-								comUnit:sendTo("SteamAchievement","BeatSurvivalInsane","")
-							end
 							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="training" then
 								comUnit:sendTo("SteamAchievement","BeatTrainingInsane","")
 							end

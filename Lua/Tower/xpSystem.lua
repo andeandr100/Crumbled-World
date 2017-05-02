@@ -144,7 +144,7 @@ function XpSystem.new(upg)
 				if whatIsLeveling==SUBUPGRADE then
 					upgrade.addFreeSubUpgrade()
 				else
-					xpCallback()
+					xpCallback(tostring(upgrade.getLevel("upgrade")+1))
 				end
 				xpSetUpgradeDiscount(0.0)
 				self.updateXpToNextLevel()
