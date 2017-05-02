@@ -140,7 +140,8 @@ function Upgrade.new()
 		end
 		
 		if not (name=="upgrade" or name=="boost" or name=="calculate") and freeSubUpgradesCount>0 then
-			freeSubUpgradesCount = math.max(0, freeSubUpgradesCount - 1)
+			subUpgradeCount = subUpgradeCount - ((name=="upgrade" or name=="boost" or name=="calculate" or name=="range" or name=="gold" or name=="supportRange" or name=="supportDamage" or name=="smartTargeting") and 0 or 1)
+			freeSubUpgradesCount = freeSubUpgradesCount - 1
 		else
 			if name=="upgrade" then
 				local lCost = (upgraded[order] and upgradesAvailable[name][upgraded[order].level+1].cost or upgradesAvailable[name][1].cost)
