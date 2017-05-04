@@ -243,7 +243,7 @@ function Shop.new(camera)
 	--
 	local function shopButtonClicked(theButton)
 		local towerName,upgName = string.match(theButton:getTag():toString(), "(.*);(.*)")
-		local permUnlocked = true --data.getBoughtUpg(towerName,upgName,false)==data.getBuyablesTotal(upgName,false)
+		local permUnlocked = data.getBoughtUpg(towerName,upgName,false)==data.getBuyablesTotal(upgName,false)
 		
 		--if add permenent upgrades, then remove existing permenent upgrades
 		if permUnlocked and data.getTotalBuyablesBoughtForTower(towerName,true)>=1 then

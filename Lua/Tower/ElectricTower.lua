@@ -134,6 +134,7 @@ function ElectricTower.new()
 		--stats
 		energySent = energySent + willSend
 		comUnit:sendTo("SteamStats","ElectricTowerMaxEnergySent",energySent)
+		print("========== energySent == "..energySent)
 		--	
 		--debug
 		--
