@@ -33,7 +33,6 @@ function BladeTower.new()
 	local angle = 0.0
 	local anglePreviousFrame = 0.0
 	local status = STATUS_WAITING
-	local lastEnemyInRange = 0.0
 	local reloadTimeLeft = 0.0
 	--model
 	local model
@@ -49,6 +48,7 @@ function BladeTower.new()
 	local rotationSpeed = 0
 	--attack
 	local pipeAt = Vec3()
+	local attackLine
 	local range = 0.0
 	local maxRange
 	local bulletStartPos
@@ -215,6 +215,8 @@ function BladeTower.new()
 			end
 		end
 		billboard:setDouble("bladeSpeed",upgrade.getValue("bladeSpeed"))
+		--
+		attackLine = Line3D(this:getGlobalPosition(),this:getGlobalPosition()+(pipeAt*upgrade.getValue("range")))
 		--achievment
 		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("electricBlade")==3 and upgrade.getLevel("shieldBreaker")==1 and upgrade.getLevel("masterBlade")==3 then
 			comUnit:sendTo("SteamAchievement","BladeMaxed","")
@@ -351,23 +353,6 @@ function BladeTower.new()
 		reloadTimeLeft = reloadTimeLeft + (1.0/upgrade.getValue("RPS"))
 		--debug
 		myStats.attacks = myStats.attacks + 1
-	end
-	local function isAnyTargetInRange()
-		if targetSelector.isAnyInCapsule(Line3D(this:getGlobalPosition(),this:getGlobalPosition()+(pipeAt*upgrade.getValue("range"))),1.5) then
-			if lastEnemyInRange>1.5 then
-				--if the npc are entering close to the tower we will wait 1.25s for him and his friend to get in the line before attack (otherwise first blade will only hitt 1-2npcs)
-				targetSelector.selectAllInCapsule(Line3D(this:getGlobalPosition(),this:getGlobalPosition()+(pipeAt*upgrade.getValue("range"))),1.5)
-				targetSelector.scoreClosest(10)
-				targetSelector.selectTargetAfterMaxScore()
-				local pos = targetSelector.getTargetPosition()
-				if (this:getGlobalPosition()-pos):length()<4.0 then
-					reloadTimeLeft = 1.25
-				end
-			end
-			lastEnemyInRange=0.0
-			return true
-		end
-		return false
 	end
 	function self.handleUpgrade(param)
 		if tonumber(param)<=upgrade.getLevel("upgrade") then
@@ -584,11 +569,12 @@ function BladeTower.new()
 		--
 		--debug start
 		--
-		lastEnemyInRange = lastEnemyInRange + deltaTime
-		local anyInRange = isAnyTargetInRange()
+		local anyInRange = targetSelector.selectAllInCapsule(attackLine,1.5)
 		if anyInRange then
 			myStats.activeTimer = myStats.activeTimer + deltaTime
 		end
+--		print("anyInRange["..tostring(status==STATUS_WAITING).."] == "..tostring(anyInRange) )
+--		print("reloadTimeLeft == "..tostring(reloadTimeLeft) )
 		--
 		--debug end
 		--
@@ -930,6 +916,13 @@ function BladeTower.new()
 		supportManager.addHiddenUpgrades()
 		supportManager.addSetCallbackOnChange(updateStats)
 	
+		--set default vector for pipe
+		pipeAt = this:getGlobalMatrix():getAtVec()
+		checkRange()
+		billboard:setVec3("towerDirection",pipeAt)
+		billboard:setInt("currentTargetMode",0)
+		billboard:setString("targetMods","")
+	
 		self.handleUpgrade(1)
 	
 		myStatsReset()
@@ -942,13 +935,6 @@ function BladeTower.new()
 		this:addChild(soundRelease)
 		soundRelease:setSoundPlayLimit(4)
 		soundRelease:setLocalSoundPLayLimit(3)
-	
-		--set default vector for pipe
-		pipeAt = this:getGlobalMatrix():getAtVec()
-		checkRange()
-		billboard:setVec3("towerDirection",pipeAt)
-		billboard:setInt("currentTargetMode",0)
-		billboard:setString("targetMods","")
 		
 		cTowerUpg.addUpg("attackSpeed",handleAttackSpeed)
 		cTowerUpg.addUpg("masterBlade",handleMasterBlade)

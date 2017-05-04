@@ -543,7 +543,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	addLanguageRow("quak tower fire")
 	addLanguageRow("quak tower electric")
 	
-	addLanguageHeader("Quake tower")
+	addLanguageHeader("Support tower")
 	addLanguageRow("support tower level")
 	addLanguageRow("support tower boost")
 	addLanguageRow("support tower range")

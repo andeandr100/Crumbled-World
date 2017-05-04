@@ -94,7 +94,7 @@ function Shop.new(camera)
 		local str = Text()
 		
 		local permLeft = data.getBuyablesTotal(upgName,true)-data.getBoughtUpg(towerName,upgName,true)
-		local doneLevels = data.getBoughtUpg(towerName,upgName,false)
+		local doneLevels = upgName=="freeUpgrade" and 1 or data.getBoughtUpg(towerName,upgName,false)
 		for i=1, doneLevels do
 			if permLeft==0 and i==1 then
 				str = str + "<font color=rgb(40,255,40)>"
@@ -119,7 +119,7 @@ function Shop.new(camera)
 		if doneLevels~=displayLevel then
 			str = str + "<font color=rgb(255,255,40)>"
 			str = str + language:getText("locked") + ":</font>\n"
-			for i=displayLevel, data.getBuyablesTotal(upgName,false) do
+			for i=displayLevel, data.getBuyablesTotal(upgName,upgName=="freeUpgrade") do
 				str = str + ("Level "..i.." = ")
 				tab =  towerUpgInfo[towerName][upgName][i]
 				if not tab then
@@ -178,9 +178,15 @@ function Shop.new(camera)
 		if towerName=="Tower/quakerTower.lua" then
 			local permUnlockLeft = data.getBuyablesLimitForTower(towerName,true)-data.getTotalBuyablesBoughtForTower(towerName,true)
 			if textPanels[towerName].buyable then
-				local str = tostring(data.getTotalBuyablesBoughtForTower(towerName,false)+data.getTotalBuyablesBoughtForTower(towerName,true))
+				local str = tostring(data.getTotalBuyablesBoughtForTower(towerName,false))
+				if data.getTotalBuyablesBoughtForTower(towerName,true)>0 then
+					str = str.."(+"..tostring(data.getTotalBuyablesBoughtForTower(towerName,true))..")"
+				end
 				str = str.."/"
-				str = str..(data.getBuyablesLimitForTower(towerName,false)+data.getBuyablesLimitForTower(towerName,true))
+				str = str..(data.getBuyablesLimitForTower(towerName,false))
+				if permUnlockLeft>0 then
+					str = str.."(+"..tostring(data.getBuyablesLimitForTower(towerName,true))..")"
+				end
 				textPanels[towerName].buyable:setText(str)
 			end
 			if data.getBoughtUpg(towerName,upgName,false)==3 and (upgName=="overCharge" or (towerName=="Tower/quakerTower.lua" and (upgName=="fireCrit" or upgName=="fireStrike" or upgName=="electricStrike"))) then
@@ -237,7 +243,7 @@ function Shop.new(camera)
 	--
 	local function shopButtonClicked(theButton)
 		local towerName,upgName = string.match(theButton:getTag():toString(), "(.*);(.*)")
-		local permUnlocked = data.getBoughtUpg(towerName,upgName,false)==data.getBuyablesTotal(upgName,false)
+		local permUnlocked = true --data.getBoughtUpg(towerName,upgName,false)==data.getBuyablesTotal(upgName,false)
 		
 		--if add permenent upgrades, then remove existing permenent upgrades
 		if permUnlocked and data.getTotalBuyablesBoughtForTower(towerName,true)>=1 then
@@ -519,7 +525,7 @@ function Shop.new(camera)
 		--bottomPanel:add(Panel(PanelSize(Vec2(0.025,-1))))--spacing
 		crystalCountLabel = bottomPanel:add(Label(PanelSize(Vec2(-1,0.035),Vec2(1.25,1)), tostring(data.getCrystal()), Vec3(0.94), Alignment.MIDDLE_LEFT))
 		local image = bottomPanel:add(Image(PanelSize(Vec2(0.035),Vec2(0.9,1)), Text("icon_table.tga")))
-		image:setUvCoord(Vec2(0.5, 0.75),Vec2(0.625, 0.875))
+		image:setUvCoord(Vec2(0.5, 0.375),Vec2(0.625, 0.4375))
 		
 		--close
 		bottomPanel:add(Panel(PanelSize(Vec2(-1,0.03),Vec2(3,1))))--spacing
