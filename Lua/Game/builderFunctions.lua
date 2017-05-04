@@ -28,7 +28,8 @@ function BuilderFunctions.new(keyBinds, inCamera)
 				targetArea.setExtraRangeInfo( numRanges, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
 				targetArea.changeModel("sphere", towerBilboard:getFloat("range"), 0, targetMatrix)
 			elseif targetAreaName == "capsule" then
-				targetArea.setExtraRangeInfo( 0, {}, {} )
+				local addedRange = towerBilboard:getFloat("rangePerUpgrade")
+				targetArea.setExtraRangeInfo( 3, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
 				targetArea.changeModel("capsule", towerBilboard:getFloat("range"), 0, targetMatrix)
 			elseif targetAreaName == "cone" then
 				local addedRange = towerBilboard:getFloat("rangePerUpgrade")

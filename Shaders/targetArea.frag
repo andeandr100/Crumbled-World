@@ -56,6 +56,31 @@ void main()
 	}else{
 		alpha = (0.05 - min(0.05,abs( Radius - distance) ) ) * 22.0;
 
+#if defined(LINE)
+		vec3 atVec = normalize(LineEnd - LineStart);
+		float addedRange = 0.0;
+		for( int i=0; i<NumExtraRange; i++ ){
+			addedRange += ExtraRange[i];
+			float newDistance = lineSegmentPointLength(LineStart, LineEnd + atVec * addedRange, FragPos) + 0.01;
+			if(newDistance < distance){
+			
+				distance = newDistance;
+
+				float curentAlpha = 0.0;
+				if( distance < Radius ){
+					curentAlpha = ((Radius*0.5) - min((Radius*0.5),abs( Radius - distance) ) ) / (Radius*0.5) * 0.2 * ExtraRangeColor[i].a;
+				}else{
+					curentAlpha = (0.05 - min(0.05,abs( Radius - distance) ) ) * 22.0 * ExtraRangeColor[i].a;
+				}
+			
+				if(curentAlpha >= alpha && alpha < 0.2){
+					color = ExtraRangeColor[i].rgb;
+					alpha = max(alpha, curentAlpha);
+				}
+			}
+		}
+#else
+
 		float currentRange = Radius;
 		for( int i=0; i<NumExtraRange; i++ ){
 			float addRange = ExtraRange[i];
@@ -74,6 +99,7 @@ void main()
 			}
 			
 		}
+#endif
 	}
 
 	

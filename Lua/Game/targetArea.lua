@@ -142,7 +142,8 @@ function TargetArea.new()
 					self.setExtraRangeInfo( math.max(0,4-rangeLevel), {addedRange,addedRange,addedRange}, colorTabel )
 					self.changeModel("sphere", towerBilboard:getFloat("range"), 0, targetMatrix)
 				elseif targetAreaName == "capsule" then
-					self.setExtraRangeInfo( 0, {}, {} )
+					local addedRange = towerBilboard:getFloat("rangePerUpgrade")
+					self.setExtraRangeInfo( math.max(0,4-rangeLevel), {addedRange,addedRange,addedRange}, colorTabel )
 					self.changeModel("capsule", towerBilboard:getFloat("range"), 0, targetMatrix)
 				elseif targetAreaName == "cone" then
 					local addedRange = towerBilboard:getFloat("rangePerUpgrade")

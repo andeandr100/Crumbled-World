@@ -717,6 +717,7 @@ function BladeTower.new()
 		supportManager.setComUnitTable(comUnitTable)
 		supportManager.addCallbacks()
 		
+		billboard:setDouble("rangePerUpgrade",1.5)
 		upgrade.setBillboard(billboard)
 		upgrade.addDisplayStats("damage")
 		upgrade.addDisplayStats("RPS")
