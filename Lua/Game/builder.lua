@@ -583,7 +583,7 @@ function update()
 					local wallTowerCost = wallTowerScript:getBillboard():getFloat("cost")
 					--update this specific tower location cost
 					buildCost = buildCost - wallTowerCost
-					if keyUse and keyUse:getPressed() and wallTowerCost <= gold then
+					if keyUse and keyUse:getPressed() and buildCost <= gold then
 						--upgrade the building
 --						AutoBuilder.changeBuilding(building, currentTower, building:findNodeByTypeTowardsRoot(NodeId.island):getGlobalMatrix():inverseM() * towerMatrix )
 						local newBuildingMatrix = building:getParent():getGlobalMatrix():inverseM() * towerMatrix
