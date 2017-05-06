@@ -233,7 +233,7 @@ function update()
 	end
 	if money ~= statsBilboard:getDouble("gold") then
 		money = statsBilboard:getDouble("gold")
-		moneyLabel:setText(numberToSmalString(money))
+		moneyLabel:setText(numberToSmalString(math.max(0,money)))
 	end
 
 	form:update();
