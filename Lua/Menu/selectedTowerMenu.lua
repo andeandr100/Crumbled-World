@@ -49,6 +49,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local buttonPanels = {}
 	local buttonCostPanels = {}
 	local wallTowerButtons = {}
+	local wallTowerCostLabels = {}
 	local initSelectedmenuFunction = nil
 	local buildingBillBoard = nil
 	local buildingScript = nil
@@ -304,6 +305,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				button:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
 				
 				wallTowerButtons[#wallTowerButtons+1] = button
+				wallTowerCostLabels[#wallTowerCostLabels+1] = costLabel
 				
 				columns[i]:add(button)
 			end
@@ -332,6 +334,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			local texture = Core.getTexture("icon_table.tga")
 			local button = wallTowerSellPanel:add(Button(PanelSize(Vec2(-0.6,-0.6), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, texture, Vec2(0,0), Vec2(0.125, 0.0625)))
 			wallTowerButtons[#wallTowerButtons + 1] = button
+			wallTowerCostLabels[#wallTowerCostLabels + 1] = button
 			
 			button:addEventCallbackExecute(sellTower)	
 			button:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
@@ -1381,7 +1384,9 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				local buildCost = buildingScript:getBillboard():getFloat("cost")
 				upgradeBuildCost = (buildCost-getTowerCost(1))
 			end
-			wallTowerButtons[i]:setEnabled(buildingBillBoard:getBool("isNetOwner") and upgradeBuildCost <= billboardStats:getDouble("gold"))
+			local enable = buildingBillBoard:getBool("isNetOwner") and upgradeBuildCost <= billboardStats:getDouble("gold")
+			wallTowerButtons[i]:setEnabled(enable)
+			wallTowerCostLabels[i]:setTextColor(enable and Vec4(1) or Vec4(0.8,0.2,0.2,1))
 		end
 	end
 	
