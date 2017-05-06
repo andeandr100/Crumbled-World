@@ -61,16 +61,16 @@ function XpSystem.new(upg)
 	--updated the xp for next level and keep check if upgraded from the outside
 	function self.updateXpToNextLevel()
 		if xp then
-			local subUpGradesGained = upgrade.getSubUpgradeCount()+upgrade.getFreeSubUpgradeCounts()
+			local subUpGradesAvailable = upgrade.getSubUpgradeCount()+upgrade.getFreeSubUpgradeCounts()
 			if xpForLevel~=upgrade.getLevel("upgrade") then
 				--tower has been upgraded
 				self.hasBeenUpgraded()
 			end
-			if xpForSubLevel~=subUpGradesGained then
+			if xpForSubLevel~=subUpGradesAvailable then
 				--tower has been sub upgraded
 				self.hasBeenSubUpgraded()
 			end
-			if (upgrade.getLevel("upgrade")==2 and subUpGradesGained<1) or (upgrade.getLevel("upgrade")==3 and subUpGradesGained<3) then
+			if (upgrade.getLevel("upgrade")==2 and subUpGradesAvailable<1) or (upgrade.getLevel("upgrade")==3 and subUpGradesAvailable<3) then
 				--next thing up is a subupgrade
 				whatIsLeveling = SUBUPGRADE
 				xpToNextLevel = upgrade.getNextPaidSubUpgradeCost()

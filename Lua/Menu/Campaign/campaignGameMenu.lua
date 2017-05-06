@@ -58,7 +58,11 @@ function CampaignGameMenu.new(panel)
 	end
 	local function updateRewardInfo()
 		if rewardLabel then	
-			rewardLabel:setText( tostring(levelInfo.getReward()) )
+			if gameModeBox.getIndexText()~="survival" then
+				rewardLabel:setText( tostring(levelInfo.getReward()) )
+			else
+				rewardLabel:setText( "0" )
+			end
 		end
 	end
 	local function setSelectedButtonColor(button)

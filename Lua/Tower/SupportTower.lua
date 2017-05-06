@@ -127,6 +127,7 @@ function SwarmTower.new()
 	-- param:		the amount of damage increased
 	local function dmgDealtMarkOfDeath(param)
 		myStats.dmgDoneMarkOfDeath = myStats.dmgDoneMarkOfDeath + tonumber(param)
+		xpManager.addXp(tonumber(param))
 		billboard:setDouble("DamageCurrentWavePassive",myStats.dmgDoneMarkOfDeath or 0.0)
 	end
 	-- function:	handleGoldStats
