@@ -685,6 +685,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function updateButton(name, inText)
+		print("\n=== updateButton ===")
 		print("Name "..name)
 		print("Text: \""..(inText and inText or "nil").."\"")
 		if not towerInfo.buttonsInfo[name] then
@@ -751,8 +752,12 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					
 					
 				else
-					buttoninfo.button:setEnabled(name == "sell" and buildingBillBoard:getBool("isNetOwner"))
 					
+					if name == "upgrade2" then
+						buttoninfo.button:setEnabled(buttoninfo.cost ~= nil)
+					else
+						buttoninfo.button:setEnabled(name == "sell" and buildingBillBoard:getBool("isNetOwner"))
+					end
 					buttoninfo.costLabel:setVisible(false)
 					buttoninfo.costIcon:setVisible(false)
 					if buttoninfo["require"] ~= nil then
@@ -789,8 +794,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					buttoninfo.button:setEnabled(false)
 				end
 				
-				--boost button
-				if buttoninfo.timerStart ~= nil and buttoninfo.duration ~= nil then
+				--boost button, only allowed on boost button
+				if buttoninfo.timerStart ~= nil and buttoninfo.duration ~= nil and name == "upgrade2" then
 					
 					if tonumber(buttoninfo.duration.value) == 10 then
 						--count down in seconds
@@ -859,7 +864,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				requireLabel:setVisible(false)
 				costIcon = Panel(PanelSize(Vec2(-1),Vec2(1)))
 				costIconSprite = Sprite(texture)
-				costIconSprite:setUvCoord(Vec2(), Vec2(0.125))
+				costIconSprite:setUvCoord(Vec2(), Vec2(0.125,0.0625))
 				costIcon:setBackground(costIconSprite)
 				costPanel:add(Panel(PanelSize(Vec2(-1),Vec2(-0.125,-1))))
 				costPanel:add(costLabel)
@@ -900,8 +905,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				end
 				
 				
-				--boost button
-				if buttoninfo.timerStart ~= nil and buttoninfo.duration ~= nil then
+				--boost button timer, only allowed on boost button
+				if buttoninfo.timerStart ~= nil and buttoninfo.duration ~= nil and name == "upgrade2" then
 					if tonumber(buttoninfo.duration.value) == 10 then
 						local str = tostring(math.round( (tonumber(buttoninfo.duration.value) + tonumber(buttoninfo.timerStart.value)) - Core.getGameTime() ))
 						local timeLabel = button:add(Label(PanelSize(Vec2(-1)), str, MainMenuStyle.textColor, Alignment.MIDDLE_CENTER))
@@ -1033,6 +1038,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			
 			towerInfo.buttonsInfo[name] = nil
 		end
+		print("====================")
 	end
 	
 	local function buildToolTipPanelForUpgradeInfo(info)
@@ -1215,7 +1221,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function updateButtons()
-		
+
 	
 		local numUpgradeButtons = buildingBillBoard:getInt("numupgrades")
 		
@@ -1293,7 +1299,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					end
 				else
 					local buttoninfo = towerInfo.buttonsInfo["upgrade"..i]
-					if buttoninfo and buttoninfo.button then
+					if buttoninfo and buttoninfo.button and i ~= 2 then
 						local enable = buttoninfo.cost ~= nil and (tonumber(buttoninfo.cost.value) <= billboardStats:getDouble("gold"))
 						buttoninfo.button:setEnabled( enable )
 						if buttoninfo.costLabel then
@@ -1320,7 +1326,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			
 			updateUpgradeInfoIcons()
 		end
-		
 	end
 	
 	local function showWallBuildingInformation(button)
@@ -1364,6 +1369,22 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		xpBar:setVisible(buildingBillBoard:exist("xp"))
 	end
 	
+	local function updateWallTowerButtons()
+		for i=1, #wallTowerButtons do
+			
+			local towerNode = buildingNodeBillboard:getSceneNode(wallTowerButtons[i]:getTag():toString())
+			--print("\n\n\nShow Node\n")
+			local upgradeBuildCost = 0
+			if towerNode then
+				local buildingScript = towerNode:getScriptByName("tower")
+				--get the cost of the new tower
+				local buildCost = buildingScript:getBillboard():getFloat("cost")
+				upgradeBuildCost = (buildCost-getTowerCost(1))
+			end
+			wallTowerButtons[i]:setEnabled(buildingBillBoard:getBool("isNetOwner") and upgradeBuildCost <= billboardStats:getDouble("gold"))
+		end
+	end
+	
 	local function initSelectedMenu()
 		print("initSelectedMenu")
 		buttonPanel:clear()
@@ -1390,6 +1411,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				form:setVisible(false)
 				form:setVisible(true)
 				if currentTowerName == "wall tower" then
+					selectedBuildingType = 2
 					header:setText(Text("<b>")+language:getText(currentTowerName))
 					initWallTower()
 					print("Change panelSize to wallTower size")
@@ -1399,9 +1421,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					imagePanel:setVisible(false)
 					targetArea.hiddeTargetMesh()
 					
-					for i=1, #wallTowerButtons do
-						wallTowerButtons[i]:setEnabled(buildingBillBoard:getBool("isNetOwner"))
-					end
+					updateWallTowerButtons()
+					--columns
 					--buildingBillBoard:getBool("isNetOwner")
 				else
 					
@@ -1854,6 +1875,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				if boostLabel and boostTime then
 					boostLabel:setText(""..(boostDuration-math.round(Core.getGameTime()-boostTime)))
 				end
+			elseif selectedBuildingType == 2 then
+				updateWallTowerButtons()
 			end
 			
 			if buildingLastSelected then

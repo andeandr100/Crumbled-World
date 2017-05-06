@@ -107,6 +107,11 @@ function handleGoldInterest(amount)
 	billboard:setDouble( "totalGoldInterestEarned", billboard:getDouble("totalGoldInterestEarned")+interestEarned )
 end
 function handleRemoveGold(amount)
+	if billboard:getDouble("gold")-tonumber(amount) < 1.0 then
+		print("\n##########################")
+		print("Gold: "..billboard:getDouble("gold")-tonumber(amount))
+		print("##########################")
+	end
 	billboard:setDouble("gold", billboard:getDouble("gold")-tonumber(amount))
 end
 function handleSetMaxwave(inWave)
