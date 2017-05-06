@@ -482,7 +482,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	
 	--tutorial
 	addLanguageHeader("Tutorial")
-	for i=1, 17 do
+	for i=1, 11 do
 		addLanguageRow("tutorial "..i)
 	end
 	

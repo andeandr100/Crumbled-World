@@ -142,18 +142,18 @@ function create()
 	tutorialTexts = {}
 	if fileName=="Data/Map/Campaign/Beginning.map" then
 		images[1] = Core.getTexture("tutorial1.png")
-		for i=1, 12 do
+		for i=1, 6 do
 			tutorialTexts[i] = language:getText("tutorial "..i)
 		end
 	elseif fileName=="Data/Map/Campaign/Intrusion.map" then
 		images[1] = Core.getTexture("tutorial2_1.png")
-		tutorialTexts[1] = language:getText("tutorial 13")
-		tutorialTexts[2] = language:getText("tutorial 14")
-		tutorialTexts[3] = language:getText("tutorial 15")
+		tutorialTexts[1] = language:getText("tutorial 7")
+		tutorialTexts[2] = language:getText("tutorial 8")
+		tutorialTexts[3] = language:getText("tutorial 9")
 	elseif fileName=="Data/Map/Campaign/Expansion.map" then
 		images[1] = Core.getTexture("tutorial3_1.png")
-		tutorialTexts[1] = language:getText("tutorial 16")
-		tutorialTexts[2] = language:getText("tutorial 17")
+		tutorialTexts[1] = language:getText("tutorial 10")
+		tutorialTexts[2] = language:getText("tutorial 11")
 	end
 	local textureSize = images[1]:getSize()
 	
