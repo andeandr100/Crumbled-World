@@ -62,11 +62,11 @@ function XpSystem.new(upg)
 	function self.updateXpToNextLevel()
 		if xp then
 			local subUpGradesAvailable = upgrade.getSubUpgradeCount()+upgrade.getFreeSubUpgradeCounts()
-			if xpForLevel~=upgrade.getLevel("upgrade") then
+			if xpForLevel~=upgrade.getLevel("upgrade") and whatIsLeveling==MAINUPGRADE then
 				--tower has been upgraded
 				self.hasBeenUpgraded()
 			end
-			if xpForSubLevel~=subUpGradesAvailable then
+			if xpForSubLevel~=subUpGradesAvailable and whatIsLeveling==SUBUPGRADE then
 				--tower has been sub upgraded
 				self.hasBeenSubUpgraded()
 			end

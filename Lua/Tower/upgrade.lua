@@ -22,7 +22,6 @@ function Upgrade.new()
 	local subUpgradeCountTotal = 0
 	local SubUpgradeDiscount = 0.0
 	local freeSubUpgradesCount = 0
-	local freeSubUpgradesCountTotal = 0
 	local upgradeDiscount = 0
 	local diffUpgradeCount = 0 
 	local interpolation = 0.0	--when leveling mode is active
@@ -497,9 +496,8 @@ function Upgrade.new()
 	--returns the full price of the nextSubUpgrade
 	function self.getNextPaidSubUpgradeCost()
 		local baseCost = upgradesAvailable["upgrade"][1].cost*0.5
-		--freeSubUpgradesCount is the already earned free upgrades
-		--freeSubUpgrades is the discount 
-		return baseCost + ((subUpgradeCount+freeSubUpgradesCount)*baseCost)--freeSubUpgradesCount is the already earned free upgrades
+		local totalCost = isInXpMode and baseCost + (subUpgradeCountTotal*baseCost) or baseCost + (subUpgradeCount*baseCost)
+		return totalCost-(totalCost*SubUpgradeDiscount)--freeSubUpgrades is a discount value (sort of)
 	end
 	--calculate actual subUpgradeCost with discount
 	function self.calculateCostUpgrade()
