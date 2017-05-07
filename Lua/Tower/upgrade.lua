@@ -142,7 +142,7 @@ function Upgrade.new()
 		
 		if not (name=="upgrade" or name=="boost" or name=="calculate") and freeSubUpgradesCount>0 then
 			subUpgradeCount = subUpgradeCount - ((name=="upgrade" or name=="boost" or name=="calculate" or name=="range" or name=="gold" or name=="supportRange" or name=="supportDamage" or name=="smartTargeting") and 0 or 1)
-			freeSubUpgradesCount = freeSubUpgradesCount - 1
+			freeSubUpgradesCount = math.max(0,freeSubUpgradesCount - 1)
 		else
 			if name=="upgrade" then
 				local lCost = (upgraded[order] and upgradesAvailable[name][upgraded[order].level+1].cost or upgradesAvailable[name][1].cost)
@@ -497,6 +497,7 @@ function Upgrade.new()
 	function self.getNextPaidSubUpgradeCost()
 		local baseCost = upgradesAvailable["upgrade"][1].cost*0.5
 		local totalCost = isInXpMode and baseCost + (subUpgradeCountTotal*baseCost) or baseCost + (subUpgradeCount*baseCost)
+		--local totalCost = isInXpMode and baseCost + ((subUpgradeCountTotal+freeSubUpgradesCount)*baseCost) or baseCost + (subUpgradeCount*baseCost)
 		return totalCost-(totalCost*SubUpgradeDiscount)--freeSubUpgrades is a discount value (sort of)
 	end
 	--calculate actual subUpgradeCost with discount
@@ -525,10 +526,10 @@ function Upgrade.new()
 		return freeSubUpgradesCount
 	end
 	function self.addFreeSubUpgrade()
-		freeSubUpgradesCount = freeSubUpgradesCount + 1
+		freeSubUpgradesCount = math.max(freeSubUpgradesCount,0) + 1
 	end
 	function self.removeFreeSubUpgrade()
-		freeSubUpgradesCount = freeSubUpgradesCount - 1
+		freeSubUpgradesCount = math.max(0,freeSubUpgradesCount - 1)
 	end
 	function self.setSubUpgradeDiscount(amount)
 		SubUpgradeDiscount = amount

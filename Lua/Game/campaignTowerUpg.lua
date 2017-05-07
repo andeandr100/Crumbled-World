@@ -30,13 +30,13 @@ function CampaignTowerUpg.new(pTowerFile,pUpgrade)
 					if upgrade.getLevel("upgrade")==3 and self.getIsPermUpgraded(upgName,1) then
 						upgrade.addFreeSubUpgrade()--because it is a free upgrade
 						func( tostring(upgrade.getLevel(upgName)+1) )
-						upgrade.removeFreeSubUpgrade()
+						--upgrade.removeFreeSubUpgrade()
 					end
 				else
 					if self.getIsPermUpgraded(upgName,currentLevel) then
 						upgrade.addFreeSubUpgrade()--because it is a free upgrade
 						func( tostring(upgrade.getLevel(upgName)+1) )
-						upgrade.removeFreeSubUpgrade()
+						--upgrade.removeFreeSubUpgrade()
 					end
 				end
 			end

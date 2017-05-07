@@ -46,29 +46,29 @@ function XpSystem.new(upg)
 	function self.setUpgradeCallback(upgradeCallback)
 		upgCallback = upgradeCallback
 	end
-	function self.hasBeenUpgraded()
-		xpForLevel = upgrade.getLevel("upgrade")
-		xp = 0.0
-		billboard:setDouble("xpToNextLevel",xp)
-		billboard:setDouble("xp",xp)
-	end
-	function self.hasBeenSubUpgraded()
-		xpForSubLevel = upgrade.getSubUpgradeCount()+upgrade.getFreeSubUpgradeCounts()
-		xp = 0.0
-		billboard:setDouble("xpToNextLevel",xp)
-		billboard:setDouble("xp",xp)
-	end
+--	function self.hasBeenUpgraded()
+--		xpForLevel = upgrade.getLevel("upgrade")
+--		xp = 0.0
+--		billboard:setDouble("xpToNextLevel",xp)
+--		billboard:setDouble("xp",xp)
+--	end
+--	function self.hasBeenSubUpgraded()
+--		xpForSubLevel = upgrade.getSubUpgradeCount()+upgrade.getFreeSubUpgradeCounts()
+--		xp = 0.0
+--		billboard:setDouble("xpToNextLevel",xp)
+--		billboard:setDouble("xp",xp)
+--	end
 	--updated the xp for next level and keep check if upgraded from the outside
 	function self.updateXpToNextLevel()
 		if xp then
 			local subUpGradesAvailable = upgrade.getSubUpgradeCount()+upgrade.getFreeSubUpgradeCounts()
 			if xpForLevel~=upgrade.getLevel("upgrade") and whatIsLeveling==MAINUPGRADE then
 				--tower has been upgraded
-				self.hasBeenUpgraded()
+				xp = 0.0
 			end
 			if xpForSubLevel~=subUpGradesAvailable and whatIsLeveling==SUBUPGRADE then
 				--tower has been sub upgraded
-				self.hasBeenSubUpgraded()
+				xp = 0.0
 			end
 			if (upgrade.getLevel("upgrade")==2 and subUpGradesAvailable<1) or (upgrade.getLevel("upgrade")==3 and subUpGradesAvailable<3) then
 				--next thing up is a subupgrade
