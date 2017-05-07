@@ -92,7 +92,7 @@ function XpSystem.new(upg)
 		end
 	end
 	function self.getLevelPercentDoneToNextLevel()
-		if xpToNextLevel>=0 then
+		if whatIsLeveling==MAINUPGRADE and xpToNextLevel>=0 then
 			return xp/xpToNextLevel
 		else
 			return 0.0
