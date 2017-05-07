@@ -444,6 +444,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	addLanguageRow("wall tower")
 	addLanguageRow("missile tower")
 	addLanguageRow("quake tower")
+	addLanguageRow("support tower")
 	
 	--Tower information
 	addLanguageHeader("Tower info")
