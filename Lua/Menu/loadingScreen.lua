@@ -44,12 +44,10 @@ function create()
 	info = {
 		"Turtles shield will stop incoming projectile",
 		"Missile and swarm balls will detonate upon the turtles shield",
-		"Swarm tower takes about 8 seconds of continusly fireing to do maxmum damage",
-		"Mingun, arrow and cutter tower can't shot thrue skeletons tower shield",
-		"Boost towers to get thurder without needing to spend gold",
-		"Only Spend gold when needed, money in the bank gain intrest on every kill",
-		"For every 1000g you recive 1 gold intrest on every kill",
-		"To beat the higher level money managment is needed",
+		"Swarm tower takes about 8 seconds of continuously firing to do maximum damage",
+		"Mingun, arrow and cutter tower can't shot thru skeletons tower shield",
+		"Boost towers to clear hard waves",
+		"Gold saved is increased when an enemy is killed",
 		"Swarm tower can't attack fire spirit",
 		"Electric tower don't attack electric spirit"
 	}
@@ -66,7 +64,7 @@ function create()
 	scene:addChild( borderTop )
 	scene:addChild( borderBottom )
 	scene:addChild( movingObj )
-	scene:addChild( textNode )
+--	scene:addChild( textNode )
 	camera:add2DScene(scene)
 	
 	resize()

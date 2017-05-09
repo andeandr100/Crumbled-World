@@ -64,7 +64,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function addSoul(data)
-		if data ~= nil and data.id then
+		if data ~= nil and data.id and type(data.node) == "userdata" then
 			souls[data.id] = data.node
 			counter = counter + 1
 			print("num souls "..counter)
