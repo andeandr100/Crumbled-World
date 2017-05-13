@@ -176,7 +176,7 @@ local function numberToSmalString(num)
 --	1000000000001	= 1000.1B	13	1	3	8
 --	10000000000001	= 10000B	14	2	3	8
 --	100000000000001	= 100000B	15	0	3	8
-	numberLetterTable = numberLetterTable or {"K","M","G","T","P","E","Z","Y","H",size=9}--"H" == hella
+	numberLetterTable = numberLetterTable or {"K","M","G","T","P","E","Z","Y",size=8}--?("H" == hella)
 	local  digitCount = math.floor(math.log10(num)+1)
 	local i = math.floor((digitCount-7)/3)+1
 	if digitCount<8 then

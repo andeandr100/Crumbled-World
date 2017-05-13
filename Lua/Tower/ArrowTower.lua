@@ -92,7 +92,9 @@ function ArrowTower.new()
 		end
 	end
 	local function dmgDealtMarkOfDeath(param)
-		xpManager.addXp(tonumber(param))
+		if xpManager then
+			xpManager.addXp(tonumber(param))
+		end
 		myStats.dmgDoneMarkOfDeath = myStats.dmgDoneMarkOfDeath + tonumber(param)
 	end
 	local function damageLost(param)

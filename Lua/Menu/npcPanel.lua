@@ -9,6 +9,7 @@ function NpcPanel.new(panel)
 	local delayOffset = 0.25
 	local topPanelRight
 	local frameBufferSize = Vec2i(0,0)
+	local currentWaveIndex = 0
 	
 	local function LaunchNextWave(panel)
 		comUnit:sendTo("EventManager","spawnNextGroup","")
@@ -21,7 +22,7 @@ function NpcPanel.new(panel)
 	
 	local function init()
 		local mapInfo = MapInfo.new()
-		if mapInfo.getGameMode()=="Training" then
+		if mapInfo.getGameMode()=="training" then
 			local nextIcon = Core.getTexture("icon_table.tga")
 			local SkipWaveButton = panel:add(Button(PanelSize(Vec2(-0.6,-1), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, nextIcon, Vec2(0.375,0.25), Vec2(0.50, 0.3125)))
 
@@ -35,13 +36,8 @@ function NpcPanel.new(panel)
 			SkipWaveButton:setEdgeDownColor(Vec4(0), Vec4(0))
 		end
 		
-		
 		topPanelRight = panel:add(Panel(PanelSize(Vec2(-1,-1))))
 		topPanelRight:setLayout(FlowLayout(Alignment.TOP_RIGHT))
-		
-		
-		
-		
 	end
 	
 	function self.addTargetPanel()
@@ -92,6 +88,11 @@ function NpcPanel.new(panel)
 			originalStartDelay = spawnList[spawnList.index].startDelay>0.1 and spawnList[spawnList.index].startDelay or originalStartDelay
 			spawnList[spawnList.index].delay = spawnList[spawnList.index].delay + delay
 		end
+	end
+	local function clearSpawnList()
+--		while spawnList.index<=spawnList.count do
+--			removeTimeLineIcon(0.0)
+--		end
 	end
 	
 	
@@ -357,6 +358,10 @@ function NpcPanel.new(panel)
 	function self.handleStartWave(param)
 		npcToBeRemoved = npcToBeRemoved or {size=0}
 		spawnList = spawnList or {count=0,index=1}
+		if currentWaveIndex>=param then
+			clearSpawnList()
+			spawnList = {count=0,index=1}
+		end
 		startDelayBuff = 0.0
 		noneDelayBuff = 0.0
 		xPixelPerSecond = targetPanel:getPanelContentPixelSize().y*1.75
@@ -403,15 +408,6 @@ function NpcPanel.new(panel)
 			--set frame buffer size
 			--this will only change the buffer if the buffer size changes
 			selectedCamera:setFrameBufferSize(frameBufferSize)
-			
-	--		for i=1, #testIcons do
-	--			testIcons[i]:setSize(Vec2(frameBufferSize.y))
-	--		end
-	--		if currentWave then
-	--			for i=currentIndex, #currentWave do
-	--				currentWave[i].icon:setSize(Vec2(frameBufferSize.y))
-	--			end
-	--		end
 		end
 		if spawnList then
 			--make sure there is enough npc's to fill the menu

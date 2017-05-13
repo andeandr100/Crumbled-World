@@ -31,6 +31,7 @@ function NpcBase.new()
 	local npcSpawnCounter = 0
 	local waypointReachedList = {}
 	local idName
+	local useDeathAnimationOrPhysic = true
 	--stats
 	local npcAge = 0.0
 	--debug
@@ -117,6 +118,7 @@ function NpcBase.new()
 		--Owner
 		spawnOwnerPlayerId = self.getCurrentIslandPlayerId()
 		--
+		comUnitTable["disappear"] = self.disappear
 		comUnitTable["byPassedWaypoint"] = self.reachedWaypointCallback
 		comUnitTable["physicPushIfDead"] = self.physicPushIfDead
 		comUnitTable["addState"] = self.setState
@@ -178,6 +180,12 @@ function NpcBase.new()
 	end
 	function self.getComUnitTable()
 		return comUnitTable
+	end
+	function self.disappear()
+		soul.setHp(-1.0)
+		syncConfirmedDeath = true
+		useDeathAnimationOrPhysic = false
+		gainGoldOnDeath = false
 	end
 	function self.NETSyncDeath(param)
 		soul.setHp(-1.0)
@@ -396,7 +404,7 @@ function NpcBase.new()
 	end
 	--start the death animations/physic/effect
 	function createDeadBody()
-		if Settings.DeathAnimation.getSettings()~="Disabled" then
+		if Settings.DeathAnimation.getSettings()~="Disabled" and useDeathAnimationOrPhysic then
 			--death animations is enabled
 			local otherOptions = false
 			if Settings.DeathAnimation.getSettings()=="Enabled" and Settings.corpseTimer.getInt()>0 and (deathSoftBodyFunc or deathRigidBodyFunc) then
@@ -444,7 +452,6 @@ function NpcBase.new()
 			--success, we have a death animation
 			if deathManager.update and type(deathManager.update)=="function" then
 				update = deathManager.update -- npcBase.update is just our local functions
-				print("Changed[update = "..tostring(update).."]("..Core.getNetworkName()..")")
 				return true
 			else
 				error("unable to set new update function")
@@ -456,7 +463,6 @@ function NpcBase.new()
 			if deathManager.enableSelfDestruct then
 				this:destroyTree()
 			end
-			print("Dead-no honor("..Core.getNetworkName()..")")
 			return false--destroy this script
 		end
 		error("This code should never be reached!!!")
@@ -604,15 +610,15 @@ function NpcBase.new()
 					return false
 				end
 			else
-				if not canSyncNPC() and syncHealthTimer>20.0 then
+				if not canSyncNPC() and syncHealthTimer>10.0 then
 					if Core.isInMultiplayer() then
 						--something is wrong, kill the npc (BAD SOLUTION)
 						local d1 = self
 						local d2 = Core.getNetworkName()
 						local d3 = Core.getTime()
-						error("This should not actually happen!!!")
-						--comUnit:sendNetworkSyncSafe("Net-death","byTower")
-						--syncConfirmedDeath = true (this is bad, will trigger saftey test)
+						--error("This should not actually happen!!!")
+						comUnit:sendNetworkSyncSafe("Net-death","byTower")
+						syncConfirmedDeath = true--(this is bad, will trigger saftey test)
 					end
 				else
 					soul.setHp(1.0)--still alive bad sync only keep alive, should get a hp update soon

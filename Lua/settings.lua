@@ -62,6 +62,7 @@ function create()
 	createKeyboardBind("Camera", "group 3", "Camera raise", -1, Key.pageup);
 	createKeyboardBind("Camera", "group 3", "Camera lower", -1, Key.pagedown);
 	
+	createKeyboardBind("Revert wave", "Revert wave", "RevertWave", -1, Key.backSpace);
 
 	createKeyboardBind("Multiplayer", "Info screen", "Info screen", -1, Key.tab);
 

@@ -30,10 +30,10 @@ function create()
 		keyBinds = Core.getBillboard("keyBind");
 		
 		keyBindSpeed = keyBinds:getKeyBind("Speed")
-		keyBindForward = keyBinds:getKeyBind("Forward");
-		keyBindBackward = keyBinds:getKeyBind("Backward");
-		keyBindLeft = keyBinds:getKeyBind("Left");
-		keyBindRight = keyBinds:getKeyBind("Right");
+		keyBindForward = keyBinds:getKeyBind("Forward")
+		keyBindBackward = keyBinds:getKeyBind("Backward")
+		keyBindLeft = keyBinds:getKeyBind("Left")
+		keyBindRight = keyBinds:getKeyBind("Right")
 		keyBindRotateLeft = keyBinds:getKeyBind("Rotate left")
 		keyBindRotateRight = keyBinds:getKeyBind("Rotate right")
 		keyBindRaise = keyBinds:getKeyBind("Camera raise")
