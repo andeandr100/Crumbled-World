@@ -55,6 +55,8 @@ function restartMap()
 	
 	this:loadLuaScript(this:getCurrentScript():getFileName());
 end
+function restartWave(wave)
+end
 
 function languageChanged()
 	MenuButton:setText(language:getText(MenuButton:getTag()))
@@ -80,6 +82,8 @@ function create()
 		
 		restartListener = Listener("Restart")
 		restartListener:registerEvent("restart", restartMap)
+		restartWaveListener = Listener("RestartWave")
+		restartWaveListener:registerEvent("restartWave", restartWave)
 		
 		comUnit = Core.getComUnit()
 		comUnit:setCanReceiveTargeted(true)

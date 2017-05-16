@@ -19,6 +19,9 @@ function EventBase.new()
 	local EVENT_START_SPAWN =						6 
 	local EVENT_END_GAME =							7
 	
+	local waveRestarted
+	local firstNpcOfWaveHasSpawned = false
+	
 	local waveCount = 0		--what wave we are currently playing
 	local waveCountState = 0
 	local comUnit = Core.getComUnit()--"EventManager"
@@ -169,6 +172,8 @@ function EventBase.new()
 			spawnedThisWave = spawnedThisWave + 1
 			comUnit:sendTo("stats", "setNPCSpawnedThisWave", spawnedThisWave)
 			comUnit:sendTo("stats", "setTotalNPCSpawned", totalSpawned)
+			--
+			firstNpcOfWaveHasSpawned = true
 		end
 	end
 	local function getCopyOfTable(table)
@@ -182,11 +187,11 @@ function EventBase.new()
 		end
 		return ret
 	end
-	local function spawnWave()
+	local function spawnWave(reloadIcons)
 		if waves[waveCount] then
 			currentWaves[#currentWaves+1] = getCopyOfTable( waves[waveCount] )--make a copy of it, then we can go back and re use it
 			currentWaves[#currentWaves].waveUnitIndex = 2
-			comUnit:sendTo("statsMenu","startWave",waveCount)
+			comUnit:sendTo("statsMenu","startWave",tostring(waveCount)..";"..(reloadIcons and "1" or "0") )
 		end
 	end
 	local function clearActiveSpawn()
@@ -237,7 +242,7 @@ function EventBase.new()
 						end
 						spawnCurrentUnit(current,currentPortalId)
 					else
-						print("Not implemented\n")
+						error("Not implemented\n")
 						spawnCurrentUnit(current,math.randomInt(1, #spawns))
 					end
 					--get next unit to spawn
@@ -1005,14 +1010,23 @@ function EventBase.new()
 		if spawnListPopulated then
 			spawnUnits()
 			
---			if keyBindRevertWave:getPressed() and currentState ~= EVENT_END_GAME then
---				if waveCount>1 then
---					waveCount = waveCount - 1
---					currentState = EVENT_CHANGE_WAVE
---					clearActiveSpawn()
---					comUnit:broadCast(Vec3(),math.huge,"disappear","")
---				end
---			end
+			if keyBindRevertWave:getPressed() and currentState ~= EVENT_END_GAME then
+				if waveCount>=1 then
+					waveCount = math.max(0, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
+					if waveCount==0 then
+						local restartListener = Listener("Restart")
+						restartListener:pushEvent("restart")
+					else
+						currentState = EVENT_CHANGE_WAVE
+						clearActiveSpawn()
+						comUnit:broadCast(Vec3(),math.huge,"disappear","")
+						waveRestarted = true
+						--
+						local restartWaveListener = Listener("RestartWave")
+						restartWaveListener:pushEvent("restartWave",waveCount)
+					end
+				end
+			end
 			if currentState == EVENT_WAIT_FOR_TOWER_TO_BE_BUILT then
 				if isPlayerReady() then
 					currentState = EVENT_CHANGE_WAVE
@@ -1022,6 +1036,7 @@ function EventBase.new()
 			elseif currentState == EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD then
 				if #currentWaves==0 and (not isAnyEnemiesAlive()) then
 					currentState = EVENT_CHANGE_WAVE
+					waveRestarted = false
 				end
 			elseif currentState == EVENT_CHANGE_WAVE then
 				if changeWave() then
@@ -1035,6 +1050,7 @@ function EventBase.new()
 					comUnit:sendTo("SteamStats","goldGainedFromSupportSingeGame",bilboardStats:getInt("totalGoldSupportEarned"))
 					comUnit:sendNetworkSyncSafe("ChangeWave",tostring(waveCount))
 					comUnit:sendTo("SteamStats","SaveStats","")
+					firstNpcOfWaveHasSpawned = false
 					currentState = EVENT_START_SPAWN
 				else
 					currentState = EVENT_END_GAME
@@ -1044,7 +1060,7 @@ function EventBase.new()
 				tStats.save()
 				
 				--diff
-				spawnWave()
+				spawnWave(waveRestarted)
 				currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD
 			elseif currentState == EVENT_END_GAME then
 				if this:getPlayerNode() then
