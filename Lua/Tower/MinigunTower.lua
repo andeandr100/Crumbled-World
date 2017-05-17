@@ -483,7 +483,11 @@ function MinigunTower.new()
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
-		upgrade.upgrade("range")
+		if tonumber(param)==3 then
+			upgrade.degrade("range")
+		else
+			upgrade.upgrade("range")
+		end
 		particleEffectBeam = particleEffectBeam or ParticleSystem( ParticleEffect.LaserSight1 )
 		model:getMesh("lasersight"..upgrade.getLevel("range")):setVisible(true)
 		local laserBeamRange = 0.45+(upgrade.getLevel("range")*0.12)

@@ -1,5 +1,27 @@
 --this = SceneNode()
-local killedLessThan5m = 0
+function restartWave(wave)
+	local d1 = waveHistory
+	local item = waveHistory[wave]
+	if not item then
+		error("the wave must be cretated, to be able to restore it")
+	else
+		billboard:setDouble("gold", item["gold"] )
+		billboard:setDouble("defaultGold", item["defaultGold"])
+		billboard:setDouble("totalGoldEarned", item["totalGoldEarned"])
+		billboard:setDouble("totalGoldInterestEarned", item["totalGoldInterestEarned"])
+		billboard:setDouble("totalGoldSupportEarned", item["totalGoldSupportEarned"])
+		billboard:setDouble("totalDamageDone", item["totalDamageDone"])
+		billboard:setDouble("DamagePreviousWave", item["DamagePreviousWave"])
+		billboard:setDouble("DamageTotal", item["DamageTotal"])
+		billboard:setDouble("waveGold", item["waveGold"])
+		billboard:setDouble("totalHp", item["totalHp"])
+		billboard:setInt("life", item["life"])
+		billboard:setInt("score", item["score"])
+		billboard:setInt("wave", wave)
+		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])
+		billboard:setInt("towersSold", item["towersSold"])
+	end
+end
 function create()
 	Core.setScriptNetworkId("stats")
 	comUnit = Core.getComUnit()
@@ -9,10 +31,10 @@ function create()
 	if Core.isInMultiplayer() then
 		netSyncTimer = Core.getTime()
 	end
+	waveHistory = {}
 	
-	--pEffect = ParticleSystem("SwarmTowerFlame")
-	--this:addChild(pEffect)
-	--pEffect:activate(Vec3())
+	restartWaveListener = Listener("RestartWave")
+	restartWaveListener:registerEvent("restartWave", restartWave)
 	
 	billboard:setDouble("gold", 650)
 	billboard:setDouble("defaultGold", 650)
@@ -26,6 +48,7 @@ function create()
 	billboard:setInt("alive enemies", 0)
 	billboard:setInt("wave", 1)
 	billboard:setInt("maxWave", 1)
+	billboard:setInt("killedLessThan5m",0)
 	--
 	billboard:setInt("NPCSpawnedThisWave", 0)
 	billboard:setInt("NPCSpawnsThisWave", 0)
@@ -81,8 +104,8 @@ function handleAddTotalDamage(dmg)
 	billboard:setDouble("totalDamageDone", billboard:getDouble("totalDamageDone")+tonumber(dmg))
 end
 function handleKilledLessThan5m()
-	killedLessThan5m = killedLessThan5m + 1
-	if killedLessThan5m>=5 then
+	billboard:setInt("killedLessThan5m",billboard:getInt("killedLessThan5m")+1)
+	if billboard:getInt("killedLessThan5m")>=5 then
 		comUnit:sendTo("SteamAchievement","IKnowWhatIAmDoing","")
 	end
 end
@@ -119,6 +142,23 @@ function handleSetMaxwave(inWave)
 end
 function handleSetwave(inWave)
 	billboard:setInt("wave", inWave)
+	waveHistory[inWave] = {
+		life = billboard:getDouble("life"),
+		score = billboard:getDouble("score"),
+		gold = billboard:getDouble("gold"),
+		defaultGold = billboard:getDouble("defaultGold"),
+		totalGoldEarned = billboard:getDouble("totalGoldEarned"),
+		totalGoldInterestEarned = billboard:getDouble("totalGoldInterestEarned"),
+		totalGoldSupportEarned = billboard:getDouble("totalGoldSupportEarned"),
+		totalDamageDone = billboard:getDouble("totalDamageDone"),
+		DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
+		DamageTotal = billboard:getDouble("DamageTotal"),
+		waveGold = billboard:getDouble("waveGold"),
+		totalHp = billboard:getDouble("totalHp"),
+		--Achivements
+		killedLessThan5m = billboard:getDouble("killedLessThan5m"),
+		towersSold = billboard:getDouble("towersSold")
+	}
 	Core.getComUnit():sendTo("builder", "newWave", inWave)
 	updateScoreTime = 0.5
 end

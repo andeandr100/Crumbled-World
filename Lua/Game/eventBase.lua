@@ -398,16 +398,15 @@ function EventBase.new()
 			end
 			waveCount = waveCount + 1
 			if waveCount <= #waves then
-				comUnit:sendTo("stats", "setWave", math.min(waveCount,numWaves))
-				comUnit:sendTo("stats", "setMaxWave", numWaves)
-				--print("waveCount == "..waveCount.."\n")
-				--print("waveInfo[waveCount].totalHp == "..waveInfo[waveCount].totalHp.."\n")
+				--first the most important gold (because it needs to be registered when going back in history
 				if waveInfo[waveCount] then
 					comUnit:sendTo("stats", "setTotalHp", waveInfo[waveCount].totalHp)
 					comUnit:sendTo("stats", "addWaveGold", waveInfo[waveCount].waveGold-calculateGoldForWave(waveCount))
 				end
-				--print("waveInfo[waveCount].totalHp == "..bilboardStats:getDouble("totalHp").."\n")
-				--
+				--this also pushes the info to the history table
+				comUnit:sendTo("stats", "setWave", math.min(waveCount,numWaves))
+				comUnit:sendTo("stats", "setMaxWave", numWaves)
+				
 				countTotalSpawnsThisWave()
 				--update all npc health levels
 				updateHpBillboard(waves[waveCount][1].hpMul)
@@ -1023,7 +1022,7 @@ function EventBase.new()
 						waveRestarted = true
 						--
 						local restartWaveListener = Listener("RestartWave")
-						restartWaveListener:pushEvent("restartWave",waveCount)
+						restartWaveListener:pushEvent("restartWave",waveCount+1)
 					end
 				end
 			end
