@@ -6,6 +6,9 @@ require("Game/mapInfo.lua")
 local buildCounter = 0
 local readyToPlay = {}
 local towerChangeState = 0
+local towerBuildInfo = {}
+local waveTime = 0
+local curentWave = -1
 
 --TODO
 --In multiplayer add transaction id when buying selling tower, to ensure that towers can only be built in a correct order,
@@ -144,6 +147,7 @@ function changeBuilding(towerId)
 end
 
 function restartMap()
+	towerBuildInfo = {}
 	if this:clearBuildings() then
 		noMoneyIcon:setVisible(false)
 		buildingBillboard:setInt( "NumBuildingBuilt", 0)
@@ -224,6 +228,9 @@ function create()
 		rootNode:addChild(soundNode)
 		
 		towerBuiltListener = Listener("builder")
+		
+		restartWaveListener = Listener("RestartWave")
+		restartWaveListener:registerEvent("restartWave", restartWave)
 		
 		readyToPlay[0] = false
 		
@@ -332,11 +339,29 @@ function upgradeWallTower(param)
 	end
 end
 
-
+function towerUpgradefunc(tab)
+	comUnit:sendTo(Core.getScriptOfNetworkName(tab.netId):getIndex(),tab.msg,tab.param or "")
+end
 
 function towerUpgrade(param)
+	--towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=buildData,func=uppgradeWallTowerTab},restore={para1=downGradeData,func=upgradeWallTower}}
+	
 	local tab = totable(param)
-	comUnit:sendTo(Core.getScriptOfNetworkName(tab.netId):getIndex(),tab.msg,tab.param or "")
+	print("------------------------")
+	print("netId: "..tab.netId)
+	print("msg:   "..tab.msg)
+	print("param: "..(tab.param or ""))
+	print("------------------------")
+	
+	if tab.param then
+		local downGrade = {netId = tab.netId, msg = tab.msg, param = tab.param - 1}
+		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=tab.cost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=towerUpgradefunc},restore={para1=downGrade,func=towerUpgradefunc}}
+	else
+		--TODO not supported
+		print("NOT supported")
+	end
+	
+	towerUpgradefunc(tab)
 end
 
 
@@ -344,7 +369,7 @@ end
 
 
 --this function can be called localy or by ower network
-function netSellTower(paramNetworkName)
+function netSellTower(paramNetworkName,doNotReturnMoney)
 
 	local buildingScript = Core.getScriptOfNetworkName(paramNetworkName)
 	local netWorkName = (buildingLastSelected and buildingLastSelected:getScriptByName("tower")) and buildingLastSelected:getScriptByName("tower"):getNetworkName() or ""
@@ -354,7 +379,7 @@ function netSellTower(paramNetworkName)
 		local buildingValue = billBoard:getFloat("value")
 		--print("buildingValue == "..buildingValue.."\n")
 		if this:removeBuilding( buildingToSell ) then
-			if billBoard:getBool("isNetOwner") then
+			if billBoard:getBool("isNetOwner") and doNotReturnMoney ~= true then
 				comUnit:sendTo("stats", "addGold", tostring(buildingValue))
 				comUnit:sendTo("stats","addTowersSold","")
 			end
@@ -466,7 +491,37 @@ function updateIsAllreadyToPlay()
 	end
 end
 
+function restartWave(wave)
+	local run = true
+	while run and #towerBuildInfo > 0 do
+		local index = #towerBuildInfo
+		if towerBuildInfo[index].wave < wave then
+			run = false
+		else
+			local restorTab = towerBuildInfo[index].restore
+			if restorTab.para1 == nil then
+				restorTab.func()
+			elseif restorTab.para2 == nil then
+				restorTab.func(restorTab.para1)
+			else
+				restorTab.func(restorTab.para1, restorTab.para2)
+			end
+			towerBuildInfo[index] = nil
+		end
+	end
+	
+end
+
 function update()
+	
+	if curentWave ~= Core.getBillboard("stats"):getInt("wave") then
+		curentWave = Core.getBillboard("stats"):getInt("wave")
+		waveTime = Core.getGameTime()
+	end
+	
+	if Core.getInput():getKeyDown(Key.u) then
+		restartWave(curentWave)
+	end
 	
 	if Core.getInput():getKeyHeld(Key.lshift) or stateBillboard:getBool("inMenu") then
 		noMoneyIcon:setVisible(false)
@@ -518,12 +573,15 @@ function update()
 				script:setScriptNetworkId(towerName)
 				comUnit:sendTo(script:getIndex(),"NetOwner","YES")
 				
+				--collect build info
+				local tab = this:getBuildInfo()--{islandId=island:getIslandId(),localPos = island:getGlobalMatrix():inverseM() * collPos, rotation=rotation, buildingId = getBuildingId(currentTower), tName=towerName}
+				tab.buildingId = getBuildingId(currentTower)
+				tab.tName=towerName
+				tab.playerId = Core.getPlayerId()
 				if Core.isInMultiplayer() then
-					local tab = this:getBuildInfo()--{islandId=island:getIslandId(),localPos = island:getGlobalMatrix():inverseM() * collPos, rotation=rotation, buildingId = getBuildingId(currentTower), tName=towerName}
-					tab.buildingId = getBuildingId(currentTower)
-					tab.tName=towerName
-					tab.playerId = Core.getPlayerId()
 					comUnit:sendNetworkSyncSafe("NET",tabToStrMinimal(tab))
+				else
+					towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tabToStrMinimal(tab),func=syncBuild},restore={para1=towerName,para2=true,func=netSellTower}}
 				end
 				
 				building:setSceneName(towerBilboard:getString("Name"))
@@ -593,6 +651,7 @@ function update()
 						local buildingCost = buildingScript:getBillboard():getFloat("cost")
 						--get the script file name
 						local scriptName = buildingScript:getFileName()
+						
 						uppgradeWallTower(building, buildingCost, scriptName, newBuildingMatrix, tab.tName, true)
 						
 						readyToPlay[0] = true
@@ -602,6 +661,11 @@ function update()
 						if Core.isInMultiplayer() then
 							tab.playerId = Core.getPlayerId()
 							comUnit:sendNetworkSyncSafe("NETWU",tabToStrMinimal(tab))
+						else
+							local buildData = {tab.tName, buildingCost, scriptName, newBuildingMatrix, tab.tName, true}
+							local downGradeData = {netName = tab.tName, upgToScripName = "Tower/WallTower.lua", tName = tab.netName, playerId = Core.getPlayerId(), buildCost=0}
+							
+							towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=buildData,func=uppgradeWallTowerTab},restore={para1=downGradeData,func=upgradeWallTower}}
 						end
 						
 						if targetAreaName == "cone" then

@@ -46,12 +46,18 @@ function towerBuiltSteamStats(script)
 		end
 	end
 end
+
+function uppgradeWallTowerTab(tab)
+	local building = Core.getScriptOfNetworkName(tab[1]):getParentNode()
+	uppgradeWallTower(building, tab[2], tab[3], tab[4], tab[5], tab[6])
+end
 function uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, newLocalBuildngMatrix, networkName, isOwner, playerId)
 	--buildingToUpgrade = SceneNode()
 	--upgradeToBuilding = SCeneNode()
 
 	print("\n\n\nShow Node\n")
 	if scriptName and buildingToUpgrade then		
+		print("scriptName"..scriptName)
 		local wallTowerScript = buildingToUpgrade:getScriptByName("tower")
 		--Get the cost of the wall tower
 		local wallTowerCost = wallTowerScript:getBillboard():getFloat("cost")
