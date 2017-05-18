@@ -278,6 +278,9 @@ function Upgrade.new()
 			--get the next level for that upgrade
 			local level = (not upgraded[value[1].order]) and 1 or upgraded[value[1].order].level+1
 			if  value[level] and (not value[level].hidden) then
+				if value[1].isOnDuration then
+					value[1].isOnDuration = false
+				end
 				local onCooldown = (value[1].cooldown and value[1].isOnCoolDown==true and value[1].startWaveCooldown and (value[1].startWaveCooldown+value[1].cooldown)>Core.getBillboard("stats"):getInt("wave") )
 				if onCooldown then
 					value[1].isOnCoolDown = false

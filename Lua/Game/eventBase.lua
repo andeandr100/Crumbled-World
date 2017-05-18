@@ -399,7 +399,7 @@ function EventBase.new()
 			waveCount = waveCount + 1
 			if waveCount <= #waves then
 				--first the most important gold (because it needs to be registered when going back in history
-				if waveInfo[waveCount] then
+				if waveInfo[waveCount] and waveRestarted==false then
 					comUnit:sendTo("stats", "setTotalHp", waveInfo[waveCount].totalHp)
 					comUnit:sendTo("stats", "addWaveGold", waveInfo[waveCount].waveGold-calculateGoldForWave(waveCount))
 				end
