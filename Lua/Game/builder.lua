@@ -519,9 +519,9 @@ function update()
 		waveTime = Core.getGameTime()
 	end
 	
-	if Core.getInput():getKeyDown(Key.u) then
-		restartWave(curentWave)
-	end
+--	if Core.getInput():getKeyDown(Key.u) then
+--		restartWave(curentWave)
+--	end
 	
 	if Core.getInput():getKeyHeld(Key.lshift) or stateBillboard:getBool("inMenu") then
 		noMoneyIcon:setVisible(false)
