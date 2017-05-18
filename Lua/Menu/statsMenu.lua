@@ -82,8 +82,6 @@ function create()
 		
 		restartListener = Listener("Restart")
 		restartListener:registerEvent("restart", restartMap)
-		restartWaveListener = Listener("RestartWave")
-		restartWaveListener:registerEvent("restartWave", restartWave)
 		
 		comUnit = Core.getComUnit()
 		comUnit:setCanReceiveTargeted(true)
