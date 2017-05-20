@@ -158,6 +158,20 @@ function restartMap()
 	end
 end
 
+function networkCallBuilding(tab)
+	local script = Core.getScriptOfNetworkName(tab.netName)
+	comUnit:sendTo( script:getIndex(), tab.para1, tab.para2)
+end
+
+function addBuildingEvent(data)
+	local tab = totable(data)
+	if tab.func == "comUnit" then
+		tab.func = 4
+	end
+	
+	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add=tab}
+end
+
 function create()
 	if this:getNodeType() == NodeId.buildNode then
 		Core.setScriptNetworkId("Builder")
@@ -182,11 +196,20 @@ function create()
 		comUnitTable["UpgradeWallTower"] = upgradeWallTower
 		comUnitTable["NetUpgradeWallTower"] = netUpgradeWallTower
 		comUnitTable["buildingSubUpgrade"] = towerUpgrade
+		comUnitTable["addBuildLoadOrder"] = addBuildingEvent
 		
-		towerBuildInfo = totable("{[1]={restore={func=nil,para2=true,para1=\"{T0_1,name=ops}\"}}}")
+		
+		functionList = {}
+		functionList[1] = towerUpgradefunc
+		functionList[2] = buildTowerNetworkCallback
+		functionList[3] = uppgradeWallTowerTab
+		functionList[4] = networkCallBuilding
+		
+		
+		
 		replayIndex = 1
-		towerBuildInfo = totable("{[1]={restore={func=nil,para2=true,para1=\"T0_1\"},wave=0,add={func=nil,para1=\"{rotation=360,islandId=0,tName=\"T0_1\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(-0.0900001526,1.55999947),towerLocalIslandMatrix=createMatrixFromTable({1,0,0,0,0,1,0,0,0,0,1,0,-0.0999994278,0,1.56146479,1})}\"},buildTimeFromBeginingOfWave=4.3861607869621,cost=35},[2]={restore={func=nil,para2=true,para1=\"T0_2\"},wave=0,add={func=nil,para1=\"{rotation=360,islandId=0,tName=\"T0_2\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(1.61000061,-0.159999847),towerLocalIslandMatrix=createMatrixFromTable({1,0,0,0,0,1,0,0,0,0,1,0,1.60000134,0,-0.158534527,1})}\"},buildTimeFromBeginingOfWave=5.7371609115507,cost=35},[3]={restore={func=nil,para2=true,para1=\"T0_3\"},wave=0,add={func=nil,para1=\"{rotation=360,islandId=0,tName=\"T0_3\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(-0.109999657,-1.64000034),towerLocalIslandMatrix=createMatrixFromTable({1,0,0,0,0,1,0,0,0,0,1,0,-0.119998932,0,-1.63853502,1})}\"},buildTimeFromBeginingOfWave=6.6369963418692,cost=35},[4]={restore={func=nil,para2=true,para1=\"T0_4\"},wave=0,add={func=nil,para1=\"{rotation=360,islandId=0,tName=\"T0_4\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(-1.68999958,1.53999901),towerLocalIslandMatrix=createMatrixFromTable({1,0,0,0,0,1,0,0,0,0,1,0,-1.69999886,0,1.54146433,1})}\"},buildTimeFromBeginingOfWave=11.251666832482,cost=35},[5]={restore={func=nil,para2=true,para1=\"T0_5\"},wave=0,add={func=nil,para1=\"{rotation=360,islandId=0,tName=\"T0_5\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(-1.71000004,-1.70000076),towerLocalIslandMatrix=createMatrixFromTable({1,0,0,0,0,1,0,0,0,0,1,0,-1.71999931,0,-1.69853544,1})}\"},buildTimeFromBeginingOfWave=12.230721638305,cost=35},[6]={restore={func=nil,para2=true,para1=\"T0_6\"},wave=0,add={func=nil,para1=\"{rotation=345,islandId=0,tName=\"T0_6\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(-3.56999969,-1.44000053),towerLocalIslandMatrix=createMatrixFromTable({0.965925872,0,-0.258818835,0,0,1,0,0,0.258818835,0,0.965925872,0,-3.57999897,0,-1.43853521,1})}\"},buildTimeFromBeginingOfWave=13.736848200904,cost=35},[7]={restore={func=nil,para1={tName=\"T0_1\",netName=\"T0_7\",playerId=0,buildCost=0,upgToScripName=\"Tower/WallTower.lua\"}},wave=0,add={func=nil,para1={[1]=\"T0_7\",[2]=200,[3]=\"Tower/MinigunTower.lua\",[4]=createMatrixFromTable({1,0,0,0,0,1,0,0,0,0,1,0,-0.0999994278,0,1.56146479,1}),[5]=\"T0_7\",[6]=true}},buildTimeFromBeginingOfWave=16.108752770815,cost=165},[8]={restore={func=nil,para1={tName=\"T0_2\",netName=\"T0_8\",playerId=0,buildCost=0,upgToScripName=\"Tower/WallTower.lua\"}},wave=1,add={func=nil,para1={[1]=\"T0_8\",[2]=200,[3]=\"Tower/MinigunTower.lua\",[4]=createMatrixFromTable({1,0,0,0,0,1,0,0,0,0,1,0,1.60000134,0,-0.158534527,1}),[5]=\"T0_8\",[6]=true}},buildTimeFromBeginingOfWave=0.57381335552782,cost=165},[9]={restore={func=nil,para1={msg=\"upgrade1\",netId=\"T0_7\",param=1}},wave=1,add={func=nil,para1={netId=\"T0_7\",msg=\"upgrade1\",param=2}},buildTimeFromBeginingOfWave=2.5845731673762},[10]={restore={func=nil,para1={tName=\"T0_3\",netName=\"T0_9\",playerId=0,buildCost=0,upgToScripName=\"Tower/WallTower.lua\"}},wave=2,add={func=nil,para1={[1]=\"T0_9\",[2]=200,[3]=\"Tower/missileTower.lua\",[4]=createMatrixFromTable({1,0,0,0,0,1,0,0,0,0,1,0,-0.119998932,0,-1.63853502,1}),[5]=\"T0_9\",[6]=true}},buildTimeFromBeginingOfWave=24.624568435829,cost=165},[11]={restore={func=nil,para2=true,para1=\"T0_10\"},wave=3,add={func=nil,para1=\"{rotation=352.5,islandId=0,tName=\"T0_10\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(-4.82999992,1.61999893),towerLocalIslandMatrix=createMatrixFromTable({0.990268111,0,-0.13917312,0,0,1,0,0,0.13917312,0,0.990268111,0,-4.8399992,0,1.62146425,1})}\"},buildTimeFromBeginingOfWave=8.892212790437,cost=35},[12]={restore={func=nil,para2=true,para1=\"T0_11\"},wave=3,add={func=nil,para1=\"{rotation=356.25,islandId=0,tName=\"T0_11\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(-4.56999969,3.23999977),towerLocalIslandMatrix=createMatrixFromTable({0.997564077,0,-0.0697563812,0,0,1,0,0,0.0697563812,0,0.997564077,0,-4.57999897,0,3.24146509,1})}\"},buildTimeFromBeginingOfWave=9.8854345146101,cost=35},[13]={restore={func=nil,para2=true,para1=\"T0_12\"},wave=3,add={func=nil,para1=\"{rotation=356.25,islandId=0,tName=\"T0_12\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(-3.02999973,4.57999992),towerLocalIslandMatrix=createMatrixFromTable({0.997564077,0,-0.0697563812,0,0,1,0,0,0.0697563812,0,0.997564077,0,-3.03999901,0,4.58146524,1})}\"},buildTimeFromBeginingOfWave=10.58594538155,cost=35},[14]={restore={func=nil,para2=true,para1=\"T0_13\"},wave=3,add={func=nil,para1=\"{rotation=356.25,islandId=0,tName=\"T0_13\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(-1.43000031,4.65999985),towerLocalIslandMatrix=createMatrixFromTable({0.997564077,0,-0.0697563812,0,0,1,0,0,0.0697563812,0,0.997564077,0,-1.43999958,0,4.66146517,1})}\"},buildTimeFromBeginingOfWave=11.296086510411,cost=35},[15]={restore={func=nil,para2=true,para1=\"T0_14\"},wave=3,add={func=nil,para1=\"{rotation=3.75,islandId=0,tName=\"T0_14\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(0.230000496,4.63999939),towerLocalIslandMatrix=createMatrixFromTable({0.99862951,0,0.0523359589,0,0,1,0,0,-0.0523359589,0,0.99862951,0,0.220001221,0,4.64146471,1})}\"},buildTimeFromBeginingOfWave=12.38516042917,cost=35},[16]={restore={func=nil,para2=true,para1=\"T0_15\"},wave=3,add={func=nil,para1=\"{rotation=3.75,islandId=0,tName=\"T0_15\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(1.82999992,4.63999939),towerLocalIslandMatrix=createMatrixFromTable({0.99862951,0,0.0523359589,0,0,1,0,0,-0.0523359589,0,0.99862951,0,1.82000065,0,4.64146471,1})}\"},buildTimeFromBeginingOfWave=14.856887261383,cost=35},[17]={restore={func=nil,para2=true,para1=\"T0_16\"},wave=3,add={func=nil,para1=\"{rotation=2.1468744615177e-014,islandId=0,tName=\"T0_16\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(3.45000076,4.69999886),towerLocalIslandMatrix=createMatrixFromTable({1,0,0,0,0,1,0,0,0,0,1,0,3.44000149,0,4.70146418,1})}\"},buildTimeFromBeginingOfWave=15.811680021463,cost=35},[18]={restore={func=nil,para2=true,para1=\"T0_17\"},wave=3,add={func=nil,para1=\"{rotation=11.25,islandId=0,tName=\"T0_17\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(4.70999908,1.60000038),towerLocalIslandMatrix=createMatrixFromTable({0.981627226,0,0.190809011,0,0,1,0,0,-0.190809011,0,0.981627226,0,4.69999981,0,1.6014657,1})}\"},buildTimeFromBeginingOfWave=18.330815867055,cost=35},[19]={restore={func=nil,para2=true,para1=\"T0_18\"},wave=3,add={func=nil,para1=\"{rotation=11.25,islandId=0,tName=\"T0_18\",buildingId=1,playerId=0,towerScriptName=\"Tower/WallTower.lua\",navMeshPosition=Vec2(4.93000031,3.23999977),towerLocalIslandMatrix=createMatrixFromTable({0.981627226,0,0.190809011,0,0,1,0,0,-0.190809011,0,0.981627226,0,4.92000103,0,3.24146509,1})}\"},buildTimeFromBeginingOfWave=19.049647258362,cost=35},[20]={restore={func=nil,para1={tName=\"T0_17\",netName=\"T0_19\",playerId=0,buildCost=0,upgToScripName=\"Tower/WallTower.lua\"}},wave=3,add={func=nil,para1={[1]=\"T0_19\",[2]=200,[3]=\"Tower/ArrowTower.lua\",[4]=createMatrixFromTable({0.981627226,0,0.190809011,0,0,1,0,0,-0.190809011,0,0.981627226,0,4.69999981,0,1.6014657,1}),[5]=\"T0_19\",[6]=true}},buildTimeFromBeginingOfWave=20.191116319038,cost=165},[21]={restore={func=nil,para2=true,para1=\"T0_20\"},wave=4,add={func=nil,para1=\"{rotation=63.75,islandId=0,tName=\"T0_20\",buildingId=2,playerId=0,towerScriptName=\"Tower/MinigunTower.lua\",navMeshPosition=Vec2(4.59000015,-1.54000092),towerLocalIslandMatrix=createMatrixFromTable({0.453990549,0,0.891006529,0,0,1,0,0,-0.891006529,0,0.453990549,0,4.58000088,0,-1.53853559,1})}\"},buildTimeFromBeginingOfWave=5.5782500370406,cost=200},[22]={restore={func=nil,para2=true,para1=\"T0_21\"},wave=4,add={func=nil,para1=\"{rotation=5.0888875497432e-014,islandId=0,tName=\"T0_21\",buildingId=2,playerId=0,towerScriptName=\"Tower/MinigunTower.lua\",navMeshPosition=Vec2(3.04999924,-3.14000034),towerLocalIslandMatrix=createMatrixFromTable({1,0,0,0,0,1,0,0,0,0,1,0,3.03999996,0,-3.13853502,1})}\"},buildTimeFromBeginingOfWave=19.818340265192,cost=200}}")
-	
+		towerBuildInfo = {}
+		
 		restartListener = Listener("Restart")
 		restartListener:registerEvent("restart", restartMap)
 		
@@ -356,9 +379,11 @@ function towerUpgrade(param)
 	print("param: "..(tab.param or ""))
 	print("------------------------")
 	
+	
+	
 	if tab.param then
 		local downGrade = {netId = tab.netId, msg = tab.msg, param = tab.param - 1}
-		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=tab.cost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=towerUpgradefunc},restore={para1=downGrade,func=towerUpgradefunc}}
+		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=tab.cost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=1},restore={para1=downGrade,func=towerUpgradefunc}}
 	else
 		--TODO not supported
 		print("NOT supported")
@@ -502,12 +527,14 @@ function restartWave(wave)
 			run = false
 		else
 			local restorTab = towerBuildInfo[index].restore
-			if restorTab.para1 == nil then
-				restorTab.func()
-			elseif restorTab.para2 == nil then
-				restorTab.func(restorTab.para1)
-			else
-				restorTab.func(restorTab.para1, restorTab.para2)
+			if restorTab then
+				if restorTab.para1 == nil then
+					restorTab.func()
+				elseif restorTab.para2 == nil then
+					restorTab.func(restorTab.para1)
+				else
+					restorTab.func(restorTab.para1, restorTab.para2)
+				end
 			end
 			towerBuildInfo[index] = nil
 		end
@@ -523,17 +550,20 @@ function update()
 		print("replayData: "..tabToStrMinimal(towerBuildInfo))
 	end
 	
-	for i=replayIndex, #towerBuildInfo do
-		if towerBuildInfo[i] < curentWave or (towerBuildInfo[i] == curentWave and towerBuildInfo[i].buildTimeFromBeginingOfWave < (Core.getGameTime()-waveTime)) then
-			local addData = towerBuildInfo[i].add
-			addData.func(addData.para1)
-			towerBuildInfo[i] = nil
-		end
-	end
+--	local timeoffset = (Core.getGameTime()-waveTime)
+--	while towerBuildInfo[replayIndex] and (towerBuildInfo[replayIndex].wave < curentWave or (towerBuildInfo[replayIndex].wave == curentWave and towerBuildInfo[replayIndex].buildTimeFromBeginingOfWave < timeoffset)) do
+--		
+--		local addData = towerBuildInfo[replayIndex].add
+--		functionList[addData.func](addData.para1)
+--		
+--		if towerBuildInfo[replayIndex].cost then
+--			comUnit:sendTo("stats","removeGold",towerBuildInfo[replayIndex].cost)
+--		end
+--		
+--		towerBuildInfo[replayIndex] = nil
+--		replayIndex = replayIndex + 1
+--	end
 	
-	if Core.getInput():getKeyDown(Key.u) then
-		increaseBuildBuildingCount()
-	end
 	
 	if Core.getInput():getKeyHeld(Key.lshift) or stateBillboard:getBool("inMenu") then
 		noMoneyIcon:setVisible(false)
@@ -593,7 +623,7 @@ function update()
 				if Core.isInMultiplayer() then
 					comUnit:sendNetworkSyncSafe("NET",tabToStrMinimal(tab))
 				else
-					towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tabToStrMinimal(tab),func=syncBuild},restore={para1=towerName,para2=true,func=netSellTower}}
+					towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=2},restore={para1=towerName,para2=true,func=netSellTower}}
 				end
 				
 				building:setSceneName(towerBilboard:getString("Name"))
@@ -657,6 +687,7 @@ function update()
 						--upgrade the building
 --						AutoBuilder.changeBuilding(building, currentTower, building:findNodeByTypeTowardsRoot(NodeId.island):getGlobalMatrix():inverseM() * towerMatrix )
 						local newBuildingMatrix = building:getParent():getGlobalMatrix():inverseM() * towerMatrix
+						local curentName = wallTowerScript:getNetworkName()
 						local tab = {buildTowerIndex=currentTowerIndex, netName=buildingScript:getNetworkName(), matrix=newBuildingMatrix, tName=getNewTowerName()}
 						local buildingScript = currentTower:getScriptByName("tower")
 						--get the cost of the new tower
@@ -674,10 +705,10 @@ function update()
 							tab.playerId = Core.getPlayerId()
 							comUnit:sendNetworkSyncSafe("NETWU",tabToStrMinimal(tab))
 						else
-							local buildData = {tab.tName, buildingCost, scriptName, newBuildingMatrix, tab.tName, true}
+							local buildData = {curentName, buildingCost, scriptName, newBuildingMatrix, tab.tName, true}
 							local downGradeData = {netName = tab.tName, upgToScripName = "Tower/WallTower.lua", tName = tab.netName, playerId = Core.getPlayerId(), buildCost=0}
 							
-							towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=buildData,func=uppgradeWallTowerTab},restore={para1=downGradeData,func=upgradeWallTower}}
+							towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=buildData,func=3},restore={para1=downGradeData,func=upgradeWallTower}}
 						end
 						
 						if targetAreaName == "cone" then
