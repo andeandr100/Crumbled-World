@@ -243,13 +243,16 @@ function ArrowTower.new()
 		reloadTimeLeft = (reloadTimeLeft>0.25) and reloadTimeLeft or 0.25--0.25 is the inactivity time when changing rotation of the tower
 	end
 	function self.handleUpgrade(param)
-		if tonumber(param)<=upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("upgrade") then
+			upgrade.upgrade("upgrade")
+		elseif upgrade.getLevel("upgrade")>tonumber(param) then
+			upgrade.degrade("upgrade")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
 			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
-		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		--Achievements
 		local level = upgrade.getLevel("upgrade")
@@ -291,57 +294,82 @@ function ArrowTower.new()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
-		if tonumber(param)<=upgrade.getLevel("boost") then
-			return
+		if tonumber(param)>upgrade.getLevel("boost") then
+			if Core.isInMultiplayer() then
+				comUnit:sendNetworkSyncSafe("upgrade2","1")
+			end
+			boostedOnLevel = upgrade.getLevel("upgrade")
+			upgrade.upgrade("boost")
+			setCurrentInfo()
+			model:getMesh( "ammoDrumBoost" ):setVisible(true)
+			model:getMesh( "ammoDrum" ):setVisible(false)
+			if upgrade.getLevel("range")>0 then
+				model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), SCOPE_ROTATION_ON_BOOST)
+			end
+			--Achievement
+			comUnit:sendTo("SteamAchievement","Boost","")
+		elseif upgrade.getLevel("boost")>tonumber(param) then
+			upgrade.degrade("boost")
+			resetModel()
+			setCurrentInfo()
+			--only boost that uses timer
+			if upgrade.getLevel("range")>0 then
+		 	   model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), -SCOPE_ROTATION_ON_BOOST)
+			end
+			--clear coldown info for boost upgrade
+			upgrade.clearCooldown()
+		else
+			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade2","1")
-		end
-		boostedOnLevel = upgrade.getLevel("upgrade")
-		upgrade.upgrade("boost")
-		setCurrentInfo()
-		model:getMesh( "ammoDrumBoost" ):setVisible(true)
-		model:getMesh( "ammoDrum" ):setVisible(false)
-		if upgrade.getLevel("range")>0 then
-			model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), SCOPE_ROTATION_ON_BOOST)
-		end
-		--Achievement
-		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function handleUpgradeScope(param)
-		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("range")
+		elseif upgrade.getLevel("range")>tonumber(param) then
+			model:getMesh("scope"..upgrade.getLevel("range")):setVisible(false)
+			upgrade.degrade("range")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
-		upgrade.upgrade("range")
-		model:getMesh("scope"..upgrade.getLevel("range")):setVisible(true)
-		if upgrade.getLevel("range")>1 then
-			model:getMesh("scope"..upgrade.getLevel("range")-1):setVisible(false)
-		end
-		if upgrade.getLevel("boost")>0 then
-			model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), SCOPE_ROTATION_ON_BOOST)
+		if upgrade.getLevel("range")>0 then
+			model:getMesh("scope"..upgrade.getLevel("range")):setVisible(true)
+			if upgrade.getLevel("range")>1 then
+				model:getMesh("scope"..upgrade.getLevel("range")-1):setVisible(false)
+			end
+			if upgrade.getLevel("boost")>0 then
+				model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), SCOPE_ROTATION_ON_BOOST)
+			end			
+			--Acievement
+			if upgrade.getLevel("range")==3 then
+				comUnit:sendTo("SteamAchievement","Range","")
+			end
 		end
 		setCurrentInfo()
-		--Acievement
-		if upgrade.getLevel("range")==3 then
-			comUnit:sendTo("SteamAchievement","Range","")
-		end
 	end
 	local function handleFireball(param)
-		if tonumber(param)<=upgrade.getLevel("hardArrow") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("hardArrow") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("hardArrow")
+		elseif upgrade.getLevel("hardArrow")>tonumber(param) then
+			upgrade.degrade("hardArrow")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
-		upgrade.upgrade("hardArrow")
-		setCurrentInfo()
-		--Achievement
-		if upgrade.getLevel("hardArrow")==3 then
-			comUnit:sendTo("SteamAchievement","HardArrow","")
+		if upgrade.getLevel("hardArrow")==0 then
+			--no mesh in use
+		else
+			--no mesh in use
+			--Achievement
+			if upgrade.getLevel("hardArrow")==3 then
+				comUnit:sendTo("SteamAchievement","HardArrow","")
+			end
 		end
+		setCurrentInfo()
 	end
 	local function handleRotate(param)
 --		if param==nil or (type(param)=="string" and param=="") then
@@ -352,21 +380,27 @@ function ArrowTower.new()
 		this:loadLuaScript("Game/buildRotater.lua")
 	end
 	local function handleWeakenTarget(param)
-		if tonumber(param)<=upgrade.getLevel("markOfDeath") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("markOfDeath") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("markOfDeath")
+		elseif upgrade.getLevel("markOfDeath")>tonumber(param) then
+			model:getMesh("markForDeath"..upgrade.getLevel("markOfDeath")):setVisible(false)
+			upgrade.degrade("markOfDeath")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
-		upgrade.upgrade("markOfDeath")
-		if upgrade.getLevel("markOfDeath")>1 then
-			model:getMesh("markForDeath"..upgrade.getLevel("markOfDeath")-1):setVisible(false)
+		if upgrade.getLevel("markOfDeath")>0 then
+			if upgrade.getLevel("markOfDeath")>1 then
+				model:getMesh("markForDeath"..upgrade.getLevel("markOfDeath")-1):setVisible(false)
+			end
+			model:getMesh("markForDeath"..upgrade.getLevel("markOfDeath")):setVisible(true)
+			if upgrade.getLevel("markOfDeath")==3 then
+				comUnit:sendTo("SteamAchievement","MarkOfDeath","")
+			end
 		end
-		model:getMesh("markForDeath"..upgrade.getLevel("markOfDeath")):setVisible(true)
 		setCurrentInfo()
-		if upgrade.getLevel("markOfDeath")==3 then
-			comUnit:sendTo("SteamAchievement","MarkOfDeath","")
-		end
 	end
 	local function attack()
 		local target = targetSelector.getTargetIfAvailable()

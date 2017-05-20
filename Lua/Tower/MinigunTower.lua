@@ -486,6 +486,7 @@ function MinigunTower.new()
 		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("range")
 		elseif upgrade.getLevel("range")>tonumber(param) then
+			model:getMesh("lasersight".. upgrade.getLevel("range")):setVisible(false)
 			upgrade.degrade("range")
 		else
 			return--level unchanged
@@ -496,9 +497,6 @@ function MinigunTower.new()
 		if upgrade.getLevel("range")==0 then
 			if particleEffectBeam then
 				particleEffectBeam:deactivate()
-			end
-			for i=1, upgrade.getLevel("upgrade") do
-				model:getMesh("lasersight"..i):setVisible(false)
 			end
 		else
 			particleEffectBeam = particleEffectBeam or ParticleSystem( ParticleEffect.LaserSight1 )
@@ -535,6 +533,7 @@ function MinigunTower.new()
 		if tonumber(param)>upgrade.getLevel("fireCrit") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("fireCrit")
 		elseif upgrade.getLevel("fireCrit")>tonumber(param) then
+			model:getMesh("oil"..upgrade.getLevel("fireCrit")):setVisible(false)
 			upgrade.degrade("fireCrit")
 		else
 			return--level unchanged
@@ -542,11 +541,7 @@ function MinigunTower.new()
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
-		if upgrade.getLevel("fireCrit")==0 then
-			for i=1, upgrade.getLevel("upgrade") do
-				model:getMesh("oil"..i):setVisible(false)
-			end
-		else
+		if upgrade.getLevel("fireCrit")>0 then
 			doMeshUpgradeForLevel("fireCrit","oil")
 		end
 		setCurrentInfo()
@@ -560,6 +555,7 @@ function MinigunTower.new()
 		if tonumber(param)>upgrade.getLevel("overCharge") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("overCharge")
 		elseif upgrade.getLevel("overCharge")>tonumber(param) then
+			model:getMesh("engineboost"..upgrade.getLevel("overCharge")):setVisible(false)
 			upgrade.degrade("overCharge")
 		else
 			return--level unchanged
@@ -573,9 +569,6 @@ function MinigunTower.new()
 			end
 			if heatPointLight2 then
 				heatPointLight2:setVisible(false)
-			end
-			for i=1, upgrade.getLevel("upgrade") do
-				model:getMesh("engineboost"..i):setVisible(false)
 			end
 		else
 			if not particleEffectSmoke then

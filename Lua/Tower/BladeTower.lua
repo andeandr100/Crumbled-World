@@ -355,13 +355,16 @@ function BladeTower.new()
 		myStats.attacks = myStats.attacks + 1
 	end
 	function self.handleUpgrade(param)
-		if tonumber(param)<=upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("upgrade") then
+			upgrade.upgrade("upgrade")
+		elseif upgrade.getLevel("upgrade")>tonumber(param) then
+			upgrade.degrade("upgrade")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
 			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
-		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		--Achievements
 		local level = upgrade.getLevel("upgrade")
@@ -400,87 +403,116 @@ function BladeTower.new()
 		setCurrentInfo()--updates variables
 	end
 	local function handleBoost(param)
-		if tonumber(param)<=upgrade.getLevel("boost") then
-			return
+		if tonumber(param)>upgrade.getLevel("boost") then
+			if Core.isInMultiplayer() then
+				comUnit:sendNetworkSyncSafe("upgrade2","1")
+			end
+			boostedOnLevel = upgrade.getLevel("upgrade")
+			upgrade.upgrade("boost")
+			model:getMesh( "boost" ):setVisible(true)
+			model:getMesh( "showSpear" ):setVisible(true)
+			model:getMesh( "showBlade" ):setVisible(false)
+			model:getMesh( "spear" ):setVisible(status==STATUS_MOVING_ARM_INTO_ATTACK_POSITION)
+			model:getMesh( "blade" ):setVisible(false)
+			setCurrentInfo()
+			--Achievement
+			comUnit:sendTo("SteamAchievement","Boost","")
+		elseif upgrade.getLevel("boost")>tonumber(param) then
+			upgrade.degrade("boost")
+			model:getMesh( "boost" ):setVisible(false)
+			model:getMesh( "spear" ):setVisible(false)
+			model:getMesh( "blade" ):setVisible(true)
+			model:getMesh( "showBlade" ):setVisible( upgrade.getLevel("masterBlade")>0 )
+			model:getMesh( "showSpear" ):setVisible( false )
+			setCurrentInfo()
+			--clear coldown info for boost upgrade
+			upgrade.clearCooldown()
+		else
+			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade2","1")
-		end
-		boostedOnLevel = upgrade.getLevel("upgrade")
-		upgrade.upgrade("boost")
-		model:getMesh( "boost" ):setVisible(true)
-		model:getMesh( "showSpear" ):setVisible(true)
-		model:getMesh( "showBlade" ):setVisible(false)
-		model:getMesh( "spear" ):setVisible(status==STATUS_MOVING_ARM_INTO_ATTACK_POSITION)
-		model:getMesh( "blade" ):setVisible(false)
-		setCurrentInfo()
-		--Achievement
-		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function handleAttackSpeed(param)
-		if tonumber(param)<=upgrade.getLevel("attackSpeed") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("attackSpeed") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("attackSpeed")
+		elseif upgrade.getLevel("attackSpeed")>tonumber(param) then
+			model:getMesh("speed"..upgrade.getLevel("attackSpeed")):setVisible(false)
+			upgrade.degrade("attackSpeed")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
-		upgrade.upgrade("attackSpeed")
-		model:getMesh("speed"..upgrade.getLevel("attackSpeed")):setVisible(true)
-		if upgrade.getLevel("attackSpeed")>1 then
-			model:getMesh("speed"..upgrade.getLevel("attackSpeed")-1):setVisible(false)
+		if upgrade.getLevel("attackSpeed")>0 then
+			model:getMesh("speed"..upgrade.getLevel("attackSpeed")):setVisible(true)
+			if upgrade.getLevel("attackSpeed")>1 then
+				model:getMesh("speed"..upgrade.getLevel("attackSpeed")-1):setVisible(false)
+			end
+			--Achievement
+			if upgrade.getLevel("attackSpeed")==3 then
+				comUnit:sendTo("SteamAchievement","BladeSpeed","")
+			end
 		end
 		setCurrentInfo()
-		--Achievement
-		if upgrade.getLevel("attackSpeed")==3 then
-			comUnit:sendTo("SteamAchievement","BladeSpeed","")
-		end
 	end
 	local function handleMasterBlade(param)
-		if tonumber(param)<=upgrade.getLevel("masterBlade") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("masterBlade") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("masterBlade")
+		elseif upgrade.getLevel("masterBlade")>tonumber(param) then
+			model:getMesh("showBlade"):setVisible(false)
+			model:getMesh("showSpear"):setVisible(false)
+			upgrade.degrade("masterBlade")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
-		upgrade.upgrade("masterBlade")
-		local percentage = upgrade.getLevel("masterBlade")/3.0
-		billboard:setInt("masterBladeHeat",percentage)
-		if upgrade.getLevel("boost")==0 then
-			model:getMesh("showBlade"):setVisible(true)
-		else
-			model:getMesh("showSpear"):setVisible(true)
+		if upgrade.getLevel("masterBlade")>0 then
+			local percentage = upgrade.getLevel("masterBlade")/3.0
+			billboard:setInt("masterBladeHeat",percentage)
+			if upgrade.getLevel("boost")==0 then
+				model:getMesh("showBlade"):setVisible(true)
+			else
+				model:getMesh("showSpear"):setVisible(true)
+			end
+			--heat level
+			blade:setUniform(blade:getShader(), "heat", percentage)
+			spear:setUniform(spear:getShader(), "heat", percentage)
+			model:getMesh( "showBlade" ):setUniform(model:getMesh( "showBlade" ):getShader(), "heat", percentage)
+			model:getMesh( "showSpear" ):setUniform(model:getMesh( "showSpear" ):getShader(), "heat", percentage)
+			--Achievement
+			if upgrade.getLevel("masterBlade")==3 then
+				comUnit:sendTo("SteamAchievement","MasterBlade","")
+			end
 		end
-		--heat level
-		blade:setUniform(blade:getShader(), "heat", percentage)
-		spear:setUniform(spear:getShader(), "heat", percentage)
-		model:getMesh( "showBlade" ):setUniform(model:getMesh( "showBlade" ):getShader(), "heat", percentage)
-		model:getMesh( "showSpear" ):setUniform(model:getMesh( "showSpear" ):getShader(), "heat", percentage)
-		--
 		setCurrentInfo()
-		--Achievement
-		if upgrade.getLevel("masterBlade")==3 then
-			comUnit:sendTo("SteamAchievement","MasterBlade","")
-		end
 	end
 	local function handleShieldBypass(param)
-		if tonumber(param)<=upgrade.getLevel("shieldBreaker") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("shieldBreaker") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("shieldBreaker")
+		elseif upgrade.getLevel("shieldBreaker")>tonumber(param) then
+			upgrade.degrade("shieldBreaker")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade6",tostring(param))
 		end
-		upgrade.upgrade("shieldBreaker")
 		model:getMesh("shield"):setVisible(upgrade.getLevel("shieldBreaker")>0)
 		setCurrentInfo()
 	end
 	local function handleRange(param)
-		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("range")
+		elseif upgrade.getLevel("range")>tonumber(param) then
+			upgrade.degrade("range")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade7",tostring(param))
 		end
-		upgrade.upgrade("range")
 		setCurrentInfo()
 --		--Acievement
 --		if upgrade.getLevel("range")==3 then
@@ -488,42 +520,58 @@ function BladeTower.new()
 --		end
 	end
 	local function handleElectrified(param)
+		if tonumber(param)>upgrade.getLevel("electricBlade") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("electricBlade")
+		elseif upgrade.getLevel("electricBlade")>tonumber(param) then
+			upgrade.degrade("electricBlade")
+			model:getMesh("electric"):setVisible(upgrade.getLevel("electricBlade")>0)
+		else
+			return--level unchanged
+		end
 		if (type(param)=="string" and param=="") then
 			comUnit:sendNetworkSyncSafe("upgrade5","1")
 		end
-		myStats.disqualified = true
-		upgrade.upgrade("electricBlade")
-		model:getMesh("electric"):setVisible(true)
-		upgradeElectricScale = 0.20 + (upgrade.getLevel("electricBlade")*0.05)
-		billboard:setFloat("electricBlade",upgrade.getLevel("electricBlade"))
-		if upgrade.getLevel("electricBlade")==1 then
-			--electric balls
-			sparkCenter1 = ParticleSystem(ParticleEffect.SparkSpirit)
-			sparkCenter2 = ParticleSystem(ParticleEffect.SparkSpirit)
-			model:getMesh( "tower" ):addChild( sparkCenter1 )
-			model:getMesh( "tower" ):addChild( sparkCenter2 )
-			sparkCenter1:activate(Vec3(-0.35,-0.54,-0.5))
-			sparkCenter2:activate(Vec3(0.35,-0.54,-0.5))
-			--lightning effect when the blade is released
-			electric1 = ParticleEffectElectricFlash("Lightning_D.tga")
-			electric2 = ParticleEffectElectricFlash("Lightning_D.tga")
-			this:addChild(electric1)
-			this:addChild(electric2)
-			--lighting
-			local pointLight = PointLight(Vec3(-0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
-			pointLight:setCutOff(0.05)
-			this:addChild(pointLight)
-			pointLight = PointLight(Vec3(0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
-			pointLight:setCutOff(0.05)
-			this:addChild(pointLight)
+		if upgrade.getLevel("electricBlade")==0 then
+			if sparkCenter1 then
+				sparkCenter1:deactivate()
+				sparkCenter2:deactivate()
+				electric1:setVisible(false)
+				electric2:setVisible(false)
+			end
+		else
+			myStats.disqualified = true
+			model:getMesh("electric"):setVisible(true)
+			upgradeElectricScale = 0.20 + (upgrade.getLevel("electricBlade")*0.05)
+			billboard:setFloat("electricBlade",upgrade.getLevel("electricBlade"))
+			if sparkCenter1==nil then
+				--electric balls
+				sparkCenter1 = ParticleSystem(ParticleEffect.SparkSpirit)
+				sparkCenter2 = ParticleSystem(ParticleEffect.SparkSpirit)
+				model:getMesh( "tower" ):addChild( sparkCenter1 )
+				model:getMesh( "tower" ):addChild( sparkCenter2 )
+				sparkCenter1:activate(Vec3(-0.35,-0.54,-0.5))
+				sparkCenter2:activate(Vec3(0.35,-0.54,-0.5))
+				--lightning effect when the blade is released
+				electric1 = ParticleEffectElectricFlash("Lightning_D.tga")
+				electric2 = ParticleEffectElectricFlash("Lightning_D.tga")
+				this:addChild(electric1)
+				this:addChild(electric2)
+				--lighting
+				local pointLight = PointLight(Vec3(-0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
+				pointLight:setCutOff(0.05)
+				this:addChild(pointLight)
+				pointLight = PointLight(Vec3(0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
+				pointLight:setCutOff(0.05)
+				this:addChild(pointLight)
+			end
+			sparkCenter1:setScale( upgradeElectricScale ) 
+			sparkCenter2:setScale( upgradeElectricScale )
+			--Achievement
+			if upgrade.getLevel("electricBlade")==3 then
+				comUnit:sendTo("SteamAchievement","ElectricBlade","")
+			end
 		end
-		sparkCenter1:setScale( upgradeElectricScale ) 
-		sparkCenter2:setScale( upgradeElectricScale )
 		setCurrentInfo()
-		--Achievement
-		if upgrade.getLevel("electricBlade")==3 then
-			comUnit:sendTo("SteamAchievement","ElectricBlade","")
-		end
 	end
 	function self.update()
 	
