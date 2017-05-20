@@ -368,19 +368,19 @@ function MinigunTower.new()
 		targetSelector.deselect()
 	end
 	function self.handleUpgrade(param)
-		if tonumber(param)<=upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("upgrade") then
+			upgrade.upgrade("upgrade")
+		elseif upgrade.getLevel("upgrade")>tonumber(param) then
+			upgrade.degrade("upgrade")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
 			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
-		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		print("upgrade.getLevel(\"upgrade\") == "..upgrade.getLevel("upgrade"))
-		print("self = "..tostring(self))
 		--Achievements
-		local level = upgrade.getLevel("upgrade")
-		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
+		comUnit:sendTo("stats","addBillboardInt","level"..upgrade.getLevel("upgrade")..";1")
 		if upgrade.getLevel("upgrade")==3 then
 			comUnit:sendTo("SteamAchievement","Upgrader","")
 		end
@@ -390,10 +390,9 @@ function MinigunTower.new()
 			local rotaterMatrix = rotatorMesh:getLocalMatrix()--get rotation for rotater
 			local engineMatrix = engineMesh:getLocalMatrix()--get rotation for engine
 			local prevModel = model
-			local level = upgrade.getLevel("upgrade")
 			this:removeChild(model)
 		
-			model = Core.getModel( string.format("tower_minigun_l%d.mym", level) )
+			model = Core.getModel( string.format("tower_minigun_l%d.mym", upgrade.getLevel("upgrade")) )
 			this:addChild(model)
 			initModel()
 			rotatorMesh:setLocalMatrix(rotaterMatrix)
@@ -422,7 +421,7 @@ function MinigunTower.new()
 			pipesMesh:addChild(particleEffectGun[0])
 			model:getMesh( "pipeBoost" ):addChild(particleEffectGunLaser[0])
 			pipesMesh:addChild(particleEffectTracer[0])
-			if level==3 then
+			if upgrade.getLevel("upgrade")==3 then
 				if upgrade.getLevel("overCharge")>0 then
 					particleEffectSmoke[1] = ParticleSystem( ParticleEffect.MinigunOverheatSmoke )
 					heatPointLight2 = PointLight(Vec3(),Vec3(3.0,0.15,0.0),0.2)
@@ -456,56 +455,71 @@ function MinigunTower.new()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
-		if tonumber(param)<=upgrade.getLevel("boost") then
-			return
+		if tonumber(param)>upgrade.getLevel("boost") then
+			upgrade.upgrade("boost")
+			if Core.isInMultiplayer() then
+				comUnit:sendNetworkSyncSafe("upgrade2","1")
+			end
+			boostedOnLevel = upgrade.getLevel("upgrade")
+			overHeatPer = 0.0
+			model:getMesh( "pipeBoost" ):setVisible(true)
+			model:getMesh( "cabels" ):setVisible(false)
+			model:getMesh( "pipe1" ):setVisible(false)
+			--particleEffectBoostBeam:setLocalPosition(Vec3(0.0,-0.4,0.17))
+			if upgrade.getLevel("upgrade")==3 then
+				model:getMesh( "pipe2" ):setVisible(false)
+			end
+			setCurrentInfo()
+			--Achievement
+			comUnit:sendTo("SteamAchievement","Boost","")
+		elseif upgrade.getLevel("boost")>tonumber(param) then
+			upgrade.degrade("boost")
+			upgrade.clearCooldown()
+			--
+			initModel()
+			setCurrentInfo()
+		else
+			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade2","1")
-		end
-		boostedOnLevel = upgrade.getLevel("upgrade")
-		overHeatPer = 0.0
-		upgrade.upgrade("boost")
-		model:getMesh( "pipeBoost" ):setVisible(true)
-		model:getMesh( "cabels" ):setVisible(false)
-		model:getMesh( "pipe1" ):setVisible(false)
-		--particleEffectBoostBeam:setLocalPosition(Vec3(0.0,-0.4,0.17))
-		if upgrade.getLevel("upgrade")==3 then
-			model:getMesh( "pipe2" ):setVisible(false)
-		end
-		setCurrentInfo()
-		--Achievement
-		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function upgradeRange(param)
-		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("range")
+		elseif upgrade.getLevel("range")>tonumber(param) then
+			upgrade.degrade("range")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
-		if tonumber(param)==3 then
-			upgrade.degrade("range")
+		if upgrade.getLevel("range")==0 then
+			if particleEffectBeam then
+				particleEffectBeam:deactivate()
+			end
+			for i=1, upgrade.getLevel("upgrade") do
+				model:getMesh("lasersight"..i):setVisible(false)
+			end
 		else
-			upgrade.upgrade("range")
+			particleEffectBeam = particleEffectBeam or ParticleSystem( ParticleEffect.LaserSight1 )
+			model:getMesh("lasersight"..upgrade.getLevel("range")):setVisible(true)
+			local laserBeamRange = 0.45+(upgrade.getLevel("range")*0.12)
+			if upgrade.getLevel("range")>1 then
+				model:getMesh("lasersight"..upgrade.getLevel("range")-1):setVisible(false)
+				model:getMesh("lasersight"..upgrade.getLevel("range")-1):removeChild(particleEffectBeam)
+				particleEffectBeam:setSpawnRate( 1.0+(upgrade.getLevel("range")) )
+			end
+			--particleEffectBeam:setSpawnRadius(0.5)
+			particleEffectBeam:activate(Vec3(0.0,-0.1,0.0),Vec3(0.0,-1.0,0.0))
+			particleEffectBeam:setFullAlphaOnRange(laserBeamRange)
+			particleEffectBeam:setEmitterLine(Line3D(Vec3(0.0,-0.6,0.0),Vec3(0.0,-laserBeamRange,0.0)),Vec3(0.0,-1.0,0.0))
+			model:getMesh( "lasersight"..upgrade.getLevel("range") ):addChild(particleEffectBeam)
+			--Acievement
+			if upgrade.getLevel("range")==3 then
+				comUnit:sendTo("SteamAchievement","Range","")
+			end
 		end
-		particleEffectBeam = particleEffectBeam or ParticleSystem( ParticleEffect.LaserSight1 )
-		model:getMesh("lasersight"..upgrade.getLevel("range")):setVisible(true)
-		local laserBeamRange = 0.45+(upgrade.getLevel("range")*0.12)
-		if upgrade.getLevel("range")>1 then
-			model:getMesh("lasersight"..upgrade.getLevel("range")-1):setVisible(false)
-			model:getMesh("lasersight"..upgrade.getLevel("range")-1):removeChild(particleEffectBeam)
-			particleEffectBeam:setSpawnRate( 1.0+(upgrade.getLevel("range")) )
-		end
-		--particleEffectBeam:setSpawnRadius(0.5)
-		particleEffectBeam:activate(Vec3(0.0,-0.1,0.0),Vec3(0.0,-1.0,0.0))
-		particleEffectBeam:setFullAlphaOnRange(laserBeamRange)
-		particleEffectBeam:setEmitterLine(Line3D(Vec3(0.0,-0.6,0.0),Vec3(0.0,-laserBeamRange,0.0)),Vec3(0.0,-1.0,0.0))
-		model:getMesh( "lasersight"..upgrade.getLevel("range") ):addChild(particleEffectBeam)
 		setCurrentInfo()
-		--Acievement
-		if upgrade.getLevel("range")==3 then
-			comUnit:sendTo("SteamAchievement","Range","")
-		end
 	end
 	local function doMeshUpgradeForLevel(name,meshName)
 		local d1 = meshName
@@ -518,14 +532,23 @@ function MinigunTower.new()
 		end
 	end
 	local function upgradeGreaseBullet(param)
-		if tonumber(param)<=upgrade.getLevel("fireCrit") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("fireCrit") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("fireCrit")
+		elseif upgrade.getLevel("fireCrit")>tonumber(param) then
+			upgrade.degrade("fireCrit")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
-		upgrade.upgrade("fireCrit")
-		doMeshUpgradeForLevel("fireCrit","oil")
+		if upgrade.getLevel("fireCrit")==0 then
+			for i=1, upgrade.getLevel("upgrade") do
+				model:getMesh("oil"..i):setVisible(false)
+			end
+		else
+			doMeshUpgradeForLevel("fireCrit","oil")
+		end
 		setCurrentInfo()
 	end
 	local function handleSupportBase(param,index)
@@ -534,41 +557,56 @@ function MinigunTower.new()
 	end
 	
 	local function upgradeOverCharge(param)
-		if tonumber(param)<=upgrade.getLevel("overCharge") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("overCharge") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("overCharge")
+		elseif upgrade.getLevel("overCharge")>tonumber(param) then
+			upgrade.degrade("overCharge")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
-		upgrade.upgrade("overCharge")
-		if not particleEffectSmoke then
-			particleEffectSmoke = {}
-			particleEffectSmoke[0] = ParticleSystem( ParticleEffect.MinigunOverheatSmoke )
-			this:addChild(particleEffectSmoke[0])
-		end
-		billboard:setFloat("overHeatPer",0.0)
-		doMeshUpgradeForLevel("overCharge","engineboost")
-		if not heatPointLight1 then
-			heatPointLight1 = PointLight(Vec3(),Vec3(3.0,0.15,0.0),0.2)
-			model:getMesh( "engine" ):addChild( heatPointLight1 )
-			setPipePointLightPos(heatPointLight1,0)
-			particleEffectSmoke[0]:activate(Vec3())
-			particleEffectSmoke[0]:setSpawnRate(0.0)
-		end
-		heatPointLight1:setVisible(false)
-		heatPointLight1:setCutOff(0.15)
-		if upgrade.getLevel("overCharge")==3 or upgrade.getLevel("upgrade")==3 then
-			if not heatPointLight2 then
-				particleEffectSmoke[1] = ParticleSystem( ParticleEffect.MinigunOverheatSmoke )
-				heatPointLight2 = PointLight(Vec3(),Vec3(3.0,0.15,0.0),0.2)
-				model:getMesh( "engine" ):addChild( heatPointLight2 )
-				setPipePointLightPos(heatPointLight2,1)
-				this:addChild(particleEffectSmoke[1])
-				particleEffectSmoke[1]:activate(Vec3())
-				particleEffectSmoke[1]:setSpawnRate(0.0)
+		if upgrade.getLevel("overCharge")==0 then
+			if heatPointLight1 then
+				heatPointLight1:setVisible(false)
 			end
-			heatPointLight2:setVisible(false)
-			heatPointLight2:setCutOff(0.15)
+			if heatPointLight2 then
+				heatPointLight2:setVisible(false)
+			end
+			for i=1, upgrade.getLevel("upgrade") do
+				model:getMesh("engineboost"..i):setVisible(false)
+			end
+		else
+			if not particleEffectSmoke then
+				particleEffectSmoke = {}
+				particleEffectSmoke[0] = ParticleSystem( ParticleEffect.MinigunOverheatSmoke )
+				this:addChild(particleEffectSmoke[0])
+			end
+			billboard:setFloat("overHeatPer",0.0)
+			doMeshUpgradeForLevel("overCharge","engineboost")
+			if not heatPointLight1 then
+				heatPointLight1 = PointLight(Vec3(),Vec3(3.0,0.15,0.0),0.2)
+				model:getMesh( "engine" ):addChild( heatPointLight1 )
+				setPipePointLightPos(heatPointLight1,0)
+				particleEffectSmoke[0]:activate(Vec3())
+				particleEffectSmoke[0]:setSpawnRate(0.0)
+			end
+			heatPointLight1:setVisible(false)
+			heatPointLight1:setCutOff(0.15)
+			if upgrade.getLevel("overCharge")==3 or upgrade.getLevel("upgrade")==3 then
+				if not heatPointLight2 then
+					particleEffectSmoke[1] = ParticleSystem( ParticleEffect.MinigunOverheatSmoke )
+					heatPointLight2 = PointLight(Vec3(),Vec3(3.0,0.15,0.0),0.2)
+					model:getMesh( "engine" ):addChild( heatPointLight2 )
+					setPipePointLightPos(heatPointLight2,1)
+					this:addChild(particleEffectSmoke[1])
+					particleEffectSmoke[1]:activate(Vec3())
+					particleEffectSmoke[1]:setSpawnRate(0.0)
+				end
+				heatPointLight2:setVisible(false)
+				heatPointLight2:setCutOff(0.15)
+			end
 		end
 		setCurrentInfo()
 	end

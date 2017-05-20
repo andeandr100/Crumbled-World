@@ -91,8 +91,10 @@ function NpcBase.new()
 		--stats
 		local billboardStats = Core.getBillboard("stats")
 		local hpMax = math.max(1.0,billboardStats:getInt("npc_"..name.."_hp"))
-		value = tostring(billboardStats:getInt("npc_"..name.."_gold"))
-		interest = tostring(billboardStats:getString("npc_interest"))--1.0020^40==(8.3% per wave)
+		local val1 = billboardStats:getInt("npc_"..name.."_gold")
+		local val2 = billboardStats:getString("npc_interest")
+		value = tostring(val1)
+		interest = tostring(val2)--1.0020^40==(8.3% per wave)
 		--
 		speed = pspeed	
 		--
