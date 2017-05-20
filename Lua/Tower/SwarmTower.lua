@@ -289,13 +289,16 @@ function SwarmTower.new()
 		end
 	end
 	function self.handleUpgrade(param)
-		if tonumber(param)<=upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("upgrade") then
+			upgrade.upgrade("upgrade")
+		elseif upgrade.getLevel("upgrade")>tonumber(param) then
+			upgrade.degrade("upgrade")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
 			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
-		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		--Achievements
 		local level = upgrade.getLevel("upgrade")
@@ -316,63 +319,90 @@ function SwarmTower.new()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
-		if tonumber(param)<=upgrade.getLevel("boost") then
-			return
+		if tonumber(param)>upgrade.getLevel("boost") then
+			if Core.isInMultiplayer() then
+				comUnit:sendNetworkSyncSafe("upgrade2","1")
+			end
+			boostedOnLevel = upgrade.getLevel("upgrade")
+			upgrade.upgrade("boost")
+			model:getMesh("boost"):setVisible( true )
+			--model:getMesh("notBoosted"):setVisible( false )
+			setCurrentInfo()
+			--Achievement
+			comUnit:sendTo("SteamAchievement","Boost","")
+		elseif upgrade.getLevel("boost")>tonumber(param) then
+			upgrade.degrade("boost")
+			model:getMesh("boost"):setVisible( false )
+			setCurrentInfo()
+			--clear coldown info for boost upgrade
+			upgrade.clearCooldown()
+		else
+			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade2","1")
-		end
-		boostedOnLevel = upgrade.getLevel("upgrade")
-		upgrade.upgrade("boost")
-		model:getMesh("boost"):setVisible( true )
-		--model:getMesh("notBoosted"):setVisible( false )
-		setCurrentInfo()
-		--Achievement
-		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function handleUpgradeBurnDamage(param)
-		if tonumber(param)<=upgrade.getLevel("burnDamage") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("burnDamage") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("burnDamage")
+		elseif upgrade.getLevel("burnDamage")>tonumber(param) then
+			model:getMesh("speed"..upgrade.getLevel("burnDamage")):setVisible(false)
+			upgrade.degrade("burnDamage")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
-		upgrade.upgrade("burnDamage")
-		doMeshUpgradeForLevel("burnDamage","speed")
-		setCurrentInfo()
-		--Achievement
-		if upgrade.getLevel("burnDamage")==3 then
-			comUnit:sendTo("SteamAchievement","Fire","")
+		if upgrade.getLevel("burnDamage")>0 then
+			doMeshUpgradeForLevel("burnDamage","speed")
+			--Achievement
+			if upgrade.getLevel("burnDamage")==3 then
+				comUnit:sendTo("SteamAchievement","Fire","")
+			end
 		end
+		setCurrentInfo()
 	end
 	local function handleUpgradeFuel(param)
-		if tonumber(param)<=upgrade.getLevel("fuel") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("fuel") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("fuel")
+		elseif upgrade.getLevel("fuel")>tonumber(param) then
+			model:getMesh("fuel"..upgrade.getLevel("fuel")):setVisible(false)
+			upgrade.degrade("fuel")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
-		upgrade.upgrade("fuel")
-		doMeshUpgradeForLevel("fuel","fuel")
-		setCurrentInfo()
-		--Achievement
-		if upgrade.getLevel("fuel")==3 then
-			comUnit:sendTo("SteamAchievement","FireDPS","")
+		if upgrade.getLevel("fuel")>0 then
+			doMeshUpgradeForLevel("fuel","fuel")
+			--Achievement
+			if upgrade.getLevel("fuel")==3 then
+				comUnit:sendTo("SteamAchievement","FireDPS","")
+			end
 		end
+		setCurrentInfo()
 	end
 	local function handleUpgradeRange(param)
-		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("range")
+		elseif upgrade.getLevel("range")>tonumber(param) then
+			upgrade.degrade("range")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
-		upgrade.upgrade("range")
-		setCurrentInfo()
-		--Acievement
-		if upgrade.getLevel("range")==3 then
-			comUnit:sendTo("SteamAchievement","Range","")
+		if upgrade.getLevel("range")==0 then
+			--no mesh in use
+		else
+			--no mesh in use
+			--Acievement
+			if upgrade.getLevel("range")==3 then
+				comUnit:sendTo("SteamAchievement","Range","")
+			end
 		end
+		setCurrentInfo()
 	end
 	function self.update()
 

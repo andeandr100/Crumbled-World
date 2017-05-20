@@ -167,13 +167,16 @@ function QuakeTower.new()
 		end
 	end
 	function self.handleUpgrade(param)
-		if tonumber(param)<=upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("upgrade") then
+			upgrade.upgrade("upgrade")
+		elseif upgrade.getLevel("upgrade")>tonumber(param) then
+			upgrade.degrade("upgrade")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
 			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
-		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		--Achievements
 		local level = upgrade.getLevel("upgrade")
@@ -202,107 +205,147 @@ function QuakeTower.new()
 		setCurrentInfo()
 	end
 	local function handleBoost(param)
-		if tonumber(param)<=upgrade.getLevel("boost") then
-			return
+		if tonumber(param)>upgrade.getLevel("boost") then
+			if Core.isInMultiplayer() then
+				comUnit:sendNetworkSyncSafe("upgrade2","1")
+			end
+			boostedOnLevel = upgrade.getLevel("upgrade")
+			upgrade.upgrade("boost")
+			model:getMesh("boost"):setVisible(true)
+			setCurrentInfo()
+			--Achievement
+			comUnit:sendTo("SteamAchievement","Boost","")
+		elseif upgrade.getLevel("boost")>tonumber(param) then
+			upgrade.degrade("boost")
+			model:getMesh("boost"):setVisible( false )
+			setCurrentInfo()
+			--clear coldown info for boost upgrade
+			upgrade.clearCooldown()
+		else
+			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade2","1")
-		end
-		boostedOnLevel = upgrade.getLevel("upgrade")
-		upgrade.upgrade("boost")
-		model:getMesh("boost"):setVisible(true)
-		setCurrentInfo()
-		--Achievement
-		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	local function handleFireCrit(param)
-		if tonumber(param)<=upgrade.getLevel("fireCrit") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("fireCrit") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("fireCrit")
+		elseif upgrade.getLevel("fireCrit")>tonumber(param) then
+			model:getMesh("blaster"..upgrade.getLevel("fireCrit")):setVisible(false)
+			upgrade.degrade("fireCrit")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
-		if upgrade.getLevel("fireCrit")==0 then
-			quakeDustBlast = ParticleSystem(ParticleEffect.QuakeDustEffect)
-			blasterFlame = ParticleSystem(ParticleEffect.quakeBlaster)
-			log:addChild(blasterFlame)
-			this:addChild(quakeDustBlast)
-		end
 		if upgrade.getLevel("fireCrit")>0 then
-			model:getMesh("blaster"..upgrade.getLevel("fireCrit")):setVisible(false)
+			if (not quakeDustBlast) or (not blasterFlame) then
+				quakeDustBlast = ParticleSystem(ParticleEffect.QuakeDustEffect)
+				blasterFlame = ParticleSystem(ParticleEffect.quakeBlaster)
+				log:addChild(blasterFlame)
+				this:addChild(quakeDustBlast)
+			end
+			if upgrade.getLevel("fireCrit")>1 then
+				model:getMesh("blaster"..(upgrade.getLevel("fireCrit")-1)):setVisible(false)
+			end
+			model:getMesh("blaster"..upgrade.getLevel("fireCrit")):setVisible(true)
+			--Acievement
+			if upgrade.getLevel("fireCrit")==3 then
+				comUnit:sendTo("SteamAchievement","QuakeFireCrit","")
+			end
 		end
-		upgrade.upgrade("fireCrit")
-		model:getMesh("blaster"..upgrade.getLevel("fireCrit")):setVisible(true)
 		setCurrentInfo()
-		--Acievement
-		if upgrade.getLevel("fireCrit")==3 then
-			comUnit:sendTo("SteamAchievement","QuakeFireCrit","")
-		end
 	end
 	local function handleFlameStrike(param)
-		if tonumber(param)<=upgrade.getLevel("fireStrike") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("fireStrike") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("fireStrike")
+		elseif upgrade.getLevel("fireStrike")>tonumber(param) then
+			model:getMesh("elementTower"..upgrade.getLevel("fireStrike")):setVisible(false)
+			upgrade.degrade("fireStrike")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
 		if upgrade.getLevel("fireStrike")==0 then
-			quakeFlameBlast = ParticleSystem(ParticleEffect.qukeFireBlast)
-			fireBall = ParticleSystem(ParticleEffect.quakeFireBall)
-			firePointLigth = PointLight(Vec3(2.0,1.15,0.0),3.0)
-			this:addChild( quakeFlameBlast )
-			this:addChild( fireBall )
-			this:addChild( firePointLigth )
+			if quakeFlameBlast  then
+				quakeFlameBlast:deactivate()
+				fireBall:deactivate()
+				firePointLigth:setVisible(false)
+			end
+		else
+			if quakeFlameBlast==nil  then
+				quakeFlameBlast = ParticleSystem(ParticleEffect.qukeFireBlast)
+				fireBall = ParticleSystem(ParticleEffect.quakeFireBall)
+				firePointLigth = PointLight(Vec3(2.0,1.15,0.0),3.0)
+				this:addChild( quakeFlameBlast )
+				this:addChild( fireBall )
+				this:addChild( firePointLigth )
+			end
 			fireBall:activate(Vec3(0,0.75,0))
 			firePointLigth:setLocalPosition( Vec3(0,0.75,0) )
+			if upgrade.getLevel("fireStrike")>1 then
+				model:getMesh("elementTower"..(upgrade.getLevel("fireStrike")-1)):setVisible(false)
+			end
+			model:getMesh("elementTower"..upgrade.getLevel("fireStrike")):setVisible(true)
+			model:getMesh("elementSmasher"):setVisible(true)
+			--Acievement
+			if upgrade.getLevel("fireStrike")==3 then
+				comUnit:sendTo("SteamAchievement","FireWall","")
+			end
 		end
-		if upgrade.getLevel("fireStrike")>0 then
-			model:getMesh("elementTower"..upgrade.getLevel("fireStrike")):setVisible(false)
-		end
-		upgrade.upgrade("fireStrike")
-		model:getMesh("elementTower"..upgrade.getLevel("fireStrike")):setVisible(true)
-		model:getMesh("elementSmasher"):setVisible(true)
 		setCurrentInfo()
-		--Acievement
-		if upgrade.getLevel("fireStrike")==3 then
-			comUnit:sendTo("SteamAchievement","FireWall","")
-		end
 	end
 	local function handleElectricStrike(param)
-		if tonumber(param)<=upgrade.getLevel("electricStrike") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("electricStrike") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("electricStrike")
+		elseif upgrade.getLevel("electricStrike")>tonumber(param) then
+			model:getMesh("elementTower"..upgrade.getLevel("electricStrike")):setVisible(false)
+			model:getMesh("elementSmasher"):setVisible(false)
+			upgrade.degrade("electricStrike")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
 		if upgrade.getLevel("electricStrike")==0 then
-			electricBall = ParticleSystem(ParticleEffect.SparkSpirit)
-			electricPointLigth = PointLight(Vec3(0.0,1.5,1.5),3.0)
-			soundAttack = SoundNode("electric_attack")
-			electrikStrike = {token=0}
-			this:addChild( electricBall )
-			this:addChild( electricPointLigth )
-			this:addChild( soundAttack )
-			for i=1, 6 do
-				electrikStrike[i] = {effect=ParticleEffectElectricFlash("Lightning_D.tga"), light=PointLight(Vec3(0.0,1.0,1.0),2.5)}
-				this:addChild(electrikStrike[i].effect)
-				this:addChild(electrikStrike[i].light)
+			if electricBall then
+				electricBall:deactivate()
+				electricPointLigth:setVisible(false)
+				for i=1, 6 do
+					electrikStrike[i].light:setVisible(false)
+				end
+			end
+		else
+			if electricBall==nil then
+				electricBall = ParticleSystem(ParticleEffect.SparkSpirit)
+				electricPointLigth = PointLight(Vec3(0.0,1.5,1.5),3.0)
+				soundAttack = SoundNode("electric_attack")
+				electrikStrike = {token=0}
+				this:addChild( electricBall )
+				this:addChild( electricPointLigth )
+				this:addChild( soundAttack )
+				for i=1, 6 do
+					electrikStrike[i] = {effect=ParticleEffectElectricFlash("Lightning_D.tga"), light=PointLight(Vec3(0.0,1.0,1.0),2.5)}
+					this:addChild(electrikStrike[i].effect)
+					this:addChild(electrikStrike[i].light)
+				end
 			end
 			electricBall:activate(Vec3(0,0.75,0))
 			electricBall:setScale(0.5)
 			electricPointLigth:setLocalPosition( Vec3(0,0.75,0) )
+			if upgrade.getLevel("electricStrike")>1 then
+				model:getMesh("elementTower"..(upgrade.getLevel("electricStrike")-1)):setVisible(false)
+			end
+			model:getMesh("elementTower"..upgrade.getLevel("electricStrike")):setVisible(true)
+			model:getMesh("elementSmasher"):setVisible(true)
+			--Acievement
+			if upgrade.getLevel("electricStrike")==3 then
+				comUnit:sendTo("SteamAchievement","ElectricStorm","")
+			end
 		end
-		if upgrade.getLevel("electricStrike")>0 then
-			model:getMesh("elementTower"..upgrade.getLevel("electricStrike")):setVisible(false)
-		end
-		upgrade.upgrade("electricStrike")
-		model:getMesh("elementTower"..upgrade.getLevel("electricStrike")):setVisible(true)
-		model:getMesh("elementSmasher"):setVisible(true)
 		setCurrentInfo()
-		--Acievement
-		if upgrade.getLevel("electricStrike")==3 then
-			comUnit:sendTo("SteamAchievement","ElectricStorm","")
-		end
 	end
 	--
 	--	Network sync
