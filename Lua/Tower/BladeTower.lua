@@ -57,6 +57,8 @@ function BladeTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
+	--Events
+	restartListener = Listener("Restart")
 	--sound
 	local soundRelease = SoundNode("bladeTower_attack")
 	--other
@@ -94,6 +96,9 @@ function BladeTower.new()
 			upgrade.setInterpolation(interpolation)
 			upgrade.fixBillboardAndStats()
 		end
+	end
+	local function restartMap()
+		projectiles.clear()
 	end
 	local function waveChanged(param)
 		if not xpManager then
@@ -720,6 +725,8 @@ function BladeTower.new()
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model)
 		--
+		restartListener:registerEvent("restart", restartMap)
+		--
 		if particleEffectUpgradeAvailable then
 			this:addChild(particleEffectUpgradeAvailable)
 		end
@@ -770,7 +777,6 @@ function BladeTower.new()
 		upgrade.addDisplayStats("damage")
 		upgrade.addDisplayStats("RPS")
 		upgrade.addDisplayStats("range")
-		--upgrade.addDisplayStats("bladeSpeed")
 		upgrade.addBillboardStats("slow")
 		upgrade.addBillboardStats("slowTimer")
 		upgrade.addBillboardStats("stateDamageMul")

@@ -42,6 +42,8 @@ function MissileTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
+	--Events
+	restartListener = Listener("Restart")
 	--other
 	--local soulManager
 	--local targetingSystem
@@ -103,6 +105,9 @@ function MissileTower.new()
 				end
 			end
 		end
+	end
+	local function restartMap()
+		projectiles.clear()
 	end
 	local function updateStats()
 		targetSelector.setRange(upgrade.getValue("range"))
@@ -547,6 +552,8 @@ function MissileTower.new()
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
+		
+		restartListener:registerEvent("restart", restartMap)
 		--
 		if xpManager then
 			xpManager.setUpgradeCallback(self.handleUpgrade)

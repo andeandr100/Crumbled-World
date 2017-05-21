@@ -42,6 +42,8 @@ function SwarmTower.new()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
 	local attackCounter = 0
+	--Events
+	restartListener = Listener("Restart")
 	--sound
 	--targetSelector
 	local activeTeam = 1
@@ -64,6 +66,9 @@ function SwarmTower.new()
 					projectileLaunched=0,
 					disqualified=false}
 		myStatsTimer = Core.getGameTime()
+	end
+	local function restartMap()
+		projectiles.clear()
 	end
 	local function swarmBallHitt(param)
 		myStats.hitts = myStats.hitts + 1
@@ -493,6 +498,8 @@ function SwarmTower.new()
 		if xpManager then
 			xpManager.setUpgradeCallback(self.handleUpgrade)
 		end
+		
+		restartListener:registerEvent("restart", restartMap)
 	
 		model = Core.getModel("tower_swarm_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")

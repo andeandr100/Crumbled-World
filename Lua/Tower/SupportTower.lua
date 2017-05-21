@@ -202,13 +202,16 @@ function SwarmTower.new()
 	-- function:	handleUpgrade
 	-- purpose:		upgrades the tower and all the meshes and stats for the new level
 	function self.handleUpgrade(param)
-		if tonumber(param)<=upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("upgrade") then
+			upgrade.upgrade("upgrade")
+		elseif upgrade.getLevel("upgrade")>tonumber(param) then
+			upgrade.degrade("upgrade")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
 			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
-		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		--Achievements
 		local level = upgrade.getLevel("upgrade")
@@ -232,129 +235,163 @@ function SwarmTower.new()
 	-- function:	handleBoost
 	-- purpose:		boost has been upgraded
 	local function handleBoost(param)
-		if tonumber(param)<=upgrade.getLevel("boost") then
-			return
+		if tonumber(param)>upgrade.getLevel("boost") then
+			if tonumber(param)<=upgrade.getLevel("boost") then
+				return
+			end
+			if Core.isInMultiplayer() then
+				comUnit:sendNetworkSyncSafe("upgrade2","1")
+			end
+			boostedOnLevel = upgrade.getLevel("upgrade")
+			upgrade.upgrade("boost")
+			setCurrentInfo()
+			--
+			comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportBoost",1)
+			--Achievement
+			comUnit:sendTo("SteamAchievement","Boost","")
+		else
+			upgrade.degrade("boost")
+			upgrade.clearCooldown()
+			--
+			initModel()
+			setCurrentInfo()
 		end
-		if Core.isInMultiplayer() then
-			comUnit:sendNetworkSyncSafe("upgrade2","1")
-		end
-		boostedOnLevel = upgrade.getLevel("upgrade")
-		upgrade.upgrade("boost")
-		setCurrentInfo()
-		--
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportBoost",1)
-		--Achievement
-		comUnit:sendTo("SteamAchievement","Boost","")
 	end
 	-- function:	handleUpgradeRange
 	-- purpose:		do all changes for upgrading the range
 	local function handleUpgradeRange(param)
-		if tonumber(param)<=upgrade.getLevel("range") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("range")
+		elseif upgrade.getLevel("range")>tonumber(param) then
+			model:getMesh("range".. upgrade.getLevel("range")):setVisible(false)
+			upgrade.degrade("range")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
-		upgrade.upgrade("range")
-		if meshRange then
-			rangeMatrix = meshRange:getLocalMatrix()
+		if upgrade.getLevel("range")>0 then
+			if meshRange then
+				rangeMatrix = meshRange:getLocalMatrix()
+			end
+			doMeshUpgradeForLevel("range","range")
+			if rangeMatrix then
+				meshRange:setLocalMatrix(rangeMatrix)
+			end
+			--Acievement
+			if upgrade.getLevel("range")==3 then
+				comUnit:sendTo("SteamAchievement","SupportRange","")
+			end
 		end
-		doMeshUpgradeForLevel("range","range")
 		setCurrentInfo()
-		if rangeMatrix then
-			meshRange:setLocalMatrix(rangeMatrix)
-		end
-		--
 		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportRange",upgrade.getLevel("range"))
-		--Acievement
-		if upgrade.getLevel("range")==3 then
-			comUnit:sendTo("SteamAchievement","SupportRange","")
-		end
 	end
 	-- function:	handleUpgradeDamage
 	-- purpose:		do all changes for upgrading the damage
 	local function handleUpgradeDamage(param)
-		if tonumber(param)<=upgrade.getLevel("damage") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("damage") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("damage")
+		elseif upgrade.getLevel("damage")>tonumber(param) then
+			--model:getMesh("range".. upgrade.getLevel("range")):setVisible(false)
+			upgrade.degrade("damage")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
-		upgrade.upgrade("damage")
-		doMeshUpgradeForLevel("damage","dmg")
-		setCurrentInfo()
-		--
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportDamage",upgrade.getLevel("damage"))
-		--Achievement
-		if upgrade.getLevel("damage")==3 then
-			comUnit:sendTo("SteamAchievement","SupportDamage","")
+		if upgrade.getLevel("damage")>0 then
+			doMeshUpgradeForLevel("damage","dmg")
+			--Achievement
+			if upgrade.getLevel("damage")==3 then
+				comUnit:sendTo("SteamAchievement","SupportDamage","")
+			end
 		end
+		setCurrentInfo()
+		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("damage"),"supportDamage",upgrade.getLevel("damage"))
 	end
 	-- function:	handleUpgradeWeaken
 	-- purpose:		do all changes for upgrading the weakening
 	local function handleUpgradeWeaken(param)
-		if tonumber(param)<=upgrade.getLevel("weaken") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("weaken") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("weaken")
+		elseif upgrade.getLevel("weaken")>tonumber(param) then
+			--model:getMesh("range".. upgrade.getLevel("range")):setVisible(false)
+			upgrade.degrade("weaken")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
-		upgrade.upgrade("weaken")
-		model:getMesh("weaken"):setVisible(true)
-		setCurrentInfo()
-		--loop all effects and create them
-		if upgrade.getLevel("weaken")==1 then
-			for i=1, 4 do
-				weakenEffects[i] = ParticleSystem(ParticleEffect.weakening)
-				weakenPointLight[i] = PointLight(Vec3(1.0,1.0,0.0), 1.0)
-				weakenPointLight[i]:setCutOff(0.05)
-				this:addChild( weakenEffects[i] )
-				this:addChild( weakenPointLight[i] )
-				if i==1 then
-					weakenEffects[i]:activate(Vec3(-0.575,0.75,0.0))
-					weakenPointLight[i]:setLocalPosition(Vec3(-0.575,0.75,0.0))
-				elseif i==2 then
-					weakenEffects[i]:activate(Vec3(0.575,0.75,0.0))
-					weakenPointLight[i]:setLocalPosition(Vec3(0.575,0.75,0.0))
-				elseif i==3 then
-					weakenEffects[i]:activate(Vec3(0.0,0.75,0.575))
-					weakenPointLight[i]:setLocalPosition(Vec3(0.0,0.75,0.575))
-				else
-					weakenEffects[i]:activate(Vec3(0.0,0.75,-0.575))
-					weakenPointLight[i]:setLocalPosition(Vec3(0.0,0.75,-0.575))
+		if upgrade.getLevel("weaken")==0 then
+			model:getMesh("weaken"):setVisible(false)
+			if weakeningArea then
+				weakeningArea:deactivate()
+				for i=1, 4 do
+					weakenEffects[i]:deactivate()
+					weakenPointLight[i]:setVisible(false)
 				end
 			end
-			weakeningArea = ParticleSystem(ParticleEffect.weakeningArea)
-			this:addChild(weakeningArea)
+		else
+			model:getMesh("weaken"):setVisible(true)
+			setCurrentInfo()
+			--loop all effects and create them
+			if not weakeningArea then
+				for i=1, 4 do
+					weakenEffects[i] = ParticleSystem(ParticleEffect.weakening)
+					weakenPointLight[i] = PointLight(Vec3(1.0,1.0,0.0), 1.0)
+					weakenPointLight[i]:setCutOff(0.05)
+					this:addChild( weakenEffects[i] )
+					this:addChild( weakenPointLight[i] )
+				end
+				weakeningArea = ParticleSystem(ParticleEffect.weakeningArea)
+				this:addChild(weakeningArea)
+			end
+			weakenEffects[1]:activate(Vec3(-0.575,0.75,0.0))
+			weakenPointLight[1]:setLocalPosition(Vec3(-0.575,0.75,0.0))
+			weakenEffects[2]:activate(Vec3(0.575,0.75,0.0))
+			weakenPointLight[2]:setLocalPosition(Vec3(0.575,0.75,0.0))
+			weakenEffects[3]:activate(Vec3(0.0,0.75,0.575))
+			weakenPointLight[3]:setLocalPosition(Vec3(0.0,0.75,0.575))
+			weakenEffects[4]:activate(Vec3(0.0,0.75,-0.575))
+			weakenPointLight[4]:setLocalPosition(Vec3(0.0,0.75,-0.575))
 			weakeningArea:activate(Vec3(0,0.5,0))
-		end
-		--update the spawn rate on the main effect
-		weakeningArea:setSpawnRate( 0.4+(upgrade.getLevel("weaken")*0.2) )
-		--update the spawn rate on the 4 tower effects
-		for i=1, 4 do
-			weakenEffects[i]:setScale( 0.25+(upgrade.getLevel("weaken")*0.25) )
-			weakenPointLight[i]:setRange( 0.5+(upgrade.getLevel("weaken")*0.5) )
-		end
-		--Acievement
-		if upgrade.getLevel("range")==3 then
-			comUnit:sendTo("SteamAchievement","SupportWeaken","")
+			weakeningArea:setSpawnRate( 0.4+(upgrade.getLevel("weaken")*0.2) )
+			--update the spawn rate on the 4 tower effects
+			for i=1, 4 do
+				weakenEffects[i]:setScale( 0.25+(upgrade.getLevel("weaken")*0.25) )
+				weakenPointLight[i]:setRange( 0.5+(upgrade.getLevel("weaken")*0.5) )
+				weakenPointLight[i]:setVisible(true)
+			end
+			--Acievement
+			if upgrade.getLevel("weaken")==3 then
+				comUnit:sendTo("SteamAchievement","SupportWeaken","")
+			end
 		end
 	end
 	-- function:	Upgrades the towers gold upgrade.
 	-- callback:	Is called when the tower has been upgraded
 	local function handleUpgradegold(param)
-		if tonumber(param)<=upgrade.getLevel("gold") or tonumber(param)>upgrade.getLevel("upgrade") then
-			return
+		if tonumber(param)>upgrade.getLevel("gold") and tonumber(param)<=upgrade.getLevel("upgrade") then
+			upgrade.upgrade("gold")
+		elseif upgrade.getLevel("gold")>tonumber(param) then
+			--model:getMesh("range".. upgrade.getLevel("range")):setVisible(false)
+			upgrade.degrade("gold")
+		else
+			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade6",tostring(param))
 		end
-		upgrade.upgrade("gold")
-		--model:getMesh("gold"):setVisible(true)
-		goldUpdateTimer = 0.0
-		setCurrentInfo()
-		--
-		goldGainAmount = upgrade.getValue("supportGold")
+		if upgrade.getLevel("gold")>0 then
+			--model:getMesh("gold"):setVisible(true)
+			goldUpdateTimer = 0.0
+			setCurrentInfo()
+			--
+			goldGainAmount = upgrade.getValue("supportGold")
+		end
 	end
 	-- function:	Updates all tower what upgrades that is available
 	-- callback:	Is called when a tower is built closeby
