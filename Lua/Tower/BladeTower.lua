@@ -97,7 +97,7 @@ function BladeTower.new()
 			upgrade.fixBillboardAndStats()
 		end
 	end
-	local function restartMap()
+	local function restartWave()
 		projectiles.clear()
 	end
 	local function waveChanged(param)
@@ -725,7 +725,7 @@ function BladeTower.new()
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model)
 		--
-		restartListener:registerEvent("restart", restartMap)
+		restartListener:registerEvent("restartWave", restartWave)
 		--
 		if particleEffectUpgradeAvailable then
 			this:addChild(particleEffectUpgradeAvailable)

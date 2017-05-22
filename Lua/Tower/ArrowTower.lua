@@ -80,7 +80,7 @@ function ArrowTower.new()
 					disqualified=false}
 		myStatsTimer = Core.getGameTime()
 	end
-	local function restartMap()
+	local function restartWave()
 		projectiles.clear()
 	end
 	local function damageDealt(param)
@@ -658,7 +658,7 @@ function ArrowTower.new()
 			xpManager.setUpgradeCallback(self.handleUpgrade)
 		end
 		
-		restartListener:registerEvent("restart", restartMap)
+		restartListener:registerEvent("restartWave", restartWave)
 	
 		model = Core.getModel("tower_crossbow_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")

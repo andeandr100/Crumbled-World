@@ -63,7 +63,7 @@ function projectileManager.new()
 	function self.clear()
 		local i=inUse.size
 		while i>0 do
-			self.removeProjectile(i)
+			removeProjectile(i)
 			i = i - 1
 		end
 	end
@@ -73,7 +73,7 @@ function projectileManager.new()
 		local i=1
 		while i<=inUse.size do
 			if inUse[i].update()==false then
-				self.removeProjectile(i)
+				removeProjectile(i)
 				i = i - 1
 			end
 			i = i + 1
