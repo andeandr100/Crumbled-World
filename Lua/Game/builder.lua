@@ -158,6 +158,20 @@ function restartMap()
 	end
 end
 
+function networkCallBuilding(tab)
+	local script = Core.getScriptOfNetworkName(tab.netName)
+	comUnit:sendTo( script:getIndex(), tab.para1, tab.para2)
+end
+
+function addBuildingEvent(data)
+	local tab = totable(data)
+	if tab.func == "comUnit" then
+		tab.func = 4
+	end
+	
+	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add=tab}
+end
+
 function create()
 	if this:getNodeType() == NodeId.buildNode then
 		Core.setScriptNetworkId("Builder")
@@ -182,8 +196,20 @@ function create()
 		comUnitTable["UpgradeWallTower"] = upgradeWallTower
 		comUnitTable["NetUpgradeWallTower"] = netUpgradeWallTower
 		comUnitTable["buildingSubUpgrade"] = towerUpgrade
+		comUnitTable["addBuildLoadOrder"] = addBuildingEvent
 		
-	
+		
+		functionList = {}
+		functionList[1] = towerUpgradefunc
+		functionList[2] = buildTowerNetworkCallback
+		functionList[3] = uppgradeWallTowerTab
+		functionList[4] = networkCallBuilding
+		
+		
+		
+		replayIndex = 1
+		towerBuildInfo = {}
+		
 		restartListener = Listener("Restart")
 		restartListener:registerEvent("restart", restartMap)
 		
@@ -353,9 +379,11 @@ function towerUpgrade(param)
 	print("param: "..(tab.param or ""))
 	print("------------------------")
 	
+	
+	
 	if tab.param then
 		local downGrade = {netId = tab.netId, msg = tab.msg, param = tab.param - 1}
-		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=tab.cost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=towerUpgradefunc},restore={para1=downGrade,func=towerUpgradefunc}}
+		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=tab.cost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=1},restore={para1=downGrade,func=towerUpgradefunc}}
 	else
 		--TODO not supported
 		print("NOT supported")
@@ -499,12 +527,14 @@ function restartWave(wave)
 			run = false
 		else
 			local restorTab = towerBuildInfo[index].restore
-			if restorTab.para1 == nil then
-				restorTab.func()
-			elseif restorTab.para2 == nil then
-				restorTab.func(restorTab.para1)
-			else
-				restorTab.func(restorTab.para1, restorTab.para2)
+			if restorTab then
+				if restorTab.para1 == nil then
+					restorTab.func()
+				elseif restorTab.para2 == nil then
+					restorTab.func(restorTab.para1)
+				else
+					restorTab.func(restorTab.para1, restorTab.para2)
+				end
 			end
 			towerBuildInfo[index] = nil
 		end
@@ -517,11 +547,23 @@ function update()
 	if curentWave ~= Core.getBillboard("stats"):getInt("wave") then
 		curentWave = Core.getBillboard("stats"):getInt("wave")
 		waveTime = Core.getGameTime()
+		print("replayData: "..tabToStrMinimal(towerBuildInfo))
 	end
 	
---	if Core.getInput():getKeyDown(Key.u) then
---		restartWave(curentWave)
+--	local timeoffset = (Core.getGameTime()-waveTime)
+--	while towerBuildInfo[replayIndex] and (towerBuildInfo[replayIndex].wave < curentWave or (towerBuildInfo[replayIndex].wave == curentWave and towerBuildInfo[replayIndex].buildTimeFromBeginingOfWave < timeoffset)) do
+--		
+--		local addData = towerBuildInfo[replayIndex].add
+--		functionList[addData.func](addData.para1)
+--		
+--		if towerBuildInfo[replayIndex].cost then
+--			comUnit:sendTo("stats","removeGold",towerBuildInfo[replayIndex].cost)
+--		end
+--		
+--		towerBuildInfo[replayIndex] = nil
+--		replayIndex = replayIndex + 1
 --	end
+	
 	
 	if Core.getInput():getKeyHeld(Key.lshift) or stateBillboard:getBool("inMenu") then
 		noMoneyIcon:setVisible(false)
@@ -581,7 +623,7 @@ function update()
 				if Core.isInMultiplayer() then
 					comUnit:sendNetworkSyncSafe("NET",tabToStrMinimal(tab))
 				else
-					towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tabToStrMinimal(tab),func=syncBuild},restore={para1=towerName,para2=true,func=netSellTower}}
+					towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=2},restore={para1=towerName,para2=true,func=netSellTower}}
 				end
 				
 				building:setSceneName(towerBilboard:getString("Name"))
@@ -645,6 +687,7 @@ function update()
 						--upgrade the building
 --						AutoBuilder.changeBuilding(building, currentTower, building:findNodeByTypeTowardsRoot(NodeId.island):getGlobalMatrix():inverseM() * towerMatrix )
 						local newBuildingMatrix = building:getParent():getGlobalMatrix():inverseM() * towerMatrix
+						local curentName = wallTowerScript:getNetworkName()
 						local tab = {buildTowerIndex=currentTowerIndex, netName=buildingScript:getNetworkName(), matrix=newBuildingMatrix, tName=getNewTowerName()}
 						local buildingScript = currentTower:getScriptByName("tower")
 						--get the cost of the new tower
@@ -662,10 +705,10 @@ function update()
 							tab.playerId = Core.getPlayerId()
 							comUnit:sendNetworkSyncSafe("NETWU",tabToStrMinimal(tab))
 						else
-							local buildData = {tab.tName, buildingCost, scriptName, newBuildingMatrix, tab.tName, true}
+							local buildData = {curentName, buildingCost, scriptName, newBuildingMatrix, tab.tName, true}
 							local downGradeData = {netName = tab.tName, upgToScripName = "Tower/WallTower.lua", tName = tab.netName, playerId = Core.getPlayerId(), buildCost=0}
 							
-							towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=buildData,func=uppgradeWallTowerTab},restore={para1=downGradeData,func=upgradeWallTower}}
+							towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=buildData,func=3},restore={para1=downGradeData,func=upgradeWallTower}}
 						end
 						
 						if targetAreaName == "cone" then

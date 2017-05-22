@@ -49,9 +49,9 @@ end
 
 function uppgradeWallTowerTab(tab)
 	local building = Core.getScriptOfNetworkName(tab[1]):getParentNode()
-	uppgradeWallTower(building, tab[2], tab[3], tab[4], tab[5], tab[6])
+	uppgradeWallTower(building, tab[2], tab[3], tab[4], tab[5], tab[6], nil, true)
 end
-function uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, newLocalBuildngMatrix, networkName, isOwner, playerId)
+function uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, newLocalBuildngMatrix, networkName, isOwner, playerId, disableRotatorScript)
 	--buildingToUpgrade = SceneNode()
 	--upgradeToBuilding = SCeneNode()
 
@@ -93,7 +93,7 @@ function uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, newLocalBui
 			
 			if isOwner then
 				comUnit:sendTo("builder", "damgeTowerBuilt", "0")
-				if buildingScript:getBillboard():getString("TargetArea") == "cone" then
+				if buildingScript:getBillboard():getString("TargetArea") == "cone" and disableRotatorScript ~= true then
 					buildingToUpgrade:loadLuaScript("Game/buildRotater.lua")
 				end
 				--
