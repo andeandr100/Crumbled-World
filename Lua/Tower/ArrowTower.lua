@@ -52,6 +52,8 @@ function ArrowTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
+	--Events
+	restartListener = Listener("Restart")
 	--Other
 	local syncTimer = 0.0
 	local activeTeam = 1
@@ -77,6 +79,9 @@ function ArrowTower.new()
 					retargeted=0,
 					disqualified=false}
 		myStatsTimer = Core.getGameTime()
+	end
+	local function restartWave()
+		projectiles.clear()
 	end
 	local function damageDealt(param)
 		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
@@ -652,6 +657,8 @@ function ArrowTower.new()
 		if xpManager then
 			xpManager.setUpgradeCallback(self.handleUpgrade)
 		end
+		
+		restartListener:registerEvent("restartWave", restartWave)
 	
 		model = Core.getModel("tower_crossbow_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
@@ -848,9 +855,9 @@ function ArrowTower.new()
 								info = "Arrow tower mark of death",
 								order = 4,
 								icon = 61,
-								value1 = 12,
+								value1 = 10,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",1),
-								stats ={weaken =		{ upgrade.add, 0.12, ""},
+								stats ={weaken =		{ upgrade.add, 0.10, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -858,9 +865,9 @@ function ArrowTower.new()
 								info = "Arrow tower mark of death",
 								order = 4,
 								icon = 61,
-								value1 = 24,
+								value1 = 20,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",2),
-								stats ={weaken =		{ upgrade.add, 0.24, ""},
+								stats ={weaken =		{ upgrade.add, 0.20, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -868,9 +875,9 @@ function ArrowTower.new()
 								info = "Arrow tower mark of death",
 								order = 4,
 								icon = 61,
-								value1 = 36,
+								value1 = 30,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",3),
-								stats ={weaken =		{ upgrade.add, 0.36, ""},
+								stats ={weaken =		{ upgrade.add, 0.30, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 --		-- SMART TARGETING

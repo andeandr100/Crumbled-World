@@ -394,7 +394,9 @@ function EventBase.new()
 			if waveCount>0 then
 				comUnit:sendTo("log","println",waveInfo[waveCount].theoreticalGold)
 				comUnit:sendTo("log","println",bilboardStats:getInt("totalGoldEarned"))
-				waveFinishedMoneyBonus()
+				if waveRestarted==false then
+					waveFinishedMoneyBonus()
+				end
 			end
 			waveCount = waveCount + 1
 			if waveCount <= #waves then

@@ -2,9 +2,11 @@ projectileManager = {}
 function projectileManager.new()
 	local self = {}
 	
-	local notInUse = {}
-	local inUse = {size=0}
+	local notInUse = {}		--projectiles is stored here for fast reuse to a lower cost then creating a new projectile
+	local inUse = {size=0}	--projectiles that are in transit to there destinations
 	
+	-- function:	launch
+	-- purpose:		Launches a new projectile with param as setting
 	function self.launch(projectile,param)
 		local name = projectile.name
 		--make sure the projectile has a base list
@@ -22,6 +24,8 @@ function projectileManager.new()
 		inUse[inUse.size].init(param)
 		notUsed.size = notUsed.size - 1
 	end
+	-- function:	destroy
+	-- purpose:		deletes all projectiles and all there asosiated memories (should only be used when destroying the script)
 	function self.destroy()
 		for i=1, inUse.size do
 			if inUse[i].destroy then
@@ -38,26 +42,46 @@ function projectileManager.new()
 		end
 		notInUse = nil
 	end
+	-- function:	getSize
+	-- purpose:		returns how many projectiles that are in transit
 	function self.getSize()
 		return inUse.size
 	end
+	-- function:	removeProjectile
+	-- purpose:		removes a single active projectile
+	local function removeProjectile(index)
+		local notInUseItem = notInUse[inUse[index].projectileName]
+		notInUseItem.size = notInUseItem.size + 1
+		notInUseItem[notInUseItem.size] = inUse[index]
+		if index~=inUse.size then
+			inUse[index] = inUse[inUse.size]
+		end
+		inUse.size = inUse.size - 1
+	end
+	-- function:	clear
+	-- purpose:		removes all active projectils, and allows them to be used for future ueses
+	function self.clear()
+		local i=inUse.size
+		while i>0 do
+			removeProjectile(i)
+			i = i - 1
+		end
+	end
+	-- function:	update
+	-- purpose:		updated all active projectiles, and removes any that has reached its end
 	function self.update()
 		local i=1
 		while i<=inUse.size do
 			if inUse[i].update()==false then
-				local notInUseItem = notInUse[inUse[i].projectileName]
-				notInUseItem.size = notInUseItem.size + 1
-				notInUseItem[notInUseItem.size] = inUse[i]
-				if i~=inUse.size then
-					inUse[i] = inUse[inUse.size]
-					i = i - 1--we removed this an item from this pos, and must now update the same position aagain
-				end
-				inUse.size = inUse.size - 1
+				removeProjectile(i)
+				i = i - 1
 			end
 			i = i + 1
 		end
 		return (inUse.size>0)
 	end
+	-- function:	netSync
+	-- purpose:
 	function self.netSync(name,table)
 		local i=1
 		while i<=inUse.size do
