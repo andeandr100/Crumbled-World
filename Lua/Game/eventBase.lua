@@ -1068,6 +1068,7 @@ function EventBase.new()
 					--
 					local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
 
+					comUnit:sendTo("Builder", "addHighScore","")
 					comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("totalGoldEarned"))
 					comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
 					comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("totalGoldInterestEarned"))

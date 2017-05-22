@@ -8,7 +8,7 @@ local readyToPlay = {}
 local towerChangeState = 0
 local towerBuildInfo = {}
 local waveTime = 0
-local curentWave = -1
+local curentWave = 0
 
 --TODO
 --In multiplayer add transaction id when buying selling tower, to ensure that towers can only be built in a correct order,
@@ -172,6 +172,13 @@ function addBuildingEvent(data)
 	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add=tab}
 end
 
+function addHighScore(data)
+	for i=1, #towerBuildInfo do
+		towerBuildInfo[i].restore = nil
+	end
+
+end
+
 function create()
 	if this:getNodeType() == NodeId.buildNode then
 		Core.setScriptNetworkId("Builder")
@@ -197,7 +204,7 @@ function create()
 		comUnitTable["NetUpgradeWallTower"] = netUpgradeWallTower
 		comUnitTable["buildingSubUpgrade"] = towerUpgrade
 		comUnitTable["addBuildLoadOrder"] = addBuildingEvent
-		
+		comUnitTable["addHighScore"] = addHighScore
 		
 		functionList = {}
 		functionList[1] = towerUpgradefunc
@@ -257,6 +264,8 @@ function create()
 		
 		restartWaveListener = Listener("RestartWave")
 		restartWaveListener:registerEvent("restartWave", restartWave)
+		
+	
 		
 		readyToPlay[0] = false
 		
@@ -545,9 +554,11 @@ end
 function update()
 	
 	if curentWave ~= Core.getBillboard("stats"):getInt("wave") then
+		
 		curentWave = Core.getBillboard("stats"):getInt("wave")
 		waveTime = Core.getGameTime()
-		print("replayData: "..tabToStrMinimal(towerBuildInfo))
+--		print("replayData: "..tabToStrMinimal(towerBuildInfo))
+		
 	end
 	
 --	local timeoffset = (Core.getGameTime()-waveTime)
@@ -563,7 +574,10 @@ function update()
 --		towerBuildInfo[replayIndex] = nil
 --		replayIndex = replayIndex + 1
 --	end
-	
+
+	if Core.getInput():getKeyDown(Key.u) then
+		Core.getHighScore():addScore(math.randomFloat(0,1000), tabToStrMinimal(towerBuildInfo))
+	end
 	
 	if Core.getInput():getKeyHeld(Key.lshift) or stateBillboard:getBool("inMenu") then
 		noMoneyIcon:setVisible(false)
