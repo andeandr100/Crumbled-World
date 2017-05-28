@@ -105,7 +105,7 @@ function MissileTower.new()
 			end
 		end
 	end
-	function restartWave()
+	function restartWavedf()
 		projectiles.clear()
 		abort()
 	end
@@ -554,7 +554,7 @@ function MissileTower.new()
 		end
 		
 		restartListener = Listener("Restart")
-		restartListener:registerEvent("restartWave", restartWave)
+		restartListener:registerEvent("restartWave", restartWavedf)
 		--
 		if xpManager then
 			xpManager.setUpgradeCallback(self.handleUpgrade)

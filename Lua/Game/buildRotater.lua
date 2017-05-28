@@ -112,8 +112,8 @@ function update()
 				elseif targetAreaName == "cone" then
 					local addedRange = towerBilboard:getFloat("rangePerUpgrade")
 					local rangeLevel =  math.round((towerBilboard:getFloat("range")-getTowerDefaultRange()) / addedRange) + 1
-					print("\n\n\n\nShow num ranges: "..(4-rangeLevel))
-					print("RangeDist: "..addedRange)
+					--print("\n\n\n\nShow num ranges: "..(4-rangeLevel))
+					--print("RangeDist: "..addedRange)
 					targetArea.setExtraRangeInfo( math.max(0,4-rangeLevel), {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
 					targetArea.changeModel("cone", towerBilboard:getFloat("range"), towerBilboard:getFloat("targetAngle"), targetMatrix)
 				end
@@ -124,7 +124,6 @@ function update()
 			
 			if Core.getInput():getMouseDown(MouseKey.left) then
 				comUnit:sendTo(script:getIndex(), "setRotateTarget", ""..direction.x..","..direction.y..","..direction.z)
-				comUnit:sendTo("builder", "addBuildLoadOrder", tostring({func="comUnit",para1={netName=script:getNetworkName(),para1="setRotateTarget",para2=""..direction.x..","..direction.y..","..direction.z}}))
 				--comUnit:sendTo("builder", "setBuildingTargetVec", ""..tostring(this:getId())..";"..direction.x..","..direction.y..","..direction.z)
 				targetArea.destroyTargetMesh()
 				buildingBillboard:setBool("canBuildAndSelect", true)

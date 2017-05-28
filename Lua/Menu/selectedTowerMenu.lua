@@ -226,9 +226,12 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				if buildingBillBoard:getString("Name") == "Wall tower" then
 					senToBuildNode( "SELLTOWER", buildingScript:getNetworkName())					
 				else
+					
 					local netName = buildingScript:getNetworkName()				
 					local tab = {netName = netName, upgToScripName = "Tower/WallTower.lua", tName = (netName.."V3"), playerId = Core.getPlayerId(), buildCost=0}
+					print("Sold tower: "..netName)
 					senToBuildNode( "UpgradeWallTower", tabToStrMinimal(tab) )
+					senToBuildNode( "addRebuildTower", tabToStrMinimal({towerName=netName,wallTowerName=(netName.."V3")}) )
 					local billBoard = buildingScript:getBillboard()
 					if billBoard and billBoard:getBool("isNetOwner") then
 						comUnit:sendTo("stats", "addGold", tostring(math.max(billBoard:getFloat("value")-getTowerCost(1),0)))
@@ -255,7 +258,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			if script and (buildCost-getTowerCost(1)) <= billboardStats:getDouble("gold") then
 				local netName = script:getNetworkName()
 				local tab = {netName = netName, upgToScripName = scriptName, tName = (netName.."V2"), playerId = Core.getPlayerId(), buildCost = buildCost}
+				local upgradeData =	{netName, buildCost, scriptName, nil, (netName.."V2"), true}
+				local downGradeData = {netName = (netName.."V2"), upgToScripName = "Tower/WallTower.lua", tName = netName, playerId = Core.getPlayerId(), buildCost=0}
 				senToBuildNode( "UpgradeWallTower", tabToStrMinimal(tab))
+				senToBuildNode( "addDowngradeTower", tabToStrMinimal({upp=upgradeData,down=downGradeData}) )
 			end
 		end
 	end

@@ -217,7 +217,7 @@ function MinigunTower.new()
 				activePipe = (activePipe==1) and 0 or 1
 			end
 		
-			print("damage = "..dmg)
+			--print("damage = "..dmg)
 			local targetPosition = targetSelector.getTargetPosition()
 			local length = -(this:getGlobalPosition()-targetPosition):length()
 		

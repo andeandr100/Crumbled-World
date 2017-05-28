@@ -47,20 +47,22 @@ function load(inData)
 	end
 	print( "PathNode load id: "..this:getId().."\n" )
 	local pathNodes = this:getRootNode():findAllNodeByNameTowardsLeaf("Path node")
+
 	if #pathNodes > 1 then
-		error("to many path nodes")
-		abort()
-	end
-	
-	numTowers = 0
-	
-	print("\nLoad path node: "..inData.."\n")
-	pathData = totable( inData )
-	pathListener:pushEvent("Loaded", pathData)
-	
-	if not init() then
-		oldUpdate = update
-		update = backupUpdate
+		--remove from tree	
+		this:getParent():removeChild(this)
+		update = stopUpdate
+	else	
+		numTowers = 0
+		
+		print("\nLoad path node: "..inData.."\n")
+		pathData = totable( inData )
+		pathListener:pushEvent("Loaded", pathData)
+		
+		if not init() then
+			oldUpdate = update
+			update = backupUpdate
+		end
 	end
 end
 
