@@ -344,10 +344,12 @@ function Upgrade.new()
 	--			if value[1].duration then
 	--				str = str.."duration="..value[level].duration..";"
 	--			end
+				local cooldownStr = value[level].cooldown and tostring(value[level].cooldown) or "0"
+				local startWaveCooldownStr = value[1].startWaveCooldown and tostring(value[1].startWaveCooldown) or "0"
 				if isInXpMode and value[level].name=="upgrade" and statsBilboard:getInt("wave")<(level-1)*10 then
-					str = str.."duration="..value[level].cooldown..";timerStart="..value[1].startWaveCooldown..";"
+					str = str.."duration="..cooldownStr..";timerStart="..startWaveCooldownStr..";"
 				elseif onCooldown then
-					str = str.."duration="..value[level].cooldown..";timerStart="..value[1].startWaveCooldown..";"
+					str = str.."duration="..cooldownStr..";timerStart="..startWaveCooldownStr..";"
 				end
 				--add specific information
 				str = str..self.getDisplayStatStr( beforeStats, value[level].name )
