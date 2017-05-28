@@ -23,6 +23,9 @@ function restartWave(wave)
 	end
 end
 function create()
+	if Core.getScriptOfNetworkName("stats") then
+		return false
+	end
 	Core.setScriptNetworkId("stats")
 	comUnit = Core.getComUnit()
 	comUnit:setCanReceiveTargeted(true)

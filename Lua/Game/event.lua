@@ -41,7 +41,10 @@ function create()
 	end
 	--
 	--
-	event.init(startGold,waveFinishedGold,interestOnKill,goldMultiplayerOnKills,startLives,level)		--create event system
+	--create event system
+	if not event.init(startGold,waveFinishedGold,interestOnKill,goldMultiplayerOnKills,startLives,level) then
+		return false
+	end
 	--
 	if not(Core.isInMultiplayer() and Core.getNetworkClient():isAdmin()==false) then
 		event.generateWaves(numWaves,difficult,difficultIncreaser,startSpawnWindow,seed)--generate the actual waves

@@ -32,7 +32,9 @@ function create()
 		startGold = 1000
 		interestOnKill = 0.0
 	end
-	event.init(startGold,waveFinishedGold,interestOnKill,goldMultiplayerOnKills,startLives,level)
+	if not event.init(startGold,waveFinishedGold,interestOnKill,goldMultiplayerOnKills,startLives,level) then
+		return false
+	end
 	--
 	event.disableUnit("dino")
 	event.disableUnit("reaper")

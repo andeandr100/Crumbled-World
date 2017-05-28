@@ -482,13 +482,17 @@ function EventBase.new()
 		backgroundMusicSet = true
 	end
 	function self.init(pStartGold,pWaveFinishedBonus,pInterestOnKill,pGoldMultiplayer,pLives,pLevel)
+		--make sure that only one event script is running
+		if Core.getScriptOfNetworkName("Event") then
+			return false
+		end
+		Core.setScriptNetworkId("Event")
 		
 		keyBindRevertWave = keyBinds:getKeyBind("RevertWave")
 		
 		restartListener = Listener("Restart")
 		restartListener:registerEvent("restart", restartMap)
 		
-		Core.setScriptNetworkId("Event")
 		comUnitTable["NetGenerateWave"] = syncEvent
 		comUnitTable["ChangeWave"] = syncChangeWave
 		comUnitTable["NetSpawnNpc"] = syncSpawnNpc
@@ -541,6 +545,7 @@ function EventBase.new()
 			until not i
 		end
 		mapStatId = fileName
+		return true
 	end
 	function self.setDefaultGold(pStartGold,pWaveFinishedBonus,pInterestOnKill,pGoldMultiplayer)
 		waveFinishedBonus = pWaveFinishedBonus
