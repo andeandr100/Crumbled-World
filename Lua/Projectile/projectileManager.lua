@@ -57,13 +57,17 @@ function projectileManager.new()
 			inUse[index] = inUse[inUse.size]
 		end
 		inUse.size = inUse.size - 1
+		return notInUseItem[notInUseItem.size]
 	end
 	-- function:	clear
 	-- purpose:		removes all active projectils, and allows them to be used for future ueses
 	function self.clear()
 		local i=inUse.size
 		while i>0 do
-			removeProjectile(i)
+			local item = removeProjectile(i)
+			if item.stop then
+				item.stop()
+			end
 			i = i - 1
 		end
 	end

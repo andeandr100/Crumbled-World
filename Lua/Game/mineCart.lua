@@ -7,8 +7,8 @@ local offset = 0
 local maxSpeed = 1.75
 local currentSpeed = 0
 local moveBackTime = 15
-local numNpcForMaxSpeed = 5
-local slowTimerUpdate = 0.0
+local NUMNPCFORMAXSPEED = 5
+local slowTimerUpdate = 0.0	--when to send the slow info (this is to minimize com message spaming)
 --Lost game data
 local lostTheGame = false
 local fallVelocity = Vec3()
@@ -16,6 +16,10 @@ local fallDirection = Vec3()
 local fallAtDirection = Vec3()
 --Acievement
 local untouched = true
+--comunit
+local comUnit
+local comUnitTable = {}
+local waveTable = {}
 
 local billboard
 local wheel1,wheel2
@@ -24,6 +28,50 @@ local activeTeam = 1
 local targetSelector
 
 --local lostTIme
+
+function clearWavesAfter(wave)
+	local index = wave+1
+	while waveTable[index] do
+		waveTable[index] = nil
+		index = index + 1
+	end
+end
+function storeWaveChangeStats( wave )
+	--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
+	if not waveTable[wave] then
+		waveTable[wave] = {
+			index = index,
+			moveBackTime = moveBackTime,
+			currentSpeed = currentSpeed,
+			offset = offset,
+			mat = this:getLocalMatrix()
+		}
+	end
+end
+function restoreWaveChangeStats( wave )
+	if wave>0 then
+		--we have gone back in time erase all tables that is from the future, that can never be used
+		clearWavesAfter(wave)
+		--restore the stats from the wave
+		local tab = waveTable[wave]
+		index = tab.index
+		moveBackTime = tab.moveBackTime
+		currentSpeed = tab.currentSpeed
+		offset = tab.offset
+		this:setLocalMatrix(tab.mat)
+	end
+end
+function restartWave(param)
+	restoreWaveChangeStats( tonumber(param) )
+end
+
+function waveChanged(param)
+	local name
+	local waveCount
+	name,waveCount = string.match(param, "(.*);(.*)")
+	--
+	storeWaveChangeStats( tonumber(waveCount)+1 )
+end
 
 function restartMap()
 	index = 1
@@ -36,16 +84,22 @@ function restartMap()
 	lostTheGame = false
 	update = mainUpdate
 	this:setLocalMatrix(startMatrix)
+	--we have gone back in time erase all tables that is from the future, that can never be used
+	clearWavesAfter(0)
 end
 
 function create()
 	targetSelector = TargetSelector.new(activeTeam)
 	comUnit = Core.getComUnit()
 	comUnit:setName("mineCart")
-	comUnit:setCanReceiveBroadcast(false)
+	comUnit:setCanReceiveBroadcast(true)
 	comUnit:setCanReceiveTargeted(false)
 	comUnit:setPos(this:getGlobalPosition())
+	comUnitTable["waveChanged"] = waveChanged
 	billboard = comUnit:getBillboard()
+	
+	restartWaveListener = Listener("RestartWave")
+	restartWaveListener:registerEvent("restartWave", restartWave)
 	
 	local meshList = this:findAllNodeByTypeTowardsLeaf(NodeId.mesh)
 	for  i=1, #meshList do
@@ -102,6 +156,13 @@ end
 function update()
 	local numNpc = getNumNpcOnTheCart()
 	if not lostTheGame then
+		--Handle communication
+		while comUnit:hasMessage() do
+			local msg = comUnit:popMessage()
+			if comUnitTable[msg.message]~=nil then
+				comUnitTable[msg.message](msg.parameter,msg.fromIndex)
+			end
+		end
 		--cart is still alive
 		moveBackTime = moveBackTime - Core.getDeltaTime()
 		--Achievement
@@ -195,7 +256,7 @@ function update()
 		slowTimerUpdate = slowTimerUpdate - Core.getDeltaTime()
 		if slowTimerUpdate<0.0 then
 			slowTimerUpdate = slowTimerUpdate + 0.2
-			comUnit:broadCast(this:getGlobalPosition(),5.5,"maxSpeed",{mSpeed=math.max(currentSpeed,maxSpeed/numNpcForMaxSpeed),range=6.5,pos=this:getGlobalPosition()})
+			comUnit:broadCast(this:getGlobalPosition(),5.5,"maxSpeed",{mSpeed=math.max(currentSpeed,maxSpeed/NUMNPCFORMAXSPEED),range=6.5,pos=this:getGlobalPosition()})
 		end
 		--
 		--

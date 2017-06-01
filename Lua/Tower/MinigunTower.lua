@@ -66,6 +66,7 @@ function MinigunTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
+	local billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 	--stats
 	local mapName = MapInfo.new().getMapName()
 	local machinegunActiveTimeWithoutOverheat = 0.0
@@ -76,14 +77,48 @@ function MinigunTower.new()
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	--
+	local function SetTargetMode(param)
+		targetMode = math.clamp(tonumber(param),1,4)
+		billboard:setInt("currentTargetMode",targetMode)
+		if billboard:getBool("isNetOwner") and Core.isInMultiplayer() then
+			comUnit:sendNetworkSync("SetTargetMode", tostring(param) )
+		end
+	end
+	--
 	
+	local function storeWaveChangeStats( waveStr )
+		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
+		if billboardWaveStats:exist( waveStr )==false then
+			local tab = {
+				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
+				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
+				DamageTotal = billboard:getDouble("DamageTotal"),
+				currentTargetMode = billboard:getInt("currentTargetMode")
+			}
+			billboardWaveStats:setTable( waveStr, tab )
+		end
+	end
+	local function restoreWaveChangeStats( wave )
+		if wave>0 then
+			--we have gone back in time erase all tables that is from the future, that can never be used
+			local index = wave+1
+			while billboardWaveStats:exist( tostring(index) ) do
+				billboardWaveStats:erase( tostring(index) )
+				index = index + 1
+			end
+			--restore the stats from the wave
+			local tab = billboardWaveStats:getTable( tostring(wave) )
+			billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
+			billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
+			billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
+			billboard:setDouble("DamageTotal", tab.DamageTotal)
+			SetTargetMode(tab.currentTargetMode)
+		end
+	end
 	
 	local function myStatsReset()
 		if myStats.dmgDone then
---			if myStats.dmgDone<0.0 then
---				local tabMyStats = myStats
---				abort()
---			end
 			billboard:setDouble("DamagePreviousWave",myStats.dmgDone)
 			billboard:setDouble("DamagePreviousWavePassive",0.0)
 			comUnit:sendTo("stats", "addTotalDmg", myStats.dmgDone )
@@ -115,6 +150,10 @@ function MinigunTower.new()
 		--
 		overheatDec = (1.0/upgrade.getValue("cooldown"))
 		overheatAdd = (1.0/upgrade.getValue("overheat")/upgrade.getValue("RPS") + (overheatDec*reloadTime))
+	end
+	function restartWave(param)
+		projectiles.clear()
+		restoreWaveChangeStats( tonumber(param) )
 	end
 	local function setCurrentInfo()
 		if xpManager then
@@ -159,6 +198,7 @@ function MinigunTower.new()
 		if not xpManager then
 			local name
 			name,waveCount = string.match(param, "(.*);(.*)")
+			--
 			if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
 				myStats.disqualified=nil
 				myStats.cost = upgrade.getTotalCost()
@@ -174,7 +214,8 @@ function MinigunTower.new()
 				end
 			end
 			myStatsReset()
-			--
+			--store wave info to be able to restore it
+			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
 		else
 			xpManager.payStoredXp(waveCount)
 			--update billboard
@@ -302,13 +343,6 @@ function MinigunTower.new()
 		local target = tonumber(Core.getIndexOfNetworkName(param))
 		if target>0 then
 			targetSelector.setTarget(target)
-		end
-	end
-	local function SetTargetMode(param)
-		targetMode = math.clamp(tonumber(param),1,4)
-		billboard:setInt("currentTargetMode",targetMode)
-		if billboard:getBool("isNetOwner") and Core.isInMultiplayer() then
-			comUnit:sendNetworkSync("SetTargetMode", tostring(param) )
 		end
 	end
 	local function updateTarget()
@@ -570,6 +604,7 @@ function MinigunTower.new()
 			if heatPointLight2 then
 				heatPointLight2:setVisible(false)
 			end
+			billboard:erase("overHeatPer")
 		else
 			if not particleEffectSmoke then
 				particleEffectSmoke = {}
@@ -623,6 +658,9 @@ function MinigunTower.new()
 		
 		this:createBoundVolumeGroup()
 		this:setBoundingVolumeCanShrink(false)
+		
+		restartListener = Listener("RestartWave")
+		restartListener:registerEvent("restartWave", restartWave)
 	
 		model = Core.getModel("tower_minigun_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")

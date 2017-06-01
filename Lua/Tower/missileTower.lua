@@ -42,6 +42,7 @@ function MissileTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
+	local billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 	--Events
 	--other
 	--local soulManager
@@ -50,6 +51,37 @@ function MissileTower.new()
 	local targetSelector = TargetSelector.new(activeTeam)
 	--stats
 	local mapName = MapInfo.new().getMapName()
+	
+	local function storeWaveChangeStats( waveStr )
+		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
+		if billboardWaveStats:exist( waveStr )==false then
+			local tab = {
+				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
+				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
+				DamageTotal = billboard:getDouble("DamageTotal"),
+				currentTargetMode = billboard:getInt("currentTargetMode")
+			}
+			billboardWaveStats:setTable( waveStr, tab )
+		end
+	end
+	local function restoreWaveChangeStats( wave )
+		if wave>0 then
+			--we have gone back in time erase all tables that is from the future, that can never be used
+			local index = wave+1
+			while billboardWaveStats:exist( tostring(index) ) do
+				billboardWaveStats:erase( tostring(index) )
+				index = index + 1
+			end
+			--restore the stats from the wave
+			local tab = billboardWaveStats:getTable( tostring(wave) )
+			billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
+			billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
+			billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
+			billboard:setDouble("DamageTotal", tab.DamageTotal)
+			self.SetTargetMode(tab.currentTargetMode)
+		end
+	end
 	
 	local function reloadMissiles()
 		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
@@ -105,10 +137,6 @@ function MissileTower.new()
 			end
 		end
 	end
-	function restartWavedf()
-		projectiles.clear()
-		abort()
-	end
 	local function updateStats()
 		targetSelector.setRange(upgrade.getValue("range"))
 	end
@@ -138,6 +166,10 @@ function MissileTower.new()
 		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("shieldSmasher")==1 and upgrade.getLevel("fuel")==3 and upgrade.getLevel("Blaster")==3 then
 			comUnit:sendTo("SteamAchievement","MissileMaxed","")
 		end
+	end
+	function restartWave(param)
+		projectiles.clear()
+		restoreWaveChangeStats( tonumber(param) )
 	end
 	local function doMeshUpgradeForLevel(name,meshName)
 		model:getMesh(meshName..upgrade.getLevel(name)):setVisible(true)
@@ -355,13 +387,15 @@ function MissileTower.new()
 				end
 			end
 			myStatsReset()
+			--store wave info to be able to restore it
+			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
 		else
 			xpManager.payStoredXp(waveCount)
 			--update billboard
 			upgrade.fixBillboardAndStats()
 		end
 	end
-	local function SetTargetMode(param)
+	function self.SetTargetMode(param)
 		targetMode = math.clamp(tonumber(param),1,6)
 		billboard:setInt("currentTargetMode",targetMode)
 		if billboard:getBool("isNetOwner") and Core.isInMultiplayer() then
@@ -552,9 +586,9 @@ function MissileTower.new()
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
-		
-		restartListener = Listener("Restart")
-		restartListener:registerEvent("restartWave", restartWavedf)
+
+		restartListener = Listener("RestartWave")
+		restartListener:registerEvent("restartWave", restartWave)
 		--
 		if xpManager then
 			xpManager.setUpgradeCallback(self.handleUpgrade)
@@ -800,7 +834,7 @@ function MissileTower.new()
 		comUnitTable["upgrade6"] = handleShieldSmasher
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["NetLaunchMissile"] = NetLaunchMissile
-		comUnitTable["SetTargetMode"] = SetTargetMode
+		comUnitTable["SetTargetMode"] = self.SetTargetMode
 		--comUnitTable["damageDealt"] = handleDamageDealt
 		supportManager.setComUnitTable(comUnitTable)
 		supportManager.addCallbacks()

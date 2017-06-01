@@ -29,36 +29,87 @@ function XpSystem.new(upg)
 	local billboard = comUnit:getBillboard()
 	local upgCallback
 	local upgrade = upg
-	--
+	-- function:	xpSetSubupgradeDiscount
+	-- purpose:		changes the discount for the subupgrades, so they can be bought cheaper
 	local function xpSetSubupgradeDiscount(amount)
 		upgrade.setUpgradeDiscount(0.0)
 		upgrade.setSubUpgradeDiscount(amount)
 		upgrade.fixBillboardAndStats()
 	end
+	-- function:	xpSetUpgradeDiscount
+	-- purpose:		changes the discount for the main upgrade, so they can be bought cheaper
 	local function xpSetUpgradeDiscount(amount)
 		upgrade.setUpgradeDiscount(amount)
 		upgrade.setSubUpgradeDiscount(0.0)
 		upgrade.fixBillboardAndStats()
 	end
+	-- function:	updateXpBonus
+	-- purpose:		updates how much xp the tower will recive from doing damage
+	local function updateXpBonus()
+		if xpForLevel==1 then
+			xpBonusMul = 1.0 + (currentWave/6.0)
+		elseif xpForLevel==2 then
+			xpBonusMul = 1.0
+		else
+			xpBonusMul = 1.0 - math.min(0.7,(currentWave/30.0))	
+		end
+	end
 	--
 	--
 	--
+	-- function:	storeWaveChangeStats
+	-- purpose:		store all data needed to restore the xpSystem to a previous state
+	function self.storeWaveChangeStats()
+		local tab = {
+			xpLevel = xpLevel,
+			xp = xp,
+			xpNotPaid = xpNotPaid,
+			xpPerDamage = xpPerDamage,
+			xpForLevel = xpForLevel,
+			xpForSubLevel = xpForSubLevel,
+			particleEffectActive = particleEffectUpgradeAvailable:isActive(),
+			whatIsLeveling = whatIsLeveling,
+			--removes posability for sync issues
+			xpBonusMul = xpBonusMul,
+			xpToNextLevel = xpToNextLevel
+		}
+		return tab
+	end
+	-- function:	restoreWaveChangeStats
+	-- purpose:		restore the cpSystem to a previous state, with data from self.storeWaveChangeStats()
+	function self.restoreWaveChangeStats(tab)
+		xpLevel = tab.xpLevel
+		xp = tab.xp
+		xpNotPaid = tab.xpNotPaid
+		xpPerDamage = tab.xpPerDamage
+		xpForLevel = tab.xpForLevel
+		xpForSubLevel = tab.xpForSubLevel
+		particleEffectActive = tab.particleEffectUpgradeAvailable:isActive()
+		whatIsLeveling = tab.whatIsLeveling
+		xpBonusMul = tab.xpBonusMul
+		xpToNextLevel = tab.xpToNextLevel
+		--fix callback
+		if whatIsLeveling==SUBUPGRADE then
+			xpCallback = nil
+			billboard:setDouble("xpToNextLevel",xpToNextLevel)
+		elseif whatIsLeveling==MAINUPGRADE then
+			xpCallback = upgCallback
+			billboard:setDouble("xpToNextLevel",xpToNextLevel)
+		else
+			billboard:setDouble("xpToNextLevel",xp)
+			billboard:setDouble("xp",xp)
+		end
+	end
+	--
+	--
+	--
+	-- function:	setUpgradeCallback
+	-- purpose:		sets the default callback function for MAINUPGRADE events
 	function self.setUpgradeCallback(upgradeCallback)
 		upgCallback = upgradeCallback
 	end
---	function self.hasBeenUpgraded()
---		xpForLevel = upgrade.getLevel("upgrade")
---		xp = 0.0
---		billboard:setDouble("xpToNextLevel",xp)
---		billboard:setDouble("xp",xp)
---	end
---	function self.hasBeenSubUpgraded()
---		xpForSubLevel = upgrade.getSubUpgradeCount()+upgrade.getFreeSubUpgradeCounts()
---		xp = 0.0
---		billboard:setDouble("xpToNextLevel",xp)
---		billboard:setDouble("xp",xp)
---	end
-	--updated the xp for next level and keep check if upgraded from the outside
+	-- function:	updateXpToNextLevel
+	-- purpose:		updated the xp for next level and keep check if upgraded from the outside
 	function self.updateXpToNextLevel()
 		if xp then
 			local subUpGradesAvailable = upgrade.getSubUpgradeCount()+upgrade.getFreeSubUpgradeCounts()
@@ -91,6 +142,8 @@ function XpSystem.new(upg)
 			end
 		end
 	end
+	-- function:	getLevelPercentDoneToNextLevel
+	-- purpose:		returns how far gone the level is [0.0, 1.0]
 	function self.getLevelPercentDoneToNextLevel()
 		if whatIsLeveling==MAINUPGRADE and xpToNextLevel>=0 then
 			return xp/xpToNextLevel
@@ -98,16 +151,8 @@ function XpSystem.new(upg)
 			return 0.0
 		end
 	end
-	local function updateXpBonus()
-		if xpForLevel==1 then
-			xpBonusMul = 1.0 + (currentWave/6.0)
-		elseif xpForLevel==2 then
-			xpBonusMul = 1.0
-		else
-			xpBonusMul = 1.0 - math.min(0.7,(currentWave/30.0))	
-		end
-	end
-	--removed the xp and gold from the wave stack, and manages all the communications
+	-- function:	payStoredXp
+	-- purpose:		pays the xp stored and removes it from the total hp stack
 	function self.payStoredXp(waveChangedTo)
 		if xpNotPaid>0.0 then
 			if not waveChangedTo then
@@ -122,7 +167,8 @@ function XpSystem.new(upg)
 			currentWave = waveChangedTo
 		end
 	end
-	--manage when new xp has been added
+	-- function:	addXp
+	-- purpose:		manage when new xp has been added
 	function self.addXp(amount)
 		amount = amount * xpPerDamage
 		xp = xp + amount
@@ -164,6 +210,8 @@ function XpSystem.new(upg)
 	--
 	--
 	--
+	-- function:	init
+	-- purpose:		creates everything needed to run the xpSystem
 	local function init()
 		this:addChild(particleEffectUpgradeAvailable)
 		self.addXp(0)
@@ -172,6 +220,8 @@ function XpSystem.new(upg)
 	--
 	--
 	--
+	-- function:	update
+	-- purpose:		updates the the dynamic part of the xpSystem, like the particle effects
 	function self.update()
 		if upgrade.getFreeSubUpgradeCounts()>=1.0 then
 			if particleEffectUpgradeAvailable:isActive()==false then

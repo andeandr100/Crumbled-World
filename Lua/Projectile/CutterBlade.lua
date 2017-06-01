@@ -165,6 +165,16 @@ function CutterBlade.new()
 			node:getParent():removeChild(node)
 		end
 	end
+	function self.stop()
+		if sparkCenter then
+			for i=1, 4, 1 do
+				sparkCenter[i]:deactivate()
+			end
+			pointLight:setVisible(false)
+		end
+		--
+		model:setVisible(false)
+	end
 	function self.update()		
 		local previousPos = thePosition+(atVec*movment)
 		movment = movment + (speed * Core.getDeltaTime())
@@ -218,14 +228,7 @@ function CutterBlade.new()
 		--
 		if projectileIsDead or movment>length then
 			--reached end of line/ or hit a physical shield
-			if sparkCenter then
-				for i=1, 4, 1 do
-					sparkCenter[i]:deactivate()
-				end
-				pointLight:setVisible(false)
-			end
-			--
-			model:setVisible(false)
+			self.stop()--makes it invisible
 			comUnit:sendTo("SteamStats","BladeMaxHittCount",npcHitt)
 			comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
 			return false

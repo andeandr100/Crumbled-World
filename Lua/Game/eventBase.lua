@@ -1030,6 +1030,7 @@ function EventBase.new()
 						--
 						local restartWaveListener = Listener("RestartWave")
 						restartWaveListener:pushEvent("restartWave",waveCount+1)
+						print("======== DO_WAVE_RESTART_"..tostring(waveCount+1).." ========")
 					end
 				end
 			end

@@ -44,7 +44,7 @@ function Spear.new()
 	targetSelector.setPosition(this:getGlobalPosition())
 	targetSelector.setRange(range)
 
-	local function killBlade()
+	function self.stop()
 		if sparkCenter then
 			sparkCenter:deactivate()
 			pointLight:setVisible(false)
@@ -165,7 +165,7 @@ function Spear.new()
 		attackAllNewTargetsInRange(Line3D(previousPos,(movment>length and maxPos or currentPos)) )
 		--
 		if movment>length then
-			killBlade()
+			stop()
 			comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
 			return false
 		end

@@ -46,6 +46,7 @@ function QuakeTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
+	local billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 	--effects
 	local quakeDust = ParticleSystem(ParticleEffect.QuakeDustLingeringEffect)
 	local quakeDustBlast	--fireCrit
@@ -60,6 +61,39 @@ function QuakeTower.new()
 	--stats
 	local mapName = MapInfo.new().getMapName()
 	--sound
+	
+	local function storeWaveChangeStats( waveStr )
+		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
+		if billboardWaveStats:exist( waveStr )==false then
+			local tab = {
+				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
+				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
+				DamageTotal = billboard:getDouble("DamageTotal")
+			}
+			billboardWaveStats:setTable( waveStr, tab )
+		end
+	end
+	local function restoreWaveChangeStats( wave )
+		if wave>0 then
+			--we have gone back in time erase all tables that is from the future, that can never be used
+			local index = wave+1
+			while billboardWaveStats:exist( tostring(index) ) do
+				billboardWaveStats:erase( tostring(index) )
+				index = index + 1
+			end
+			--restore the stats from the wave
+			local tab = billboardWaveStats:getTable( tostring(wave) )
+			billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
+			billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
+			billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
+			billboard:setDouble("DamageTotal", tab.DamageTotal)
+		end
+	end
+	
+	local function restartWave(param)
+		restoreWaveChangeStats( tonumber(param) )
+	end
 	
 	--
 	--	XP / stats
@@ -110,6 +144,8 @@ function QuakeTower.new()
 				end
 			end
 			myStatsReset()
+			--store wave info to be able to restore it
+			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
 		else
 			xpManager.payStoredXp(waveCount)
 			--update billboard
@@ -613,6 +649,10 @@ function QuakeTower.new()
 		if xpManager then
 			xpManager.setUpgradeCallback(self.handleUpgrade)
 		end
+		
+		restartListener = Listener("RestartWave")
+		restartListener:registerEvent("restartWave", restartWave)
+		
 		--
 		model = Core.getModel("tower_quaker_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")

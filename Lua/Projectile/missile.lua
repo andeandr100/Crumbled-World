@@ -207,6 +207,15 @@ function Missile.new()
 		comUnit:sendTo(targetIndex,"physicPushIfDead",position)
 		damageDone = damageDone + dmg
 	end
+	function self.stop()
+		explosion:deactivate()
+		pointLight:setVisible(false)
+		model:setVisible(false)
+		smokeTrail:deactivate()
+		missileTrail:deactivate()
+		missileTrail2:deactivate()
+		targetIndex = 0
+	end
 	-- function:	Updates the missile
 	-- return1:		returns true for continues execute or false to stop
 	function self.update()
