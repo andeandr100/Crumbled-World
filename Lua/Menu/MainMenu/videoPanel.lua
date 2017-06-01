@@ -2,23 +2,19 @@ require("Menu/MainMenu/optionsMenuStyle.lua")
 require("Menu/MainMenu/mainMenuStyle.lua")
 require("Menu/MainMenu/settingsCombobox.lua")
 require("Menu/settings.lua")
-require("Menu/questionForm.lua")
 --this = SceneNode()
 
 VideoPanel = {}
-VideoPanel.questionForm = nil
 VideoPanel.labels = {}
 VideoPanel.labelsText =  { "screen", "window mode", "resolution", "render scale", "vsync", "graphic", "shadow", "shadow resolution", "ambient occlusion", "antialiasing", "glow", "dynamic lights", "model density" }
 VideoPanel.optionsBoxes = {}
 
 function VideoPanel.destroy()
-	VideoPanel.questionForm.destroy()
+
 end
 
 function VideoPanel.languageChanged()
-	VideoPanel.questionForm.destroy()
-	VideoPanel.questionForm = QuestionForm.new( language:getText("need restart"), language:getText("need restart long"), true, false, language:getText("Ok"), language:getText("Cancel") )
-	
+
 	local labels = VideoPanel.labels	
 	for i=1, #labels do
 		if labels[i] then
@@ -53,8 +49,7 @@ function VideoPanel.create(mainPanel)
 	end
 	
 	VideoPanel.videoPanel = videoPanel
-	VideoPanel.questionForm = QuestionForm.new( language:getText("need restart"), language:getText("need restart long"), true, false, language:getText("Ok"), language:getText("Cancel") )
-	
+
 	if settingsListener == nil then
 		settingsListener = Listener("Settings")
 	end
@@ -176,7 +171,5 @@ function VideoPanel.createGraphicOptions(panel)
 end
 
 function VideoPanel.update()
-	if VideoPanel.questionForm then
-		VideoPanel.questionForm.update()
-	end
+	
 end
