@@ -5,21 +5,21 @@ function restartWave(wave)
 	if not item then
 		error("the wave must be cretated, to be able to restore it")
 	else
-		billboard:setDouble("gold", item["gold"] )
-		billboard:setDouble("defaultGold", item["defaultGold"])
-		billboard:setDouble("totalGoldEarned", item["totalGoldEarned"])
-		billboard:setDouble("totalGoldInterestEarned", item["totalGoldInterestEarned"])
-		billboard:setDouble("totalGoldSupportEarned", item["totalGoldSupportEarned"])
-		billboard:setDouble("totalDamageDone", item["totalDamageDone"])
-		billboard:setDouble("DamagePreviousWave", item["DamagePreviousWave"])
+		billboard:setDouble("gold", item["gold"] )--how much gold
+		billboard:setDouble("defaultGold", item["defaultGold"])--how much gold you start the game with
+		billboard:setDouble("totalGoldEarned", item["totalGoldEarned"])--the total amount of gold earned during the game
+		billboard:setDouble("totalGoldInterestEarned", item["totalGoldInterestEarned"])--the total interest of gold earned during the game
+		billboard:setDouble("totalGoldSupportEarned", item["totalGoldSupportEarned"])--the total amount of gold the support tower has earned
+		billboard:setDouble("totalDamageDone", item["totalDamageDone"])--the total damage done by all towers
+		billboard:setDouble("DamagePreviousWave", item["DamagePreviousWave"])--the total damage done the previous wave
 		billboard:setDouble("DamageTotal", item["DamageTotal"])
-		billboard:setDouble("waveGold", item["waveGold"])
-		billboard:setDouble("totalHp", item["totalHp"])
-		billboard:setInt("life", item["life"])
-		billboard:setInt("score", item["score"])
-		billboard:setInt("wave", wave)
-		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])
-		billboard:setInt("towersSold", item["towersSold"])
+		billboard:setDouble("waveGold", item["waveGold"])--the amount of gold that can be erarned as xp in the "leveler" game mode
+		billboard:setDouble("totalHp", item["totalHp"])--the total amount of hp that will spawn this wave, in the "leveler" game mode
+		billboard:setInt("life", item["life"])--the total of units you can let threw before losing
+		billboard:setInt("score", item["score"])--you highscore
+		billboard:setInt("wave", wave)--the current wave number
+		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])--achivemenet
+		billboard:setInt("towersSold", item["towersSold"])--achivemenet
 	end
 end
 function create()

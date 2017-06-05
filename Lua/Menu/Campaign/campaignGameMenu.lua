@@ -112,15 +112,6 @@ function CampaignGameMenu.new(panel)
 			difficutyBox.setIndex(index)
 		end
 	end
-	
-	local function fillDificulty(levels,currentLevel)
-		diffNames = {"easy", "normal", "hard", "extreme", "insane"}
-		for i=#diffNames+1, levels do
-			diffNames[#diffNames + 1] = language:getText("imposible") + " " + tostring(i-5)
-		end
-		difficutyBox.setItems(diffNames)
-		difficutyBox.setIndex(currentLevel)
-	end
 	local function getMapIndex(filePath)
 		for i=1, #files do	
 			local file = files[i].file
@@ -129,6 +120,20 @@ function CampaignGameMenu.new(panel)
 			end
 		end
 		return 0
+	end
+	local function fillDificulty()
+		local levels = math.max(5,campaignData.getMapModeBeatenLevel(levelInfo.getMapNumber(),levelInfo.getGameMode())+1)
+		local currentLevel = math.min(levels,levelInfo.getLevel())
+		levelInfo.setLevel(currentLevel)--the difficulty may have been lowered
+		--reset list to default
+		diffNames = {"easy", "normal", "hard", "extreme", "insane"}
+		--insert the new dynamic levels
+		for i=#diffNames+1, levels do
+			diffNames[#diffNames + 1] = language:getText("imposible") + " " + tostring(i-5)
+		end
+		--add it to the controller
+		difficutyBox.setItems(diffNames)
+		difficutyBox.setIndex(currentLevel)
 	end
 	local function changeMapTo(filePath)
 		local mNum = getMapIndex(filePath)
@@ -163,8 +168,7 @@ function CampaignGameMenu.new(panel)
 			end
 			selectedButton = files[mNum].button
 			setSelectedButtonColor(files[mNum].button)
-			local beatenLevel = math.max(5,campaignData.getMapModeBeatenLevel(mNum,levelInfo.getGameMode())+1)
-			fillDificulty(beatenLevel,levelInfo.getLevel())
+			fillDificulty()
 		end
 	end
 	local function customeGameChangedMap(button)
@@ -277,6 +281,8 @@ function CampaignGameMenu.new(panel)
 		else
 			difficutyBox.setEnabled(true)
 		end
+		--
+		fillDificulty()
 		--
 		updateIcons()
 		updateRewardInfo()

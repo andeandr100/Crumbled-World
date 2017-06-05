@@ -274,7 +274,7 @@ function SwarmTower.new()
 		end
 	end
 	function self.SetTargetMode(param)
-		targetMode = math.clamp(tonumber(param),1,5)
+		targetMode = math.clamp(tonumber(param),1,4)
 		billboard:setInt("currentTargetMode",targetMode)
 		if billboard:getBool("isNetOwner") and Core.isInMultiplayer() then
 			comUnit:sendNetworkSync("SetTargetMode", tostring(param) )
@@ -285,11 +285,6 @@ function SwarmTower.new()
 		targetSelector.filterOutState(state.ignore)
 		targetSelector.scoreState(state.markOfDeath,5)
 		if targetMode==1 then
-			--target none burning targets
-			targetSelector.scoreHP(15)
-			targetSelector.scoreState(state.burning,-20)
-			targetSelector.scoreSelectedTargets( targetHistory, -10 )
-		elseif targetMode==2 then
 			--target high prioriy
 			targetSelector.scoreHP(20)
 			targetSelector.scoreName("reaper",30)
@@ -298,19 +293,19 @@ function SwarmTower.new()
 			targetSelector.scoreName("dino",20)
 			targetSelector.scoreState(state.burning,-10)
 			targetSelector.scoreSelectedTargets( targetHistory, -10 )
-		elseif targetMode==3 then
+		elseif targetMode==2 then
 			--attackClosestToExit
 			targetSelector.scoreClosestToExit(30)
 			targetSelector.scoreState(state.burning,-10)
 			targetSelector.scoreSelectedTargets( targetHistory, -5 )
 			targetSelector.scoreHP(10)
-		elseif targetMode==4 then
+		elseif targetMode==3 then
 			--target weakest unit
 			targetSelector.scoreHP(-25)
 			targetSelector.scoreClosestToExit(15)
 			targetSelector.scoreState(state.burning,-5)
 			targetSelector.scoreSelectedTargets( targetHistory, -5 )
-		elseif targetMode==5 then
+		elseif targetMode==4 then
 			--attackStrongestTarget
 			targetSelector.scoreHP(30)
 			targetSelector.scoreClosestToExit(20)
@@ -776,7 +771,7 @@ function SwarmTower.new()
 		upgrade.upgrade("upgrade")
 		upgrade.upgrade("calculate")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		billboard:setString("targetMods","attackNoneBurningTarget;attackPriorityTarget;attackClosestToExit;attackWeakestTarget;attackStrongestTarget")
+		billboard:setString("targetMods","attackPriorityTarget;attackClosestToExit;attackWeakestTarget;attackStrongestTarget")
 		billboard:setInt("currentTargetMode",1)
 	
 		--soulManager

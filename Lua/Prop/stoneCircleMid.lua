@@ -7,6 +7,9 @@ local npcPassedByCounter = 0
 local effect
 local pLight
 local restartListener = Listener("Restart")
+local restartWaveListener = Listener("RestartWave")
+-- function:	create
+-- purpose:		handle the creation of this turn point
 function create()
 	Core.setUpdateHz(10.0)
 	--comSystem
@@ -28,9 +31,12 @@ function create()
 	effect:activate(Vec3(0.0,0.15,0.0))
 	effect:setSpawnRate(0.0)
 	restartListener:registerEvent("restart", restartMap)
+	restartWaveListener:registerEvent("restartWave", restartWave)
 	--
 	return true
 end
+-- function:	update
+-- purpose:		handle the communication
 function update()
 	comUnit:setPos(this:getGlobalPosition())
 	while comUnit:hasMessage() do
@@ -41,10 +47,14 @@ function update()
 	end
 	return true
 end
+-- function:	hideEffect
+-- purpose:		make the particle effect and light disapear
 function hideEffect()
 	effect:setSpawnRate(0.0)
 	pLight:pushRangeChange(0.0,0.5)
 end
+-- function:	handleNpcReachedWayPoint
+-- purpose:		a npc has reached this waypoint
 function handleNpcReachedWayPoint(fromIndex,param)
 	if npcPassedByCounter==0 then
 		effect:setSpawnRate(1.0)
@@ -53,6 +63,8 @@ function handleNpcReachedWayPoint(fromIndex,param)
 	npcReachedTable[fromIndex] = param.name
 	npcPassedByCounter = npcPassedByCounter + 1
 end
+-- function:	handleNpcDeath
+-- purpose:		a npc has died, decrease counter if it has passedby earlier
 function handleNpcDeath(fromIndex,param)
 	if npcReachedTable[fromIndex] then
 		npcPassedByCounter = npcPassedByCounter - 1
@@ -62,6 +74,8 @@ function handleNpcDeath(fromIndex,param)
 		end
 	end
 end
+-- function:	handleWaveChanged
+-- purpose:		wave have changed, and we asume that all npcs's are dead
 function handleWaveChanged()
 	if npcPassedByCounter~=0 then
 		npcPassedByCounter = 0
@@ -69,6 +83,13 @@ function handleWaveChanged()
 		hideEffect()
 	end
 end
+-- function:	restartMap
+-- purpose:		the entire map have been restarted
 function restartMap()
+	handleWaveChanged()
+end
+-- function:	restartWave
+-- purpose:		the wave have been restarted
+function restartWave()
 	handleWaveChanged()
 end

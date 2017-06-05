@@ -91,13 +91,13 @@ function CampaignData.new()
 		return false
 	end
 	function self.getMapModeBeatenLevel(number,mode)
-		return campaingData:get("mapsFinished"):get("L"..number):get(mode,0):getInt()
+		return campaingData:get("mapsFinished"):get("L"..number):get(mode,"-"):getInt()
 	end
 	function self.hasMapModeBeenBeaten(number,mode)
-		return campaingData:get("mapsFinished"):get("L"..number):get(mode,0):getInt()>0
+		return campaingData:get("mapsFinished"):get("L"..number):get(mode,"-"):getInt()>0
 	end
 	function self.hasMapModeLevelBeenBeaten(number,mode,level)
-		return campaingData:get("mapsFinished"):get("L"..number):get(mode,0):getInt()>=level
+		return campaingData:get("mapsFinished"):get("L"..number):get(mode,"-"):getInt()>=level
 	end
 	function self.setLevelCompleted(number,level,mode)
 		campaingData:get("mapsFinished"):get("L"..number):get(mode):setInt(level)

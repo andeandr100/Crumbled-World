@@ -14,7 +14,7 @@ function Upgrade.new()
 	local stats = {}				--stats[damage]=31
 	local statsToBillboard = {}
 	local valueEfficiency = 1.0	--(0.75 if used)how much you will get back upon selling this tower
-	--local value = 0				--cost for everything with valueEfficiency used
+	--local value = 0			--cost for everything with valueEfficiency used
 	local totalCost = 0			--cost for only "upgrade"
 	local displayStat = {}		--displayStat[1]="damage"
 	local displayOrder = {}		--displayOrder["upgrade"]=1
@@ -49,14 +49,19 @@ function Upgrade.new()
 	-- "upgrade5" = ""													--never gonna be available again. will take up an empty space
 	-- all numbers are the change, if they are upgraded
 	
+	-- function:	getUpgradesAvailable
+	-- purpose:		returns a table with all upgrades available
 	function self.getUpgradesAvailable()
 		return upgradesAvailable
 	end
-	
+	-- function:	setBillboard
+	-- purpose:
 	function self.setBillboard( theBillboard )
 		billboard = theBillboard
 		--self.billboard = Billboard()
 	end
+	-- function:	getCopyOfTable
+	-- purpose:		returns a copy of a table, that has no references linking them
 	local function getCopyOfTable(table)
 		if type(table)~="table" then
 			return table
@@ -68,9 +73,13 @@ function Upgrade.new()
 		end
 		return ret
 	end
+	-- function:	getBetween
+	-- purpose:		returns a intepolated number between the param and with the per as where it placed it
 	local function getBetween(num1,num2,per)
 		return num1+((num2-num1)*per)
 	end
+	-- function:	addUpgrade
+	-- purpose:		adds an upgrade and all info needed to use it with the functions "upgrade()" and "degrade()"
 	function self.addUpgrade( upg, addSubCount )
 		addSubCount = addSubCount==nil and 0 or addSubCount--how many upgrades extra between that will be add
 		if not upgradesAvailable[upg.name] then
@@ -120,14 +129,19 @@ function Upgrade.new()
 		-- set the default build cost
 		billboard:setFloat("cost", upgradesAvailable["upgrade"][1].cost)
 	end
+	-- function:	addDisplayStats
+	-- purpose:		stats that will be displayed in the "selected tower menu"
 	function self.addDisplayStats( stat )
 		displayStat[#displayStat+1] = stat
 		statsToBillboard[#statsToBillboard+1] = stat
 	end
+	-- function:	addBillboardStats
+	-- purpose:
 	function self.addBillboardStats( stat )
 		statsToBillboard[#statsToBillboard+1] = stat
 	end
-	
+	-- function:	upgrade
+	-- purpose:		do an upgrade
 	function self.upgrade( name )
 		--assert(upgradesAvailable[name],"no upgrade available with name:\""..name.."\" in upgradesAvailable:"..tostring(upgradesAvailable))
 		--add cost to value
@@ -183,6 +197,8 @@ function Upgrade.new()
 		end
 		self.fixBillboardAndStats()
 	end
+	-- function:	fixBillboardAndStats
+	-- purpose:		updates all billboards and recalculates all stats
 	function self.fixBillboardAndStats()
 		--print("self.fixBillboardAndStats() - BEG\n")
 		--recalculate the cost
@@ -218,6 +234,8 @@ function Upgrade.new()
 		--print(tostring(upgraded).."\n")
 		--print("self.fixBillboardAndStats() - END\n")
 	end
+	-- function:	upgradeOnly
+	-- purpose:		a fake upgrade to allow us to se what effect this upgrade will have
 	function self.upgradeOnly( name, toBillboard )
 		--print("self.upgradeOnly("..name..") - BEG\n")
 		--upgrade name
@@ -236,6 +254,8 @@ function Upgrade.new()
 		self.calculateStats( name, toBillboard )
 		--print("self.upgradeOnly("..name..") - END\n")
 	end
+	-- function:	degrade
+	-- purpose:		degrades an upgrade(usefull when going back in time or rolling back time based upgrades)
 	function self.degrade( name )
 		--print("self.degrade("..name..")\n")
 		--degrade is only leagal for boost
@@ -256,6 +276,8 @@ function Upgrade.new()
 		end
 		self.fixBillboardAndStats()
 	end
+	-- function:	degradeOnly
+	-- purpose:		a fake degrade to allow us to se what effect this upgrade will have
 	function self.degradeOnly( name, toBillboard )
 		--degrade name
 		local order = upgradesAvailable[name][1].order
@@ -273,6 +295,8 @@ function Upgrade.new()
 		--calculate the stats
 		self.calculateStats( name, toBillboard )
 	end
+	-- function:	clearCooldown
+	-- purpose:
 	function self.clearCooldown()
 		for key, value in pairs(upgradesAvailable) do
 			--get the next level for that upgrade
@@ -289,6 +313,8 @@ function Upgrade.new()
 			end
 		end
 	end
+	-- function:	updateAllUpgradeBillboard
+	-- purpose:
 	function self.updateAllUpgradeBillboard()
 		--loop threw all upgrades there is
 		for key, value in pairs(upgradesAvailable) do
@@ -376,12 +402,15 @@ function Upgrade.new()
 			end
 		end
 	end
+	-- function:	saveDisplayStatsIn
+	-- purpose:
 	function self.saveDisplayStatsIn( tab )
 		for key, value in ipairs(displayStat) do
 			tab[value] = (type(stats[value])=="function") and stats[value]() or stats[value]
 		end
 	end
-	
+	-- function:	calculateStats
+	-- purpose:
 	function self.calculateStats( name, toBillboard )
 		--print("self.calculateStats("..name..") - BEG\n")
 		--recalculate all stats, because functions may have unknow dependencies
@@ -408,6 +437,8 @@ function Upgrade.new()
 		end
 		--print("self.calculateStats("..name..") - END\n")
 	end
+	-- function:	valueToString
+	-- purpose:
 	local function valueToString(value)
 		--could use math.floor(math.log10) to get the 10^x but why complicate a simple issue
 		--2 significants are to little, 3 is almost to much
@@ -421,9 +452,13 @@ function Upgrade.new()
 			return string.format("%.0f",value)
 		end
 	end
+	-- function:	setInterpolation
+	-- purpose:
 	function self.setInterpolation(val)
 		interpolation = val
 	end
+	-- function:	getDisplayStatStr
+	-- purpose:
 	function self.getDisplayStatStr( beforeStats, name )
 		local str = ""
 		--loop all stats that can be displayed and are in use
@@ -452,7 +487,8 @@ function Upgrade.new()
 		end
 		return str
 	end
-	
+	-- function:	getLevel
+	-- purpose:
 	function self.getLevel( name )
 		if upgradesAvailable[name] then
 			if upgraded[upgradesAvailable[name][1].order] then
@@ -463,6 +499,8 @@ function Upgrade.new()
 		end
 		return 0
 	end
+	-- function:	getValue
+	-- purpose:
 	function self.getValue( stat )
 		if (type(stats[stat])~="nil") then
 			if interpolation and interpolation>0.0 and self.getLevel("upgrade")<3 then
@@ -483,29 +521,38 @@ function Upgrade.new()
 		end
 		return 0
 	end
+	-- function:	getValueForUpgrade
+	-- purpose:
 	function self.getValueForUpgrade( stat, upgradeName )
 		local order = upgradesAvailable[upgradeName][1].order
 		local currentLevel = upgraded[order].level
 		return upgradesAvailable[upgradeName][currentLevel].stats[stat][2]
 	end
+	-- function:	getTotalCost
+	-- purpose:
 	function self.getTotalCost()
 		return totalCost
 	end
+	-- function:	getStats
+	-- purpose:
 	function self.getStats(statsName)
 		return stats[statsName]
 	end
-	
+	-- function:	calculateCostBoost
+	-- purpose:
 	function self.calculateCostBoost()
 		return totalCost*0.1
 	end
-	--returns the full price of the nextSubUpgrade
+	-- function:	getNextPaidSubUpgradeCost
+	-- purpose:		returns the full price of the nextSubUpgrade
 	function self.getNextPaidSubUpgradeCost()
 		local baseCost = upgradesAvailable["upgrade"][1].cost*0.5
 		local totalCost = isInXpMode and baseCost + (subUpgradeCountTotal*baseCost) or baseCost + (subUpgradeCount*baseCost)
 		--local totalCost = isInXpMode and baseCost + ((subUpgradeCountTotal+freeSubUpgradesCount)*baseCost) or baseCost + (subUpgradeCount*baseCost)
 		return totalCost-(totalCost*SubUpgradeDiscount)--freeSubUpgrades is a discount value (sort of)
 	end
-	--calculate actual subUpgradeCost with discount
+	-- function:	calculateCostUpgrade
+	-- purpose:		calculate actual subUpgradeCost with discount
 	function self.calculateCostUpgrade()
 		if freeSubUpgradesCount<1.0 then
 			local baseCost = upgradesAvailable["upgrade"][1].cost*0.5
@@ -514,6 +561,8 @@ function Upgrade.new()
 		end
 		return 0
 	end
+	-- function:	getNextUpgradeCost
+	-- purpose:
 	function self.getNextUpgradeCost( name )
 		local order = upgradesAvailable[name][1].order
 		--protection from upgrading non existing upgrades
@@ -524,46 +573,68 @@ function Upgrade.new()
 		end
 		return (upgraded[order] and upgradesAvailable[name][upgraded[order].level+1].cost or upgradesAvailable[name][1].cost)
 	end
+	-- function:	getSubUpgradeCount
+	-- purpose:
 	function self.getSubUpgradeCount()
 		return subUpgradeCountTotal
 	end
+	-- function:	getFreeSubUpgradeCounts
+	-- purpose:
 	function self.getFreeSubUpgradeCounts()
 		return freeSubUpgradesCount
 	end
+	-- function:	addFreeSubUpgrade
+	-- purpose:
 	function self.addFreeSubUpgrade()
 		freeSubUpgradesCount = math.max(freeSubUpgradesCount,0) + 1
 	end
+	-- function:	removeFreeSubUpgrade
+	-- purpose:
 	function self.removeFreeSubUpgrade()
 		freeSubUpgradesCount = math.max(0,freeSubUpgradesCount - 1)
 	end
+	-- function:	setSubUpgradeDiscount
+	-- purpose:
 	function self.setSubUpgradeDiscount(amount)
 		SubUpgradeDiscount = amount
 	end
+	-- function:	setUpgradeDiscount
+	-- purpose:
 	function self.setUpgradeDiscount(descount)
 		upgradeDiscount = descount
 	end
-	
+	-- function:	add
+	-- purpose:
 	function self.add(stat, value)
 		stats[stat] = stats[stat] or 0
 		stats[stat] = stats[stat] + value
 	end
+	-- function:	mul
+	-- purpose:
 	function self.mul(stat, value)
 		stats[stat] = stats[stat] or 0
 		stats[stat] = stats[stat] * value
 	end
+	-- function:	getSisetUsedze
+	-- purpose:
 	function self.setUsed()
 		if valueEfficiency>0.75 then
 			valueEfficiency = 0.75
 			billboard:setFloat("value", totalCost*valueEfficiency)
 		end
 	end
+	-- function:	set
+	-- purpose:
 	function self.set(stat, value)
 		stats[stat] = value
 	end
+	-- function:	func
+	-- purpose:
 	function self.func(stat, value)
 		stats[stat] = value()
 	end
-	
+	-- function:	update
+	-- purpose:
 	function self.update()
 		for key, value in pairs(upgradesAvailable) do
 			local level = 1--all cooldowns is on level 1 for simplicity

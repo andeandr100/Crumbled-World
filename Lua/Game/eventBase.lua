@@ -1014,8 +1014,7 @@ function EventBase.new()
 		--
 
 		if spawnListPopulated then
-			spawnUnits()
-			
+			--handle the event restart wave
 			if keyBindRevertWave:getPressed() and currentState ~= EVENT_END_GAME then
 				if waveCount>=1 then
 					waveCount = math.max(0, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
@@ -1033,6 +1032,9 @@ function EventBase.new()
 						print("======== DO_WAVE_RESTART_"..tostring(waveCount+1).." ========")
 					end
 				end
+			else
+				--spawn only units if we are not trying to restart the wave
+				spawnUnits()
 			end
 			if currentState == EVENT_WAIT_FOR_TOWER_TO_BE_BUILT then
 				if isPlayerReady() then

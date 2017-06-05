@@ -29,9 +29,7 @@ function SettingsComboBox.new(parentPanel, panelSize, inItems, tag, settings, aC
 	
 	function self.setItems(inItems)
 		items = inItems
-		if index < #items then
-			index = #items
-		end
+		index = math.min(index,#items)
 		self.updateLanguage()
 	end
 	
