@@ -112,6 +112,14 @@ function CampaignGameMenu.new(panel)
 			difficutyBox.setIndex(index)
 		end
 	end
+	local function fillDificulty(levels,currentLevel)
+		diffNames = {"easy", "normal", "hard", "extreme", "insane"}
+		for i=#diffNames+1, levels do
+			diffNames[#diffNames + 1] = language:getText("impossible") + " " + tostring(i-5)
+		end
+		difficutyBox.setItems(diffNames)
+		difficutyBox.setIndex(currentLevel)
+	end
 	local function getMapIndex(filePath)
 		for i=1, #files do	
 			local file = files[i].file

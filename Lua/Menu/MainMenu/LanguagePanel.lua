@@ -239,7 +239,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	addLanguageRow("hard")
 	addLanguageRow("extreme")
 	addLanguageRow("insane")
-	addLanguageRow("imposible")
+	addLanguageRow("impossible")
 	
 	--map gamemodes
 	addLanguageHeader("Map game modes")
