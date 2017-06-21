@@ -118,7 +118,9 @@ function bindNewKey(button)
 end
 
 function InputPanel.update()
-	InputPanel.form:update()
+	if InputPanel.form then
+		InputPanel.form:update()
+	end
 	if InputPanel.rebindKey then
 		if Core.getInput():getKeyDown(Key.escape) then
 			InputPanel.keyDownTime = Core.getTime()
