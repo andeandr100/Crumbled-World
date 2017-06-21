@@ -60,8 +60,10 @@ function languageChanged()
 	--button layou require us to take only the half x text scale
 	local scale = Vec2(maxXScale / 2 + 0.5, 1)
 	--0.17/5 magic number from before language support was added
-	mainPanel:setPanelSize(PanelSize(Vec2(math.max(0.17/5 * scale.x,0.03),-1)))
-	mainPanel:getPanelSize():setFitChildren(false, true)
+	if mainPanel then
+		mainPanel:setPanelSize(PanelSize(Vec2(math.max(0.17/5 * scale.x,0.03),-1)))
+		mainPanel:getPanelSize():setFitChildren(false, true)
+	end
 	
 	
 	for i=2, #textPanels do

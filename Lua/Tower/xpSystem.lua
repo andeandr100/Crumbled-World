@@ -60,6 +60,7 @@ function XpSystem.new(upg)
 	-- function:	storeWaveChangeStats
 	-- purpose:		store all data needed to restore the xpSystem to a previous state
 	function self.storeWaveChangeStats()
+		print("self.storeWaveChangeStats()")
 		local tab = {
 			xpLevel = xpLevel,
 			xp = xp,
@@ -78,6 +79,7 @@ function XpSystem.new(upg)
 	-- function:	restoreWaveChangeStats
 	-- purpose:		restore the cpSystem to a previous state, with data from self.storeWaveChangeStats()
 	function self.restoreWaveChangeStats(tab)
+		print("self.restoreWaveChangeStats(tab)")
 		xpLevel = tab.xpLevel
 		xp = tab.xp
 		xpNotPaid = tab.xpNotPaid
@@ -111,6 +113,7 @@ function XpSystem.new(upg)
 	-- function:	updateXpToNextLevel
 	-- purpose:		updated the xp for next level and keep check if upgraded from the outside
 	function self.updateXpToNextLevel()
+		print("self.updateXpToNextLevel()")
 		if xp then
 			local subUpGradesAvailable = upgrade.getSubUpgradeCount()+upgrade.getFreeSubUpgradeCounts()
 			if xpForLevel~=upgrade.getLevel("upgrade") and whatIsLeveling==MAINUPGRADE then
@@ -171,7 +174,7 @@ function XpSystem.new(upg)
 	-- purpose:		manage when new xp has been added
 	function self.addXp(amount)
 		amount = amount * xpPerDamage
-		xp = xp + amount
+		xp = xp + (amount * xpBonusMul)
 		xpNotPaid = xpNotPaid + amount
 		if xpToNextLevel>0 then
 			--can still level
@@ -185,6 +188,7 @@ function XpSystem.new(upg)
 				self.payStoredXp()
 			end
 			if xp>xpToNextLevel then
+				abort()
 				xp = xp - xpToNextLevel
 				xpForLevel = upgrade.getLevel("upgrade")+1
 				if whatIsLeveling==SUBUPGRADE then

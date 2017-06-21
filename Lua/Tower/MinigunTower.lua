@@ -76,6 +76,7 @@ function MinigunTower.new()
 	local targetSelector = TargetSelector.new(activeTeam)
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
+	local lastRestored = -1
 	--
 	local function SetTargetMode(param)
 		targetMode = math.clamp(tonumber(param),1,4)
@@ -87,10 +88,12 @@ function MinigunTower.new()
 	--
 	
 	local function storeWaveChangeStats( waveStr )
+		print("storeWaveChangeStats( "..waveStr.." )")
 		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
 		if billboardWaveStats:exist( waveStr )==false then
 			local tab = {
 				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+				upgradeTab = upgrade.storeWaveChangeStats(),
 				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
 				DamageTotal = billboard:getDouble("DamageTotal"),
@@ -100,7 +103,9 @@ function MinigunTower.new()
 		end
 	end
 	local function restoreWaveChangeStats( wave )
+		print("restoreWaveChangeStats( "..wave.." )")
 		if wave>0 then
+			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1
 			while billboardWaveStats:exist( tostring(index) ) do
@@ -114,6 +119,10 @@ function MinigunTower.new()
 			billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 			billboard:setDouble("DamageTotal", tab.DamageTotal)
 			SetTargetMode(tab.currentTargetMode)
+			if xpManager then
+				xpManager.restoreWaveChangeStats(tab.xpTab)
+			end
+			upgrade.restoreWaveChangeStats(tab.upgradeTab)
 		end
 	end
 	
@@ -152,6 +161,9 @@ function MinigunTower.new()
 		overheatAdd = (1.0/upgrade.getValue("overheat")/upgrade.getValue("RPS") + (overheatDec*reloadTime))
 	end
 	function restartWave(param)
+		myStats.disqualified = true
+		myStatsReset()
+		--
 		projectiles.clear()
 		restoreWaveChangeStats( tonumber(param) )
 	end
@@ -195,31 +207,35 @@ function MinigunTower.new()
 		end
 	end
 	local function waveChanged(param)
-		if not xpManager then
-			local name
-			name,waveCount = string.match(param, "(.*);(.*)")
-			--
-			if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
-				myStats.disqualified=nil
-				myStats.cost = upgrade.getTotalCost()
-				myStats.DPS = myStats.dmgDone/myStats.activeTimer
-				myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-				if upgrade.getLevel("overCharge")==0 then myStats.inoverHeatTimer=nil end
-				local key = "range"..upgrade.getLevel("range").."_overCharge"..upgrade.getLevel("overCharge").."_fireCrit"..upgrade.getLevel("fireCrit")
-				tStats.addValue({mapName,"wave"..name,"minigunTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-				table.sort( myStats, cmp_multitype )
-				for variable, value in pairs(myStats) do
-					tStats.setValue({mapName,"wave"..name,"minigunTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+		local name
+		local waveCount
+		name,waveCount = string.match(param, "(.*);(.*)")
+		--update and save stats only if we did not just restore this wave
+		if tonumber(waveCount)>=lastRestored then
+			if not xpManager then
+				--
+				if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
+					myStats.disqualified=nil
+					myStats.cost = upgrade.getTotalCost()
+					myStats.DPS = myStats.dmgDone/myStats.activeTimer
+					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
+					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
+					if upgrade.getLevel("overCharge")==0 then myStats.inoverHeatTimer=nil end
+					local key = "range"..upgrade.getLevel("range").."_overCharge"..upgrade.getLevel("overCharge").."_fireCrit"..upgrade.getLevel("fireCrit")
+					tStats.addValue({mapName,"wave"..name,"minigunTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+					table.sort( myStats, cmp_multitype )
+					for variable, value in pairs(myStats) do
+						tStats.setValue({mapName,"wave"..name,"minigunTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+					end
 				end
+				myStatsReset()	
+			else
+				xpManager.payStoredXp(waveCount)
+				--update billboard
+				upgrade.fixBillboardAndStats()
 			end
-			myStatsReset()
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
-		else
-			xpManager.payStoredXp(waveCount)
-			--update billboard
-			upgrade.fixBillboardAndStats()
 		end
 	end
 	local function initModel()

@@ -45,6 +45,7 @@ function MissileTower.new()
 	local billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 	--Events
 	--other
+	local lastRestored = -1
 	--local soulManager
 	--local targetingSystem
 	local activeTeam = 1
@@ -57,6 +58,7 @@ function MissileTower.new()
 		if billboardWaveStats:exist( waveStr )==false then
 			local tab = {
 				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+				upgradeTab = upgrade.storeWaveChangeStats(),
 				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
 				DamageTotal = billboard:getDouble("DamageTotal"),
@@ -67,6 +69,7 @@ function MissileTower.new()
 	end
 	local function restoreWaveChangeStats( wave )
 		if wave>0 then
+			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1
 			while billboardWaveStats:exist( tostring(index) ) do
@@ -80,6 +83,10 @@ function MissileTower.new()
 			billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 			billboard:setDouble("DamageTotal", tab.DamageTotal)
 			self.SetTargetMode(tab.currentTargetMode)
+			if xpManager then
+				xpManager.restoreWaveChangeStats(tab.xpTab)
+			end
+			upgrade.restoreWaveChangeStats(tab.upgradeTab)
 		end
 	end
 	
@@ -372,27 +379,32 @@ function MissileTower.new()
 		end
 	end
 	local function waveChanged(param)
-		if not xpManager then
-			local name
-			name,waveCount = string.match(param, "(.*);(.*)")
-			if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
-				myStats.disqualified=nil
-				myStats.DPS = myStats.dmgDone/myStats.activeTimer
-				myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-				local key = "blaster"..upgrade.getLevel("Blaster").."_fuel"..upgrade.getLevel("fuel").."_shieldSmasher"..upgrade.getLevel("shieldSmasher").."_range"..upgrade.getLevel("range")
-				tStats.addValue({mapName,"wave"..name,"missileTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-				for variable, value in pairs(myStats) do
-					tStats.setValue({mapName,"wave"..name,"missileTower_l"..level,key,variable},value)
+		local name
+		local waveCount
+		name,waveCount = string.match(param, "(.*);(.*)")
+		--update and save stats only if we did not just restore this wave
+		if tonumber(waveCount)>=lastRestored then
+			if not xpManager then
+				--
+				if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
+					myStats.disqualified=nil
+					myStats.DPS = myStats.dmgDone/myStats.activeTimer
+					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
+					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
+					local key = "blaster"..upgrade.getLevel("Blaster").."_fuel"..upgrade.getLevel("fuel").."_shieldSmasher"..upgrade.getLevel("shieldSmasher").."_range"..upgrade.getLevel("range")
+					tStats.addValue({mapName,"wave"..name,"missileTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+					for variable, value in pairs(myStats) do
+						tStats.setValue({mapName,"wave"..name,"missileTower_l"..level,key,variable},value)
+					end
 				end
+				myStatsReset()
+			else
+				xpManager.payStoredXp(waveCount)
+				--update billboard
+				upgrade.fixBillboardAndStats()
 			end
-			myStatsReset()
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
-		else
-			xpManager.payStoredXp(waveCount)
-			--update billboard
-			upgrade.fixBillboardAndStats()
 		end
 	end
 	function self.SetTargetMode(param)

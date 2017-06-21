@@ -60,6 +60,7 @@ function ArrowTower.new()
 	local targetSelector = TargetSelector.new(activeTeam)
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this	
+	local lastRestored = -1
 	--stats
 	local mapName = MapInfo.new().getMapName()
 	--
@@ -68,6 +69,7 @@ function ArrowTower.new()
 		if billboardWaveStats:exist( waveStr )==false then
 			local tab = {
 				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+				upgradeTab = upgrade.storeWaveChangeStats(),
 				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
 				DamageTotal = billboard:getDouble("DamageTotal"),
@@ -78,6 +80,7 @@ function ArrowTower.new()
 	end
 	local function restoreWaveChangeStats( wave )
 		if wave>0 then
+			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1
 			while billboardWaveStats:exist( tostring(index) ) do
@@ -91,6 +94,10 @@ function ArrowTower.new()
 			billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 			billboard:setDouble("DamageTotal", tab.DamageTotal)
 			self.SetTargetMode(tab.currentTargetMode)
+			if xpManager then
+				xpManager.restoreWaveChangeStats(tab.xpTab)
+			end
+			upgrade.restoreWaveChangeStats(tab.upgradeTab)
 		end
 	end
 	--
@@ -141,45 +148,49 @@ function ArrowTower.new()
 		myStats.retargeted = myStats.retargeted + 1
 	end
 	local function waveChanged(param)
-		if not xpManager then
-			local name
-			name,waveCount = string.match(param, "(.*);(.*)")
-			
-			if myStats.disqualified==false and upgrade.getLevel("boost")==0  and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0  then
-				myStats.disqualified=nil
-				myStats.DPS = myStats.dmgDone/myStats.activeTimer
-				myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-				if upgrade.getLevel("markOfDeath")>0 then
-					myStats.DPSTmod = (myStats.dmgDone+myStats.dmgDoneMarkOfDeath)/myStats.activeTimer
-					myStats.DPSpGTmod = (myStats.dmgDone+myStats.dmgDoneMarkOfDeath)/upgrade.getTotalCost()
-					myStats.DPGTmod = (myStats.dmgDone+myStats.dmgDoneMarkOfDeath)/upgrade.getTotalCost()
-				end
-				--damage lost
-				if myStats.attacks>myStats.hitts then
-					if upgrade.getLevel("hardArrow")>0 then
-						myStats.dmgLost = myStats.dmgLost + ((upgrade.getValue("damage"))*(myStats.attacks-myStats.hitts))
-					else
-						myStats.dmgLost = myStats.dmgLost + (upgrade.getValue("damage")*(myStats.attacks-myStats.hitts))
+		local name
+		local waveCount
+		name,waveCount = string.match(param, "(.*);(.*)")
+		--update and save stats only if we did not just restore this wave
+		if tonumber(waveCount)>=lastRestored then
+			if not xpManager then
+				--
+				if myStats.disqualified==false and upgrade.getLevel("boost")==0  and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0  then
+					myStats.disqualified=nil
+					myStats.DPS = myStats.dmgDone/myStats.activeTimer
+					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
+					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
+					if upgrade.getLevel("markOfDeath")>0 then
+						myStats.DPSTmod = (myStats.dmgDone+myStats.dmgDoneMarkOfDeath)/myStats.activeTimer
+						myStats.DPSpGTmod = (myStats.dmgDone+myStats.dmgDoneMarkOfDeath)/upgrade.getTotalCost()
+						myStats.DPGTmod = (myStats.dmgDone+myStats.dmgDoneMarkOfDeath)/upgrade.getTotalCost()
+					end
+					--damage lost
+					if myStats.attacks>myStats.hitts then
+						if upgrade.getLevel("hardArrow")>0 then
+							myStats.dmgLost = myStats.dmgLost + ((upgrade.getValue("damage"))*(myStats.attacks-myStats.hitts))
+						else
+							myStats.dmgLost = myStats.dmgLost + (upgrade.getValue("damage")*(myStats.attacks-myStats.hitts))
+						end
+					end
+					myStats.dmgLostPer = myStats.dmgLost/(myStats.dmgDone+myStats.dmgLost)
+					myStats.DPSpGWithDamageLostInc = (myStats.DPS+(myStats.dmgLost/myStats.activeTimer))/upgrade.getTotalCost()
+					myStats.dmgLost = nil
+					--
+					local key = "range"..upgrade.getLevel("range").."_hardArrow"..upgrade.getLevel("hardArrow").."_markOfDeath"..upgrade.getLevel("markOfDeath")
+					tStats.addValue({mapName,"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+					for variable, value in pairs(myStats) do
+						tStats.setValue({mapName,"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
 					end
 				end
-				myStats.dmgLostPer = myStats.dmgLost/(myStats.dmgDone+myStats.dmgLost)
-				myStats.DPSpGWithDamageLostInc = (myStats.DPS+(myStats.dmgLost/myStats.activeTimer))/upgrade.getTotalCost()
-				myStats.dmgLost = nil
-				--
-				local key = "range"..upgrade.getLevel("range").."_hardArrow"..upgrade.getLevel("hardArrow").."_markOfDeath"..upgrade.getLevel("markOfDeath")
-				tStats.addValue({mapName,"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-				for variable, value in pairs(myStats) do
-					tStats.setValue({mapName,"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
-				end
+				myStatsReset()
+			else
+				xpManager.payStoredXp(waveCount)
+				--update billboard
+				upgrade.fixBillboardAndStats()
 			end
-			myStatsReset()
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
-		else
-			xpManager.payStoredXp(waveCount)
-			--update billboard
-			upgrade.fixBillboardAndStats()
 		end
 	end
 	

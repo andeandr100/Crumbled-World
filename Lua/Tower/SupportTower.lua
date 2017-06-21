@@ -52,12 +52,15 @@ function SwarmTower.new()
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	--stats
 	local mapName = MapInfo.new().getMapName()
+	--other
+	local lastRestored = -1
 	
 	local function storeWaveChangeStats( waveStr )
 		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
 		if billboardWaveStats:exist( waveStr )==false then
 			local tab = {
 				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+				upgradeTab = upgrade.storeWaveChangeStats(),
 				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
 				DamageTotal = billboard:getDouble("DamageTotal")
@@ -67,6 +70,7 @@ function SwarmTower.new()
 	end
 	local function restoreWaveChangeStats( wave )
 		if wave>0 then
+			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1
 			while billboardWaveStats:exist( tostring(index) ) do
@@ -75,10 +79,16 @@ function SwarmTower.new()
 			end
 			--restore the stats from the wave
 			local tab = billboardWaveStats:getTable( tostring(wave) )
-			billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
-			billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
-			billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
-			billboard:setDouble("DamageTotal", tab.DamageTotal)
+			if tab then
+				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
+				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
+				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
+				billboard:setDouble("DamageTotal", tab.DamageTotal)
+				if xpManager then
+					xpManager.restoreWaveChangeStats(tab.xpTab)
+				end
+				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+			end
 		end
 	end
 	
@@ -124,38 +134,44 @@ function SwarmTower.new()
 	-- function:	sendSupporUpgrade
 	-- purpose:		broadcasting what upgrades the towers close by should use
 	local function sendSupporUpgrade()
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportRange",upgrade.getLevel("range"))
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportDamage",upgrade.getLevel("damage"))
+		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range")+0.25,"supportRange",upgrade.getLevel("range"))
+		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range")+0.25,"supportDamage",upgrade.getLevel("damage"))
 	end
 	-- function:	waveChanged
 	-- purpose:		called on wavechange. updates the towers stats
 	local function waveChanged(param)
-		if not xpManager then
-			local name
-			name,waveCount = string.match(param, "(.*);(.*)")
-			if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>0 then
-				myStats.disqualified=nil
-				myStats.DPS =myStats.dmgDone/myStats.activeTimer
-				myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-				myStats.hittsPerProjectile = myStats.hitts / myStats.projectileLaunched
-				--myStats.hitts=nil
-				local key = "damage"..upgrade.getLevel("damage").."_range"..upgrade.getLevel("range").."_weaken"..upgrade.getLevel("weaken").."_gold"..upgrade.getLevel("gold")
-				tStats.addValue({mapName,"wave"..name,"supportTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-				if myStats.activeTimer>1.0 then
-					for variable, value in pairs(myStats) do
-						tStats.setValue({mapName,"wave"..name,"supportTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+		local name
+		local waveCount
+		name,waveCount = string.match(param, "(.*);(.*)")
+		--update and save stats only if we did not just restore this wave
+		if tonumber(waveCount)>=lastRestored then
+			if not xpManager then
+				--
+				if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>0 then
+					myStats.disqualified=nil
+					myStats.DPS =myStats.dmgDone/myStats.activeTimer
+					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
+					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
+					myStats.hittsPerProjectile = myStats.hitts / myStats.projectileLaunched
+					--myStats.hitts=nil
+					local key = "damage"..upgrade.getLevel("damage").."_range"..upgrade.getLevel("range").."_weaken"..upgrade.getLevel("weaken").."_gold"..upgrade.getLevel("gold")
+					tStats.addValue({mapName,"wave"..name,"supportTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+					if myStats.activeTimer>1.0 then
+						for variable, value in pairs(myStats) do
+							tStats.setValue({mapName,"wave"..name,"supportTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+						end
 					end
 				end
+				myStatsReset()
+			else
+				xpManager.payStoredXp(waveCount)
+				--update billboard
+				upgrade.fixBillboardAndStats()
 			end
-			myStatsReset()
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
-		else
-			xpManager.payStoredXp(waveCount)
-			--update billboard
-			upgrade.fixBillboardAndStats()
 		end
+		--tell every tower how it realy is
 		sendSupporUpgrade()
 	end
 	-- function:	dmgDealtMarkOfDeath

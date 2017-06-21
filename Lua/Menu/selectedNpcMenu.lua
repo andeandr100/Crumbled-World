@@ -67,7 +67,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		if data ~= nil and data.id and type(data.node) == "userdata" then
 			souls[data.id] = data.node
 			counter = counter + 1
-			print("num souls "..counter)
+			--print("num souls "..counter)
 		end
 	end
 	
@@ -75,7 +75,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		if data and data.id then
 			souls[data.id] = nil
 			counter = counter - 1
-			print("num souls "..counter)
+			--print("num souls "..counter)
 			
 			if currentIndex == data.id then
 				healtBar:setValue(0)

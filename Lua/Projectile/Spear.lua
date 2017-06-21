@@ -165,7 +165,7 @@ function Spear.new()
 		attackAllNewTargetsInRange(Line3D(previousPos,(movment>length and maxPos or currentPos)) )
 		--
 		if movment>length then
-			stop()
+			self.stop()
 			comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
 			return false
 		end

@@ -65,6 +65,7 @@ function ElectricTower.new()
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	local energySent = 0
+	local lastRestored = -1
 	--stats
 	local mapName = MapInfo.new().getMapName()
 	--Achievements
@@ -75,6 +76,7 @@ function ElectricTower.new()
 		if billboardWaveStats:exist( waveStr )==false then
 			local tab = {
 				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+				upgradeTab = upgrade.storeWaveChangeStats(),
 				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
 				DamageTotal = billboard:getDouble("DamageTotal"),
@@ -85,6 +87,7 @@ function ElectricTower.new()
 	end
 	local function restoreWaveChangeStats( wave )
 		if wave>0 then
+			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1
 			while billboardWaveStats:exist( tostring(index) ) do
@@ -98,6 +101,10 @@ function ElectricTower.new()
 			billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 			billboard:setDouble("DamageTotal", tab.DamageTotal)
 			self.SetTargetMode(tab.currentTargetMode)
+			if xpManager then
+				xpManager.restoreWaveChangeStats(tab.xpTab)
+			end
+			upgrade.restoreWaveChangeStats(tab.upgradeTab)
 		end
 	end
 	local function restartWave(param)
@@ -467,33 +474,38 @@ function ElectricTower.new()
 		myStats.dmgLost = myStats.dmgLost + tonumber(param)
 	end
 	local function waveChanged(param)
-		if not xpManager then
-			local name
-			name,waveCount = string.match(param, "(.*);(.*)")
-			if myStats.disqualified==false and upgrade.getLevel("boost")==0  and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
-				myStats.disqualified = nil
-				myStats.DPS = myStats.dmgDone/myStats.activeTimer
-				myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-				myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-				--damage lost
-				myStats.dmgLostPer = myStats.dmgLost/(myStats.dmgDone+myStats.dmgLost)
-				myStats.DPSpGWithDamageLostInc = (myStats.DPS+(myStats.dmgLost/myStats.activeTimer))/upgrade.getTotalCost()
-				myStats.dmgLost = nil
-				myStats.dmgLost = nil
+		local name
+		local waveCount
+		name,waveCount = string.match(param, "(.*);(.*)")
+		--update and save stats only if we did not just restore this wave
+		if tonumber(waveCount)>=lastRestored then
+			if not xpManager then
 				--
-				local key = "ampedSlow"..upgrade.getLevel("ampedSlow").."_energy"..upgrade.getLevel("energy").."_energyPool"..upgrade.getLevel("energyPool").."_range"..upgrade.getLevel("range")
-				tStats.addValue({mapName,"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-				for variable, value in pairs(myStats) do
-					tStats.setValue({mapName,"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+				if myStats.disqualified==false and upgrade.getLevel("boost")==0  and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
+					myStats.disqualified = nil
+					myStats.DPS = myStats.dmgDone/myStats.activeTimer
+					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
+					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
+					--damage lost
+					myStats.dmgLostPer = myStats.dmgLost/(myStats.dmgDone+myStats.dmgLost)
+					myStats.DPSpGWithDamageLostInc = (myStats.DPS+(myStats.dmgLost/myStats.activeTimer))/upgrade.getTotalCost()
+					myStats.dmgLost = nil
+					myStats.dmgLost = nil
+					--
+					local key = "ampedSlow"..upgrade.getLevel("ampedSlow").."_energy"..upgrade.getLevel("energy").."_energyPool"..upgrade.getLevel("energyPool").."_range"..upgrade.getLevel("range")
+					tStats.addValue({mapName,"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
+					for variable, value in pairs(myStats) do
+						tStats.setValue({mapName,"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
+					end
 				end
+				myStatsReset()
+			else
+				xpManager.payStoredXp(waveCount)
+				--update billboard
+				upgrade.fixBillboardAndStats()
 			end
-			myStatsReset()
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
-		else
-			xpManager.payStoredXp(waveCount)
-			--update billboard
-			upgrade.fixBillboardAndStats()
 		end
 	end
 	local function NetSyncTarget(param)
