@@ -78,15 +78,17 @@ function MissileTower.new()
 			end
 			--restore the stats from the wave
 			local tab = billboardWaveStats:getTable( tostring(wave) )
-			billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
-			billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
-			billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
-			billboard:setDouble("DamageTotal", tab.DamageTotal)
-			self.SetTargetMode(tab.currentTargetMode)
-			if xpManager then
-				xpManager.restoreWaveChangeStats(tab.xpTab)
+			if tab then
+				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
+				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
+				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
+				billboard:setDouble("DamageTotal", tab.DamageTotal)
+				self.SetTargetMode(tab.currentTargetMode)
+				if xpManager then
+					xpManager.restoreWaveChangeStats(tab.xpTab)
+				end
+				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 			end
-			upgrade.restoreWaveChangeStats(tab.upgradeTab)
 		end
 	end
 	
