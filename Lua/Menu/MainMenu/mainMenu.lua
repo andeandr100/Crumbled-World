@@ -95,8 +95,9 @@ function update()
 	
 	OptionsMenu.update()
 	
-	form:update()
-	
+	if form then
+		form:update()
+	end
 	MapEditorMenu.update()
 		
 	--multiplayerPanel always update
