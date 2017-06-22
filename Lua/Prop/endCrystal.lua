@@ -1,5 +1,7 @@
 require("Game/particleEffect.lua")
 --this = SceneNode()
+local restartWaveListener = Listener("RestartWave")
+local waveData = {}
 
 function updateDead()
 	return false
@@ -26,6 +28,21 @@ function restartMap()
 	update = updateDead
 	this:loadLuaScript(this:getCurrentScript():getFileName());
 end
+function restartWave(param)
+	local waveNum = tonumber(param)
+	if waveData[waveNum] then
+		waveSpiritCount = waveData[waveNum].waveSpiritCount
+	end
+end
+function handleWaveChanged(param)
+	local name
+	local waveCount
+	name,waveCount = string.match(param, "(.*);(.*)")
+	--
+	waveData[ tostring(tonumber(waveCount)+1) ] = {
+		waveSpiritCount = spiritCount
+	}
+end
 
 function create()
 	--comUnit
@@ -33,11 +50,13 @@ function create()
 	comUnit:setCanReceiveBroadcast(true)
 	comUnitTable = {}
 	comUnitTable["npcReachedEnd"] = handleNpcReachedEnd
+	comUnitTable["waveChanged"] = handleWaveChanged
 	rigidBodies = {}
 	model = nil
 	
 	restartListener = Listener("Restart")
 	restartListener:registerEvent("restart", restartMap)
+	restartWaveListener:registerEvent("restartWave", restartWave)
 	
 	--crystal
 	timer = 0.0
