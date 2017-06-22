@@ -1222,6 +1222,10 @@ function EventBase.new()
 								comUnit:sendTo("SteamAchievement","MapCo-opTheTinyRoad","")
 							elseif mapInfo.getMapName()=="Co-op Triworld" then
 								comUnit:sendTo("SteamAchievement","MapCo-opTriworld","")
+							elseif mapInfo.getMapName()=="Co-op Triworld" then
+								comUnit:sendTo("SteamAchievement","MapBrokenMine","")
+							elseif mapInfo.getMapName()=="Co-op Triworld" then
+								comUnit:sendTo("SteamAchievement","MapDumpStation","")
 							end
 						end
 						--

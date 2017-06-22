@@ -10,28 +10,44 @@ function CampaignData.new()
 	local maps
 	local towers = { "Tower/MinigunTower.lua", "Tower/ArrowTower.lua", "Tower/SwarmTower.lua", "Tower/ElectricTower.lua", "Tower/BladeTower.lua", "Tower/missileTower.lua", "Tower/quakerTower.lua", "Tower/SupportTower.lua" }
 	local files = { 
-		{file=File("Data/Map/Campaign/Beginning.map"), 		statId="Begining",		type="Crystal",	sead=258187458,	waveCount=10},--5500
-		{file=File("Data/Map/Campaign/Intrusion.map"), 		statId="Intrusion",		type="Crystal",	sead=334652485,	waveCount=15},--8500
-		{file=File("Data/Map/Campaign/Stockpile.map"),		statId="Stockpile",		type="Crystal",	sead=294158370,	waveCount=20},--11800		X
-		{file=File("Data/Map/Campaign/Expansion.map"), 		statId="Expansion",		type="Crystal",	sead=864885368,	waveCount=25},
-		{file=File("Data/Map/Campaign/Repair station.map"),	statId="RepairStation",	type="Cart",	sead=256546887,	waveCount=20},--12000
-		{file=File("Data/Map/Campaign/Bridges.map"),		statId="Bridges",		type="Crystal",	sead=617196048,	waveCount=20},
-		{file=File("Data/Map/Campaign/Spiral.map"),			statId="Spiral",		type="Crystal",	sead=109720780,	waveCount=25},--			X
-		{file=File("Data/Map/Campaign/Town.map"),			statId="Town",			type="Crystal",	sead=956148502,	waveCount=25},--			LONGEST AVG PLAYTIME
-		{file=File("Data/Map/Campaign/Plaza.map"),			statId="Plaza",			type="Crystal",	sead=169366078,	waveCount=20},
-		{file=File("Data/Map/Campaign/Long haul.map"),		statId="LongHaul",		type="Cart",	sead=202469227,	waveCount=20},--			U
-		{file=File("Data/Map/Campaign/Dock.map"),			statId="Dock",			type="Crystal",	sead=842172835,	waveCount=25},--			X
-		{file=File("Data/Map/Campaign/Crossroad.map"),		statId="Crossroad",		type="Crystal",	sead=365654225,	waveCount=25},--17500		X
-		{file=File("Data/Map/Campaign/Mine.map"),			statId="Mine",			type="Cart",	sead=464004721,	waveCount=20},--			U
-		{file=File("Data/Map/Campaign/Blocked path.map"),	statId="BlockedPath",	type="Crystal",	sead=32111861,	waveCount=20},
-		{file=File("Data/Map/Campaign/The line.map"),		statId="TheLine",		type="Cart",	sead=202469227,	waveCount=20},--			X
-		{file=File("Data/Map/Campaign/Rifted.map"),			statId="Rifted",		type="Crystal",	sead=27518540,	waveCount=25},--			X ish
-		{file=File("Data/Map/Campaign/Paths.map"), 			statId="Paths",			type="Crystal",	sead=620382518,	waveCount=25},
-		{file=File("Data/Map/Campaign/Divided.map"),		statId="Divided",		type="Crystal",	sead=615837167,	waveCount=25},--18000
-		{file=File("Data/Map/Campaign/Nature.map"),			statId="Nature",		type="Crystal",	sead=581083960,	waveCount=25},--			BAD MAP
-		{file=File("Data/Map/Campaign/Train station.map"),	statId="TrainStation",	type="Cart",	sead=680821396,	waveCount=25},
-		{file=File("Data/Map/Campaign/The end.map"),		statId="TheEnd",		type="Crystal",	sead=394914309,	waveCount=30} --23600
+		{file=File("Data/Map/Campaign/Beginning.map"), 		statId="Begining",		statIdOld="L1",		type="Crystal",	sead=258187458,	waveCount=10},--5500
+		{file=File("Data/Map/Campaign/Intrusion.map"), 		statId="Intrusion",		statIdOld="L2",		type="Crystal",	sead=334652485,	waveCount=15},--8500
+		{file=File("Data/Map/Campaign/Stockpile.map"),		statId="Stockpile",		statIdOld="L3",		type="Crystal",	sead=294158370,	waveCount=20},--11800		X
+		{file=File("Data/Map/Campaign/Expansion.map"), 		statId="Expansion",		statIdOld="L4",		type="Crystal",	sead=864885368,	waveCount=25},
+		{file=File("Data/Map/Campaign/Repair station.map"),	statId="RepairStation",	statIdOld="L5",		type="Cart",	sead=256546887,	waveCount=20},--12000
+		{file=File("Data/Map/Campaign/Bridges.map"),		statId="Bridges",		statIdOld="L6",		type="Crystal",	sead=617196048,	waveCount=20},
+		{file=File("Data/Map/Campaign/Spiral.map"),			statId="Spiral",		statIdOld="L7",		type="Crystal",	sead=109720780,	waveCount=25},--			X
+		{file=File("Data/Map/Campaign/Broken mine.map"),	statId="BrokenMine",						type="Cart",	sead=202469227,	waveCount=25},
+		{file=File("Data/Map/Campaign/Town.map"),			statId="Town",			statIdOld="L8",		type="Crystal",	sead=956148502,	waveCount=25},--			LONGEST AVG PLAYTIME
+		{file=File("Data/Map/Campaign/Plaza.map"),			statId="Plaza",			statIdOld="L9",		type="Crystal",	sead=169366078,	waveCount=20},
+		{file=File("Data/Map/Campaign/Long haul.map"),		statId="LongHaul",		statIdOld="L10",	type="Cart",	sead=202469227,	waveCount=20},--			U
+		{file=File("Data/Map/Campaign/Dock.map"),			statId="Dock",			statIdOld="L11",	type="Crystal",	sead=842172835,	waveCount=25},--			X
+		{file=File("Data/Map/Campaign/Crossroad.map"),		statId="Crossroad",		statIdOld="L12",	type="Crystal",	sead=365654225,	waveCount=25},--17500		X
+		{file=File("Data/Map/Campaign/Mine.map"),			statId="Mine",			statIdOld="L13",	type="Cart",	sead=464004721,	waveCount=20},--			U
+		{file=File("Data/Map/Campaign/Blocked path.map"),	statId="BlockedPath",	statIdOld="L14",	type="Crystal",	sead=32111861,	waveCount=20},
+		{file=File("Data/Map/Campaign/The line.map"),		statId="TheLine",		statIdOld="L15",	type="Cart",	sead=202469227,	waveCount=20},--			X
+		{file=File("Data/Map/Campaign/Dump station.map"),	statId="DumpStation",						type="Crystal",	sead=32111861,	waveCount=25},
+		{file=File("Data/Map/Campaign/Rifted.map"),			statId="Rifted",		statIdOld="L16",	type="Crystal",	sead=27518540,	waveCount=25},--			X ish
+		{file=File("Data/Map/Campaign/Paths.map"), 			statId="Paths",			statIdOld="L17",	type="Crystal",	sead=620382518,	waveCount=25},
+		{file=File("Data/Map/Campaign/Divided.map"),		statId="Divided",		statIdOld="L18",	type="Crystal",	sead=615837167,	waveCount=25},--18000
+		{file=File("Data/Map/Campaign/Nature.map"),			statId="Nature",		statIdOld="L19",	type="Crystal",	sead=581083960,	waveCount=25},--			BAD MAP
+		{file=File("Data/Map/Campaign/Train station.map"),	statId="TrainStation",	statIdOld="L20",	type="Cart",	sead=680821396,	waveCount=25},
+		{file=File("Data/Map/Campaign/The end.map"),		statId="TheEnd",		statIdOld="L21",	type="Crystal",	sead=394914309,	waveCount=30} --23600
 	}
+	function init()
+		--
+		--backward compability
+		--
+		local list = campaingData:get("mapsFinished")
+		for i=1, #files do
+			if files[i].statIdOld and list:exist(files[i].statIdOld) then
+				list:renameChild(files[i].statIdOld,files[i].statId)
+			end
+		end
+		campaingData:save()
+		--
+	end
+	init()
 	--
 	function self.fixCrystalLimits()
 		if campaingData:get("crystal",0):getInt()>self.getMaxGoldNeededToUnlockEverything() then
@@ -62,13 +78,9 @@ function CampaignData.new()
 			maps = {finishedCount=0,finished={},available={}}
 			local map = campaingData:get("mapsFinished")
 			for counter=1, #files do
-				if map:exist("L"..counter) then
-					maps.finished[counter] = self.hasMapBeenBeaten(counter)
-					if maps.finished[counter] then
-						maps.finishedCount = maps.finishedCount + 1
-					end
-				else
-					maps.finished[counter] = false
+				maps.finished[counter] = self.hasMapBeenBeaten(counter)
+				if maps.finished[counter] then
+					maps.finishedCount = maps.finishedCount + 1
 				end
 			end
 			updateAvailableMaps()
@@ -78,8 +90,8 @@ function CampaignData.new()
 	end
 	function self.hasMapBeenBeaten(number)
 		local map = campaingData:get("mapsFinished")
-		if map:exist("L"..number) then
-			map = map:get("L"..number)
+		if number<=#files then
+			map = map:get(files[number].statId)
 			local item = map:getFirst()
 			while not map:isEnd() do
 				if item:getInt()>0 then
@@ -91,16 +103,16 @@ function CampaignData.new()
 		return false
 	end
 	function self.getMapModeBeatenLevel(number,mode)
-		return campaingData:get("mapsFinished"):get("L"..number):get(mode,"-"):getInt()
+		return campaingData:get("mapsFinished"):get(files[number].statId):get(mode,"-"):getInt()
 	end
 	function self.hasMapModeBeenBeaten(number,mode)
-		return campaingData:get("mapsFinished"):get("L"..number):get(mode,"-"):getInt()>0
+		return campaingData:get("mapsFinished"):get(files[number].statId):get(mode,"-"):getInt()>0
 	end
 	function self.hasMapModeLevelBeenBeaten(number,mode,level)
-		return campaingData:get("mapsFinished"):get("L"..number):get(mode,"-"):getInt()>=level
+		return campaingData:get("mapsFinished"):get(files[number].statId):get(mode,"-"):getInt()>=level
 	end
 	function self.setLevelCompleted(number,level,mode)
-		campaingData:get("mapsFinished"):get("L"..number):get(mode):setInt(level)
+		campaingData:get("mapsFinished"):get(files[number].statId):get(mode):setInt(level)
 		campaingData:save()
 	end
 	function self.getMapCount()
