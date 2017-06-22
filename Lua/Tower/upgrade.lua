@@ -694,7 +694,7 @@ function Upgrade.new()
 			local level = 1--all cooldowns is on level 1 for simplicity
 			if  value[level] then
 				--the upgrades is active and waits to be degraded
-				if value[level].isOnDuration then
+				if value[level].isOnDuration and value[level].startTimerDuration then
 					if (value[level].startTimerDuration+value[level].duration)<Core.getGameTime() then
 						value[level].isOnDuration = false
 						self.degrade(key)
@@ -703,7 +703,7 @@ function Upgrade.new()
 					end
 				end
 				--the upgrade waits to be available again
-				if value[level].isOnCoolDown then
+				if value[level].isOnCoolDown and value[level].startWaveCooldown then
 					if (value[level].startWaveCooldown+value[level].cooldown)<=Core.getBillboard("stats"):getInt("wave") then
 						value[level].isOnCoolDown = false
 						self.fixBillboardAndStats()
