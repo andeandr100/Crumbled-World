@@ -129,7 +129,7 @@ function MapInfo.new()
 		return billboard:getString("mapName")
 	end
 	function self.getMapNumber()
-		return billboard:getInt("mapNumber")
+		return math.max(1,billboard:getInt("mapNumber"))
 	end
 	function self.isCampaign()
 		return billboard:getBool("isCampaign")

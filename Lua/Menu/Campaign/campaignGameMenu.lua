@@ -179,17 +179,20 @@ function CampaignGameMenu.new(panel)
 				fillDificulty()
 			else
 				--error or not available
+				print("changeMapTo("..filePath..") = false")
+				if filePath~=files[1].file then
+					changeMapTo(files[1].file.getPath())
+				end
 				return false
 			end
 		end
+		print("changeMapTo("..filePath..") = true")
 		return true
 	end
 	local function customeGameChangedMap(button)
 		local mNum,path = string.match(button:getTag():toString(),"(.*):(.*)")
 		--mNum = tonumber(mNum)
-		if not changeMapTo(path) then
-			changeMapTo(files[1].file)
-		end
+		changeMapTo(path)
 	end
 	local function setLabelListItemColor(label,available)
 		if available>0 then
@@ -451,32 +454,25 @@ function CampaignGameMenu.new(panel)
 		
 		MapInformation.setMapInfoLoadedFunction(mapInfoLoaded)
 		
+		local setDefault = true
 		--set previous selected settings or a default setting
-		if menuPrevSelect:get("campaign"):exist("selectedMap") then
-			--previous selection available
-			if not changeMapTo(menuPrevSelect:get("campaign"):get("selectedMap"):getString()) then
-				changeMapTo(files[1].file)
-			end
-		else
-			--no previous selection available
-			if not changeMapTo(files[1].file:getPath()) then
-				changeMapTo(files[1].file)
+		if menuPrevSelect:get("campaign"):exist("selectedMap") and menuPrevSelect:get("campaign"):exist("selectedDifficulty") and menuPrevSelect:get("campaign"):exist("selectedGameMode") then
+			local index = getMapIndex(menuPrevSelect:get("campaign"):get("selectedMap"):getString())
+			if files[index].available then
+				changeMapTo(menuPrevSelect:get("campaign"):get("selectedMap"):getString())
+				--
+				local diffIndex = menuPrevSelect:get("campaign"):get("selectedDifficulty"):getInt()
+				changeDifficulty("",diffIndex)
+				--
+				local selIndex = menuPrevSelect:get("campaign"):get("selectedGameMode"):getInt()
+				changeGameMode("", selIndex)
+				--
+				setDefault =  false
 			end
 		end
-		if menuPrevSelect:get("campaign"):exist("selectedDifficulty") then
-			--previous selection available
-			local diffIndex = menuPrevSelect:get("campaign"):get("selectedDifficulty"):getInt()
-			changeDifficulty("",diffIndex)
-		else
-			--no previous selection available
+		if setDefault then
+			changeMapTo(files[1].file:getPath())
 			changeDifficulty("",2)
-		end
-		if menuPrevSelect:get("campaign"):exist("selectedGameMode") then
-			--previous selection available
-			local selIndex = menuPrevSelect:get("campaign"):get("selectedGameMode"):getInt()
-			changeGameMode("", selIndex)
-		else
-			--no previous selection available
 			changeGameMode("", 1)
 		end
 	
