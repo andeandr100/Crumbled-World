@@ -147,10 +147,10 @@ function CampaignGameMenu.new(panel)
 		local mNum = getMapIndex(filePath)
 		if mNum>=1 then
 			local mapFile = File(filePath)
-			levelInfo.setMapNumber(mNum)
-			levelInfo.setSead(files[mNum].sead)
 		
-			if mapFile:isFile() then
+			if mapFile:isFile() and files[mNum].button then
+				levelInfo.setMapNumber(mNum)
+				levelInfo.setSead(files[mNum].sead)
 				--set current active map
 				selectedFile = filePath
 				--update GUI
@@ -169,14 +169,17 @@ function CampaignGameMenu.new(panel)
 				end
 				
 				iconImage:setTexture(texture)
+				--
+				if selectedButton then
+					setDefaultButtonColor(selectedButton)
+				end
+				local d1 = files
+				selectedButton = files[mNum].button
+				setSelectedButtonColor(files[mNum].button)
+				fillDificulty()
+			else
+				--error
 			end
-			
-			if selectedButton then
-				setDefaultButtonColor(selectedButton)
-			end
-			selectedButton = files[mNum].button
-			setSelectedButtonColor(files[mNum].button)
-			fillDificulty()
 		end
 	end
 	local function customeGameChangedMap(button)
