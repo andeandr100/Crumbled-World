@@ -148,7 +148,7 @@ function CampaignGameMenu.new(panel)
 		if mNum>=1 then
 			local mapFile = File(filePath)
 		
-			if mapFile:isFile() and files[mNum].button then
+			if mapFile:isFile() and files[mNum].available then
 				levelInfo.setMapNumber(mNum)
 				levelInfo.setSead(files[mNum].sead)
 				--set current active map
@@ -178,7 +178,7 @@ function CampaignGameMenu.new(panel)
 				setSelectedButtonColor(files[mNum].button)
 				fillDificulty()
 			else
-				--error
+				--error or not available
 			end
 		end
 	end
@@ -265,9 +265,12 @@ function CampaignGameMenu.new(panel)
 
 				if campaignData.isMapAvailable(i)>0 then
 					button:addEventCallbackExecute(customeGameChangedMap)
+					files[i].available = true
 					files[i].button = button
 				else
+					files[i].available = false
 					button:setEnabled(false)
+					files[i].button = button
 				end
 				
 				if count == 1 and mapInfoItem then
