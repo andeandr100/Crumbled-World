@@ -179,13 +179,17 @@ function CampaignGameMenu.new(panel)
 				fillDificulty()
 			else
 				--error or not available
+				return false
 			end
 		end
+		return true
 	end
 	local function customeGameChangedMap(button)
 		local mNum,path = string.match(button:getTag():toString(),"(.*):(.*)")
 		--mNum = tonumber(mNum)
-		changeMapTo(path)
+		if not changeMapTo(path) then
+			changeMapTo(files[1].file)
+		end
 	end
 	local function setLabelListItemColor(label,available)
 		if available>0 then
@@ -450,10 +454,14 @@ function CampaignGameMenu.new(panel)
 		--set previous selected settings or a default setting
 		if menuPrevSelect:get("campaign"):exist("selectedMap") then
 			--previous selection available
-			changeMapTo(menuPrevSelect:get("campaign"):get("selectedMap"):getString())
+			if not changeMapTo(menuPrevSelect:get("campaign"):get("selectedMap"):getString()) then
+				changeMapTo(files[1].file)
+			end
 		else
 			--no previous selection available
-			changeMapTo(files[1].file:getPath())
+			if not changeMapTo(files[1].file:getPath()) then
+				changeMapTo(files[1].file)
+			end
 		end
 		if menuPrevSelect:get("campaign"):exist("selectedDifficulty") then
 			--previous selection available
