@@ -18,7 +18,7 @@ function create()
 	form:setLayout(FallLayout());
 	form:setRenderLevel(1)
 	
-	form:add(Label(PanelSize(Vec2(-1, -0.9)), "v0.9.3", Vec3(1), Alignment.MIDDLE_CENTER ))
+	form:add(Label(PanelSize(Vec2(-1, -0.9)), "v0.9.4", Vec3(1), Alignment.MIDDLE_CENTER ))
 	form:update()
 	versionCamera:render()
 	
@@ -42,7 +42,7 @@ function create()
 			
 			form:setRenderLevel(6)
 			
-			form:add(Label(PanelSize(Vec2(-1)), "v0.9.3", Vec3(1)))
+			form:add(Label(PanelSize(Vec2(-1)), "v0.9.4", Vec3(1)))
 	
 		end
 	end

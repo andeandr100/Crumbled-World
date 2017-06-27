@@ -55,12 +55,14 @@ function create()
 	
 	local frame = 0
 	
-	this:loadLuaScript("settings.lua")
+	
 	
 	local camera = this:getRootNode():findNodeByName("MainCamera")
 	--camera = Camera()
 
 	if camera then
+		this:loadLuaScript("settings.lua")
+		
 		form = Form(camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
 		form:setLayout(FlowLayout(PanelSize(Vec2(0.01,0))));
 		form:setRenderLevel(7)
@@ -78,7 +80,9 @@ function create()
 		print("Done\n")
 		
 		restoreData.form = form
-
+	else
+		tmpUpdate = update;
+		update = loopUpdate;
 	end
 	
 	setRestoreData(restoreData)
@@ -88,6 +92,14 @@ function create()
 	end
 	settingsListener:registerEvent("LanguageChanged",languageChanged)
 
+	return true
+end
+
+function loopUpdate()
+	if this:getRootNode():findNodeByName("MainCamera") ~= nil then
+		update = tmpUpdate;
+		create()
+	end
 	return true
 end
 
