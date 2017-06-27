@@ -188,7 +188,6 @@ function XpSystem.new(upg)
 				self.payStoredXp()
 			end
 			if xp>xpToNextLevel then
-				abort()
 				xp = xp - xpToNextLevel
 				xpForLevel = upgrade.getLevel("upgrade")+1
 				if whatIsLeveling==SUBUPGRADE then
