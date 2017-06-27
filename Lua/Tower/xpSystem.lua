@@ -60,7 +60,7 @@ function XpSystem.new(upg)
 	-- function:	storeWaveChangeStats
 	-- purpose:		store all data needed to restore the xpSystem to a previous state
 	function self.storeWaveChangeStats()
-		print("self.storeWaveChangeStats()")
+		print("XpSystem.storeWaveChangeStats()")
 		local tab = {
 			xpLevel = xpLevel,
 			xp = xp,
@@ -68,7 +68,6 @@ function XpSystem.new(upg)
 			xpPerDamage = xpPerDamage,
 			xpForLevel = xpForLevel,
 			xpForSubLevel = xpForSubLevel,
-			particleEffectActive = particleEffectUpgradeAvailable:isActive(),
 			whatIsLeveling = whatIsLeveling,
 			--removes posability for sync issues
 			xpBonusMul = xpBonusMul,
@@ -79,17 +78,17 @@ function XpSystem.new(upg)
 	-- function:	restoreWaveChangeStats
 	-- purpose:		restore the cpSystem to a previous state, with data from self.storeWaveChangeStats()
 	function self.restoreWaveChangeStats(tab)
-		print("self.restoreWaveChangeStats(tab)")
+		print("XpSystem.restoreWaveChangeStats(tab)")
 		xpLevel = tab.xpLevel
 		xp = tab.xp
 		xpNotPaid = tab.xpNotPaid
 		xpPerDamage = tab.xpPerDamage
 		xpForLevel = tab.xpForLevel
 		xpForSubLevel = tab.xpForSubLevel
-		particleEffectActive = tab.particleEffectUpgradeAvailable:isActive()
 		whatIsLeveling = tab.whatIsLeveling
 		xpBonusMul = tab.xpBonusMul
 		xpToNextLevel = tab.xpToNextLevel
+
 		--fix callback
 		if whatIsLeveling==SUBUPGRADE then
 			xpCallback = nil

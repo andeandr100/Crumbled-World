@@ -162,6 +162,7 @@ function Upgrade.new()
 	function self.storeWaveChangeStats()
 		--print("self.storeWaveChangeStats()")
 		local tab = {}
+		tab.freeSubUpgradesCount = freeSubUpgradesCount
 		for key, value in pairs(upgradesAvailable) do
 			--get the next level for that upgrade
 			local level = (not upgraded[value[1].order]) and 1 or upgraded[value[1].order].level+1
@@ -181,6 +182,8 @@ function Upgrade.new()
 	-- purpose:		restore the cpSystem to a previous state, with data from self.storeWaveChangeStats()
 	function self.restoreWaveChangeStats(tab)
 		--print("self.restoreWaveChangeStats("..tostring(tab)..")")
+		freeSubUpgradesCount = tab.freeSubUpgradesCount
+		tab.freeSubUpgradesCount = nil--so it is not used as an upgrade
 		for key, item in pairs(tab) do
 			local level = 1
 			local value = upgradesAvailable[key]
