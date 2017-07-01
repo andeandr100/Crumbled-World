@@ -16,7 +16,7 @@ function restartWave(wave)
 		billboard:setDouble("waveGold", item["waveGold"])--the amount of gold that can be erarned as xp in the "leveler" game mode
 		billboard:setDouble("totalHp", item["totalHp"])--the total amount of hp that will spawn this wave, in the "leveler" game mode
 		billboard:setInt("life", item["life"])--the total of units you can let threw before losing
-		billboard:setInt("score", item["score"])--you highscore
+		billboard:setDouble("score", item["score"])--you highscore
 		billboard:setInt("wave", wave)--the current wave number
 		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])--achivemenet
 		billboard:setInt("towersSold", item["towersSold"])--achivemenet
@@ -46,7 +46,7 @@ function create()
 	billboard:setDouble("totalGoldSupportEarned", 0.0)
 	billboard:setDouble("totalDamageDone", 0.0)
 	billboard:setInt("life", 20)
-	billboard:setInt("score", 0)
+	billboard:setDouble("score", 0)
 	billboard:setFloat("difficult", 1.0)
 	billboard:setInt("alive enemies", 0)
 	billboard:setInt("wave", 1)
@@ -61,6 +61,7 @@ function create()
 	--ComUnitCallbacks
 	comUnitTable = {}
 	comUnitTable["setLife"] = handleSetLife
+	comUnitTable["setMaxLife"] = handleSetMaxLife
 	comUnitTable["setGold"] = handleSetGold
 	comUnitTable["addGold"] = handleAddGold
 	comUnitTable["addGoldWaveBonus"] = handleAddGoldWaveBonus
@@ -95,6 +96,7 @@ function create()
 	towerList = {skip=20}
 	totalDamage = 0
 	updateScoreTime = -1.0
+	ScoreScale = 1
 	
 	cfg = Config("test")
 	local var = cfg:get("setTable")
@@ -103,6 +105,12 @@ function create()
 	
 	return true
 end
+function addScoreBasedOnAddedGold(addedGold)
+	billboard:setDouble("score", billboard:getDouble("score") + addedGold * ScoreScale * (billboard:getInt("life") / 10.0) )
+	print("ScoreScale: "..ScoreScale)
+	abort()
+end
+	
 function handleAddTotalDamage(dmg)
 	billboard:setDouble("totalDamageDone", billboard:getDouble("totalDamageDone")+tonumber(dmg))
 end
@@ -115,12 +123,17 @@ end
 function handleSetLife(numLife)
 	billboard:setInt("life", tonumber(numLife))
 end
+function handleSetMaxLife(maxNumLife)
+	billboard:setInt("maxLife", tonumber(maxNumLife))
+	ScoreScale = tonumber(maxNumLife) == 1 and 20 or 1
+end
 function handleSetGold(amount)
 	billboard:setDouble("gold", tonumber(amount))
 	billboard:setDouble("totalGoldEarned", tonumber(amount))
 	billboard:setDouble("defaultGold", tonumber(amount))
 end
 function handleAddGold(amount)
+	addScoreBasedOnAddedGold(tonumber(amount))
 	billboard:setDouble("gold", billboard:getDouble("gold")+tonumber(amount))
 	billboard:setDouble("totalGoldEarned", billboard:getDouble("totalGoldEarned")+tonumber(amount))
 end
@@ -275,7 +288,7 @@ function update()
 	end
 	if netSyncTimer then
 		
-		--upfate wave damage, this can only be done after the towers has updated, this can take a 0.1 seconds
+		--update wave damage, this can only be done after the towers has updated, this can take a 0.1 seconds
 		if updateScoreTime > 0.0 then
 			updateScoreTime = updateScoreTime - Core.getDeltaTime()
 			if updateScoreTime <= 0.0 then

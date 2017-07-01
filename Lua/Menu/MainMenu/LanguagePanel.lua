@@ -218,6 +218,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	addLanguageRow("enemies remaining")
 	addLanguageRow("money")
 	addLanguageRow("life remaining")
+	addLanguageRow("score")
 			
 	
 	

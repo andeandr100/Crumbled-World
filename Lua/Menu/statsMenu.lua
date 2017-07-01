@@ -134,9 +134,9 @@ function create()
 			timeLabel = createStat(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed")
 --			--Score
 --			to be used When implemented
---			score = statsBilboard:getInt("score")
---			scoreLabel = createStat(Vec2(0.125,0.0),Vec2(0.25,0.0625), tostring(score))
---			scoreLabel:setToolTip(Text("Score"))
+			score = statsBilboard:getInt("score")
+			scoreLabel = createStat(Vec2(0.125,0.0),Vec2(0.25,0.0625), tostring(score), "score")
+			scoreLabel:setToolTip(Text("Score"))
 --			--Enemies
 --			numEnemies = statsBilboard:getInt("alive enemies")
 --			numEnemiesLabel = createStat(Vec2(0.25,0.0),Vec2(0.375,0.0625), tostring(numEnemies), "enemies remaining")
@@ -212,10 +212,10 @@ function update()
 		waveLabel:setText(tostring(wave).."/"..maxWave)
 	end
 --	to be used When implemented
---	if score ~= statsBilboard:getDouble("score") then
---		score = statsBilboard:getDouble("score")
---		scoreLabel:setText(numberToSmalString(score))
---	end
+	if score ~= statsBilboard:getDouble("score") then
+		score = statsBilboard:getDouble("score")
+		scoreLabel:setText(numberToSmalString(score))
+	end
 --	if numEnemies ~= statsBilboard:getInt("alive enemies") then
 --		numEnemies = statsBilboard:getInt("alive enemies")
 --		numEnemiesLabel:setText(tostring(numEnemies))

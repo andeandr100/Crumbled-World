@@ -94,6 +94,11 @@ function EventBase.new()
 	local function setLife(life)
 		comUnit:sendTo("stats", "setLife", tostring(life))
 	end
+	local function setMaxLife(life)
+		comUnit:sendTo("stats", "setMaxLife", tostring(life))
+	end
+	
+	
 	--Gold options
 	local function setGold(gold)
 		if not Core.isInMultiplayer() then
@@ -517,6 +522,7 @@ function EventBase.new()
 		goldMultiplayer = pGoldMultiplayer
 		setGold(startGold)
 		setLife(pLives)
+		setMaxLife(pLives)
 		local tab = {startGold=pstartGold,WaveFinishedBonus=pWaveFinishedBonus,lives=pLives,level=pLevel}
 		comUnit:sendNetworkSyncSafe("NetInitData",tabToStrMinimal(tab))
 		--
