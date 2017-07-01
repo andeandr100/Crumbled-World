@@ -408,6 +408,9 @@ function CampaignGameMenu.new(panel)
 			local mapInfoItem = MapInformation.getMapInfoFromFileName(file:getName(), file:getPath()) 
 		end
 	end
+	function self.changedVisibility(panel)
+		MapInformation.setMapInfoLoadedFunction(mapInfoLoaded)
+	end
 	function self.update()
 		if windowShop.getVisible() then
 			windowShop.update()

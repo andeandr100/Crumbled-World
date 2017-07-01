@@ -236,6 +236,8 @@ function createMainArea()
 	buttons[7].panel = CreditsMenu.create(pagePanel)
 
 	--
+	
+	buttons[2].button:addEventCallbackExecute(buttons[2].panel.changedVisibility)
 	buttons[3].button:addEventCallbackExecute(buttons[3].panel.changedVisibility)
 	
 	
