@@ -781,7 +781,7 @@ function MinigunTower.new()
 								icon = 56,
 								value1 = 1,
 								stats = {range =	{ upgrade.add, 5.0, ""},
-										damage = 	{ upgrade.add, 100, ""},
+										damage = 	{ upgrade.add, 105, ""},
 										RPS = 		{ upgrade.add, 2.5, ""},
 										rotationSpeed =	{ upgrade.add, 1.20, ""} }
 							} )
@@ -793,7 +793,7 @@ function MinigunTower.new()
 								icon = 56,
 								value1 = 2,
 								stats = {range =	{ upgrade.add, 5.0, ""},
-										damage = 	{ upgrade.add, 280, ""},
+										damage = 	{ upgrade.add, 295, ""},
 										RPS = 		{ upgrade.add, 2.5, ""},
 										rotationSpeed =	{ upgrade.add, 1.40, ""} }
 							}, 0 )
@@ -805,7 +805,7 @@ function MinigunTower.new()
 								icon = 56,
 								value1 = 3,
 								stats = {range =	{ upgrade.add, 5.0, ""},
-										damage = 	{ upgrade.add, 350, ""},
+										damage = 	{ upgrade.add, 370, ""},
 										RPS = 		{ upgrade.add, 5.0, ""},
 										rotationSpeed =	{ upgrade.add, 1.60, ""} }
 							}, 0 )

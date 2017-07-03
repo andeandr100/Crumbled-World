@@ -17,15 +17,16 @@ function CampaignData.new()
 		{file=File("Data/Map/Campaign/Repair station.map"),	statId="RepairStation",	statIdOld="L5",		type="Cart",	sead=256546887,	waveCount=20},--12000
 		{file=File("Data/Map/Campaign/Bridges.map"),		statId="Bridges",		statIdOld="L6",		type="Crystal",	sead=617196048,	waveCount=20},
 		{file=File("Data/Map/Campaign/Spiral.map"),			statId="Spiral",		statIdOld="L7",		type="Crystal",	sead=109720780,	waveCount=25},--			X
-		{file=File("Data/Map/Campaign/Broken mine.map"),	statId="BrokenMine",						type="Cart",	sead=202469227,	waveCount=25},
+		{file=File("Data/Map/Campaign/Broken mine.map"),	statId="BrokenMine",						type="Cart",	sead=104266217,	waveCount=25},
 		{file=File("Data/Map/Campaign/Town.map"),			statId="Town",			statIdOld="L8",		type="Crystal",	sead=956148502,	waveCount=25},--			LONGEST AVG PLAYTIME
 		{file=File("Data/Map/Campaign/Plaza.map"),			statId="Plaza",			statIdOld="L9",		type="Crystal",	sead=169366078,	waveCount=20},
 		{file=File("Data/Map/Campaign/Long haul.map"),		statId="LongHaul",		statIdOld="L10",	type="Cart",	sead=202469227,	waveCount=20},--			U
-		{file=File("Data/Map/Campaign/Dock.map"),			statId="Dock",			statIdOld="L11",	type="Crystal",	sead=842172835,	waveCount=25},--			X
+		{file=File("Data/Map/Campaign/Dock.map"),			statId="Dock",			statIdOld="L11",	type="Crystal",	sead=742525885,	waveCount=25},--			X
+		{file=File("Data/Map/Campaign/Desperado.map"),		statId="Desperado",							type="Crystal",	sead=842172835,	waveCount=25},--			X
 		{file=File("Data/Map/Campaign/Crossroad.map"),		statId="Crossroad",		statIdOld="L12",	type="Crystal",	sead=365654225,	waveCount=25},--17500		X
 		{file=File("Data/Map/Campaign/Mine.map"),			statId="Mine",			statIdOld="L13",	type="Cart",	sead=464004721,	waveCount=20},--			U
 		{file=File("Data/Map/Campaign/Blocked path.map"),	statId="BlockedPath",	statIdOld="L14",	type="Crystal",	sead=32111861,	waveCount=20},
-		{file=File("Data/Map/Campaign/The line.map"),		statId="TheLine",		statIdOld="L15",	type="Cart",	sead=202469227,	waveCount=20},--			X
+		{file=File("Data/Map/Campaign/The line.map"),		statId="TheLine",		statIdOld="L15",	type="Cart",	sead=752499248,	waveCount=20},--			X
 		{file=File("Data/Map/Campaign/Dump station.map"),	statId="DumpStation",						type="Crystal",	sead=32111861,	waveCount=25},
 		{file=File("Data/Map/Campaign/Rifted.map"),			statId="Rifted",		statIdOld="L16",	type="Crystal",	sead=27518540,	waveCount=25},--			X ish
 		{file=File("Data/Map/Campaign/Paths.map"), 			statId="Paths",			statIdOld="L17",	type="Crystal",	sead=620382518,	waveCount=25},

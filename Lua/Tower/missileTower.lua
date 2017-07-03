@@ -813,7 +813,7 @@ function MissileTower.new()
 								order = 5,
 								icon = 42,
 								value1 = 200,--200% damage increase
-								levelRequirement = cTowerUpg.getLevelRequierment("shieldSmasher",3),
+								levelRequirement = cTowerUpg.getLevelRequierment("shieldSmasher",1),
 								stats ={shieldDamageMul =	{ upgrade.mul, 3.0}}
 							} )
 		supportManager.setUpgrade(upgrade)

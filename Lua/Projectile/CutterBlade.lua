@@ -68,11 +68,11 @@ function CutterBlade.new()
 				comUnit:sendTo(target,"slow",{per=slow,time=slowTimer,type="physical"})
 			end
 			npcHitt = npcHitt + 1
-			if npcHitt>6 then
-				--the first 6 will take full damage
-				damage = damage*0.90
-				speed = math.max(speed*0.9, 5.0)
-			end
+--			if npcHitt>6 then
+--				--the first 6 will take full damage
+--				damage = damage*0.90
+--				speed = math.max(speed*0.9, 5.0)
+--			end
 			model:setLocalPosition( model:getLocalPosition() + (model:getLocalPosition():normalizeV()*0.01 ) )
 		end
 	end
