@@ -1023,7 +1023,7 @@ function EventBase.new()
 			--handle the event restart wave
 			if keyBindRevertWave:getPressed() and currentState ~= EVENT_END_GAME then
 				local mapInfo = MapInfo.new()
-				if waveCount>=1 and mapInfo.getGameMode()~="leveler" then
+				if waveCount>=1 then--and mapInfo.getGameMode()~="leveler" 
 					waveCount = math.max(0, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
 					if waveCount==0 then
 						local restartListener = Listener("Restart")

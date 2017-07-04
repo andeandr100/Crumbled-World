@@ -831,8 +831,8 @@ function ElectricTower.new()
 										slowTimer = { upgrade.add, 2.0},
 										slowRange = { upgrade.add, 0.0},
 										attackCost ={ upgrade.add, 575/damagePerEnergy},
-										energyMax = { upgrade.add, (575/damagePerEnergy)*9.0},
-										energyReg =	{ upgrade.add, (575/damagePerEnergy)*5/36},--0.021/g
+										energyMax = { upgrade.add, (575/damagePerEnergy)*12.0},
+										energyReg =	{ upgrade.add, (575/damagePerEnergy)*5/36*1.25},--0.021/g  [1.25 is just a magic number to increase regen]
 										equalizer =	{ upgrade.add, 0.0},
 										model = 	{ upgrade.set, "tower_electric_l1.mym"} }
 							} )
@@ -853,8 +853,8 @@ function ElectricTower.new()
 										slowTimer = { upgrade.add, 2.0},
 										slowRange = { upgrade.add, 0.0},
 										attackCost ={ upgrade.add, 1370/damagePerEnergy},--71.9
-										energyMax = { upgrade.add, (1370/damagePerEnergy)*9.0},--575
-										energyReg =	{ upgrade.add, (1370/damagePerEnergy)*6.5/36},--0.021/g
+										energyMax = { upgrade.add, (1370/damagePerEnergy)*12.0},--575
+										energyReg =	{ upgrade.add, (1370/damagePerEnergy)*6.5/36*1.25},--0.021/g [1.25 is just a magic number to increase regen]
 										equalizer =	{ upgrade.add, 0.0},
 										model = 	{ upgrade.set, "tower_electric_l2.mym"} }
 							},0 )
@@ -875,8 +875,8 @@ function ElectricTower.new()
 										slowTimer = { upgrade.add, 2.0},
 										slowRange = { upgrade.add, 0.0},
 										attackCost ={ upgrade.add, 2700/damagePerEnergy},--143
-										energyMax = { upgrade.add, (2700/damagePerEnergy)*9},--953
-										energyReg =	{ upgrade.add, (2700/damagePerEnergy)*8/36},--0.022/g == energy regen per second per gold
+										energyMax = { upgrade.add, (2700/damagePerEnergy)*12},--953
+										energyReg =	{ upgrade.add, (2700/damagePerEnergy)*8/36*1.25},--0.022/g == energy regen per second per gold [1.25 is just a magic number to increase regen]
 										equalizer =	{ upgrade.add, 0.0},
 										model = 	{ upgrade.set, "tower_electric_l3.mym"} }
 							},0 )

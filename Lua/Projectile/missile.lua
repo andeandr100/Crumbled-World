@@ -149,6 +149,7 @@ function Missile.new()
 			node:addChild(soundMissileSplit)
 		end
 		timeEndingExplosion = false
+		model:setLocalPosition(position)
 		model:setVisible(true)
 	
 		--Particle effects

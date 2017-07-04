@@ -839,7 +839,7 @@ function BladeTower.new()
 								icon = 56,
 								value1 = 1,
 								stats ={range =				{ upgrade.add, 9.0},
-										damage = 			{ upgrade.add, 125},
+										damage = 			{ upgrade.add, 135},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
@@ -854,7 +854,7 @@ function BladeTower.new()
 								icon = 56,
 								value1 = 2,
 								stats ={range =				{ upgrade.add, 9.0},
-										damage = 			{ upgrade.add, 395},
+										damage = 			{ upgrade.add, 435},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
@@ -869,7 +869,7 @@ function BladeTower.new()
 								icon = 56,
 								value1 = 3,
 								stats ={range =				{ upgrade.add, 9.0},
-										damage = 			{ upgrade.add, 935},
+										damage = 			{ upgrade.add, 1030},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
@@ -983,7 +983,7 @@ function BladeTower.new()
 								info = "blade tower shield",
 								order = 5,
 								icon = 40,
-								levelRequirement = cTowerUpg.getLevelRequierment("shieldBreaker",3),
+								levelRequirement = cTowerUpg.getLevelRequierment("shieldBreaker",1),
 								stats ={shieldBypass =	{ upgrade.add, 1.0}}
 							} )
 		-- RANGE
