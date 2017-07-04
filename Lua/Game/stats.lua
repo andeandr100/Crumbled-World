@@ -107,8 +107,6 @@ function create()
 end
 function addScoreBasedOnAddedGold(addedGold)
 	billboard:setDouble("score", billboard:getDouble("score") + addedGold * ScoreScale * (billboard:getInt("life") / 10.0) )
-	print("ScoreScale: "..ScoreScale)
-	abort()
 end
 	
 function handleAddTotalDamage(dmg)

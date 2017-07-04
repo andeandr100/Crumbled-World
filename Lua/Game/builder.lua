@@ -160,11 +160,20 @@ end
 
 
 
-function addHighScore(data)
-	for i=1, #towerBuildInfo do
-		towerBuildInfo[i].restore = nil
-	end
+--function addHighScore(data)
+--	for i=1, #towerBuildInfo do
+--		towerBuildInfo[i].restore = nil
+--	end
+--end
 
+--this function can only be called once
+function sendHightScoreToTheServer()
+--	for i=1, #towerBuildInfo do
+--		towerBuildInfo[i].restore = nil
+--	end
+	local statsBilboard = Core.getBillboard("stats")
+	local highScore = Core.getHighScore()
+	highScore:addScore( statsBilboard:getInt("score"), tabToStrMinimal(towerBuildInfo) )
 end
 
 function addRebuildTowerEvent(textData)
@@ -203,7 +212,7 @@ function create()
 		comUnitTable["addDowngradeTower"] = addDowngradeTower
 
 		comUnitTable["addRebuildTower"] = addRebuildTowerEvent
-		comUnitTable["addHighScore"] = addHighScore
+		comUnitTable["sendHightScoreToTheServer"] = sendHightScoreToTheServer
 		
 		functionList = {}
 		functionList[1] = towerUpgradefunc
@@ -666,6 +675,7 @@ function rebuildSoldTower(tab)
 end
 
 function update()
+	afile = File("aFileName")
 	
 	if curentWave ~= Core.getBillboard("stats"):getInt("wave") then
 		
@@ -673,6 +683,10 @@ function update()
 		waveTime = Core.getGameTime()
 --		print("replayData: "..tabToStrMinimal(towerBuildInfo))
 		
+	end
+	
+	if Core.getInput():getKeyDown(Key.y) then
+		sendHightScoreToTheServer()
 	end
 	
 --	local timeoffset = (Core.getGameTime()-waveTime)
@@ -688,10 +702,6 @@ function update()
 --		towerBuildInfo[replayIndex] = nil
 --		replayIndex = replayIndex + 1
 --	end
-
-	if Core.getInput():getKeyDown(Key.y) then
-		Core.getHighScore():addScore(math.randomFloat(0,1000), tabToStrMinimal(towerBuildInfo))
-	end
 	
 	if Core.getInput():getKeyHeld(Key.lshift) or stateBillboard:getBool("inMenu") then
 		noMoneyIcon:setVisible(false)
