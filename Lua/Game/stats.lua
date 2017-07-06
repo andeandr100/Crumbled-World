@@ -64,6 +64,7 @@ function create()
 	comUnitTable["setMaxLife"] = handleSetMaxLife
 	comUnitTable["setGold"] = handleSetGold
 	comUnitTable["addGold"] = handleAddGold
+	comUnitTable["addGoldNoScore"] = handleAddGoldNoScore
 	comUnitTable["addGoldWaveBonus"] = handleAddGoldWaveBonus
 	comUnitTable["addTotalDmg"] = handleAddTotalDamage
 	comUnitTable["goldInterest"] = handleGoldInterest
@@ -132,6 +133,10 @@ function handleSetGold(amount)
 end
 function handleAddGold(amount)
 	addScoreBasedOnAddedGold(tonumber(amount))
+	billboard:setDouble("gold", billboard:getDouble("gold")+tonumber(amount))
+	billboard:setDouble("totalGoldEarned", billboard:getDouble("totalGoldEarned")+tonumber(amount))
+end
+function handleAddGoldNoScore(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")+tonumber(amount))
 	billboard:setDouble("totalGoldEarned", billboard:getDouble("totalGoldEarned")+tonumber(amount))
 end

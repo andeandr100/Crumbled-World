@@ -8,7 +8,7 @@ local readyToPlay = {}
 local towerChangeState = 0
 local towerBuildInfo = {}
 local waveTime = 0
-local curentWave = 0
+local curentWave = -1
 
 --TODO
 --In multiplayer add transaction id when buying selling tower, to ensure that towers can only be built in a correct order,
@@ -173,16 +173,36 @@ function sendHightScoreToTheServer()
 --	end
 	local statsBilboard = Core.getBillboard("stats")
 	local highScore = Core.getHighScore()
-	highScore:addScore( statsBilboard:getInt("score"), tabToStrMinimal(towerBuildInfo) )
+	
+	local highScoreBillBoard = Core.getGlobalBillboard("highScoreReplay")
+	highScoreBillBoard:setBool("victory", true)
+	highScoreBillBoard:setInt("score", statsBilboard:getInt("score"))
+	highScoreBillBoard:setInt("life", statsBilboard:getInt("life"))
+	highScoreBillBoard:setDouble("gold", statsBilboard:getInt("gold"))
+	
+	
+	highScore:addScore( tabToStrMinimal(towerBuildInfo) )
 end
 
 function addRebuildTowerEvent(textData)
-	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add=nil,restore={para1=totable(textData),func=rebuildSoldTower}}
+	local tab = totable(textData)
+	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab.upp,func=5},restore={para1=tab.down,func=rebuildSoldTower}}
 end
 
 function addDowngradeTower(textData)
 	local tab = totable(textData)--{upp=upgradeData,down=downGradeData})
-	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab.upp,func=3},restore={para1=tab.down,func=upgradeWallTower,name="downgradeToWall"}}
+	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab.upp,func=3},restore={para1=tab.down,func=upgradeWallTower,name="downgradeToWall"}}
+end
+
+function setBuildingTargetVec(textData)
+	
+	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=totable(textData),func=6},restore=nil}
+end
+
+function changeArrowTowerRotation(tab)
+	--{netName=script:getNetworkName(),para=tostring(direction.x)..","..direction.y..","..direction.z}
+	local script = Core.getScriptOfNetworkName(tab.netName)
+	comUnit:sendTo(script:getIndex(), "setRotateTarget", tab.para)
 end
 
 function create()
@@ -213,12 +233,15 @@ function create()
 
 		comUnitTable["addRebuildTower"] = addRebuildTowerEvent
 		comUnitTable["sendHightScoreToTheServer"] = sendHightScoreToTheServer
+		comUnitTable["setBuildingTargetVec"] = setBuildingTargetVec
 		
 		functionList = {}
 		functionList[1] = towerUpgradefunc
 		functionList[2] = buildTowerNetworkBuild
 		functionList[3] = uppgradeWallTowerTab
-
+		functionList[4] = sellTowerAddNoEvent
+		functionList[5] = upgradeWallTower
+		functionList[6] = changeArrowTowerRotation
 		
 		replayIndex = 1
 		towerBuildInfo = {}
@@ -322,6 +345,16 @@ function create()
 			print("No camera was found");
 		end
 		
+		waveTime = Core.getGameTime()
+		highScoreReplayBillboard = Core.getGlobalBillboard("highScoreReplay")
+		isAReplay = highScoreReplayBillboard:getBool("replay")
+		if isAReplay then
+			--This is a game is a replay
+			--this only occure for nowe 2017-07-04 on the server side where top play thrue is tested to detect cheating
+			towerBuildInfo = totable( highScoreReplayBillboard:getString("replayTableString") )
+			
+			print("towerBuildInfo: "..tostring(towerBuildInfo))
+		end
 		
 		print("BUILDER:::RETURN == true\n")
 		return true
@@ -372,7 +405,7 @@ function upgradeWallTower(param)
 	
 	local tab = totable(param)
 	local building = Core.getScriptOfNetworkName(tab.netName):getParentNode()
-	uppgradeWallTower(building, tab.buildCost, tab.upgToScripName, nil, tab.tName, true, tab.playerId )
+	uppgradeWallTower(building, 0, tab.upgToScripName, nil, tab.tName, true, tab.playerId )
 	comUnit:sendTo("SelectedMenu", "updateSelectedTower", "")
 	
 	if Core.isInMultiplayer() then
@@ -424,12 +457,13 @@ function netSellTower(paramNetworkName,doNotReturnMoney)
 		local buildingToSell = buildingScript:getParentNode()
 		local buildingValue = billBoard:getFloat("value")
 		
-		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add=nil,restore={para1=netName,func=rebuildWallTower,name="rebuildWallTower"}}
+		
+		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=paramNetworkName,func=4},restore={para1=netName,func=rebuildWallTower,name="rebuildWallTower"}}
 		
 		--print("buildingValue == "..buildingValue.."\n")
 		if this:removeBuilding( buildingToSell ) then
 			if billBoard:getBool("isNetOwner") and doNotReturnMoney ~= true then
-				comUnit:sendTo("stats", "addGold", tostring(buildingValue))
+				comUnit:sendTo("stats", "addGoldNoScore", tostring(buildingValue))
 				comUnit:sendTo("stats","addTowersSold","")
 			end
 			--comUnit:sendTo("builder", "soldTower", tostring(buildingId))
@@ -517,6 +551,13 @@ function buildTowerNetworkCallback(tab)
 end
 
 function buildTowerNetworkBuild(tab)
+	
+	
+	local script = buildings[tab.buildingId]:getScriptByName("tower")
+	local towerBilboard = script:getBillboard()
+	local buildCost = towerBilboard:getFloat("cost")
+	comUnit:sendTo("stats","removeGold",tostring(buildCost))
+	
 	buildTowerNetworkCallback(tab)
 	
 	local script = building:getScriptByName("tower")
@@ -681,27 +722,38 @@ function update()
 		
 		curentWave = Core.getBillboard("stats"):getInt("wave")
 		waveTime = Core.getGameTime()
---		print("replayData: "..tabToStrMinimal(towerBuildInfo))
 		
+		if isAReplay and curentWave == 0 then
+			waveTime = #towerBuildInfo > 1 and waveTime - towerBuildInfo[1].buildTimeFromBeginingOfWave + 3 or 0
+		end
+--		print("replayData: "..tabToStrMinimal(towerBuildInfo))
+		local statsBillboard = Core.getBillboard("stats")
+		local data = {gold=statsBillboard:getDouble("gold"),score=statsBillboard:getDouble("score"),life=statsBillboard:getDouble("life")}
+		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add=nil,restore=nil,data=data}
 	end
 	
-	if Core.getInput():getKeyDown(Key.y) then
-		sendHightScoreToTheServer()
-	end
-	
---	local timeoffset = (Core.getGameTime()-waveTime)
---	while towerBuildInfo[replayIndex] and (towerBuildInfo[replayIndex].wave < curentWave or (towerBuildInfo[replayIndex].wave == curentWave and towerBuildInfo[replayIndex].buildTimeFromBeginingOfWave < timeoffset)) do
---		
---		local addData = towerBuildInfo[replayIndex].add
---		functionList[addData.func](addData.para1)
---		
---		if towerBuildInfo[replayIndex].cost then
---			comUnit:sendTo("stats","removeGold",towerBuildInfo[replayIndex].cost)
---		end
---		
---		towerBuildInfo[replayIndex] = nil
---		replayIndex = replayIndex + 1
+--	if Core.getInput():getKeyDown(Key.y) then
+--		sendHightScoreToTheServer()
 --	end
+	
+	if isAReplay then
+		local timeoffset = (Core.getGameTime()-waveTime)
+		print("curentWave: "..curentWave.." timeoffset: "..timeoffset)
+		while towerBuildInfo[replayIndex] and (towerBuildInfo[replayIndex].wave < curentWave or (towerBuildInfo[replayIndex].wave == curentWave and towerBuildInfo[replayIndex].buildTimeFromBeginingOfWave < timeoffset)) do
+			
+			local addData = towerBuildInfo[replayIndex].add
+			if addData ~= nil then
+				functionList[addData.func](addData.para1)
+				
+				if towerBuildInfo[replayIndex].cost then
+					comUnit:sendTo("stats","removeGold",towerBuildInfo[replayIndex].cost)
+				end
+			end
+			
+			towerBuildInfo[replayIndex] = nil
+			replayIndex = replayIndex + 1
+		end
+	end
 	
 	if Core.getInput():getKeyHeld(Key.lshift) or stateBillboard:getBool("inMenu") then
 		noMoneyIcon:setVisible(false)
@@ -761,7 +813,7 @@ function update()
 				if Core.isInMultiplayer() then
 					comUnit:sendNetworkSyncSafe("NET",tabToStrMinimal(tab))
 				else
-					towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=2},restore={para1=towerName,para2=true,func=sellTowerAddNoEvent,name="Sell Building"}}
+					towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=2},restore={para1=towerName,para2=true,func=sellTowerAddNoEvent,name="Sell Building"}}
 				end
 				
 				building:setSceneName(towerBilboard:getString("Name"))
@@ -833,6 +885,8 @@ function update()
 						--get the script file name
 						local scriptName = buildingScript:getFileName()
 						
+						
+						
 						uppgradeWallTower(building, buildingCost, scriptName, newBuildingMatrix, tab.tName, true)
 						
 						readyToPlay[0] = true
@@ -846,7 +900,7 @@ function update()
 							local buildData = {curentName, buildingCost, scriptName, newBuildingMatrix, tab.tName, true}
 							local downGradeData = {netName = tab.tName, upgToScripName = "Tower/WallTower.lua", tName = tab.netName, playerId = Core.getPlayerId(), buildCost=0}
 							
-							towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=buildCost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=buildData,func=3},restore={para1=downGradeData,func=upgradeWallTower,name="WallTowerupgrade"}}
+							towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=buildData,func=3},restore={para1=downGradeData,func=upgradeWallTower,name="WallTowerupgrade"}}
 						end
 						
 						if targetAreaName == "cone" then

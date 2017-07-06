@@ -27,6 +27,7 @@ function Upgrade.new()
 	local interpolation = 0.0	--when leveling mode is active
 	local comUnit = Core.getComUnit()
 	local bilboardStats = Core.getBillboard("stats")
+	local ignoreUpgrade = true
 	
 	--real version:
 	--billboard(cost) = 150
@@ -199,6 +200,7 @@ function Upgrade.new()
 		--print("self.upgrade( "..name.." )")
 		--assert(upgradesAvailable[name],"no upgrade available with name:\""..name.."\" in upgradesAvailable:"..tostring(upgradesAvailable))
 		--add cost to value
+		
 		local order = upgradesAvailable[name][1].order
 		local prevInterpolation = interpolation
 		interpolation = 0.0--interpolations must be 0 when upgrading
@@ -212,13 +214,19 @@ function Upgrade.new()
 			subUpgradeCount = subUpgradeCount - ((name=="upgrade" or name=="boost" or name=="calculate" or name=="range" or name=="gold" or name=="supportRange" or name=="supportDamage" or name=="smartTargeting") and 0 or 1)
 			freeSubUpgradesCount = math.max(0,freeSubUpgradesCount - 1)
 		else
-			if name=="upgrade" then
-				local lCost = (upgraded[order] and upgradesAvailable[name][upgraded[order].level+1].cost or upgradesAvailable[name][1].cost)
-				upgradeDiscount = 0.0
-				totalCost = totalCost + lCost
+			local lCost = (upgraded[order] and upgradesAvailable[name][upgraded[order].level+1].cost or upgradesAvailable[name][1].cost)
+			totalCost = totalCost + lCost
+			
+			if ignoreUpgrade == false then
+				print("# upgrade: "..name)
+				print("# cost: "..lCost)
+				comUnit:sendTo("stats","removeGold",tostring(lCost))
 			else
-				local lCost = (upgraded[order] and  upgradesAvailable[name][upgraded[order].level+1].cost or upgradesAvailable[name][1].cost)
-				totalCost = totalCost + lCost
+				ignoreUpgrade = false
+			end
+			
+			if name=="upgrade" then
+				upgradeDiscount = 0.0
 			end
 		end
 		billboard:setFloat("value", totalCost*valueEfficiency)--value)

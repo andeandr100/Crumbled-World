@@ -74,6 +74,18 @@ function CampaignGameMenu.new(panel)
 		end
 		updateRewardInfo()
 	end
+	local function updateHighScorePanel()
+		if mainPanel:getVisible() then 
+			scoreArea:clear()
+			local labelColor = Vec4(0.9,0.9,0.9,1.0)
+			local highScoreTable = Core.getHighScoreList(levelInfo.getMapName(),levelInfo.getLevel(),levelInfo.getGameMode())
+			for i=1, math.min(9,#highScoreTable) do
+				local row = scoreArea:add(Panel(PanelSize(Vec2(-1))))
+				row:add(Label(PanelSize(Vec2(-0.75,-1)), highScoreTable[i].name, labelColor))
+				row:add(Label(PanelSize(Vec2(-1,-1)), tostring(highScoreTable[i].score), labelColor))
+			end
+		end
+	end
 	local function updateIcons()
 		for i=1, #files do
 			if campaignData.isMapAvailable(i)>0 then
@@ -110,6 +122,7 @@ function CampaignGameMenu.new(panel)
 			updateRewardInfo()
 			--
 			difficutyBox.setIndex(index)
+			updateHighScorePanel()
 		end
 	end
 	local function fillDificulty(levels,currentLevel)
@@ -147,9 +160,10 @@ function CampaignGameMenu.new(panel)
 		local mNum = getMapIndex(filePath)
 		if mNum>=1 then
 			local mapFile = File(filePath)
-		
+			
 			if mapFile:isFile() and files[mNum].available then
 				levelInfo.setMapNumber(mNum)
+				levelInfo.setMapName(mapFile:getName())
 				levelInfo.setSead(files[mNum].sead)
 				--set current active map
 				selectedFile = filePath
@@ -177,6 +191,7 @@ function CampaignGameMenu.new(panel)
 				selectedButton = files[mNum].button
 				setSelectedButtonColor(files[mNum].button)
 				fillDificulty()
+				updateHighScorePanel()
 			else
 				--error or not available
 				print("changeMapTo("..filePath..") = false")
@@ -307,6 +322,7 @@ function CampaignGameMenu.new(panel)
 		--
 		updateIcons()
 		updateRewardInfo()
+		updateHighScorePanel()
 	end
 
 	local function startMap(button)
@@ -392,11 +408,32 @@ function CampaignGameMenu.new(panel)
 		labels[4]:setTag("start game")
 		
 		--	Spacing
-		infoPanel:add(Panel(PanelSize(Vec2(-1,-0.75))))
+		local highScorePanel = infoPanel:add(Panel(PanelSize(Vec2(-1,-0.85))))
+		
+		highScorePanel:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
+		local borderPanel = highScorePanel:add(Panel(PanelSize(Vec2(-0.96,-0.98))))
+		borderPanel:setLayout(FallLayout())
+		borderPanel:setBorder(Border(BorderSize(Vec4(2),PanelSizeType.Pixel), Vec3(0.3)))
+		borderPanel:setBackground(Gradient(Vec3(0.15),Vec3(0.1)))
+		--add header
+		local scoreHeader = borderPanel:add(Panel(PanelSize(Vec2(-1,-0.1))))
+		local labelColor = Vec4(0.9,0.9,0.9,1.0)
+		scoreHeader:add(Label(PanelSize(Vec2(-0.75,-1)), language:getText("name"), labelColor))
+		scoreHeader:add(Label(PanelSize(Vec2(-1,-1)), language:getText("score"), labelColor))
+		local scoreLine = borderPanel:add(Panel(PanelSize(Vec2(-1,1),PanelSizeType.Pixel)))		
+		scoreLine:setBackground(Sprite(Vec3(0.3)))
+		scoreArea = borderPanel:add(Panel(PanelSize(Vec2(-1))))
+		scoreArea:setLayout(GridLayout(9,1))
+		
+		
+		
+		
 		--
 		--	shop button
 		--
-		local shopButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("shop")))
+		local shopPanel = infoPanel:add(Panel(PanelSize(Vec2(-1,-1))))
+		shopPanel:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
+		local shopButton = shopPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("shop")))
 		shopButton:addEventCallbackExecute(showShop)
 		labels[6] = shopButton
 		labels[6]:setTag("shop")
@@ -499,10 +536,16 @@ function CampaignGameMenu.new(panel)
 			print("mainPanel:setVisible("..tostring(set)..")\n")
 			mainPanel:setVisible(set)
 			windowShop.setVisible(false)
+			if set then
+				updateHighScorePanel()
+			end
 		else
 			print("mainPanel:setVisible("..tostring(set2)..")\n")
 			mainPanel:setVisible(set2)
 			windowShop.setVisible(false)
+			if set then
+				updateHighScorePanel()
+			end
 		end
 	end
 	--

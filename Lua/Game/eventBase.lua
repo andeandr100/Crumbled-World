@@ -425,6 +425,9 @@ function EventBase.new()
 	local function syncEvent(param)
 		local tab = totable(param)
 		--assert(not Core.getNetworkClient():isAdmin(),"Admin should not receive this message")
+		if tab.numWaves == 0 then
+			abort()
+		end
 		self.generateWaves(tab.numWaves, tab.difficultBase, tab.difficultIncreaser, tab.startSpawnWindow, tab.globalSeed)
 	end
 	local function syncChangeWave(param)
@@ -987,6 +990,10 @@ function EventBase.new()
 			--average first
 			--stats.setValueComplete({"average","init"},1)
 			--
+			if #waves == 0 then
+				print("waves: "..pNumWaves)
+				abort()
+			end
 			comUnit:sendTo("statsMenu","waveInfo",waves)
 			--
 			soundWind:playSound(0.055,true)
@@ -1084,159 +1091,171 @@ function EventBase.new()
 					comUnit:sendTo("SteamAchievement","MaxWaveFinished",waveCount)
 					--
 					local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
-
-					comUnit:sendTo("Builder", "addHighScore","")
-					comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("totalGoldEarned"))
-					comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
-					comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("totalGoldInterestEarned"))
-					comUnit:sendTo("SteamStats","SaveStats","")
-					if script and bilboardStats:getInt("life")>0 then 
-						local mapInfo = MapInfo.new()
-						--victory
-						if mapInfo.isCampaign() then
-							cData.addCrystal(mapInfo.getReward())
-						end
-						--set level that was finished to allow harder difficulty level
-						cData.setLevelCompleted(mapInfo.getMapNumber(),mapFinishingLevel,mapInfo.getGameMode())
-						--
-						-- Achievements
-						--
-						--game modes
-						if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="default" then
-							comUnit:sendTo("SteamAchievement","BeatDefaultInsane","")
-						end
-						if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="training" then
-							comUnit:sendTo("SteamAchievement","BeatTrainingInsane","")
-						end
-						if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="leveler" then
-							comUnit:sendTo("SteamAchievement","BeatLevelerInsane","")
-						end
-						if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="only interest" then
-							comUnit:sendTo("SteamAchievement","BeatInflationInsane","")
-						end
-						--Flawless game
-						if mapInfo.getLevel()>=5 then
-							comUnit:sendTo("SteamStats","MaxLifeAtEndOfMapOnInsane",bilboardStats:getInt("life"))
-						end
-						--purity
-						local minigunBuilt = bilboardStats:exist("minigunTowerBuilt")
-						local arrowBuilt = bilboardStats:exist("arrowTowerBuilt")
-						local swarmBuilt = bilboardStats:exist("swarmTowerBuilt")
-						local electricBuilt = bilboardStats:exist("electricTowerBuilt")
-						local bladeBuilt = bilboardStats:exist("bladeTowerBuilt")
-						local quakeBuilt = bilboardStats:exist("quakeTowerBuilt")
-						local missileBuilt = bilboardStats:exist("missileTowerBuilt")
-						local supportBuilt = bilboardStats:exist("supportTowerBuilt")
-						local soldTowers = bilboardStats:getInt("towersSold")
-						local towerBuilt = bilboardStats:getInt("minigunTowerBuilt") + bilboardStats:getInt("arrowTowerBuilt") + bilboardStats:getInt("swarmTowerBuilt") + bilboardStats:getInt("electricTowerBuilt") + bilboardStats:getInt("bladeTowerBuilt") + bilboardStats:getInt("quakeTowerBuilt") + bilboardStats:getInt("missileTowerBuilt") + bilboardStats:getInt("supportTowerBuilt") - soldTowers
-						if minigunBuilt and not (arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
-							comUnit:sendTo("SteamAchievement","MinigunOnly","")
-						elseif arrowBuilt and not (minigunBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
-							comUnit:sendTo("SteamAchievement","CrossbowOnly","")
-						elseif swarmBuilt and not (minigunBuilt or arrowBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
-							comUnit:sendTo("SteamAchievement","SwarmOnly","")
-						elseif electricBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
-							comUnit:sendTo("SteamAchievement","ElectricOnly","")
-						elseif quakeBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or bladeBuilt or missileBuilt or supportBuilt) then
-							comUnit:sendTo("SteamAchievement","QuakeOnly","")
-						elseif bladeBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or missileBuilt or supportBuilt) then
-							comUnit:sendTo("SteamAchievement","BladeOnly","")
-						elseif missileBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or supportBuilt) then
-							comUnit:sendTo("SteamAchievement","MissileOnly","")
-						end
-						if minigunBuilt and arrowBuilt and swarmBuilt and electricBuilt and quakeBuilt and bladeBuilt and missileBuilt and supportBuilt then
-							comUnit:sendTo("SteamAchievement","OneOfEverything","")
-						end
-						if soldTowers==0 then
-							comUnit:sendTo("SteamAchievement","NoSelling","")
-						end
-						if towerBuilt>=25 then
-							comUnit:sendTo("SteamAchievement","Army","")
-						end
-						--
-						if bilboardStats:getInt("level3")==0 and bilboardStats:getInt("level2")==0 then
-							comUnit:sendTo("SteamAchievement","OnlyGreen","")
-						end
-						if bilboardStats:getInt("level3")==towerBuilt then
-							comUnit:sendTo("SteamAchievement","OnlyRed","")
-						end
-						if isCartMap and bilboardStats:exist("mineCartIsMoved")==false then
-							comUnit:sendTo("SteamAchievement","MineCartUntouched","")
-						end
-						--
-						if waveCount==20 and towerBuilt<=5 then
-							comUnit:sendTo("SteamAchievement","TinySystem","")
-						end
-						if mapInfo.getLevel()>=3 then
-							print("Map: "..mapInfo.getMapName())
-							if mapInfo.getMapName()=="Beginning" then
-								comUnit:sendTo("SteamAchievement","MapBeginning","")
-							elseif mapInfo.getMapName()=="Blocked path" then
-								comUnit:sendTo("SteamAchievement","MapBlockedPath","")
-							elseif mapInfo.getMapName()=="Bridges" then
-								comUnit:sendTo("SteamAchievement","MapBridges","")
-							elseif mapInfo.getMapName()=="Crossroad" then
-								comUnit:sendTo("SteamAchievement","MapCrossroad","")
-							elseif mapInfo.getMapName()=="Divided" then
-								comUnit:sendTo("SteamAchievement","MapDivided","")
-							elseif mapInfo.getMapName()=="Dock" then
-								comUnit:sendTo("SteamAchievement","MapDock","")
-							elseif mapInfo.getMapName()=="Expansion" then
-								comUnit:sendTo("SteamAchievement","MapExpansion","")
-							elseif mapInfo.getMapName()=="Intrusion" then
-								comUnit:sendTo("SteamAchievement","MapIntrusion","")
-							elseif mapInfo.getMapName()=="Long haul" then
-								comUnit:sendTo("SteamAchievement","MapLongHaul","")
-							elseif mapInfo.getMapName()=="Mine" then
-								comUnit:sendTo("SteamAchievement","MapMine","")
-							elseif mapInfo.getMapName()=="Nature" then
-								comUnit:sendTo("SteamAchievement","MapNature","")
-							elseif mapInfo.getMapName()=="Paths" then
-								comUnit:sendTo("SteamAchievement","MapPaths","")
-							elseif mapInfo.getMapName()=="Plaza" then
-								comUnit:sendTo("SteamAchievement","MapPlaza","")
-							elseif mapInfo.getMapName()=="Repair station" then
-								comUnit:sendTo("SteamAchievement","MapRepairStation","")
-							elseif mapInfo.getMapName()=="Rifted" then
-								comUnit:sendTo("SteamAchievement","MapRifted","")
-							elseif mapInfo.getMapName()=="Spiral" then
-								comUnit:sendTo("SteamAchievement","MapSpiral","")
-							elseif mapInfo.getMapName()=="Stockpile" then
-								comUnit:sendTo("SteamAchievement","MapStockpile","")
-							elseif mapInfo.getMapName()=="The end" then
-								comUnit:sendTo("SteamAchievement","MapTheEnd","")
-							elseif mapInfo.getMapName()=="The line" then
-								comUnit:sendTo("SteamAchievement","MapTheLine","")
-							elseif mapInfo.getMapName()=="Town" then
-								comUnit:sendTo("SteamAchievement","MapTown","")
-							elseif mapInfo.getMapName()=="Train station" then
-								comUnit:sendTo("SteamAchievement","MapTrainStation","")
-							elseif mapInfo.getMapName()=="Square" then
-								comUnit:sendTo("SteamAchievement","MapSquare","")
-							elseif mapInfo.getMapName()=="Co-op Crossfire" then
-								comUnit:sendTo("SteamAchievement","MapCo-opCrossfire","")
-							elseif mapInfo.getMapName()=="Co-op Hub world" then
-								comUnit:sendTo("SteamAchievement","	MapCo-opHubWorld","")
-							elseif mapInfo.getMapName()=="Co-op Outpost" then
-								comUnit:sendTo("SteamAchievement","MapCo-opOutpost","")
-							elseif mapInfo.getMapName()=="Co-op Survival beginnings" then
-								comUnit:sendTo("SteamAchievement","MapCo-opSurvivalBeginnings","")
-							elseif mapInfo.getMapName()=="Co-op Survival frontline" then
-								comUnit:sendTo("SteamAchievement","MapCo-opSurvivalFrontline","")
-							elseif mapInfo.getMapName()=="Co-op The road" then
-								comUnit:sendTo("SteamAchievement","MapCo-opTheRoad","")
-							elseif mapInfo.getMapName()=="Co-op The tiny road" then
-								comUnit:sendTo("SteamAchievement","MapCo-opTheTinyRoad","")
-							elseif mapInfo.getMapName()=="Co-op Triworld" then
-								comUnit:sendTo("SteamAchievement","MapCo-opTriworld","")
-							elseif mapInfo.getMapName()=="Co-op Triworld" then
-								comUnit:sendTo("SteamAchievement","MapBrokenMine","")
-							elseif mapInfo.getMapName()=="Co-op Triworld" then
-								comUnit:sendTo("SteamAchievement","MapDumpStation","")
+					
+					local highScoreBillBoard = Core.getGlobalBillboard("highScoreReplay")
+					highScoreBillBoard:setBool("victory", bilboardStats:getInt("life") > 0)
+					highScoreBillBoard:setInt("score", bilboardStats:getInt("score"))
+					highScoreBillBoard:setInt("life", bilboardStats:getInt("life"))
+					highScoreBillBoard:setDouble("gold", bilboardStats:getInt("gold"))
+					
+					if highScoreBillBoard:getBool("replay") then
+						Worker("Menu/loadingScreen.lua", true)
+						Core.quitToMainMenu()
+					else
+					
+						comUnit:sendTo("builder", "sendHightScoreToTheServer","")
+						comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("totalGoldEarned"))
+						comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
+						comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("totalGoldInterestEarned"))
+						comUnit:sendTo("SteamStats","SaveStats","")
+						if script and bilboardStats:getInt("life")>0 then 
+							local mapInfo = MapInfo.new()
+							--victory
+							if mapInfo.isCampaign() then
+								cData.addCrystal(mapInfo.getReward())
 							end
+							--set level that was finished to allow harder difficulty level
+							cData.setLevelCompleted(mapInfo.getMapNumber(),mapFinishingLevel,mapInfo.getGameMode())
+							--
+							-- Achievements
+							--
+							--game modes
+							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="default" then
+								comUnit:sendTo("SteamAchievement","BeatDefaultInsane","")
+							end
+							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="training" then
+								comUnit:sendTo("SteamAchievement","BeatTrainingInsane","")
+							end
+							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="leveler" then
+								comUnit:sendTo("SteamAchievement","BeatLevelerInsane","")
+							end
+							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="only interest" then
+								comUnit:sendTo("SteamAchievement","BeatInflationInsane","")
+							end
+							--Flawless game
+							if mapInfo.getLevel()>=5 then
+								comUnit:sendTo("SteamStats","MaxLifeAtEndOfMapOnInsane",bilboardStats:getInt("life"))
+							end
+							--purity
+							local minigunBuilt = bilboardStats:exist("minigunTowerBuilt")
+							local arrowBuilt = bilboardStats:exist("arrowTowerBuilt")
+							local swarmBuilt = bilboardStats:exist("swarmTowerBuilt")
+							local electricBuilt = bilboardStats:exist("electricTowerBuilt")
+							local bladeBuilt = bilboardStats:exist("bladeTowerBuilt")
+							local quakeBuilt = bilboardStats:exist("quakeTowerBuilt")
+							local missileBuilt = bilboardStats:exist("missileTowerBuilt")
+							local supportBuilt = bilboardStats:exist("supportTowerBuilt")
+							local soldTowers = bilboardStats:getInt("towersSold")
+							local towerBuilt = bilboardStats:getInt("minigunTowerBuilt") + bilboardStats:getInt("arrowTowerBuilt") + bilboardStats:getInt("swarmTowerBuilt") + bilboardStats:getInt("electricTowerBuilt") + bilboardStats:getInt("bladeTowerBuilt") + bilboardStats:getInt("quakeTowerBuilt") + bilboardStats:getInt("missileTowerBuilt") + bilboardStats:getInt("supportTowerBuilt") - soldTowers
+							if minigunBuilt and not (arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
+								comUnit:sendTo("SteamAchievement","MinigunOnly","")
+							elseif arrowBuilt and not (minigunBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
+								comUnit:sendTo("SteamAchievement","CrossbowOnly","")
+							elseif swarmBuilt and not (minigunBuilt or arrowBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
+								comUnit:sendTo("SteamAchievement","SwarmOnly","")
+							elseif electricBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
+								comUnit:sendTo("SteamAchievement","ElectricOnly","")
+							elseif quakeBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or bladeBuilt or missileBuilt or supportBuilt) then
+								comUnit:sendTo("SteamAchievement","QuakeOnly","")
+							elseif bladeBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or missileBuilt or supportBuilt) then
+								comUnit:sendTo("SteamAchievement","BladeOnly","")
+							elseif missileBuilt and not (minigunBuilt or arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or supportBuilt) then
+								comUnit:sendTo("SteamAchievement","MissileOnly","")
+							end
+							if minigunBuilt and arrowBuilt and swarmBuilt and electricBuilt and quakeBuilt and bladeBuilt and missileBuilt and supportBuilt then
+								comUnit:sendTo("SteamAchievement","OneOfEverything","")
+							end
+							if soldTowers==0 then
+								comUnit:sendTo("SteamAchievement","NoSelling","")
+							end
+							if towerBuilt>=25 then
+								comUnit:sendTo("SteamAchievement","Army","")
+							end
+							--
+							if bilboardStats:getInt("level3")==0 and bilboardStats:getInt("level2")==0 then
+								comUnit:sendTo("SteamAchievement","OnlyGreen","")
+							end
+							if bilboardStats:getInt("level3")==towerBuilt then
+								comUnit:sendTo("SteamAchievement","OnlyRed","")
+							end
+							if isCartMap and bilboardStats:exist("mineCartIsMoved")==false then
+								comUnit:sendTo("SteamAchievement","MineCartUntouched","")
+							end
+							--
+							if waveCount==20 and towerBuilt<=5 then
+								comUnit:sendTo("SteamAchievement","TinySystem","")
+							end
+							if mapInfo.getLevel()>=3 then
+								print("Map: "..mapInfo.getMapName())
+								if mapInfo.getMapName()=="Beginning" then
+									comUnit:sendTo("SteamAchievement","MapBeginning","")
+								elseif mapInfo.getMapName()=="Blocked path" then
+									comUnit:sendTo("SteamAchievement","MapBlockedPath","")
+								elseif mapInfo.getMapName()=="Bridges" then
+									comUnit:sendTo("SteamAchievement","MapBridges","")
+								elseif mapInfo.getMapName()=="Crossroad" then
+									comUnit:sendTo("SteamAchievement","MapCrossroad","")
+								elseif mapInfo.getMapName()=="Divided" then
+									comUnit:sendTo("SteamAchievement","MapDivided","")
+								elseif mapInfo.getMapName()=="Dock" then
+									comUnit:sendTo("SteamAchievement","MapDock","")
+								elseif mapInfo.getMapName()=="Expansion" then
+									comUnit:sendTo("SteamAchievement","MapExpansion","")
+								elseif mapInfo.getMapName()=="Intrusion" then
+									comUnit:sendTo("SteamAchievement","MapIntrusion","")
+								elseif mapInfo.getMapName()=="Long haul" then
+									comUnit:sendTo("SteamAchievement","MapLongHaul","")
+								elseif mapInfo.getMapName()=="Mine" then
+									comUnit:sendTo("SteamAchievement","MapMine","")
+								elseif mapInfo.getMapName()=="Nature" then
+									comUnit:sendTo("SteamAchievement","MapNature","")
+								elseif mapInfo.getMapName()=="Paths" then
+									comUnit:sendTo("SteamAchievement","MapPaths","")
+								elseif mapInfo.getMapName()=="Plaza" then
+									comUnit:sendTo("SteamAchievement","MapPlaza","")
+								elseif mapInfo.getMapName()=="Repair station" then
+									comUnit:sendTo("SteamAchievement","MapRepairStation","")
+								elseif mapInfo.getMapName()=="Rifted" then
+									comUnit:sendTo("SteamAchievement","MapRifted","")
+								elseif mapInfo.getMapName()=="Spiral" then
+									comUnit:sendTo("SteamAchievement","MapSpiral","")
+								elseif mapInfo.getMapName()=="Stockpile" then
+									comUnit:sendTo("SteamAchievement","MapStockpile","")
+								elseif mapInfo.getMapName()=="The end" then
+									comUnit:sendTo("SteamAchievement","MapTheEnd","")
+								elseif mapInfo.getMapName()=="The line" then
+									comUnit:sendTo("SteamAchievement","MapTheLine","")
+								elseif mapInfo.getMapName()=="Town" then
+									comUnit:sendTo("SteamAchievement","MapTown","")
+								elseif mapInfo.getMapName()=="Train station" then
+									comUnit:sendTo("SteamAchievement","MapTrainStation","")
+								elseif mapInfo.getMapName()=="Square" then
+									comUnit:sendTo("SteamAchievement","MapSquare","")
+								elseif mapInfo.getMapName()=="Co-op Crossfire" then
+									comUnit:sendTo("SteamAchievement","MapCo-opCrossfire","")
+								elseif mapInfo.getMapName()=="Co-op Hub world" then
+									comUnit:sendTo("SteamAchievement","	MapCo-opHubWorld","")
+								elseif mapInfo.getMapName()=="Co-op Outpost" then
+									comUnit:sendTo("SteamAchievement","MapCo-opOutpost","")
+								elseif mapInfo.getMapName()=="Co-op Survival beginnings" then
+									comUnit:sendTo("SteamAchievement","MapCo-opSurvivalBeginnings","")
+								elseif mapInfo.getMapName()=="Co-op Survival frontline" then
+									comUnit:sendTo("SteamAchievement","MapCo-opSurvivalFrontline","")
+								elseif mapInfo.getMapName()=="Co-op The road" then
+									comUnit:sendTo("SteamAchievement","MapCo-opTheRoad","")
+								elseif mapInfo.getMapName()=="Co-op The tiny road" then
+									comUnit:sendTo("SteamAchievement","MapCo-opTheTinyRoad","")
+								elseif mapInfo.getMapName()=="Co-op Triworld" then
+									comUnit:sendTo("SteamAchievement","MapCo-opTriworld","")
+								elseif mapInfo.getMapName()=="Co-op Triworld" then
+									comUnit:sendTo("SteamAchievement","MapBrokenMine","")
+								elseif mapInfo.getMapName()=="Co-op Triworld" then
+									comUnit:sendTo("SteamAchievement","MapDumpStation","")
+								end
+							end
+							--
+							script:callFunction("victory")
 						end
-						--
-						script:callFunction("victory")
 					end
 				end
 				update = endlessUpdate
@@ -1252,18 +1271,25 @@ function EventBase.new()
 		
 		if bilboardStats then
 			if bilboardStats:getInt("life") <= 0 and (Core.getGameTime()-startTime) > 1.0 then
-				if not eventBaserunOnlyOnce then
+				local highScoreBillBoard = Core.getGlobalBillboard("highScoreReplay")
+				local isAReplay = highScoreBillBoard:getBool("replay")
+				if not eventBaserunOnlyOnce and isAReplay == false then
 					eventBaserunOnlyOnce = true
 					if this:getPlayerNode() then
+						
+						highScoreBillBoard:setBool("victory", false)
+						highScoreBillBoard:setInt("score", bilboardStats:getInt("score"))
+						highScoreBillBoard:setInt("life", bilboardStats:getInt("life"))
+						highScoreBillBoard:setDouble("gold", bilboardStats:getInt("gold"))
+						
 						local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
 						if script then 
 							script:callFunction("defeated")
 						end
+						
 					end
---					if not Core.isInEditor() and not DEBUG then
-						update = endlessUpdate
-						return true
---					end
+					update = endlessUpdate
+					return true
 				end
 			end
 		else
@@ -1279,6 +1305,7 @@ function EventBase.new()
 				statsBilboard = Core.getBillboard("stats")
 				comUnit:sendTo("stats", "addGold", tostring(statsBilboard:getDouble("gold")+500.0))
 				saveStats = false
+				Core.getGlobalBillboard("highScoreReplay"):setBool("saveHighScore",saveStats)
 			end
 			if Core.getInput():getKeyPressed(Key.o) then
 				spawnNextGroup()

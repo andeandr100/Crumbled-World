@@ -124,7 +124,7 @@ function update()
 			
 			if Core.getInput():getMouseDown(MouseKey.left) then
 				comUnit:sendTo(script:getIndex(), "setRotateTarget", ""..direction.x..","..direction.y..","..direction.z)
-				--comUnit:sendTo("builder", "setBuildingTargetVec", ""..tostring(this:getId())..";"..direction.x..","..direction.y..","..direction.z)
+				comUnit:sendTo("builder", "setBuildingTargetVec", tabToStrMinimal({netName=script:getNetworkName(),para=tostring(direction.x)..","..direction.y..","..direction.z}))
 				targetArea.destroyTargetMesh()
 				buildingBillboard:setBool("canBuildAndSelect", true)
 				towerBilboard:setBool("HasBeenSuccessfullyPlaced", true)

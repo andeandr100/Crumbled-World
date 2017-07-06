@@ -54,6 +54,14 @@ end
 function uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, newLocalBuildngMatrix, networkName, isOwner, playerId, disableRotatorScript)
 	--buildingToUpgrade = SceneNode()
 	--upgradeToBuilding = SCeneNode()
+	
+	local towerCost = 200
+	for i=1, #buildings do
+		local towerScript = buildings[i]:getScriptByName("tower")
+		if towerScript:getFileName() == scriptName then
+			towerCost = towerScript:getBillboard():getFloat("cost")
+		end
+	end
 
 	print("\n\n\nShow Node\n")
 	if scriptName and buildingToUpgrade then		
@@ -98,9 +106,12 @@ function uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, newLocalBui
 				end
 				--
 				towerBuiltSteamStats(buildingScript)
-				buildCost = buildCost or 0
 				--remove cost of the new tower
-				comUnit:sendTo("stats","removeGold",tostring( math.max( buildCost - wallTowerCost, 0)))		
+				if towerCost > wallTowerCost then 
+					comUnit:sendTo("stats","removeGold",tostring( math.max( towerCost - wallTowerCost, 0)))		
+				else
+					comUnit:sendTo("stats","addGoldNoScore",tostring( math.max( wallTowerCost - towerCost, 0)))	
+				end
 				comUnit:sendTo(buildingScript:getIndex(),"NetOwner","YES")
 			else
 				comUnit:sendTo(buildingScript:getIndex(),"NetOwner","NO")
