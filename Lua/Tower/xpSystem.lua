@@ -21,6 +21,7 @@ function XpSystem.new(upg)
 	local currentWave = 0
 	local xpBonusMul = 1.0
 	local particleEffectUpgradeAvailable = ParticleSystem( ParticleEffect.upgradeAvailable )
+	local particleEffectTowerUpgraded = ParticleSystem( ParticleEffect.towerUpgraded)
 	local SUBUPGRADE = 1
 	local MAINUPGRADE = 2
 	local whatIsLeveling = MAINUPGRADE
@@ -193,6 +194,7 @@ function XpSystem.new(upg)
 					upgrade.addFreeSubUpgrade()
 				else
 					xpCallback(tostring(xpForLevel))
+					particleEffectTowerUpgraded:activate(Vec3(0,1.5,0))
 				end
 				xpSetUpgradeDiscount(0.0)
 				self.updateXpToNextLevel()
@@ -216,6 +218,7 @@ function XpSystem.new(upg)
 	-- purpose:		creates everything needed to run the xpSystem
 	local function init()
 		this:addChild(particleEffectUpgradeAvailable)
+		this:addChild(particleEffectTowerUpgraded)
 		self.addXp(0)
 	end
 	init()
