@@ -14,10 +14,11 @@ function TheSoul.new()
 	local speedCurrent = 2.0
 	local fire = TimedValues.new()
 	local fireDamageScoreTo = {}	--LUA_INDEX to who the damage should go
-	local fireDPSImunity = false
+	local fireDPSImmunity = false
 	local fireResistance = 0.0
-	local slowImunity = false
+	local slowImmunity = false
 	local electricResistance = 0.0
+	local markOfGoldImmunity = false
 	local markOfGold = TimedValues.new()
 	local markOfGoldOwner = TimedValues.new()
 	local markOfDeath = TimedValues.new()
@@ -134,16 +135,21 @@ function TheSoul.new()
 		end
 	end
 	-- function:	setResistance
-	-- purpose:		to set resistance/imunity to the elements fire/electric
+	-- purpose:		to set resistance/immunity to the elements fire/electric
 	--fire = [0,INF]  fire>1.0 will heal npc when taking fire damage
-	--fireDPSImunity == if true npc can't burn
-	--slowImunity == if true npc can't be slowed
+	--fireDPSImmunity == if true npc can't burn
+	--slowImmunity == if true npc can't be slowed
 	--electric = [0,INF]  electric>1.0 will heal npc when taking electric damage
 	function self.setResistance(fireRes,fireDPSImun,slowImun,electricRes)
 		fireResistance = fireRes
-		fireDPSImunity = fireDPSImun
+		fireDPSImmunity = fireDPSImun
 		electricResistance = electricRes
-		slowImunity = slowImun
+		slowImmunity = slowImun
+	end
+	-- function:	setMarkOfGoldImmunity
+	-- purpose:		to set immunity agains gold gain
+	function self.setMarkOfGoldImmunity(set)
+		markOfGoldImmunity = set
 	end
 	-- function:	soulHasDied
 	-- purpose:		turn off effects as the npc has died
@@ -312,7 +318,7 @@ function TheSoul.new()
 	-- function:	handleAttackedFireDPS
 	-- purpose:		handles attacks that is fire damage over time
 	local function handleAttackedFireDPS(param,fromIndex)
-		if fireDPSImunity==false and (param.type=="fire" or not isAttackedBlocked(fromIndex)) then
+		if fireDPSImmunity==false and (param.type=="fire" or not isAttackedBlocked(fromIndex)) then
 			local DPS = param.DPS
 			local timer = param.time
 			
@@ -337,7 +343,7 @@ function TheSoul.new()
 	-- function:	handleMarkOfGold
 	-- purpose:		makes the npc worht more when killed
 	local function handleMarkOfGold(param,fromIndex)
-		if param.type=="area" or not isAttackedBlocked(fromIndex) then
+		if markOfGoldImmunity==false and (param.type=="area" or not isAttackedBlocked(fromIndex)) then
 			--print("soul.handleMarkOfGold\n")
 			local goldGain = tonumber(param.goldGain)
 			local timer = tonumber(param.timer)
@@ -396,7 +402,7 @@ function TheSoul.new()
 	-- function:	functionName
 	-- purpose:		
 	local function handleSlow(param,fromIndex)
-		if param.type=="mineCart" or ((param.type=="electric" or not isAttackedBlocked(fromIndex)) and not slowImunity) then
+		if param.type=="mineCart" or ((param.type=="electric" or not isAttackedBlocked(fromIndex)) and not slowImmunity) then
 			local percentage = param.per
 			local timer = param.time
 			percentage = tonumber(percentage)
@@ -488,13 +494,13 @@ function TheSoul.new()
 			--damge the soul
 			local damageToBeDone = fire.getMaxKey()*deltaTime
 			local fireDamageFromIndex = fireDamageScoreTo[math.floor(fire.getMaxKey())]
-			if not fireDPSImunity then
+			if not fireDPSImmunity then
 				handleAttacked(damageToBeDone,fireDamageFromIndex)
 			else
 				handleAttackedFire(damageToBeDone*0.5,fireDamageFromIndex)--if fire imune then the soul will heal over time
 			end
 			--update the timer
-			if not fireDPSImunity then--particle effect only available if not immune
+			if not fireDPSImmunity then--particle effect only available if not immune
 				fire.update()
 				if fire.isEmpty() then
 					--if we lost the last fire damage, remove the effect

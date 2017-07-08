@@ -6,9 +6,15 @@ function CampaignData.new()
 	local PERMENANTBOUGHTUPGRADECOUNT = 1
 	local PERMENANTUPGCOST = 12
 	local NORMALUPGCOST = 1
-	local campaingData = Config("Campaign")
+	local campaingDataConfig = Config("Campaign")			--the real data, used for the shop
+	local campaignDataTable = campaingDataConfig:getTable()	--used for ingame/shop for getting what can be upgraded and is free
 	local maps
 	local towers = { "Tower/MinigunTower.lua", "Tower/ArrowTower.lua", "Tower/SwarmTower.lua", "Tower/ElectricTower.lua", "Tower/BladeTower.lua", "Tower/missileTower.lua", "Tower/quakerTower.lua", "Tower/SupportTower.lua" }
+	
+	local highScoreReplayBillboard = Core.getGlobalBillboard("highScoreReplay")
+	local isAReplay = highScoreReplayBillboard:getBool("replay")
+	local isInGame = Core.getBillboard("SoulManager")
+	
 	local files = { 
 		{file=File("Data/Map/Campaign/Beginning.map"), 		statId="Begining",		statIdOld="L1",		type="Crystal",	sead=258187458,	waveCount=10},--5500
 		{file=File("Data/Map/Campaign/Intrusion.map"), 		statId="Intrusion",		statIdOld="L2",		type="Crystal",	sead=334652485,	waveCount=15},--8500
@@ -39,24 +45,34 @@ function CampaignData.new()
 		--
 		--backward compability
 		--
-		local list = campaingData:get("mapsFinished")
+		local tab = campaingDataConfig:get("mapsFinished")
 		for i=1, #files do
-			if files[i].statIdOld and list:exist(files[i].statIdOld) then
-				list:renameChild(files[i].statIdOld,files[i].statId)
+			if files[i].statIdOld and tab:exist(files[i].statIdOld) then
+				tab:renameChild(files[i].statIdOld,files[i].statId)
 			end
 		end
-		campaingData:save()
+		campaingDataConfig:save()
+		campaignDataTable = campaingDataConfig:getTable()
+		if isInGame then
+			if isAReplay then
+				--used stored data
+				campaignDataTable = totable( highScoreReplayBillboard:getString("shopInfo") )
+			else
+				--store the shop data
+				highScoreReplayBillboard:setString("shopInfo", tabToStrMinimal(campaignDataTable))
+			end
+		end
 		--
 	end
 	init()
 	--
 	function self.fixCrystalLimits()
-		if campaingData:get("crystal",0):getInt()>self.getMaxGoldNeededToUnlockEverything() then
-			campaingData:get("crystal"):setInt(self.getMaxGoldNeededToUnlockEverything())
+		if campaingDataConfig:get("crystal",0):getInt()>self.getMaxGoldNeededToUnlockEverything() then
+			campaingDataConfig:get("crystal"):setInt(self.getMaxGoldNeededToUnlockEverything())
 		end
 	end
 	function self.getCrystal()
-		return campaingData:get("crystal",0):getInt()
+		return campaingDataConfig:get("crystal",0):getInt()
 	end
 	local function updateAvailableMaps()
 		--upto 3 unbeaten maps are available
@@ -77,7 +93,7 @@ function CampaignData.new()
 		--if not initiated then fix the data
 		if not maps then
 			maps = {finishedCount=0,finished={},available={}}
-			local map = campaingData:get("mapsFinished")
+			local map = campaingDataConfig:get("mapsFinished")
 			for counter=1, #files do
 				maps.finished[counter] = self.hasMapBeenBeaten(counter)
 				if maps.finished[counter] then
@@ -90,7 +106,7 @@ function CampaignData.new()
 		return (num>#maps.available and 0 or maps.available[num])
 	end
 	function self.hasMapBeenBeaten(number)
-		local map = campaingData:get("mapsFinished")
+		local map = campaingDataConfig:get("mapsFinished")
 		if number<=#files then
 			map = map:get(files[number].statId)
 			local item = map:getFirst()
@@ -104,17 +120,26 @@ function CampaignData.new()
 		return false
 	end
 	function self.getMapModeBeatenLevel(number,mode)
-		return campaingData:get("mapsFinished"):get(files[number].statId):get(mode,"-"):getInt()
+		return tonumber((campaignDataTable["mapsFinished"] and campaignDataTable["mapsFinished"][files[number].statId] and campaignDataTable["mapsFinished"][files[number].statId][mode or "-"]) or 0)
+--		local it = campaignDataTable["mapsFinished"]
+--		if it then
+--			it = campaignDataTable["mapsFinished"][files[number].statId]
+--		end
+--		if it then
+--			it = it[mode or "-"]
+--		end
+--		return tonumber(it or 0)
 	end
 	function self.hasMapModeBeenBeaten(number,mode)
-		return campaingData:get("mapsFinished"):get(files[number].statId):get(mode,"-"):getInt()>0
+		return self.getMapModeBeatenLevel(number,mode)>0
 	end
 	function self.hasMapModeLevelBeenBeaten(number,mode,level)
-		return campaingData:get("mapsFinished"):get(files[number].statId):get(mode,"-"):getInt()>=level
+		return self.getMapModeBeatenLevel(number,mode)>=level
 	end
 	function self.setLevelCompleted(number,level,mode)
-		campaingData:get("mapsFinished"):get(files[number].statId):get(mode):setInt(level)
-		campaingData:save()
+		campaingDataConfig:get("mapsFinished"):get(files[number].statId):get(mode):setInt(level)
+		campaignDataTable = campaingDataConfig:getTable()
+		campaingDataConfig:save()
 	end
 	function self.getMapCount()
 		return #files
@@ -126,7 +151,7 @@ function CampaignData.new()
 		if permUnlocked then
 			return PERMENANTBOUGHTUPGRADECOUNT
 		end
-		local tab = campaingData:get(towerName):getTable()
+		local tab = campaignDataTable[towerName]
 		local ret = 0
 		for k,v in pairs(tab) do
 			ret = ret + self.getBuyablesTotal(k,permUnlocked)
@@ -134,7 +159,7 @@ function CampaignData.new()
 		return ret
 	end
 	function self.getTotalBuyablesBoughtForTower(towerName,permUnlocked)
-		local tab = campaingData:get(towerName):getTable()
+		local tab = campaignDataTable[towerName]
 		local ret = 0
 		for k,v in pairs(tab) do
 			if permUnlocked then
@@ -167,7 +192,7 @@ function CampaignData.new()
 		for i=1, #towers do
 			print("i = "..i)
 			print("for k,v in pairs("..towers[i]..") do")
-			for k,v in pairs(campaingData:get(towers[i]):getTable()) do
+			for k,v in pairs(campaignDataTable[towers[i]]) do
 				if v.buyable then
 					local leftToBuy = self.getBuyablesTotal(k,false)-v.buyable
 					local costLeft = leftToBuyTab[self.getBuyablesTotal(k,false)][v.buyable]*NORMALUPGCOST
@@ -187,7 +212,7 @@ function CampaignData.new()
 		return ret
 	end
 	function self.getBoughtUpg(towerName,upgradeName,permUnlocked)
-		return campaingData:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):getInt()
+		return tonumber(campaignDataTable[towerName][upgradeName][permUnlocked and "permUnlocked" or "buyable"] or 0)
 	end
 	function self.getBuyablesTotal(upgradeName,permUnlocked)
 		if permUnlocked then
@@ -199,21 +224,22 @@ function CampaignData.new()
 		return (upgradeName=="shieldBreaker" or upgradeName=="smartTargeting" or upgradeName=="shieldSmasher") and 1 or 3
 	end
 	function self.getBuyCost(towerName,upgradeName,permUnlocked)
-		local item = campaingData:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0)
-		if item:getInt()<self.getBuyablesTotal(upgradeName) then
+		local item = self.getBoughtUpg(towerName, upgradeName, permUnlocked)
+		if item<self.getBuyablesTotal(upgradeName) then
 			if self.getBuyablesTotal(upgradeName)==1 and permUnlocked==false then
 				return 3*NORMALUPGCOST
 			end
-			return (item:getInt()+1)*(permUnlocked and PERMENANTUPGCOST or NORMALUPGCOST)
+			return (item+1)*(permUnlocked and PERMENANTUPGCOST or NORMALUPGCOST)
 		end
 		return 0
 	end
 	--
 	function self.addCrystal(addCount)
 		print("self.addCrystal("..addCount..")")
-		campaingData:get("crystal"):setInt(self.getCrystal()+addCount)
+		campaingDataConfig:get("crystal"):setInt(self.getCrystal()+addCount)
 		self.fixCrystalLimits()
-		campaingData:save()
+		campaignDataTable = campaingDataConfig:getTable()
+		campaingDataConfig:save()
 	end
 	function self.canBuyUnlock(towerName,upgradeName,permUnlocked)
 		if upgradeName=="freeUpgrade" then
@@ -228,11 +254,11 @@ function CampaignData.new()
 			return false
 		else
 			return 	self.getBoughtUpg(towerName,upgradeName,false)<self.getBuyablesTotal(upgradeName,permUnlocked) and--if there is an upgrade available
-					self.getCrystal()>=self.getBuyCost(towerName,upgradeName,permUnlocked)--we must have wnough gold
+					self.getCrystal()>=self.getBuyCost(towerName,upgradeName,permUnlocked)--we must have enough gold
 		end
 	end
 	function self.buy(towerName,upgradeName,permUnlocked)
-		local item = campaingData:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0)
+		local item = campaingDataConfig:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0)
 		local cost = self.getBuyCost(towerName,upgradeName,permUnlocked)
 		if item:getInt()<self.getBuyablesTotal(upgradeName,permUnlocked) and cost<=self.getCrystal() and (permUnlocked==false or self.canBuyUnlock(towerName,upgradeName,true)) then
 			item:setInt(item:getInt()+1)
@@ -242,15 +268,15 @@ function CampaignData.new()
 	function self.clear(towerName,upgradeName,permUnlocked)
 		local count = {[0]=0,[1]=1,[2]=3,[3]=6}
 		local upgCount = self.getBoughtUpg(towerName,upgradeName,permUnlocked)
-		campaingData:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):setInt(0)
+		campaingDataConfig:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):setInt(0)
 		self.addCrystal( count[upgCount]*(permUnlocked and PERMENANTUPGCOST or NORMALUPGCOST) )
-		local val = campaingData:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):getInt()
+		local val = campaingDataConfig:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):getInt()
 		if val>0 then
 			error("Clearing failed for unlocked upgrades!!!")
 		end
 	end
 	function self.getLevelCompleted(map)
-		return campaingData:get(map):get("levelCompleted",4):getInt()--4 because there is 5 base levels available (you have level 5 unlocked by beating level 4)
+		return campaingDataConfig:get(map):get("levelCompleted",4):getInt()--4 because there is 5 base levels available (you have level 5 unlocked by beating level 4)
 	end
 	return self
 end

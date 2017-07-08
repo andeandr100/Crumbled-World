@@ -1445,6 +1445,46 @@ ParticleEffect = {
 			widthY = 0.125
 		}
 	},
+	towerUpgraded =  {
+		WallboardParticle = true,
+		airResistance = 1.5,
+		color =  {
+			color1 =  {r = 0.10,g = 0.20,b = 0.20,a = 0.15,size = 0.15,per = 0.00},
+			color2 =  {r = 0.20,g = 0.60,b = 0.60,a = 0.25,size = 0.30,per = 0.15},
+			color3 =  {r = 0.33,g = 1.10,b = 1.10,a = 0.35,size = 0.30,per = 0.35},
+			color4 =  {r = 0.33,g = 0.65,b = 0.65,a = 0.05,size = 0.00,per = 1.00},
+			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
+		},
+		emitterSpeedMultiplyer = 0.75,
+		gravity = -2.75,
+		lifeTime =  {
+			max = 3.5,
+			min = 2.5
+		},
+		spawn =  {
+			OffsetFromGroundPer = 0.35,
+			maxParticles = 60,
+			minParticles = 0,
+			pattern = "sphere",
+			patternData =  {
+				max = 0.01,
+				min = -0.01
+			},
+			spawnDuration = 2.0,
+			spawnRadius = 0.35,
+			spawnRate = 15,
+			spawnSpeed = 0.30
+		},
+		texture =  {
+			countX = 1,
+			countY = 1,
+			lengthEqlWidthMul = 1,
+			startX = 0,
+			startY = 0.875,
+			widthX = 0.125,
+			widthY = 0.125
+		}
+	},
 	SwarmTowerFlame =  {
 		WallboardParticle = true,
 		airResistance = 1.5,
