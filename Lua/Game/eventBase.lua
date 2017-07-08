@@ -736,6 +736,7 @@ function EventBase.new()
 				--(4*2500)/(((12/2)+(3*1))*455) == 2.254(unbeatable)
 				--{{npc="stoneSpirit",delay=0.0},{npc="stoneSpirit",delay=1.25},{npc="stoneSpirit",delay=1.25},{npc="stoneSpirit",delay=1.25}}
 			}
+			--How many of each npc type that is allowed to spawn, this is so you dont get a wave of only dinos for example
 			local waveUnitLimitOriginal = {
 				rat = math.huge,
 				skeleton =	math.huge,

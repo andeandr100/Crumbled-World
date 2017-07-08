@@ -893,7 +893,7 @@ function QuakeTower.new()
 		cTowerUpg.addUpg("fireCrit",handleFireCrit)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		--add free upgrade if unlocked
-		if cTowerUpg.getIsPermUpgraded("freeUpgrade",1) then
+		if cTowerUpg.isPermUpgraded("freeUpgrade",1) then
 			upgrade.addFreeSubUpgrade()
 		end
 		return true

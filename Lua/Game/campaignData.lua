@@ -6,8 +6,8 @@ function CampaignData.new()
 	local PERMENANTBOUGHTUPGRADECOUNT = 1
 	local PERMENANTUPGCOST = 12
 	local NORMALUPGCOST = 1
-	local campaingDataConfig = Config("Campaign")
-	local campaignDataTable = campaingDataConfig:getTable()
+	local campaingDataConfig = Config("Campaign")			--the real data, used for the shop
+	local campaignDataTable = campaingDataConfig:getTable()	--used for ingame/shop for getting what can be upgraded and is free
 	local maps
 	local towers = { "Tower/MinigunTower.lua", "Tower/ArrowTower.lua", "Tower/SwarmTower.lua", "Tower/ElectricTower.lua", "Tower/BladeTower.lua", "Tower/missileTower.lua", "Tower/quakerTower.lua", "Tower/SupportTower.lua" }
 	

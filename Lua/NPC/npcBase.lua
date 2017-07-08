@@ -164,6 +164,7 @@ function NpcBase.new()
 	end
 	function self.setGainGoldOnDeath(set)
 		gainGoldOnDeath = set
+		soul.setMarkOfGoldImmunity(set)
 	end
 	function self.getSpeed()
 		return speed
@@ -187,7 +188,7 @@ function NpcBase.new()
 		soul.setHp(-1.0)
 		syncConfirmedDeath = true
 		useDeathAnimationOrPhysic = false
-		gainGoldOnDeath = false
+		self.setGainGoldOnDeath(false)
 	end
 	function self.NETSyncDeath(param)
 		soul.setHp(-1.0)
