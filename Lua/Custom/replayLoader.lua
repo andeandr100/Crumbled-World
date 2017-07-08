@@ -2,12 +2,7 @@ require("Game/mapInfo.lua")
 require("Game/campaignData.lua")
 require("Menu/MainMenu/mapInformation.lua")
 
-local levelInfo = MapInfo.new()
-local campaignData = CampaignData.new()
-local files = campaignData.getMaps()
-local filePath = Core.getGlobalBillboard("highScoreReplay"):getString("filePath")
-local difficulty = Core.getGlobalBillboard("highScoreReplay"):getInt("difficulty")
-local mapFile = File(filePath)
+local files = nil
 
 function getMapIndex(filePath)
 	for i=1, #files do	
@@ -21,6 +16,19 @@ end
 
 function create()
 	
+	
+	
+	return true
+end
+
+function update()
+	
+	local levelInfo = MapInfo.new()
+	local campaignData = CampaignData.new()
+	files = campaignData.getMaps()
+	local filePath = Core.getGlobalBillboard("highScoreReplay"):getString("filePath")
+	local difficulty = Core.getGlobalBillboard("highScoreReplay"):getInt("difficulty")
+	local mapFile = File(filePath)
 	
 	local mNum = getMapIndex(filePath)
 	
@@ -41,10 +49,7 @@ function create()
 		end
 	end
 	levelInfo.setLevel(difficulty)
+	files = nil
 	
-	return false
-end
-
-function update()
-	return false
+	return true
 end

@@ -22,12 +22,13 @@ function BuilderFunctions.new(keyBinds, inCamera)
 		if towerMatrix and (targetAreaName == "sphere" or targetAreaName == "capsule" or targetAreaName =="cone") then
 			
 			local targetMatrix = towerMatrix
-			local numRangeUpgrades = (CampaignTowerUpg.new(towerBilboard:getString("FileName"),nil).isPermUpgraded("range",1) and 2 or 3)
+			local numRangeUpgrades = (CampaignTowerUpg.new(towerBilboard:getString("FileName"),nil).isPermUpgraded("range",1) == true and 2 or 3)
+			print("numRangeUpgrades: "..numRangeUpgrades)
 			--print("bilboard: "..towerBilboard:toString())
 			if targetAreaName == "sphere" then	
 				local addedRange = towerBilboard:getFloat("rangePerUpgrade")
 				numRangeUpgrades = (towerBilboard:getString("Name") == "Quake tower") and 0 or numRangeUpgrades
-				targetArea.setExtraRangeInfo( numRanges, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
+				targetArea.setExtraRangeInfo( numRangeUpgrades, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
 				targetArea.changeModel("sphere", towerBilboard:getFloat("range"), 0, targetMatrix)
 			elseif targetAreaName == "capsule" then
 				local addedRange = towerBilboard:getFloat("rangePerUpgrade")

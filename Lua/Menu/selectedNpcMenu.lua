@@ -19,6 +19,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local previousSelectedNode = nil
 	local currentNode = nil
 	local currentIndex = nil
+	local currentNetName = nil
 	local counter = 0
 	local soulManagerBillboard = nil
 	local healtBar = nil
@@ -60,6 +61,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			deselectNpc()
 			currentNode = nil
 			currentIndex = nil
+			currentNetName = nil
 		end
 	end
 	
@@ -116,7 +118,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		local netName = nil
 		local line = camera:getWorldLineFromScreen(Core.getInput():getMousePos())
 		for index, node in pairs(souls) do
-			if node:collisionTree(line) then
+			if node[1]:collisionTree(line) then
 				nextNode = node[1]
 				nextIndex = index
 				netName = node[2]
@@ -172,6 +174,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local function ignoreNpc()
 		if currentIndex then
 			print("ignoreNpc()")
+			comUnit:sendTo("builder","addPrioEvent",tabToStrMinimal( {netName=currentNetName,event=0} ))
 			comUnit:sendTo(currentIndex,"addState",tostring(state.highPriority)..";0")
 			comUnit:sendTo(currentIndex,"addState",tostring(state.ignore)..";1")
 			if Core.isInMultiplayer() then
@@ -184,6 +187,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local function highPriorityTarget()
 		if currentIndex then
 			print("highPriorityTarget()")
+			comUnit:sendTo("builder","addPrioEvent",tabToStrMinimal( {netName=currentNetName,event=1} ))
 			comUnit:sendTo(currentIndex,"addState",tostring(state.ignore)..";0")
 			comUnit:sendTo(currentIndex,"addState",tostring(state.highPriority)..";1")
 			if Core.isInMultiplayer() then

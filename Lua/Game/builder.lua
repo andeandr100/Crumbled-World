@@ -207,19 +207,18 @@ function changeArrowTowerRotation(tab)
 end
 
 function addPrioEvent(intabData)
-	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=totable(intabData),func=7},restore=nil}
-	
-	comUnit:sendTo("builder","addPrioEvent",tabToStrMinimal( {netName=netName,event=1} ))
-	
+	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=totable(intabData),func=7},restore=nil}	
 end
 
 function callPrioEvent(eventData)
+	local comIndex = Core.getScriptOfNetworkName(eventData.netName):getIndex()
 	if eventData.event == 1 then
-		comUnit:sendTo(eventData.netName,"addState",tostring(state.ignore)..";0")
-		comUnit:sendTo(eventData.netName,"addState",tostring(state.highPriority)..";1")
+		
+		comUnit:sendTo(comIndex,"addState",tostring(state.ignore)..";0")
+		comUnit:sendTo(comIndex,"addState",tostring(state.highPriority)..";1")
 	else
-		comUnit:sendTo(eventData.netName,"addState",tostring(state.ignore)..";1")
-		comUnit:sendTo(eventData.netName,"addState",tostring(state.highPriority)..";0")
+		comUnit:sendTo(comIndex,"addState",tostring(state.highPriority)..";0")
+		comUnit:sendTo(comIndex,"addState",tostring(state.ignore)..";1")
 	end
 end
 
@@ -933,7 +932,7 @@ function update()
 		end
 		
 		--set tower color
-		builderFunctions.changeColor( currentTower, (canBePlacedHere and buildCost <= gold) and Vec4(1) or Vec4(1.2,0.65,0.65, 1.0))
+		builderFunctions.changeColor( currentTower, (canBePlacedHere and buildCost <= gold) and Vec4(1) or Vec4(1.2,0.6,0.6, 1.0))
 		
 		
 			
