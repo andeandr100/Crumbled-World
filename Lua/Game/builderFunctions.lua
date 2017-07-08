@@ -1,4 +1,6 @@
 require("Game/targetArea.lua")
+require("Game/campaignTowerUpg.lua")
+
 --this = BuildNode()
 
 BuilderFunctions = {}
@@ -20,20 +22,20 @@ function BuilderFunctions.new(keyBinds, inCamera)
 		if towerMatrix and (targetAreaName == "sphere" or targetAreaName == "capsule" or targetAreaName =="cone") then
 			
 			local targetMatrix = towerMatrix
-			
+			local numRangeUpgrades = (CampaignTowerUpg.new(towerBilboard:getString("FileName"),nil).isPermUpgraded("range",1) and 2 or 3)
 			--print("bilboard: "..towerBilboard:toString())
-			if targetAreaName == "sphere" then
+			if targetAreaName == "sphere" then	
 				local addedRange = towerBilboard:getFloat("rangePerUpgrade")
-				local numRanges = (towerBilboard:getString("Name") == "Quake tower") and 0 or 3
+				numRangeUpgrades = (towerBilboard:getString("Name") == "Quake tower") and 0 or numRangeUpgrades
 				targetArea.setExtraRangeInfo( numRanges, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
 				targetArea.changeModel("sphere", towerBilboard:getFloat("range"), 0, targetMatrix)
 			elseif targetAreaName == "capsule" then
 				local addedRange = towerBilboard:getFloat("rangePerUpgrade")
-				targetArea.setExtraRangeInfo( 3, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
+				targetArea.setExtraRangeInfo( numRangeUpgrades, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
 				targetArea.changeModel("capsule", towerBilboard:getFloat("range"), 0, targetMatrix)
 			elseif targetAreaName == "cone" then
 				local addedRange = towerBilboard:getFloat("rangePerUpgrade")
-				targetArea.setExtraRangeInfo( 3, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
+				targetArea.setExtraRangeInfo( numRangeUpgrades, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
 				targetArea.changeModel("sphere", towerBilboard:getFloat("range"), towerBilboard:getFloat("targetAngle"), targetMatrix)--coneSphere				
 			else
 				targetArea.hiddeTargetMesh()

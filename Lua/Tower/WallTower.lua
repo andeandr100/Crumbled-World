@@ -48,6 +48,7 @@ function create()
 	billboard:setVectorVec2("hull2d",hull2d)
 	billboard:setModel("tower",model)
 	billboard:setString("Name", "Wall tower")
+	billboard:setString("FileName", "Tower/WallTower.lua")
 	billboard:setString("TargetArea","none")
 	billboard:setBool("isNetOwner",true)
 	
