@@ -383,7 +383,11 @@ function LanguagePanel.createLanguageOptions(panel)
 	addLanguageRow("death animation")
 	addLanguageRow("corpse timer")
 	addLanguageRow("monster path")
-	addLanguageRow("user name")
+	addLanguageRow("tower menu")
+	addLanguageRow("player")
+	addLanguageRow("username")
+	
+	
 
 	--audio
 	addLanguageHeader("Volume")

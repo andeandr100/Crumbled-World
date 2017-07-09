@@ -6,7 +6,7 @@ require("Menu/settings.lua")
 
 GamePanel = {}
 GamePanel.labels = {}
-GamePanel.labelsText =  { "game", "island smoke", "floating stones", "health bar", "death animation", "corpse timer", "multiplayer", "name"}
+GamePanel.labelsText =  { "game", "island smoke", "floating stones", "health bar", "death animation", "corpse timer", "tower menu", "player", "name"}
 GamePanel.optionsBoxes = {}
 
 function GamePanel.create(mainPanel)
@@ -17,7 +17,7 @@ function GamePanel.create(mainPanel)
 	
 	
 	GamePanel.createGameOptions(gamePanel)
-	GamePanel.createMultiplayerOptions(gamePanel)
+--	GamePanel.createMultiplayerOptions(gamePanel)
 	
 	GamePanel.gamePanel = gamePanel
 
@@ -89,23 +89,31 @@ function GamePanel.createGameOptions(panel)
 	rowPanel, labels[6] = OptionsMenuStyle.addRow(panel, "corpse timer")
 	conf = Settings.corpseTimer
 	GamePanel.optionsBoxes[5] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
-
-end
-
-function GamePanel.createMultiplayerOptions(panel)
-	local labels = GamePanel.labels
-	labels[7] = OptionsMenuStyle.addOptionsHeader( panel, "Multiplayer" )
 	
-	rowPanel, labels[8] = OptionsMenuStyle.addRow(panel, "Name")
+	rowPanel, labels[7] = OptionsMenuStyle.addRow(panel, "tower menu")
+	conf = Settings.towerMenu
+	GamePanel.optionsBoxes[6] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
+	
+	--userName
+	labels[8] = OptionsMenuStyle.addOptionsHeader( panel, "Player" )
+	
+	rowPanel, labels[9] = OptionsMenuStyle.addRow(panel, "Name")
 	local textField = rowPanel:add(MainMenuStyle.createTextField(Vec2(-0.45,-1), Vec2(),Settings.multiplayerName.getSettings()))
 	textField:addEventCallbackChanged(GamePanel.changedSettingsString)
 	textField:addEventCallbackExecute(GamePanel.updateClientName)
 	textField:setTag(Settings.multiplayerName.configName)
 	textField:setWhiteList("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ _-[]()=1234567890/.,")--< > \\ \" removed characters because of issues with totable() and <font ...>
-	
-	--set user name
-	--Settings.multiplayerName.getSettings()
 end
+
+--function GamePanel.createMultiplayerOptions(panel)
+----	local labels = GamePanel.labels
+----	labels[7] = OptionsMenuStyle.addOptionsHeader( panel, "Multiplayer" )
+--	
+--	
+--	
+--	--set user name
+--	--Settings.multiplayerName.getSettings()
+--end
 
 function GamePanel.updateClientName()
 	Core.getNetworkClient():setUserName(Settings.multiplayerName.getSettings())
