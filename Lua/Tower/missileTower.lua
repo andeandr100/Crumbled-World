@@ -629,6 +629,7 @@ function MissileTower.new()
 		upgrade.addBillboardStats("shieldDamageMul")
 		billboard:setString("TargetArea","sphere")
 		billboard:setString("Name", "Missile tower")
+		billboard:setString("FileName", "Tower/missileTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
 		
