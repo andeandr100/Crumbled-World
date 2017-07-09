@@ -215,6 +215,20 @@ function Settings.islandSmoke.getIsVisible()
 end
 
 
+
+
+Settings.towerMenu = {}
+Settings.towerMenu.options = {"visible", "hidden"}
+Settings.towerMenu.configName = "towerMenu"
+function Settings.towerMenu.getSettings()
+	return Settings.config:get(Settings.towerMenu.configName, true):getBool() and Settings.towerMenu.options[1] or Settings.towerMenu.options[2]
+end
+function Settings.towerMenu.getIsVisible()
+	return Settings.config:get(Settings.towerMenu.configName, true):getBool()
+end
+
+
+
 Settings.floatingStones = {}
 Settings.floatingStones.options = {"visible", "hidden"}
 Settings.floatingStones.configName = "floatingStones"

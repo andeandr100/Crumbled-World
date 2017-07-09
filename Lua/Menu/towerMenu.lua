@@ -347,13 +347,16 @@ function create()
 end
 
 function settingsChanged()
-	
+	local visible = Settings.towerMenu.getIsVisible()
+	form:setVisible(visible)
 end
 
 function update()
-
-	posterUpdate()
-	form:update()
+	
+	if form:getVisible() then
+		posterUpdate()
+		form:update()
+	end
 	
 	return true
 end
