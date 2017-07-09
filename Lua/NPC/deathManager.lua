@@ -112,6 +112,7 @@ function DeathManager.new()
 		return closest
 	end
 	local function collisionAginstTheWorldGlobal(globalPosition)
+		local localPosition = Vec3()
 		local parent = this:getParent()
 		local globalMatrix = parent:getGlobalMatrix()
 		local line = Line3D(globalPosition + globalMatrix:getUpVec(), globalPosition -  globalMatrix:getUpVec() )

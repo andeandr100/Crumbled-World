@@ -1,7 +1,7 @@
 require("NPC/npcBase.lua")
 --this = SceneNode()
-local npcBase = NpcBase.new()
-local soul = npcBase.getSoul()
+local npcBase
+local soul
 local healUntouched = 0.10 --10% per second
 local untouchedAfter = 3.5
 local healMinimum = 0.005 --0.5% per second
@@ -11,8 +11,20 @@ local prevHpVal = 0.0
 local AchievementLow = false
 --
 function destroy()
+	npcBase.destroy()
 end
 function create()
+	
+	npcBase = NpcBase.new()
+	soul = npcBase.getSoul()
+	healUntouched = 0.10 --10% per second
+	untouchedAfter = 3.5
+	healMinimum = 0.005 --0.5% per second
+	timeLastDamageTaken = 0.0
+	prevHpVal = 0.0
+	AchievementLow = false
+	
+	
 	npcBase.init("dino","npc_dino.mym",0.42,0.6,0.8,2.0)
 	npcBase.getSoul().enableBlood("BloodSplatterSphere",1.75,Vec3(0,0.35,0))
 	npcBase.setDefaultState(state.none)

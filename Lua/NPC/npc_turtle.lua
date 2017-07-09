@@ -1,13 +1,20 @@
 require("NPC/npcBase.lua")
 require("Enviromental/forceField.lua")
 --this = SceneNode()
-local npcBase = NpcBase.new()
-local soul = npcBase.getSoul()
+local npcBase
+local soul
 local soundForceFieldHitt
 local shieldNode
 function destroy()
+	npcBase.destroy()
 end
 function create()
+	
+	npcBase = NpcBase.new()
+	soul = npcBase.getSoul()
+	soundForceFieldHitt = nil
+	shieldNode = nil
+	
 	npcBase.init("turtle","npc_turtle.mym",1.4,0.6,1.35,2.0)
 	npcBase.getSoul().enableBlood("BloodSplatterSphere",1.45,Vec3(0,0.15,0))
 	npcBase.setDefaultState(state.shieldGenerator)

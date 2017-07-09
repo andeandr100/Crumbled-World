@@ -1,10 +1,14 @@
 require("NPC/npcBase.lua")
 require("NPC/hydraBase.lua")
 --this = SceneNode()
-local npcBase = NpcBase.new()
+local npcBase
 function destroy()
+	npcBase.destroy()
 end
 function create()
+	
+	npcBase = NpcBase.new()
+	
 	createHydra(2,0.65,npcBase)
 	npcBase.setLifeValue("2")--this npc will end up with 2 level 1 units
 	--

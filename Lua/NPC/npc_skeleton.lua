@@ -1,9 +1,13 @@
 require("NPC/npcBase.lua")
 --this = SceneNode()
-local npcBase = NpcBase.new()
+local npcBase
 function destroy()
+	npcBase.destroy()
 end
 function create()
+	
+	npcBase = NpcBase.new()
+	
 	npcBase.init("skeleton","npc_skeleton1.mym",0.25,0.5,0.90,2.0)
 	npcBase.getSoul().enableBlood("BoneSplatterSphere",0.85,Vec3(0,0.3,0))
 	--death animations

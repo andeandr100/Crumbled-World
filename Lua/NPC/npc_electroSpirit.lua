@@ -1,15 +1,24 @@
 require("NPC/npcBase.lua")
 require("Game/particleEffect.lua")
 --this = SceneNode()
-local npcBase = NpcBase.new()
-local soul = npcBase.getSoul()
+local npcBase
+local soul
 local pointLight
 local collisionModel
 local effect
 local pLightRange = 1.1
 function destroy()
+	npcBase.destroy()
 end
 function create()
+	
+	npcBase = NpcBase.new()
+	soul = npcBase.getSoul()
+	pointLight = nil
+	collisionModel = nil
+	effect = nil
+	pLightRange = 1.1
+	
 	npcBase.init("electroSpirit",nil,0.2,0.5,0.75,2.0)
 	npcBase.setDefaultState(state.electrecuted)
 	--particle effect

@@ -1,9 +1,13 @@
 require("NPC/npcBase.lua")
 --this = SceneNode()
-local npcBase = NpcBase.new()
+local npcBase
 function destroy()
+	npcBase.destroy()
 end
 function create()
+	
+	npcBase = NpcBase.new()
+	
 	npcBase.init("rat_tank","npc_rat_tank.mym",0.175,0.4,0.45,3.5)
 	npcBase.getSoul().enableBlood("BloodSplatterSphere",1.0,Vec3(0,0.2,0))
 	local mat = npcBase.getModel():getLocalMatrix()

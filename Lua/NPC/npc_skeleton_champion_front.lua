@@ -1,9 +1,13 @@
 require("NPC/npcBase.lua")
 --this = SceneNode()
-local npcBase = NpcBase.new()
+local npcBase
 function destroy()
+	npcBase.destroy()
 end
 function create()
+	
+	npcBase = NpcBase.new()
+	
 	npcBase.init("skeleton_champion_front","npc_skeleton_champion_front.mym",0.45,0.5,1.3,2.0)
 	npcBase.getSoul().enableBlood("BoneSplatterSphere",1.0,Vec3(0,0.35,0))
 	--shield blocking

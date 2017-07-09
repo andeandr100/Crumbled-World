@@ -1,9 +1,30 @@
 require("NPC/npcBase.lua")
 require("Game/particleEffect.lua")
 --this = SceneNode()
-local npcBase = NpcBase.new()
-local soundReaperSpawn = SoundNode("reaper_spawn")
+local npcBase
+local soundReaperSpawn
+local playerNode
+local reaperCloud
+local reaperSpawnEffect
+local nextSpawnState = 0
+local nextSpawnIn = 3.5
+local spawnTimeAdd = 2.2
+local spawnTimeAddPerSpawn = 0.5
+local spawnTimeMax = 5.5
+local SpawnCount = 0
+local deathTimer
+
+
+function destroy()
+	npcBase.destroy()
+end
+
 function create()
+	
+	
+	npcBase = NpcBase.new()
+	soundReaperSpawn = SoundNode("reaper_spawn")
+	
 	playerNode = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 	
 	npcBase.init("reaper","npc_reaper.mym",1.4,0.6,1.7,1.5)
@@ -68,6 +89,7 @@ function update()
 	return ret
 end
 function createDeadBody()
+
 	--replace death animations
 	if updateDeath and type(updateDeath)=="function" then
 		update = updateDeath
@@ -99,6 +121,7 @@ function updateDeath()
 		--nothing is left of the reaper
 		this:destroy()
 		playerNode:removeChild(reaperCloud)
+		reaperCloud = nil
 		return false
 	end
 	return true

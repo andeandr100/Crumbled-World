@@ -8,6 +8,7 @@ NpcBase = {}
 function NpcBase.new()
 	local self = {}
 	local deathManager = DeathManager.new()
+	local npcPath = NpcPath.new()
 	local soul = TheSoul.new()
 	local model
 	local gainGoldOnDeath = 1.0
@@ -46,6 +47,15 @@ function NpcBase.new()
 	local eventListener
 	local prevState = -1
 	local sentUpdateTimer = 0
+	local tmpUpdate = update
+	
+	print("NpcBase.new()")
+	
+	function self.destroy()
+		if tmpUpdate and type(tmpUpdate)=="function" then
+			update = tmpUpdate
+		end
+	end
 	
 	local function destroyUpdate()
 		this:destroyTree()
@@ -70,6 +80,7 @@ function NpcBase.new()
 		if Core.isInMultiplayer() then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
+		print("NpcBase.init()")
 		--
 		--set name for the scene
 		idName = name
@@ -101,7 +112,7 @@ function NpcBase.new()
 		
 		--mobility
 		mover = NodeMover(this, size, speed, Core.getBillboard():getDouble("pathOffset"))--node, npcSize, walkSpeed
-		NpcPath.findPath(mover, this)
+		npcPath.findPath(mover, this)
 		mover:addCallbackWayPointReached(self.reachedWaypointCallback)
 		--ComUnit
 		comUnit = Core.getComUnit()
@@ -216,6 +227,7 @@ function NpcBase.new()
 		end
 	end
 	function self.NETSyncMover(param)
+		abort()
 		local diff = mover:getDistanceToExit()-(param-mover:getCurrentSpeed()*Core.getNetworkClient():getPing()*2.0)
 		if math.abs(diff)>mover:getCurrentSpeed()*(0.5) then
 			--npc are out of sync with over 0.5s
@@ -406,7 +418,7 @@ function NpcBase.new()
 		comUnit:sendTo("SoulManager","remove","")
 	end
 	--start the death animations/physic/effect
-	function createDeadBody()
+	function self.createDeadBody()
 		if Settings.DeathAnimation.getSettings()~="Disabled" and useDeathAnimationOrPhysic then
 			--death animations is enabled
 			local otherOptions = false
@@ -473,6 +485,7 @@ function NpcBase.new()
 	local function toBits(num)
 		if num then
 			local t={}
+			local rest
 			while num>0 do
 				rest=math.fmod(num,2)
 				t[#t+1]=rest
@@ -505,6 +518,11 @@ function NpcBase.new()
 		return false
 	end
 	function self.update()
+		local localUpdateVar1= 32;
+		if Core.getInput():getKeyDown(Key.h) then
+			abort()
+		end
+		
 		if syncConfirmedDeath==true then
 			local d1 = self
 			local d2 = syncConfirmedDeath
@@ -544,7 +562,7 @@ function NpcBase.new()
 		end
 		
 		--update npc path
-		NpcPath.update()
+		npcPath.update()
 
 		if (syncConfirmedDeath or soul.getHp()<=0) then--and soul.canDie() then
 			if not soul.canDie() then
@@ -600,7 +618,7 @@ function NpcBase.new()
 				end
 				--generate the dead body
 				comUnit:broadCast(this:getGlobalPosition(),512.0,"NpcDeath","")
-				if createDeadBody()then
+				if self.createDeadBody()then
 					return true
 				else
 					if endUpdate and type(endUpdate)=="function" then

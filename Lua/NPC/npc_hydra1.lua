@@ -1,10 +1,14 @@
 require("NPC/npcBase.lua")
 require("NPC/hydraBase.lua")
 --this = SceneNode()
-local npcBase = NpcBase.new()
+local npcBase
 function destroy()
+	npcBase.destroy()
 end
 function create()
+	
+	npcBase = NpcBase.new()
+		
 	createHydra(1,0.5,npcBase)
 	--
 	local tableAnimationInfo = {{duration = 0.75, length = 1.0, blendTime=0.25},

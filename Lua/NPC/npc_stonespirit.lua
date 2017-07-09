@@ -1,10 +1,14 @@
 require("NPC/npcBase.lua")
 require("Game/particleEffect.lua")
 --this = SceneNode()
-local npcBase = NpcBase.new()
+local npcBase
 function destroy()
+	npcBase.destroy()
 end
 function create()
+	
+	npcBase = NpcBase.new()
+	
 	npcBase.init("stoneSpirit","npc_stonespirit.mym",0.2,0.5,1.3,2.0)
 	--physic animated death
 	npcBase.addDeathRigidBody()

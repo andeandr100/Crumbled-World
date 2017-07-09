@@ -8,7 +8,7 @@ function TheSoul.new()
 	local self = {}
 	local hp = 1.0
 	local maxHp = 1.0
-	local mover
+	local mover = nil
 	local slowPercentage = 0.0
 	local speedBase = 2.0
 	local speedCurrent = 2.0
@@ -31,6 +31,7 @@ function TheSoul.new()
 	local bloodInfo
 	local canBeKilled = true
 	local comUnit					--comUnit = ComUnit()
+	local bloodSpray
 	--local soulManager
 	local globalNode
 	--fire
@@ -547,6 +548,7 @@ function TheSoul.new()
 			end
 		end
 		if slowPercentage~=slow.getMaxKey() then
+			print("slowPercentage "..slowPercentage)
 			slowPercentage = slow.getMaxKey()
 			mover:setWalkSpeed(speedBase * (1.0-slowPercentage))
 		end
