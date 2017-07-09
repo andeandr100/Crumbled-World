@@ -771,6 +771,7 @@ function MinigunTower.new()
 		billboard:setVec3("Position",this:getGlobalPosition()+Vec3(0,2.2,0))--for locating where the physical attack originated
 		billboard:setString("TargetArea","sphere")
 		billboard:setString("Name", "Minigun tower")
+		billboard:setString("FileName", "Tower/MinigunTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
 	

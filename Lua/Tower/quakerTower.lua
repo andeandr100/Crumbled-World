@@ -696,6 +696,7 @@ function QuakeTower.new()
 		billboard:setModel("tower",model)
 		billboard:setString("TargetArea","sphere")
 		billboard:setString("Name", "Quake tower")
+		billboard:setString("FileName", "Tower/quakerTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
 	

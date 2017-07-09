@@ -755,6 +755,7 @@ function ArrowTower.new()
 		localMat:setPosition( localMat:getPosition() + Vec3(0,0.6,0) )
 		billboard:setMatrix("TargetAreaOffset", localMat)
 		billboard:setString("Name", "Arrow tower")
+		billboard:setString("FileName", "Tower/ArrowTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
 	

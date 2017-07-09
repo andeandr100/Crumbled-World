@@ -791,6 +791,7 @@ function ElectricTower.new()
 		billboard:setModel("tower",model)
 		billboard:setString("TargetArea","sphere")
 		billboard:setString("Name", "Electric tower")
+		billboard:setString("FileName", "Tower/ElectricTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
 	

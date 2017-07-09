@@ -1,6 +1,7 @@
 require("Game/builderUpgrader.lua")
 require("Game/builderFunctions.lua")
 require("Game/mapInfo.lua")
+require("NPC/state.lua")
 --require("Game/autoBuilder.lua")
 --this = BuildNode()
 local buildCounter = 0
@@ -205,6 +206,22 @@ function changeArrowTowerRotation(tab)
 	comUnit:sendTo(script:getIndex(), "setRotateTarget", tab.para)
 end
 
+function addPrioEvent(intabData)
+	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=totable(intabData),func=7},restore=nil}	
+end
+
+function callPrioEvent(eventData)
+	local comIndex = Core.getScriptOfNetworkName(eventData.netName):getIndex()
+	if eventData.event == 1 then
+		
+		comUnit:sendTo(comIndex,"addState",tostring(state.ignore)..";0")
+		comUnit:sendTo(comIndex,"addState",tostring(state.highPriority)..";1")
+	else
+		comUnit:sendTo(comIndex,"addState",tostring(state.highPriority)..";0")
+		comUnit:sendTo(comIndex,"addState",tostring(state.ignore)..";1")
+	end
+end
+
 function create()
 	if this:getNodeType() == NodeId.buildNode then
 		Core.setScriptNetworkId("Builder")
@@ -234,6 +251,8 @@ function create()
 		comUnitTable["addRebuildTower"] = addRebuildTowerEvent
 		comUnitTable["sendHightScoreToTheServer"] = sendHightScoreToTheServer
 		comUnitTable["setBuildingTargetVec"] = setBuildingTargetVec
+		comUnitTable["addPrioEvent"] = addPrioEvent
+		
 		
 		functionList = {}
 		functionList[1] = towerUpgradefunc
@@ -242,6 +261,7 @@ function create()
 		functionList[4] = sellTowerAddNoEvent
 		functionList[5] = upgradeWallTower
 		functionList[6] = changeArrowTowerRotation
+		functionList[7] = callPrioEvent
 		
 		replayIndex = 1
 		towerBuildInfo = {}
@@ -356,6 +376,7 @@ function create()
 			
 			print("towerBuildInfo: "..tostring(towerBuildInfo))
 		end
+		
 		
 		print("BUILDER:::RETURN == true\n")
 		return true
@@ -620,6 +641,8 @@ function restartWave(wave)
 		end
 	end
 	
+	--update wave time
+	waveTime = Core.getGameTime()
 end
 
 function  isAtowerBuildEvent(index, netName)
@@ -733,9 +756,9 @@ function update()
 		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add=nil,restore=nil,data=data}
 	end
 	
---	if Core.getInput():getKeyDown(Key.y) then
---		sendHightScoreToTheServer()
---	end
+	if Core.getInput():getKeyDown(Key.y) then
+		sendHightScoreToTheServer()
+	end
 	
 	if isAReplay then
 		local timeoffset = (Core.getGameTime()-waveTime)
@@ -821,10 +844,7 @@ function update()
 				building:createWork()
 				increaseBuildBuildingCount()
 				--successfully built tower, time to pay
-				
---				AutoBuilder.addBuilding(currentTower, collisionMesh, collPos, rotation, building)
-				
-				
+
 				towerBuiltSteamStats(script)
 				comUnit:sendTo("stats","removeGold",tostring(buildCost))
 				
@@ -913,7 +933,7 @@ function update()
 		end
 		
 		--set tower color
-		builderFunctions.changeColor( currentTower, (canBePlacedHere and buildCost <= gold) and Vec4(1) or Vec4(1,0.7,0.7, 1.0))
+		builderFunctions.changeColor( currentTower, (canBePlacedHere and buildCost <= gold) and Vec4(1) or Vec4(1.2,0.6,0.6, 1.0))
 		
 		
 			

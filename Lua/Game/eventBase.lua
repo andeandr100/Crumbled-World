@@ -959,6 +959,9 @@ function EventBase.new()
 				longestWave = math.max(longestWave,waveTotalTime)
 				--print("==== WAVE"..i..".time=="..waveTotalTime.."\n")
 			end
+			
+			print("\nWaves: "..tostring(waves).."\n")
+			
 			local hours=math.floor(playTime/3600)
 			playTime = playTime - (hours*3600)
 			local minutes=math.floor(playTime/60)

@@ -53,7 +53,7 @@ function NpcBase.new()
 	end
 	
 	local function restartMap()
-		local npcData = {node=this,id=comUnit:getIndex()}
+		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
 		eventListener:pushEvent("removeSoul", npcData )
 		
 		comUnit:sendTo("SoulManager","remove","")
@@ -131,7 +131,7 @@ function NpcBase.new()
 		--
 		comUnitTable["notSubscribed"] = self.setSubscribed
 			
-		local npcData = {node=this,id=comUnit:getIndex()}
+		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
 		eventListener:pushEvent("addSoul", npcData )
 		
 		comUnit:sendTo("SoulManager","addSoul",{pos=mover:getCurrentPosition(), hpMax=hpMax, name=name, team=0, aimHeight = centerOffset})
@@ -140,7 +140,7 @@ function NpcBase.new()
 		return true
 	end
 	function self.setSubscribed()
-		local npcData = {node=this,id=comUnit:getIndex()}
+		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
 		eventListener:pushEvent("addSoul", npcData )
 		
 		comUnit:sendTo("SoulManager","addSoul",{pos=mover:getCurrentPosition(), hpMax=hpMax, name=name, team=0, aimHeight = centerOffset})
@@ -400,7 +400,7 @@ function NpcBase.new()
 	function self.deathCleanup()
 		soul.manageDeath()
 		--soulNode:removeThis()
-		local npcData = {node=this,id=comUnit:getIndex()}
+		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
 		eventListener:pushEvent("removeSoul", npcData )
 		
 		comUnit:sendTo("SoulManager","remove","")
