@@ -46,7 +46,7 @@ function QuakeTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
-	local billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+	local billboardWaveStats
 	--effects
 	local quakeDust = ParticleSystem(ParticleEffect.QuakeDustLingeringEffect)
 	local quakeDustBlast	--fireCrit
@@ -63,22 +63,27 @@ function QuakeTower.new()
 	--sound
 	--other
 	local lastRestored = -1
+	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	
 	local function storeWaveChangeStats( waveStr )
-		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-		if billboardWaveStats:exist( waveStr )==false then
-			local tab = {
-				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
-				upgradeTab = upgrade.storeWaveChangeStats(),
-				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-				DamageTotal = billboard:getDouble("DamageTotal")
-			}
-			billboardWaveStats:setTable( waveStr, tab )
+		if isThisReal then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
+			if billboardWaveStats:exist( waveStr )==false then
+				local tab = {
+					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+					upgradeTab = upgrade.storeWaveChangeStats(),
+					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
+					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
+					DamageTotal = billboard:getDouble("DamageTotal")
+				}
+				billboardWaveStats:setTable( waveStr, tab )
+			end
 		end
 	end
 	local function restoreWaveChangeStats( wave )
-		if wave>0 then
+		if isThisReal and wave>0 then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1

@@ -62,6 +62,9 @@ function Arrow.new()
 			node:getParent():removeChild(node)
 		end
 	end
+	function self.stop()
+		model:setVisible(false)
+	end
 	function self.update()
 		comUnit:clearMessages()
 		local atVec = Vec3( targetSelector.getTargetPosition()-currentPos )
@@ -100,7 +103,7 @@ function Arrow.new()
 			end
 			--do the attack
 			comUnit:sendTo(targetSelector.getTarget(),"attackPhysical",tostring(damage))
-			model:setVisible(false)
+			self.stop()
 			return false
 		elseif shieldAreaIndex~=targetSelector.getIndexOfShieldCovering(currentPos) then
 			--shield hitt
@@ -111,11 +114,11 @@ function Arrow.new()
 			local hitTime = tostring(0.5+(hittStrength*0.15))
 			comUnit:sendTo(targetIndex,"addForceFieldEffect",tostring(oldPosition.x)..";"..oldPosition.y..";"..oldPosition.z..";"..futurePosition.x..";"..futurePosition.y..";"..futurePosition.z..";"..hitTime)
 			--
-			model:setVisible(false)
+			self.stop()
 			return false
 		end
 		if targetSelector.isTargetAlive(targetSelector.getTarget())==false then
-			model:setVisible(false)
+			self.stop()
 			return false
 		end
 		--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,1,0),0.001,Vec3(0,0,1))

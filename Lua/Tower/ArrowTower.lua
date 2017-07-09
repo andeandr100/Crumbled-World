@@ -52,7 +52,7 @@ function ArrowTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
-	local billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+	local billboardWaveStats
 	--Events
 	--Other
 	local syncTimer = 0.0
@@ -61,25 +61,32 @@ function ArrowTower.new()
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this	
 	local lastRestored = -1
+	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	--stats
 	local mapName = MapInfo.new().getMapName()
 	--
 	local function storeWaveChangeStats( waveStr )
-		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-		if billboardWaveStats:exist( waveStr )==false then
-			local tab = {
-				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
-				upgradeTab = upgrade.storeWaveChangeStats(),
-				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-				DamageTotal = billboard:getDouble("DamageTotal"),
-				currentTargetMode = billboard:getInt("currentTargetMode")
-			}
-			billboardWaveStats:setTable( waveStr, tab )
+		if isThisReal then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
+			if billboardWaveStats:exist( waveStr )==false then
+				local tab = {
+					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+					upgradeTab = upgrade.storeWaveChangeStats(),
+					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
+					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
+					DamageTotal = billboard:getDouble("DamageTotal"),
+					currentTargetMode = billboard:getInt("currentTargetMode"),
+					rotaterMatrix = rotaterMesh:getLocalMatrix(),
+					crossbowMatrix = crossbowMesh:getLocalMatrix()
+				}
+				billboardWaveStats:setTable( waveStr, tab )
+			end
 		end
 	end
 	local function restoreWaveChangeStats( wave )
-		if wave>0 then
+		if isThisReal and wave>0 then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1
@@ -90,15 +97,18 @@ function ArrowTower.new()
 			--restore the stats from the wave
 			local tab = billboardWaveStats:getTable( tostring(wave) )
 			if tab then
+				if xpManager then
+					xpManager.restoreWaveChangeStats(tab.xpTab)
+				end
+				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 				billboard:setDouble("DamageTotal", tab.DamageTotal)
 				self.SetTargetMode(tab.currentTargetMode)
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
-				end
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				rotaterMesh:setLocalMatrix(tab.rotaterMatrix)
+				crossbowMesh:setLocalMatrix(tab.crossbowMatrix)
 			end
 		end
 	end

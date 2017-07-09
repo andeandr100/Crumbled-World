@@ -66,7 +66,7 @@ function MinigunTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
-	local billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+	local billboardWaveStats
 	--stats
 	local mapName = MapInfo.new().getMapName()
 	local machinegunActiveTimeWithoutOverheat = 0.0
@@ -77,6 +77,7 @@ function MinigunTower.new()
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	local lastRestored = -1
+	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	--
 	local function SetTargetMode(param)
 		targetMode = math.clamp(tonumber(param),1,4)
@@ -88,23 +89,29 @@ function MinigunTower.new()
 	--
 	
 	local function storeWaveChangeStats( waveStr )
-		print("storeWaveChangeStats( "..waveStr.." )")
-		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-		if billboardWaveStats:exist( waveStr )==false then
-			local tab = {
-				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
-				upgradeTab = upgrade.storeWaveChangeStats(),
-				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-				DamageTotal = billboard:getDouble("DamageTotal"),
-				currentTargetMode = billboard:getInt("currentTargetMode")
-			}
-			billboardWaveStats:setTable( waveStr, tab )
+		if isThisReal then
+			print("storeWaveChangeStats( "..waveStr.." )")
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
+			if billboardWaveStats:exist( waveStr )==false then
+				local tab = {
+					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+					upgradeTab = upgrade.storeWaveChangeStats(),
+					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
+					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
+					DamageTotal = billboard:getDouble("DamageTotal"),
+					currentTargetMode = billboard:getInt("currentTargetMode"),
+					engineMatrix = engineMesh:getLocalMatrix(),
+					rotatorMatrix = rotatorMesh:getLocalMatrix()
+				}
+				billboardWaveStats:setTable( waveStr, tab )
+			end
 		end
 	end
 	local function restoreWaveChangeStats( wave )
 		print("restoreWaveChangeStats( "..wave.." )")
-		if wave>0 then
+		if isThisReal and wave>0 then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1
@@ -115,15 +122,18 @@ function MinigunTower.new()
 			--restore the stats from the wave
 			local tab = billboardWaveStats:getTable( tostring(wave) )
 			if tab then
+				if xpManager then
+					xpManager.restoreWaveChangeStats(tab.xpTab)
+				end
+				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 				billboard:setDouble("DamageTotal", tab.DamageTotal)
 				SetTargetMode(tab.currentTargetMode)
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
-				end
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				engineMesh:setLocalMatrix(tab.engineMatrix)
+				rotatorMesh:setLocalMatrix(tab.rotatorMatrix)
 			end
 		end
 	end

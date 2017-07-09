@@ -306,6 +306,7 @@ function create()
 			local luaScript = buildings[numBuildings]:loadLuaScript(scriptName);
 			if luaScript then
 				luaScript:setName("tower");
+				luaScript:setScriptNetworkId("builder_tower_"..numBuildings)
 				--buildings[numBuildings]:setIsStatic(false)
 				buildings[numBuildings]:update()
 				buildings[numBuildings]:setVisible(false)

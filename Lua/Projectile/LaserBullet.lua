@@ -71,6 +71,13 @@ function LaserBullet.new()
 			node:getParent():removeChild(node)
 		end
 	end
+	function self.stop()
+		targetIndex = 0
+		particleEffectBullet:setVisible(false)
+		particleEffectBullet2:setVisible(false)
+		particleEffectBullet3:setVisible(false)
+		pointLight:setVisible(false)
+	end
 	function self.update()
 		local atVec = Vec3( targetSelector.getTargetPosition(targetIndex)-currentPos )
 		local lengthLeft = atVec:length()
@@ -119,10 +126,7 @@ function LaserBullet.new()
 			targetIndex = 0
 		end
 		if targetSelector.isTargetAlive(targetIndex)==false then
-			particleEffectBullet:setVisible(false)
-			particleEffectBullet2:setVisible(false)
-			particleEffectBullet3:setVisible(false)
-			pointLight:setVisible(false)
+			self.stop()
 			return false
 		end
 	

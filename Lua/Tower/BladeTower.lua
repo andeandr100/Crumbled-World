@@ -57,7 +57,7 @@ function BladeTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
-	local billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+	local billboardWaveStats
 	--Events
 	restartListener = Listener("RestartWave")
 	--sound
@@ -70,24 +70,29 @@ function BladeTower.new()
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	local lastRestored = -1
+	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	--stats
 	local mapName = MapInfo.new().getMapName()
 	
 	local function storeWaveChangeStats( waveStr )
-		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-		if billboardWaveStats:exist( waveStr )==false then
-			local tab = {
-				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
-				upgradeTab = upgrade.storeWaveChangeStats(),
-				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-				DamageTotal = billboard:getDouble("DamageTotal")
-			}
-			billboardWaveStats:setTable( waveStr, tab )
+		if isThisReal then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
+			if billboardWaveStats:exist( waveStr )==false then
+				local tab = {
+					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+					upgradeTab = upgrade.storeWaveChangeStats(),
+					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
+					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
+					DamageTotal = billboard:getDouble("DamageTotal")
+				}
+				billboardWaveStats:setTable( waveStr, tab )
+			end
 		end
 	end
 	local function restoreWaveChangeStats( wave )
-		if wave>0 then
+		if isThisReal and wave>0 then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1
@@ -635,6 +640,7 @@ function BladeTower.new()
 		 	   comUnitTable[msg.message](msg.parameter,msg.fromIndex)
 			end
 		end
+		
 		if xpManager then
 			xpManager.update()
 		end
@@ -649,8 +655,10 @@ function BladeTower.new()
 			Core.setUpdateHz( (state == 2) and 60.0 or (state == 1 and 30 or 10) )
 		end
 		--
-		projectiles.update()--placed here to avoid bladeBlocked message
-		deathManager.update()
+		if isThisReal then
+			projectiles.update()--placed here to avoid bladeBlocked message
+			deathManager.update()
+		end
 		--handle boost
 		if upgrade.update() then
 			model:getMesh( "boost" ):setVisible(false)
@@ -839,7 +847,7 @@ function BladeTower.new()
 								icon = 56,
 								value1 = 1,
 								stats ={range =				{ upgrade.add, 9.0},
-										damage = 			{ upgrade.add, 135},
+										damage = 			{ upgrade.add, 150},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
@@ -854,7 +862,7 @@ function BladeTower.new()
 								icon = 56,
 								value1 = 2,
 								stats ={range =				{ upgrade.add, 9.0},
-										damage = 			{ upgrade.add, 435},
+										damage = 			{ upgrade.add, 480},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
@@ -869,7 +877,7 @@ function BladeTower.new()
 								icon = 56,
 								value1 = 3,
 								stats ={range =				{ upgrade.add, 9.0},
-										damage = 			{ upgrade.add, 1030},
+										damage = 			{ upgrade.add, 1135},
 										RPS = 				{ upgrade.add, 1.0/2.75},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},

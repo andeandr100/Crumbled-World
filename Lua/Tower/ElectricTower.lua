@@ -55,7 +55,7 @@ function ElectricTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
-	local billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+	local billboardWaveStats
 	--sound
 	local soundAttack = SoundNode("electric_attack")
 	--other
@@ -66,27 +66,33 @@ function ElectricTower.new()
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	local energySent = 0
 	local lastRestored = -1
+	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	--stats
 	local mapName = MapInfo.new().getMapName()
 	--Achievements
 	--
 	
 	local function storeWaveChangeStats( waveStr )
-		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-		if billboardWaveStats:exist( waveStr )==false then
-			local tab = {
-				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
-				upgradeTab = upgrade.storeWaveChangeStats(),
-				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-				DamageTotal = billboard:getDouble("DamageTotal"),
-				currentTargetMode = billboard:getInt("currentTargetMode")
-			}
-			billboardWaveStats:setTable( waveStr, tab )
+		if isThisReal then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
+			if billboardWaveStats:exist( waveStr )==false then
+				local tab = {
+					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+					energy = energy,
+					upgradeTab = upgrade.storeWaveChangeStats(),
+					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
+					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
+					DamageTotal = billboard:getDouble("DamageTotal"),
+					currentTargetMode = billboard:getInt("currentTargetMode")
+				}
+				billboardWaveStats:setTable( waveStr, tab )
+			end
 		end
 	end
 	local function restoreWaveChangeStats( wave )
-		if wave>0 then
+		if isThisReal and wave>0 then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1
@@ -97,15 +103,17 @@ function ElectricTower.new()
 			--restore the stats from the wave
 			local tab = billboardWaveStats:getTable( tostring(wave) )
 			if tab then
-				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
-				billboard:setDouble("DamageTotal", tab.DamageTotal)
-				self.SetTargetMode(tab.currentTargetMode)
 				if xpManager then
 					xpManager.restoreWaveChangeStats(tab.xpTab)
 				end
 				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				--
+				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
+				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
+				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
+				billboard:setDouble("DamageTotal", tab.DamageTotal)
+				energy = tab.energy
+				self.SetTargetMode(tab.currentTargetMode)
 			end
 		end
 	end
@@ -628,7 +636,8 @@ function ElectricTower.new()
 		--targetSelector.deselect()
 	end
 	local function updateEnergy()
-		energy = math.min(upgrade.getValue("energyMax"),energy + (energyReg*Core.getDeltaTime()))
+		local regenMul = targetSelector.isAnyInRange() and 1.0 or 1.5
+		energy = math.min(upgrade.getValue("energyMax"),energy + (energyReg*Core.getDeltaTime()*regenMul))
 		billboard:setFloat("energy", energy )
 	end
 	local function updateSync()
@@ -832,7 +841,7 @@ function ElectricTower.new()
 										slowRange = { upgrade.add, 0.0},
 										attackCost ={ upgrade.add, 575/damagePerEnergy},
 										energyMax = { upgrade.add, (575/damagePerEnergy)*12.0},
-										energyReg =	{ upgrade.add, (575/damagePerEnergy)*5/36*1.25},--0.021/g  [1.25 is just a magic number to increase regen]
+										energyReg =	{ upgrade.add, (575/damagePerEnergy)*5/36*1.15},--0.021/g  [1.25 is just a magic number to increase regen]
 										equalizer =	{ upgrade.add, 0.0},
 										model = 	{ upgrade.set, "tower_electric_l1.mym"} }
 							} )
@@ -854,7 +863,7 @@ function ElectricTower.new()
 										slowRange = { upgrade.add, 0.0},
 										attackCost ={ upgrade.add, 1370/damagePerEnergy},--71.9
 										energyMax = { upgrade.add, (1370/damagePerEnergy)*12.0},--575
-										energyReg =	{ upgrade.add, (1370/damagePerEnergy)*6.5/36*1.25},--0.021/g [1.25 is just a magic number to increase regen]
+										energyReg =	{ upgrade.add, (1370/damagePerEnergy)*6.5/36*1.15},--0.021/g [1.25 is just a magic number to increase regen]
 										equalizer =	{ upgrade.add, 0.0},
 										model = 	{ upgrade.set, "tower_electric_l2.mym"} }
 							},0 )
@@ -876,7 +885,7 @@ function ElectricTower.new()
 										slowRange = { upgrade.add, 0.0},
 										attackCost ={ upgrade.add, 2700/damagePerEnergy},--143
 										energyMax = { upgrade.add, (2700/damagePerEnergy)*12},--953
-										energyReg =	{ upgrade.add, (2700/damagePerEnergy)*8/36*1.25},--0.022/g == energy regen per second per gold [1.25 is just a magic number to increase regen]
+										energyReg =	{ upgrade.add, (2700/damagePerEnergy)*8/36*1.15},--0.022/g == energy regen per second per gold [1.25 is just a magic number to increase regen]
 										equalizer =	{ upgrade.add, 0.0},
 										model = 	{ upgrade.set, "tower_electric_l3.mym"} }
 							},0 )
