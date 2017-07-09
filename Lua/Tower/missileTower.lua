@@ -42,10 +42,11 @@ function MissileTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
-	local billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+	local billboardWaveStats
 	--Events
 	--other
 	local lastRestored = -1
+	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	--local soulManager
 	--local targetingSystem
 	local activeTeam = 1
@@ -54,21 +55,41 @@ function MissileTower.new()
 	local mapName = MapInfo.new().getMapName()
 	
 	local function storeWaveChangeStats( waveStr )
-		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-		if billboardWaveStats:exist( waveStr )==false then
-			local tab = {
-				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
-				upgradeTab = upgrade.storeWaveChangeStats(),
-				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-				DamageTotal = billboard:getDouble("DamageTotal"),
-				currentTargetMode = billboard:getInt("currentTargetMode")
-			}
-			billboardWaveStats:setTable( waveStr, tab )
+		if isThisReal then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
+			if billboardWaveStats:exist( waveStr )==false then
+				local tab = {
+					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+					upgradeTab = upgrade.storeWaveChangeStats(),
+					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
+					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
+					DamageTotal = billboard:getDouble("DamageTotal"),
+					currentTargetMode = billboard:getInt("currentTargetMode"),
+					reloadTimeLeft = reloadTimeLeft,
+					missilesAvailable = missilesAvailable,
+					missileToFireNext = missileToFireNext,
+					missile = {}
+				}
+				--parse all missiles
+				for i = 1, 2+level, 1 do
+					tab.missile[i] = {}
+					tab.missile[i].state = missile[i].state
+					tab.missile[i].timer = missile[i].timer
+					tab.missile[i].replaceTime = missile[i].replaceTime
+					tab.missile[i].missilePosition = missile[i].missilePosition
+					tab.missile[i].localPosition = missile[i].missile:getLocalPosition()
+					tab.missile[i].visible = missile[i].missile:getVisible()
+					tab.missile[i].hatch1Matrix = missile[i].hatch1:getLocalMatrix()
+					tab.missile[i].hatch2Matrix = missile[i].hatch2:getLocalMatrix()
+				end
+				billboardWaveStats:setTable( waveStr, tab )
+			end
 		end
 	end
 	local function restoreWaveChangeStats( wave )
-		if wave>0 then
+		if isThisReal and wave>0 then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1
@@ -79,15 +100,31 @@ function MissileTower.new()
 			--restore the stats from the wave
 			local tab = billboardWaveStats:getTable( tostring(wave) )
 			if tab then
+				if xpManager then
+					xpManager.restoreWaveChangeStats(tab.xpTab)
+				end
+				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 				billboard:setDouble("DamageTotal", tab.DamageTotal)
 				self.SetTargetMode(tab.currentTargetMode)
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
+				reloadTimeLeft = tab.reloadTimeLeft
+				missilesAvailable = tab.missilesAvailable
+				missileToFireNext = tab.missileToFireNext
+				missilesInTheAir = false
+				--parse all missiles
+				for i = 1, 2+level, 1 do
+					missile[i].state = tab.missile[i].state
+					missile[i].timer = tab.missile[i].timer
+					missile[i].replaceTime = tab.missile[i].replaceTime
+					missile[i].missilePosition = tab.missile[i].missilePosition
+					missile[i].missile:setLocalPosition(tab.missile[i].localPosition)
+					missile[i].missile:setVisible(tab.missile[i].visible)
+					missile[i].hatch1:setLocalMatrix(tab.missile[i].hatch1Matrix)
+					missile[i].hatch2:setLocalMatrix(tab.missile[i].hatch2Matrix)
 				end
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 			end
 		end
 	end

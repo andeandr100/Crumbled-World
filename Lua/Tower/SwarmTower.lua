@@ -42,7 +42,7 @@ function SwarmTower.new()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
 	local attackCounter = 0
-	local billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+	local billboardWaveStats
 	--Events
 	restartListener = Listener("Restart")
 	--sound
@@ -55,23 +55,28 @@ function SwarmTower.new()
 	local mapName = MapInfo.new().getMapName()
 	--other
 	local lastRestored = -1
+	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	
 	local function storeWaveChangeStats( waveStr )
-		--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-		if billboardWaveStats:exist( waveStr )==false then
-			local tab = {
-				xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
-				upgradeTab = upgrade.storeWaveChangeStats(),
-				DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-				DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-				DamageTotal = billboard:getDouble("DamageTotal"),
-				currentTargetMode = billboard:getInt("currentTargetMode")
-			}
-			billboardWaveStats:setTable( waveStr, tab )
+		if isThisReal then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
+			if billboardWaveStats:exist( waveStr )==false then
+				local tab = {
+					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
+					upgradeTab = upgrade.storeWaveChangeStats(),
+					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
+					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
+					DamageTotal = billboard:getDouble("DamageTotal"),
+					currentTargetMode = billboard:getInt("currentTargetMode")
+				}
+				billboardWaveStats:setTable( waveStr, tab )
+			end
 		end
 	end
 	local function restoreWaveChangeStats( wave )
-		if wave>0 then
+		if isThisReal and wave>0 then
+			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
 			local index = wave+1
@@ -97,6 +102,7 @@ function SwarmTower.new()
 	
 	local function restartWave(param)
 		restoreWaveChangeStats( tonumber(param) )
+		projectiles.clear()
 	end
 	
 	local function myStatsReset()
@@ -111,9 +117,6 @@ function SwarmTower.new()
 					projectileLaunched=0,
 					disqualified=false}
 		myStatsTimer = Core.getGameTime()
-	end
-	local function restartMap()
-		projectiles.clear()
 	end
 	local function swarmBallHitt(param)
 		myStats.hitts = myStats.hitts + 1
@@ -545,8 +548,6 @@ function SwarmTower.new()
 		if xpManager then
 			xpManager.setUpgradeCallback(self.handleUpgrade)
 		end
-		
-		restartListener:registerEvent("restart", restartMap)
 	
 		model = Core.getModel("tower_swarm_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")

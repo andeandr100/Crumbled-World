@@ -90,6 +90,13 @@ function ArrowMortar.new()
 			node:getParent():removeChild(node)
 		end
 	end
+	function self.stop()
+		explosion:setVisible(false)
+		pointLight:clear()
+		pointLight:clearFlickerAndSinCurve()
+		pointLight:setVisible(false)
+		model:setVisible(false)
+	end
 	function self.update()
 		if state==0 then
 			if targetSelector.isTargetAlive(targetIndex)==true then
@@ -111,8 +118,7 @@ function ArrowMortar.new()
 				targetSelector.scoreClosestToVector(prevAtVec,10)
 				targetIndex = targetSelector.selectTargetAfterMaxScore()
 				if targetIndex==0 then
-					pointLight:setVisible(false)
-					model:setVisible(false)
+					self.stop()
 					return false
 				else
 					atVec = Vec3( targetSelector.getTargetPosition(targetIndex)-currentPos )
@@ -178,8 +184,7 @@ function ArrowMortar.new()
 				pointLight:setVisible(true)
 			end
 		elseif state==1 and explosion:isActive()==false then
-			explosion:setVisible(false)
-			pointLight:setVisible(false)
+			self.stop()
 			return false
 		end
 			

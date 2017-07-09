@@ -265,6 +265,7 @@ function create()
 				print("Tower loaded\n")
 				if luaScript then
 					luaScript:setName("tower");
+					luaScript:setScriptNetworkId("menu_tower_"..numBuildings)
 					buildingBillboard:setSceneNode( tostring(numBuildings).."Node", buildings[numBuildings].towerNode )
 				end
 				

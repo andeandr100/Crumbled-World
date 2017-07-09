@@ -62,6 +62,14 @@ function FireStorm.new(pNode)
 	function self.isActive()
 		return (fireStorm1:isActive() or fireStorm2:isActive())
 	end
+	function self.stop()
+		fireStorm1:deactivate(0.25)
+		fireStorm2:deactivate(0.25)
+		fireStorm3:deactivate(0.25)
+		pLight:clear()
+		pLight:setVisible(false)
+		soundFireStorm:stopFadeOut(0.25)
+	end
 	function self.update()
 		if self.isActive() then
 			local deltaTime = Core.getDeltaTime()

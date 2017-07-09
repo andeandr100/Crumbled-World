@@ -216,6 +216,9 @@ function Missile.new()
 		missileTrail:deactivate()
 		missileTrail2:deactivate()
 		targetIndex = 0
+		if fireStorm then
+			fireStorm.stop()
+		end
 	end
 	-- function:	Updates the missile
 	-- return1:		returns true for continues execute or false to stop

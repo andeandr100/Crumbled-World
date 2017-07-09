@@ -238,6 +238,13 @@ function SwarmBall.new()
 			node:getParent():removeChild(node)
 		end
 	end
+	function self.stop()
+		hittExplosion:setVisible(false)
+		explosion:setVisible(false)
+		effect2:setVisible(false)
+		pointLight:setVisible(false)
+		node:setVisible(false)
+	end
 	function self.update()
 		timeLeft = timeLeft - Core.getDeltaTime()
 		
