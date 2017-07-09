@@ -212,7 +212,11 @@ function CampaignData.new()
 		return ret
 	end
 	function self.getBoughtUpg(towerName,upgradeName,permUnlocked)
-		return tonumber(campaignDataTable[towerName][upgradeName][permUnlocked and "permUnlocked" or "buyable"] or 0)
+		if campaignDataTable[towerName][upgradeName] then
+			return tonumber(campaignDataTable[towerName][upgradeName][permUnlocked and "permUnlocked" or "buyable"] or 0)
+		else
+			return 0
+		end
 	end
 	function self.getBuyablesTotal(upgradeName,permUnlocked)
 		if permUnlocked then

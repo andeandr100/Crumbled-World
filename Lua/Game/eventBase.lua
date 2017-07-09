@@ -1019,6 +1019,9 @@ function EventBase.new()
 	end
 	
 	function self.update()
+		
+		
+		
 		--Handle communication
 		while comUnit:hasMessage() do
 			local msg = comUnit:popMessage()

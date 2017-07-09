@@ -454,7 +454,7 @@ function towerUpgrade(param)
 	
 	if tab.param and not ( scriptName == "Tower/ArrowTower.lua" and tab.msg == "upgrade6") then
 		local downGrade = {netId = tab.netId, msg = tab.msg, param = tab.param - 1}
-		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=tab.cost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=1},restore={para1=downGrade,func=towerUpgradefunc,name="TowerUpgrade"}}
+		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=tab.cost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=1},restore=nil}
 	else
 		--TODO not supported
 		print("NOT supported")
