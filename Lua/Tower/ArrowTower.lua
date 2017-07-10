@@ -24,6 +24,7 @@ function ArrowTower.new()
 	local supportManager = SupportManager.new()
 	local cTowerUpg = CampaignTowerUpg.new("Tower/ArrowTower.lua",upgrade)
 	local rotator = Rotator.new()
+	local currentGlobalVec = ""
 	--XP
 	local xpManager = XpSystem.new(upgrade)
 	--constants
@@ -78,10 +79,24 @@ function ArrowTower.new()
 					DamageTotal = billboard:getDouble("DamageTotal"),
 					currentTargetMode = billboard:getInt("currentTargetMode"),
 					rotaterMatrix = rotaterMesh:getLocalMatrix(),
-					crossbowMatrix = crossbowMesh:getLocalMatrix()
+					crossbowMatrix = crossbowMesh:getLocalMatrix(),
+					currentGlobalVec = currentGlobalVec,
+					boostedOnLevel = boostedOnLevel,
+					currentTargetAreaOffset = billboard:getMatrix("TargetAreaOffset"),
+					boostLevel = upgrade.getLevel("boost"),
+					upgradeLevel = upgrade.getLevel("upgrade"),
+					rangeLevel = upgrade.getLevel("range"),
+					markOfDeath = upgrade.getLevel("markOfDeath"),
+					hardArrow = upgrade.getLevel("hardArrow")
 				}
 				billboardWaveStats:setTable( waveStr, tab )
 			end
+		end
+	end
+	local function doDegrade(fromLevel,toLevel,callback)
+		while fromLevel>toLevel do
+			fromLevel = fromLevel - 1
+			callback(fromLevel)
 		end
 	end
 	local function restoreWaveChangeStats( wave )
@@ -100,6 +115,12 @@ function ArrowTower.new()
 				if xpManager then
 					xpManager.restoreWaveChangeStats(tab.xpTab)
 				end
+				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
+				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.handleUpgradeScope)
+				doDegrade(upgrade.getLevel("hardArrow"),tab.hardArrow,self.handleHardArrow)
+				doDegrade(upgrade.getLevel("markOfDeath"),tab.markOfDeath,self.handleWeakenTarget)
+				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
+				--
 				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
@@ -107,8 +128,11 @@ function ArrowTower.new()
 				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 				billboard:setDouble("DamageTotal", tab.DamageTotal)
 				self.SetTargetMode(tab.currentTargetMode)
+				billboard:setMatrix("TargetAreaOffset",tab.currentTargetAreaOffset)
+				self.setRotateTarget(tab.currentGlobalVec)
 				rotaterMesh:setLocalMatrix(tab.rotaterMatrix)
 				crossbowMesh:setLocalMatrix(tab.crossbowMatrix)
+				boostedOnLevel = tab.boostedOnLevel
 			end
 		end
 	end
@@ -263,11 +287,12 @@ function ArrowTower.new()
 			comUnit:sendTo("SteamAchievement","CrossbowMaxed","")
 		end
 	end
-	local function setTargetAreaOffset(tabStr)
+	function self.setTargetAreaOffset(tabStr)
 		local tab = totable(tabStr)
 		billboard:setMatrix("TargetAreaOffset", tab.mat)
 	end
-	local function setRotateTarget(globalVec)
+	function self.setRotateTarget(globalVec)
+		currentGlobalVec = globalVec
 		if globalVec:sub(1,1)==":" then
 			globalVec = globalVec:sub(2)
 		else
@@ -355,7 +380,7 @@ function ArrowTower.new()
 		upgrade.clearCooldown()
 		setCurrentInfo()
 	end
-	local function handleBoost(param)
+	function self.handleBoost(param)
 		if tonumber(param)>upgrade.getLevel("boost") then
 			if Core.isInMultiplayer() then
 				comUnit:sendNetworkSyncSafe("upgrade2","1")
@@ -384,7 +409,7 @@ function ArrowTower.new()
 			return--level unchanged
 		end
 	end
-	local function handleUpgradeScope(param)
+	function self.handleUpgradeScope(param)
 		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("range")
 		elseif upgrade.getLevel("range")>tonumber(param) then
@@ -411,7 +436,7 @@ function ArrowTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleFireball(param)
+	function self.handleHardArrow(param)
 		if tonumber(param)>upgrade.getLevel("hardArrow") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("hardArrow")
 		elseif upgrade.getLevel("hardArrow")>tonumber(param) then
@@ -441,7 +466,7 @@ function ArrowTower.new()
 		upgrade.fixBillboardAndStats()
 		this:loadLuaScript("Game/buildRotater.lua")
 	end
-	local function handleWeakenTarget(param)
+	function self.handleWeakenTarget(param)
 		if tonumber(param)>upgrade.getLevel("markOfDeath") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("markOfDeath")
 		elseif upgrade.getLevel("markOfDeath")>tonumber(param) then
@@ -766,13 +791,13 @@ function ArrowTower.new()
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["retargeted"] = retargeted
 		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = handleBoost
-		comUnitTable["upgrade3"] = handleUpgradeScope
-		comUnitTable["upgrade4"] = handleFireball
-		comUnitTable["upgrade5"] = handleWeakenTarget
+		comUnitTable["upgrade2"] = self.handleBoost
+		comUnitTable["upgrade3"] = self.handleUpgradeScope
+		comUnitTable["upgrade4"] = self.handleHardArrow
+		comUnitTable["upgrade5"] = self.handleWeakenTarget
 		comUnitTable["upgrade6"] = handleRotate
-		comUnitTable["setRotateTarget"] = setRotateTarget
-		comUnitTable["setTargetAreaOffset"] = setTargetAreaOffset
+		comUnitTable["setRotateTarget"] = self.setRotateTarget
+		comUnitTable["setTargetAreaOffset"] = self.setTargetAreaOffset
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["NetTarget"] = NetSyncTarget
 		comUnitTable["Retarget"] = handleRetarget
@@ -979,9 +1004,9 @@ function ArrowTower.new()
 		targetSelector.setAngleLimits(pipeAt,angleLimit)
 		rotator.setHorizontalLimits(pipeAt,-angleLimit,angleLimit)
 		
-		cTowerUpg.addUpg("range",handleUpgradeScope)
-		cTowerUpg.addUpg("hardArrow",handleFireball)
-		cTowerUpg.addUpg("markOfDeath",handleWeakenTarget)
+		cTowerUpg.addUpg("range",self.handleUpgradeScope)
+		cTowerUpg.addUpg("hardArrow",self.handleHardArrow)
+		cTowerUpg.addUpg("markOfDeath",self.handleWeakenTarget)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		return true
 	end

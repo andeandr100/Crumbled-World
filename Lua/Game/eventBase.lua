@@ -1114,7 +1114,6 @@ function EventBase.new()
 						comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("totalGoldEarned"))
 						comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
 						comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("totalGoldInterestEarned"))
-						comUnit:sendTo("SteamStats","SaveStats","")
 						if script and bilboardStats:getInt("life")>0 then 
 							local mapInfo = MapInfo.new()
 							--victory
@@ -1263,6 +1262,7 @@ function EventBase.new()
 							--
 							script:callFunction("victory")
 						end
+						comUnit:sendTo("SteamStats","SaveStats","")
 					end
 				end
 				update = endlessUpdate

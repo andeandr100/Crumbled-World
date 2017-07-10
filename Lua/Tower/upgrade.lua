@@ -28,7 +28,7 @@ function Upgrade.new()
 	local comUnit = Core.getComUnit()
 	local bilboardStats = Core.getBillboard("stats")
 	local ignoreUpgrade = true
-	
+
 	--real version:
 	--billboard(cost) = 150
 	--billboard(value) = 150*0.75
@@ -142,56 +142,68 @@ function Upgrade.new()
 		statsToBillboard[#statsToBillboard+1] = stat
 	end
 	--
---	--function self.clearCooldown()
---		for key, value in pairs(upgradesAvailable) do
---			--get the next level for that upgrade
---			local level = (not upgraded[value[1].order]) and 1 or upgraded[value[1].order].level+1
---			if  value[level] and (not value[level].hidden) then
---				if value[1].isOnDuration then
---					value[1].isOnDuration = false
---				end
---				local onCooldown = (value[1].cooldown and value[1].isOnCoolDown==true and value[1].startWaveCooldown and (value[1].startWaveCooldown+value[1].cooldown)>Core.getBillboard("stats"):getInt("wave") )
---				if onCooldown then
---					value[1].isOnCoolDown = false
---					self.fixBillboardAndStats()
---				end
---			end
---		end
---	--end
 	-- function:	storeWaveChangeStats
 	-- purpose:		store all data needed to restore the xpSystem to a previous state
 	function self.storeWaveChangeStats()
 		--print("self.storeWaveChangeStats()")
-		local tab = {}
-		for key, value in pairs(upgradesAvailable) do
-			--get the next level for that upgrade
-			local level = (not upgraded[value[1].order]) and 1 or upgraded[value[1].order].level+1
-			tab[key] = tab[key] or {}
-			tab[key].level = 1
-			tab[key].expression = (value[level] and (not value[level].hidden))
-			if value[level] and (not value[level].hidden) then
-				tab[key].isOnDuration = value[1].isOnDuration
-				tab[key].cooldown = value[1].cooldown
-				tab[key].isOnCoolDown = value[1].isOnCoolDown
-				tab[key].startWaveCooldown = value[1].startWaveCooldown
+		local tab = {
+			upgradesAvailable = getCopyOfTable(upgradesAvailable),
+			upgraded = getCopyOfTable(upgraded),
+			stats = getCopyOfTable(stats),
+			subUpgradeCount = subUpgradeCount,
+			subUpgradeCountTotal = subUpgradeCountTotal,
+			SubUpgradeDiscount = SubUpgradeDiscount,
+			freeSubUpgradesCount = freeSubUpgradesCount,
+			upgradeDiscount = upgradeDiscount,
+			diffUpgradeCount = diffUpgradeCount,
+			interpolation = interpolation,
+			ignoreUpgrade = ignoreUpgrade,
+			totalCost = totalCost,
+			valueEfficiency = valueEfficiency
+		}
+		return tab
+	end
+	-- function:	mergeTables
+	-- purpose:		merges 2 tables
+	-- function:	combineTables
+	-- purpose:		combines 2 tables and make them equal except for functions
+	local function combineTables(destination,source)
+		--remove all values that is not available in the source
+		for key,value in pairs(destination) do
+			if type(destination[key])~="function" and (not source[key]) then
+				destination[key] = nil
 			end
 		end
-		return tab
+		--replace all variables
+		for key,value in pairs(source) do
+			if type(source[key])=="table" then
+				if type(destination[key])~="table" then
+					destination[key] = {}
+				end
+				combineTables(destination[key],source[key])
+			else
+				destination[key] = source[key]
+			end
+		end
 	end
 	-- function:	restoreWaveChangeStats
 	-- purpose:		restore the cpSystem to a previous state, with data from self.storeWaveChangeStats()
 	function self.restoreWaveChangeStats(tab)
 		--print("self.restoreWaveChangeStats("..tostring(tab)..")")
-		for key, item in pairs(tab) do
-			local level = 1
-			local value = upgradesAvailable[key]
-			if value and item.expression then
-				value[1].isOnDuration = item.isOnDuration
-				value[1].cooldown = item.cooldown
-				value[1].isOnCoolDown = item.isOnCoolDown
-				value[1].startWaveCooldown = item.startWaveCooldown
-			end
-		end
+		--mergeTables(tab.data,self)
+		combineTables(upgradesAvailable,tab.upgradesAvailable)
+		combineTables(upgraded,tab.upgraded)
+		combineTables(stats,tab.stats)
+		subUpgradeCount = tab.subUpgradeCount
+		subUpgradeCountTotal = tab.subUpgradeCountTotal
+		SubUpgradeDiscount = tab.SubUpgradeDiscount
+		freeSubUpgradesCount = tab.freeSubUpgradesCount
+		upgradeDiscount = tab.upgradeDiscount
+		diffUpgradeCount = tab.diffUpgradeCount
+		interpolation = tab.interpolation
+		ignoreUpgrade = tab.ignoreUpgrade
+		totalCost = tab.totalCost
+		valueEfficiency = tab.valueEfficiency
 		self.fixBillboardAndStats()
 	end
 	-- function:	upgrade
