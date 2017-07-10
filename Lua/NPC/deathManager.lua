@@ -496,7 +496,6 @@ function DeathManager.new()
 		--
 		if animation==nil and bodyTableSize==0 and effectList.size==0 and pointLigthList.size==0 then
 			local index = Core.getComUnit():getIndex()
-			print("endScript["..tostring(index).."]("..Core.getNetworkName()..")")
 			--destroy the script if there is nothing to update
 			if enableSelfDestruct then
 				print("Do self destruct["..tostring(index).."]("..Core.getNetworkName()..")")

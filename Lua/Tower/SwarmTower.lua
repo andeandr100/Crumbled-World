@@ -568,6 +568,9 @@ function SwarmTower.new()
 		if xpManager then
 			xpManager.setUpgradeCallback(self.handleUpgrade)
 		end
+		
+		restartListener = Listener("RestartWave")
+		restartListener:registerEvent("restartWave", restartWave)
 	
 		model = Core.getModel("tower_swarm_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")

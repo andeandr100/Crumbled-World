@@ -515,6 +515,7 @@ function NpcBase.new()
 		end
 	end
 	local function endUpdate()
+		print("endScript")
 		return false
 	end
 	function self.update()

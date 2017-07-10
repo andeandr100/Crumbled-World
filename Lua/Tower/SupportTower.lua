@@ -66,10 +66,23 @@ function SwarmTower.new()
 					upgradeTab = upgrade.storeWaveChangeStats(),
 					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-					DamageTotal = billboard:getDouble("DamageTotal")
+					DamageTotal = billboard:getDouble("DamageTotal"),
+					boostedOnLevel = boostedOnLevel,
+					boostLevel = upgrade.getLevel("boost"),
+					upgradeLevel = upgrade.getLevel("upgrade"),
+					rangeLevel = upgrade.getLevel("range"),
+					damageLevel = upgrade.getLevel("damage"),
+					weakenLevel = upgrade.getLevel("weaken"),
+					goldLevel = upgrade.getLevel("gold")
 				}
 				billboardWaveStats:setTable( waveStr, tab )
 			end
+		end
+	end
+	local function doDegrade(fromLevel,toLevel,callback)
+		while fromLevel>toLevel do
+			fromLevel = fromLevel - 1
+			callback(fromLevel)
 		end
 	end
 	local function restoreWaveChangeStats( wave )
@@ -85,14 +98,23 @@ function SwarmTower.new()
 			--restore the stats from the wave
 			local tab = billboardWaveStats:getTable( tostring(wave) )
 			if tab then
+				if xpManager then
+					xpManager.restoreWaveChangeStats(tab.xpTab)
+				end
+				--
+				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
+				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.handleUpgradeRange)
+				doDegrade(upgrade.getLevel("damage"),tab.damageLevel,self.handleUpgradeDamage)
+				doDegrade(upgrade.getLevel("weaken"),tab.weakenLevel,self.handleUpgradeWeaken)
+				doDegrade(upgrade.getLevel("gold"),tab.goldLevel,self.handleUpgradegold)
+				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
+				--
+				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 				billboard:setDouble("DamageTotal", tab.DamageTotal)
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
-				end
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 			end
 		end
 	end
@@ -291,7 +313,7 @@ function SwarmTower.new()
 	end
 	-- function:	handleBoost
 	-- purpose:		boost has been upgraded
-	local function handleBoost(param)
+	function self.handleBoost(param)
 		if tonumber(param)>upgrade.getLevel("boost") then
 			if tonumber(param)<=upgrade.getLevel("boost") then
 				return
@@ -316,7 +338,7 @@ function SwarmTower.new()
 	end
 	-- function:	handleUpgradeRange
 	-- purpose:		do all changes for upgrading the range
-	local function handleUpgradeRange(param)
+	function self.handleUpgradeRange(param)
 		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("range")
 		elseif upgrade.getLevel("range")>tonumber(param) then
@@ -340,17 +362,19 @@ function SwarmTower.new()
 			if upgrade.getLevel("range")==3 then
 				comUnit:sendTo("SteamAchievement","SupportRange","")
 			end
+		else
+			meshRange = nil
+			rangeMatrix = nil
 		end
 		setCurrentInfo()
 		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportRange",upgrade.getLevel("range"))
 	end
 	-- function:	handleUpgradeDamage
 	-- purpose:		do all changes for upgrading the damage
-	local function handleUpgradeDamage(param)
+	function self.handleUpgradeDamage(param)
 		if tonumber(param)>upgrade.getLevel("damage") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("damage")
 		elseif upgrade.getLevel("damage")>tonumber(param) then
-			--model:getMesh("range".. upgrade.getLevel("range")):setVisible(false)
 			upgrade.degrade("damage")
 		else
 			return--level unchanged
@@ -370,11 +394,10 @@ function SwarmTower.new()
 	end
 	-- function:	handleUpgradeWeaken
 	-- purpose:		do all changes for upgrading the weakening
-	local function handleUpgradeWeaken(param)
+	function self.handleUpgradeWeaken(param)
 		if tonumber(param)>upgrade.getLevel("weaken") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("weaken")
 		elseif upgrade.getLevel("weaken")>tonumber(param) then
-			--model:getMesh("range".. upgrade.getLevel("range")):setVisible(false)
 			upgrade.degrade("weaken")
 		else
 			return--level unchanged
@@ -430,11 +453,10 @@ function SwarmTower.new()
 	end
 	-- function:	Upgrades the towers gold upgrade.
 	-- callback:	Is called when the tower has been upgraded
-	local function handleUpgradegold(param)
+	function self.handleUpgradegold(param)
 		if tonumber(param)>upgrade.getLevel("gold") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("gold")
 		elseif upgrade.getLevel("gold")>tonumber(param) then
-			--model:getMesh("range".. upgrade.getLevel("range")):setVisible(false)
 			upgrade.degrade("gold")
 		else
 			return--level unchanged
@@ -567,11 +589,11 @@ function SwarmTower.new()
 		comUnitTable["dmgDealt"] = damageDealt
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = handleBoost
-		comUnitTable["upgrade3"] = handleUpgradeRange
-		comUnitTable["upgrade4"] = handleUpgradeDamage
-		comUnitTable["upgrade5"] = handleUpgradeWeaken
-		comUnitTable["upgrade6"] = handleUpgradegold
+		comUnitTable["upgrade2"] = self.handleBoost
+		comUnitTable["upgrade3"] = self.handleUpgradeRange
+		comUnitTable["upgrade4"] = self.handleUpgradeDamage
+		comUnitTable["upgrade5"] = self.handleUpgradeWeaken
+		comUnitTable["upgrade6"] = self.handleUpgradegold
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["shockwave"] = handleShockwave
 		comUnitTable["extraGoldEarned"] = handleGoldStats

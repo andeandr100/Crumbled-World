@@ -24,6 +24,9 @@ function BladeTower.new()
 	local upgrade = Upgrade.new()
 	local supportManager = SupportManager.new()
 	local cTowerUpg = CampaignTowerUpg.new("Tower/BladeTower.lua",upgrade)
+	--
+	local electricPointLight1
+	local electricPointLight2
 	--XP
 	local xpManager = XpSystem.new(upgrade)
 	--constants
@@ -84,10 +87,24 @@ function BladeTower.new()
 					upgradeTab = upgrade.storeWaveChangeStats(),
 					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-					DamageTotal = billboard:getDouble("DamageTotal")
+					DamageTotal = billboard:getDouble("DamageTotal"),
+					boostedOnLevel = boostedOnLevel,
+					boostLevel = upgrade.getLevel("boost"),
+					upgradeLevel = upgrade.getLevel("upgrade"),
+					rangeLevel = upgrade.getLevel("range"),
+					attackSpeedLevel = upgrade.getLevel("attackSpeed"),
+					masterBladeLevel = upgrade.getLevel("masterBlade"),
+					electricBladeLevel = upgrade.getLevel("electricBlade"),
+					shieldBreakerLevel = upgrade.getLevel("shieldBreaker")
 				}
 				billboardWaveStats:setTable( waveStr, tab )
 			end
+		end
+	end
+	local function doDegrade(fromLevel,toLevel,callback)
+		while fromLevel>toLevel do
+			fromLevel = fromLevel - 1
+			callback(fromLevel)
 		end
 	end
 	local function restoreWaveChangeStats( wave )
@@ -103,14 +120,23 @@ function BladeTower.new()
 			--restore the stats from the wave
 			local tab = billboardWaveStats:getTable( tostring(wave) )
 			if tab then
+				if xpManager then
+					xpManager.restoreWaveChangeStats(tab.xpTab)
+				end
+				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
+				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.handleRange)
+				doDegrade(upgrade.getLevel("attackSpeed"),tab.attackSpeedLevel,self.handleAttackSpeed)
+				doDegrade(upgrade.getLevel("masterBlade"),tab.masterBladeLevel,self.handleMasterBlade)
+				doDegrade(upgrade.getLevel("electricBlade"),tab.electricBladeLevel,self.handleElectrified)
+				doDegrade(upgrade.getLevel("shieldBreaker"),tab.shieldBreakerLevel,self.handleShieldBypass)
+				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
+				--
+				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 				billboard:setDouble("DamageTotal", tab.DamageTotal)
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
-				end
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 			end
 		end
 	end
@@ -459,7 +485,7 @@ function BladeTower.new()
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		setCurrentInfo()--updates variables
 	end
-	local function handleBoost(param)
+	function self.handleBoost(param)
 		if tonumber(param)>upgrade.getLevel("boost") then
 			if Core.isInMultiplayer() then
 				comUnit:sendNetworkSyncSafe("upgrade2","1")
@@ -488,7 +514,7 @@ function BladeTower.new()
 			return--level unchanged
 		end
 	end
-	local function handleAttackSpeed(param)
+	function self.handleAttackSpeed(param)
 		if tonumber(param)>upgrade.getLevel("attackSpeed") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("attackSpeed")
 		elseif upgrade.getLevel("attackSpeed")>tonumber(param) then
@@ -512,7 +538,7 @@ function BladeTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleMasterBlade(param)
+	function self.handleMasterBlade(param)
 		if tonumber(param)>upgrade.getLevel("masterBlade") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("masterBlade")
 		elseif upgrade.getLevel("masterBlade")>tonumber(param) then
@@ -545,7 +571,7 @@ function BladeTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleShieldBypass(param)
+	function self.handleShieldBypass(param)
 		if tonumber(param)>upgrade.getLevel("shieldBreaker") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("shieldBreaker")
 		elseif upgrade.getLevel("shieldBreaker")>tonumber(param) then
@@ -559,7 +585,7 @@ function BladeTower.new()
 		model:getMesh("shield"):setVisible(upgrade.getLevel("shieldBreaker")>0)
 		setCurrentInfo()
 	end
-	local function handleRange(param)
+	function self.handleRange(param)
 		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("range")
 		elseif upgrade.getLevel("range")>tonumber(param) then
@@ -576,7 +602,7 @@ function BladeTower.new()
 --			comUnit:sendTo("SteamAchievement","Range","")
 --		end
 	end
-	local function handleElectrified(param)
+	function self.handleElectrified(param)
 		if tonumber(param)>upgrade.getLevel("electricBlade") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("electricBlade")
 		elseif upgrade.getLevel("electricBlade")>tonumber(param) then
@@ -594,6 +620,8 @@ function BladeTower.new()
 				sparkCenter2:deactivate()
 				electric1:setVisible(false)
 				electric2:setVisible(false)
+				electricPointLight1:setVisible(false)
+				electricPointLight2:setVisible(false)
 			end
 		else
 			myStats.disqualified = true
@@ -614,12 +642,19 @@ function BladeTower.new()
 				this:addChild(electric1)
 				this:addChild(electric2)
 				--lighting
-				local pointLight = PointLight(Vec3(-0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
-				pointLight:setCutOff(0.05)
-				this:addChild(pointLight)
-				pointLight = PointLight(Vec3(0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
-				pointLight:setCutOff(0.05)
-				this:addChild(pointLight)
+				electricPointLight1 = PointLight(Vec3(-0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
+				electricPointLight1:setCutOff(0.05)
+				this:addChild(electricPointLight1)
+				electricPointLight2 = PointLight(Vec3(0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
+				electricPointLight2:setCutOff(0.05)
+				this:addChild(electricPointLight2)
+			else
+				sparkCenter1:activate(Vec3(-0.35,-0.54,-0.5))
+				sparkCenter2:activate(Vec3(0.35,-0.54,-0.5))
+				electric1:setVisible(true)
+				electric2:setVisible(true)
+				electricPointLight1:setVisible(true)
+				electricPointLight2:setVisible(true)
 			end
 			sparkCenter1:setScale( upgradeElectricScale ) 
 			sparkCenter2:setScale( upgradeElectricScale )
@@ -810,18 +845,18 @@ function BladeTower.new()
 		billboard:setVec3("bladeBlockedPos",Vec3(0,-1000000,0))
 		billboard:setVec3("bladeBlockedDir",Vec3(0,-1000000,0))
 		billboard:setInt("level", 1)
-	
+		
 		--ComUnitCallbacks
 		comUnitTable["dmgDealt"] = damageDealt
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["bladeBlocked"] = bladeBlocked
 		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = handleBoost
-		comUnitTable["upgrade3"] = handleAttackSpeed
-		comUnitTable["upgrade4"] = handleMasterBlade
-		comUnitTable["upgrade5"] = handleElectrified
-		comUnitTable["upgrade6"] = handleShieldBypass
-		comUnitTable["upgrade7"] = handleRange
+		comUnitTable["upgrade2"] = self.handleBoost
+		comUnitTable["upgrade3"] = self.handleAttackSpeed
+		comUnitTable["upgrade4"] = self.handleMasterBlade
+		comUnitTable["upgrade5"] = self.handleElectrified
+		comUnitTable["upgrade6"] = self.handleShieldBypass
+		comUnitTable["upgrade7"] = self.handleRange
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["checkRange"] = checkRange
 		comUnitTable["NetAttack"] = NetAttack

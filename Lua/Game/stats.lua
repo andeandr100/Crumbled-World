@@ -73,6 +73,7 @@ function create()
 	comUnitTable["npcReachedEnd"] = handleNpcReachedEnd
 	comUnitTable["setWave"] = handleSetwave
 	comUnitTable["setMaxWave"] = handleSetMaxwave
+	comUnitTable["setBillboardDouble"] = handleSetBillboardDouble
 	comUnitTable["setBillboardInt"] = handleSetBillboardInt
 	comUnitTable["addBillboardInt"] = handleAddBillboardInt
 	comUnitTable["setBillboardString"] = handleSetBillboardString
@@ -192,6 +193,13 @@ function handleAddTowerSold()
 	if billboard:getInt("towersSold")==5 then
 		Core.getComUnit():sendTo("SteamAchievement","Seller","")
 	end
+end
+function handleSetBillboardDouble(param)
+	local bName,bValue = string.match(param, "(.*);(.*)")
+	if not bName or not bValue then
+		error("string was not formated correctly, should be like \"(.*);(.*)\". input=="..tostring(param))
+	end
+	billboard:setDouble(bName,tonumber(bValue))
 end
 function handleSetBillboardInt(param)
 	local bName,bValue = string.match(param, "(.*);(.*)")

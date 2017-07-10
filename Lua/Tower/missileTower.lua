@@ -69,7 +69,14 @@ function MissileTower.new()
 					reloadTimeLeft = reloadTimeLeft,
 					missilesAvailable = missilesAvailable,
 					missileToFireNext = missileToFireNext,
-					missile = {}
+					missile = {},
+					boostedOnLevel = boostedOnLevel,
+					boostLevel = upgrade.getLevel("boost"),
+					upgradeLevel = upgrade.getLevel("upgrade"),
+					rangeLevel = upgrade.getLevel("range"),
+					BlasterLevel = upgrade.getLevel("Blaster"),
+					fuelLevel = upgrade.getLevel("fuel"),
+					shieldSmasherLevel = upgrade.getLevel("shieldSmasher")
 				}
 				--parse all missiles
 				for i = 1, 2+level, 1 do
@@ -85,6 +92,12 @@ function MissileTower.new()
 				end
 				billboardWaveStats:setTable( waveStr, tab )
 			end
+		end
+	end
+	local function doDegrade(fromLevel,toLevel,callback)
+		while fromLevel>toLevel do
+			fromLevel = fromLevel - 1
+			callback(fromLevel)
 		end
 	end
 	local function restoreWaveChangeStats( wave )
@@ -103,6 +116,14 @@ function MissileTower.new()
 				if xpManager then
 					xpManager.restoreWaveChangeStats(tab.xpTab)
 				end
+				--
+				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
+				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.handleRange)
+				doDegrade(upgrade.getLevel("Blaster"),tab.BlasterLevel,self.handleBlaster)
+				doDegrade(upgrade.getLevel("fuel"),tab.fuelLevel,self.handleFuel)
+				doDegrade(upgrade.getLevel("shieldSmasher"),tab.shieldSmasherLevel,self.handleShieldSmasher)
+				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
+				--
 				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
@@ -284,7 +305,7 @@ function MissileTower.new()
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		setCurrentInfo()
 	end
-	local function handleBoost(param)
+	function self.handleBoost(param)
 		if tonumber(param)>upgrade.getLevel("boost") then
 			if Core.isInMultiplayer() then
 				comUnit:sendNetworkSyncSafe("upgrade2","1")
@@ -305,7 +326,7 @@ function MissileTower.new()
 			return--level unchanged
 		end
 	end
-	local function handleFuel(param)
+	function self.handleFuel(param)
 		if tonumber(param)>upgrade.getLevel("fuel") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("fuel")
 		elseif upgrade.getLevel("fuel")>tonumber(param) then
@@ -326,7 +347,7 @@ function MissileTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleRange(param)
+	function self.handleRange(param)
 		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("range")
 		elseif upgrade.getLevel("range")>tonumber(param) then
@@ -346,7 +367,7 @@ function MissileTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleBlaster(param)
+	function self.handleBlaster(param)
 		if tonumber(param)>upgrade.getLevel("Blaster") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("Blaster")
 		elseif upgrade.getLevel("Blaster")>tonumber(param) then
@@ -366,7 +387,7 @@ function MissileTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleShieldSmasher(param)
+	function self.handleShieldSmasher(param)
 		if tonumber(param)>upgrade.getLevel("shieldSmasher") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("shieldSmasher")
 		elseif upgrade.getLevel("shieldSmasher")>tonumber(param) then
@@ -879,11 +900,11 @@ function MissileTower.new()
 		comUnitTable["dmgDealt"] = damageDealt
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = handleBoost
-		comUnitTable["upgrade3"] = handleRange
-		comUnitTable["upgrade4"] = handleBlaster
-		comUnitTable["upgrade5"] = handleFuel
-		comUnitTable["upgrade6"] = handleShieldSmasher
+		comUnitTable["upgrade2"] = self.handleBoost
+		comUnitTable["upgrade3"] = self.handleRange
+		comUnitTable["upgrade4"] = self.handleBlaster
+		comUnitTable["upgrade5"] = self.handleFuel
+		comUnitTable["upgrade6"] = self.handleShieldSmasher
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["NetLaunchMissile"] = NetLaunchMissile
 		comUnitTable["SetTargetMode"] = self.SetTargetMode

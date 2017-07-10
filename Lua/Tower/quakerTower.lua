@@ -75,10 +75,22 @@ function QuakeTower.new()
 					upgradeTab = upgrade.storeWaveChangeStats(),
 					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-					DamageTotal = billboard:getDouble("DamageTotal")
+					DamageTotal = billboard:getDouble("DamageTotal"),
+					boostedOnLevel = boostedOnLevel,
+					boostLevel = upgrade.getLevel("boost"),
+					upgradeLevel = upgrade.getLevel("upgrade"),
+					fireCritLevel = upgrade.getLevel("fireCrit"),
+					fireStrikeLevel = upgrade.getLevel("fireStrike"),
+					electricStrikeLevel = upgrade.getLevel("electricStrike")
 				}
 				billboardWaveStats:setTable( waveStr, tab )
 			end
+		end
+	end
+	local function doDegrade(fromLevel,toLevel,callback)
+		while fromLevel>toLevel do
+			fromLevel = fromLevel - 1
+			callback(fromLevel)
 		end
 	end
 	local function restoreWaveChangeStats( wave )
@@ -94,14 +106,22 @@ function QuakeTower.new()
 			--restore the stats from the wave
 			local tab = billboardWaveStats:getTable( tostring(wave) )
 			if tab then
+				if xpManager then
+					xpManager.restoreWaveChangeStats(tab.xpTab)
+				end
+				--
+				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
+				doDegrade(upgrade.getLevel("fireCrit"),tab.fireCritLevel,self.handleFireCrit)
+				doDegrade(upgrade.getLevel("fireStrike"),tab.fireStrikeLevel,self.handleFlameStrike)
+				doDegrade(upgrade.getLevel("electricStrike"),tab.electricStrikeLevel,self.handleElectricStrike)
+				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
+				--
+				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 				billboard:setDouble("DamageTotal", tab.DamageTotal)
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
-				end
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 			end
 		end
 	end
@@ -260,7 +280,7 @@ function QuakeTower.new()
 		upgrade.clearCooldown()
 		setCurrentInfo()
 	end
-	local function handleBoost(param)
+	function self.handleBoost(param)
 		if tonumber(param)>upgrade.getLevel("boost") then
 			if Core.isInMultiplayer() then
 				comUnit:sendNetworkSyncSafe("upgrade2","1")
@@ -281,7 +301,7 @@ function QuakeTower.new()
 			return--level unchanged
 		end
 	end
-	local function handleFireCrit(param)
+	function self.handleFireCrit(param)
 		if tonumber(param)>upgrade.getLevel("fireCrit") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("fireCrit")
 		elseif upgrade.getLevel("fireCrit")>tonumber(param) then
@@ -311,7 +331,7 @@ function QuakeTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleFlameStrike(param)
+	function self.handleFlameStrike(param)
 		if tonumber(param)>upgrade.getLevel("fireStrike") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("fireStrike")
 		elseif upgrade.getLevel("fireStrike")>tonumber(param) then
@@ -352,7 +372,7 @@ function QuakeTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleElectricStrike(param)
+	function self.handleElectricStrike(param)
 		if tonumber(param)>upgrade.getLevel("electricStrike") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("electricStrike")
 		elseif upgrade.getLevel("electricStrike")>tonumber(param) then
@@ -704,10 +724,10 @@ function QuakeTower.new()
 		comUnitTable["dmgDealt"] = damageDealt
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = handleBoost
-		comUnitTable["upgrade3"] = handleFireCrit
-		comUnitTable["upgrade4"] = handleFlameStrike
-		comUnitTable["upgrade5"] = handleElectricStrike
+		comUnitTable["upgrade2"] = self.handleBoost
+		comUnitTable["upgrade3"] = self.handleFireCrit
+		comUnitTable["upgrade4"] = self.handleFlameStrike
+		comUnitTable["upgrade5"] = self.handleElectricStrike
 		comUnitTable["NetOwner"] = setNetOwner
 		supportManager.setComUnitTable(comUnitTable)
 		supportManager.addCallbacks()

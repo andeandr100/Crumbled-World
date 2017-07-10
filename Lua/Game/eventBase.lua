@@ -27,6 +27,7 @@ function EventBase.new()
 	local comUnit = Core.getComUnit()--"EventManager"
 	local comUnitTable = {}
 	local bilboardStats = Core.getBillboard("stats")
+	local massKillFrameDelayForRestart = -1
 	--local soulmanager
 	local waveUnitIndex = 0
 	local numTowers = 0
@@ -1032,7 +1033,11 @@ function EventBase.new()
 		--
 		--
 		--
-
+		--Kill of all strays that spawned on restart of the wave
+		massKillFrameDelayForRestart = massKillFrameDelayForRestart - 1
+		if massKillFrameDelayForRestart==0 then
+			comUnit:broadCast(Vec3(),math.huge,"disappear","")
+		end
 		if spawnListPopulated then
 			--handle the event restart wave
 			if keyBindRevertWave:getPressed() and currentState ~= EVENT_END_GAME then
@@ -1046,7 +1051,10 @@ function EventBase.new()
 						currentState = EVENT_CHANGE_WAVE
 						clearActiveSpawn()
 						comUnit:broadCast(Vec3(),math.huge,"disappear","")
+						massKillFrameDelayForRestart=2
 						waveRestarted = true
+						--
+						comUnit:sendTo("stats","setBillboardDouble","RestartedWaveGameTime;"..Core.getGameTime())
 						--
 						local restartWaveListener = Listener("RestartWave")
 						restartWaveListener:pushEvent("restartWave",waveCount+1)
