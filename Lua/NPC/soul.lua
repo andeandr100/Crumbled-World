@@ -32,6 +32,7 @@ function TheSoul.new()
 	local canBeKilled = true
 	local comUnit					--comUnit = ComUnit()
 	local bloodSpray
+	local markOfDeathModel = nil
 	--local soulManager
 	local globalNode
 	--fire
