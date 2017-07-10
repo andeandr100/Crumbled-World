@@ -297,12 +297,7 @@ function ElectricTower.new()
 		--reloadTime =		1.0/upgrade.getValue("RPS")--info[upgradeLevel]["reloadTime"]
 		reloadTimeLeft =	0.0
 		--energyMax =		 upgrade.getValue("energyMax")--info[upgradeLevel]["energyMax"]*(1.02^level)
-	
-		if equalizer then
-			comUnitTable["sendMeEnergy"] = sendEnergyTo
-			comUnitTable["requestEnergy"] = doWeHaveEnergyOver
-		end
-	
+		
 		updateStats()
 		--achievment
 		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("energyPool")==3 and upgrade.getLevel("ampedSlow")==3 and upgrade.getLevel("energy")==3 and upgrade.getLevel("range")==3 then
@@ -734,7 +729,7 @@ function ElectricTower.new()
 			if targetSelector.isAnyInRange() then
 				comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range")+0.75,"requestEnergy",{prio=true,deficit=(energyMax-energy)})
 			else
-				comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range")+0.75,"requestEnergy",{prio=false,deficit=(energyMax-energy)})
+				comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range")+0.75,"requestEnergy",{prio=(energy<energyMax*0.65),deficit=(energyMax-energy)})
 			end
 			energyOffers.size=0
 			energyOffers.frameCounter=2
@@ -827,6 +822,8 @@ function ElectricTower.new()
 		comUnitTable["upgrade4"] = self.handleUpgradeSlow
 		comUnitTable["upgrade5"] = self.handleUpgradeEnergyPool
 		comUnitTable["upgrade6"] = self.handleUpgradeEnergy
+		comUnitTable["sendMeEnergy"] = sendEnergyTo
+		comUnitTable["requestEnergy"] = doWeHaveEnergyOver
 		comUnitTable["canOfferEnergy"] = someoneCanOfferEnergy
 		comUnitTable["sendEnergyTo"] = recivingEnergy
 		comUnitTable["NetOwner"] = setNetOwner

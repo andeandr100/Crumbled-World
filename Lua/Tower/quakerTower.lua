@@ -747,7 +747,7 @@ function QuakeTower.new()
 								icon = 56,
 								value1 = 1,
 								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 235},
+										damage = 	{ upgrade.add, 215},
 										RPS = 		{ upgrade.add, 0.28},--1.0/3.5},
 										model = 	{ upgrade.set, "tower_quaker_l1.mym"} }
 							} )
@@ -759,7 +759,7 @@ function QuakeTower.new()
 								icon = 56,
 								value1 = 2,
 								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 645},
+										damage = 	{ upgrade.add, 580},
 										RPS = 		{ upgrade.add, 0.34},--1.0/3.0},
 										model = 	{ upgrade.set, "tower_quaker_l2.mym"} }
 							}, 0 )
@@ -771,7 +771,7 @@ function QuakeTower.new()
 								icon = 56,
 								value1 = 3,
 								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 1330},
+										damage = 	{ upgrade.add, 1200},
 										RPS = 		{ upgrade.add, 0.4},--1.0/2.5},
 										model = 	{ upgrade.set, "tower_quaker_l3.mym"} }
 							}, 0 )

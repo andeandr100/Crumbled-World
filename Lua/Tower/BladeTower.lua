@@ -884,7 +884,7 @@ function BladeTower.new()
 								value1 = 1,
 								stats ={range =				{ upgrade.add, 9.0},
 										damage = 			{ upgrade.add, 150},
-										RPS = 				{ upgrade.add, 1.0/2.75},
+										RPS = 				{ upgrade.add, 1.0/2.5},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
 										model = 			{ upgrade.set, "tower_cutter_l1.mym"} }
@@ -899,7 +899,7 @@ function BladeTower.new()
 								value1 = 2,
 								stats ={range =				{ upgrade.add, 9.0},
 										damage = 			{ upgrade.add, 480},
-										RPS = 				{ upgrade.add, 1.0/2.75},
+										RPS = 				{ upgrade.add, 1.0/2.5},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
 										model = 			{ upgrade.set, "tower_cutter_l2.mym"} }
@@ -914,7 +914,7 @@ function BladeTower.new()
 								value1 = 3,
 								stats ={range =				{ upgrade.add, 9.0},
 										damage = 			{ upgrade.add, 1135},
-										RPS = 				{ upgrade.add, 1.0/2.75},
+										RPS = 				{ upgrade.add, 1.0/2.5},
 										bladeSpeed =		{ upgrade.add, 10.5},
 										shieldBypass =		{ upgrade.add, 0.0},
 										model = 			{ upgrade.set, "tower_cutter_l3.mym"} }
