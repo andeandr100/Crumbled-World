@@ -68,10 +68,22 @@ function SwarmTower.new()
 					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
 					DamageTotal = billboard:getDouble("DamageTotal"),
-					currentTargetMode = billboard:getInt("currentTargetMode")
+					currentTargetMode = billboard:getInt("currentTargetMode"),
+					boostedOnLevel = boostedOnLevel,
+					boostLevel = upgrade.getLevel("boost"),
+					upgradeLevel = upgrade.getLevel("upgrade"),
+					rangeLevel = upgrade.getLevel("range"),
+					burnDamageLevel = upgrade.getLevel("burnDamage"),
+					fuelLevel = upgrade.getLevel("fuel")
 				}
 				billboardWaveStats:setTable( waveStr, tab )
 			end
+		end
+	end
+	local function doDegrade(fromLevel,toLevel,callback)
+		while fromLevel>toLevel do
+			fromLevel = fromLevel - 1
+			callback(fromLevel)
 		end
 	end
 	local function restoreWaveChangeStats( wave )
@@ -87,15 +99,23 @@ function SwarmTower.new()
 			--restore the stats from the wave
 			local tab = billboardWaveStats:getTable( tostring(wave) )
 			if tab then
+				if xpManager then
+					xpManager.restoreWaveChangeStats(tab.xpTab)
+				end
+				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
+				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.handleUpgradeRange)
+				doDegrade(upgrade.getLevel("burnDamage"),tab.burnDamageLevel,self.handleUpgradeBurnDamage)
+				doDegrade(upgrade.getLevel("fuel"),tab.fuelLevel,self.handleUpgradeFuel)
+				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
+				--
+				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
 				billboard:setDouble("DamageTotal", tab.DamageTotal)
 				self.SetTargetMode(tab.currentTargetMode)
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
-				end
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				boostedOnLevel = tab.boostedOnLevel
 			end
 		end
 	end
@@ -373,7 +393,7 @@ function SwarmTower.new()
 		upgrade.clearCooldown()
 		setCurrentInfo()
 	end
-	local function handleBoost(param)
+	function self.handleBoost(param)
 		if tonumber(param)>upgrade.getLevel("boost") then
 			if Core.isInMultiplayer() then
 				comUnit:sendNetworkSyncSafe("upgrade2","1")
@@ -395,7 +415,7 @@ function SwarmTower.new()
 			return--level unchanged
 		end
 	end
-	local function handleUpgradeBurnDamage(param)
+	function self.handleUpgradeBurnDamage(param)
 		if tonumber(param)>upgrade.getLevel("burnDamage") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("burnDamage")
 		elseif upgrade.getLevel("burnDamage")>tonumber(param) then
@@ -416,7 +436,7 @@ function SwarmTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleUpgradeFuel(param)
+	function self.handleUpgradeFuel(param)
 		if tonumber(param)>upgrade.getLevel("fuel") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("fuel")
 		elseif upgrade.getLevel("fuel")>tonumber(param) then
@@ -437,7 +457,7 @@ function SwarmTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleUpgradeRange(param)
+	function self.handleUpgradeRange(param)
 		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("range")
 		elseif upgrade.getLevel("range")>tonumber(param) then
@@ -579,10 +599,10 @@ function SwarmTower.new()
 		comUnitTable["dmgDealt"] = damageDealt
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = handleBoost
-		comUnitTable["upgrade3"] = handleUpgradeRange
-		comUnitTable["upgrade4"] = handleUpgradeBurnDamage
-		comUnitTable["upgrade5"] = handleUpgradeFuel
+		comUnitTable["upgrade2"] = self.handleBoost
+		comUnitTable["upgrade3"] = self.handleUpgradeRange
+		comUnitTable["upgrade4"] = self.handleUpgradeBurnDamage
+		comUnitTable["upgrade5"] = self.handleUpgradeFuel
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["NetLaunch"] = NetLaunch
 		comUnitTable["NetBall"] = NetBall

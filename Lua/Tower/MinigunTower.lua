@@ -102,10 +102,22 @@ function MinigunTower.new()
 					DamageTotal = billboard:getDouble("DamageTotal"),
 					currentTargetMode = billboard:getInt("currentTargetMode"),
 					engineMatrix = engineMesh:getLocalMatrix(),
-					rotatorMatrix = rotatorMesh:getLocalMatrix()
+					rotatorMatrix = rotatorMesh:getLocalMatrix(),
+					boostedOnLevel = boostedOnLevel,
+					boostLevel = upgrade.getLevel("boost"),
+					upgradeLevel = upgrade.getLevel("upgrade"),
+					rangeLevel = upgrade.getLevel("range"),
+					overChargeLevel = upgrade.getLevel("overCharge"),
+					fireCritLevel = upgrade.getLevel("fireCrit")
 				}
 				billboardWaveStats:setTable( waveStr, tab )
 			end
+		end
+	end
+	local function doDegrade(fromLevel,toLevel,callback)
+		while fromLevel>toLevel do
+			fromLevel = fromLevel - 1
+			callback(fromLevel)
 		end
 	end
 	local function restoreWaveChangeStats( wave )
@@ -125,6 +137,13 @@ function MinigunTower.new()
 				if xpManager then
 					xpManager.restoreWaveChangeStats(tab.xpTab)
 				end
+				--
+				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
+				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.upgradeRange)
+				doDegrade(upgrade.getLevel("fireCrit"),tab.fireCritLevel,self.upgradeGreaseBullet)
+				doDegrade(upgrade.getLevel("overCharge"),tab.overChargeLevel,self.upgradeOverCharge)
+				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
+				--
 				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
@@ -134,6 +153,7 @@ function MinigunTower.new()
 				SetTargetMode(tab.currentTargetMode)
 				engineMesh:setLocalMatrix(tab.engineMatrix)
 				rotatorMesh:setLocalMatrix(tab.rotatorMatrix)
+				boostedOnLevel = tab.boostedOnLevel
 			end
 		end
 	end
@@ -240,7 +260,7 @@ function MinigunTower.new()
 						tStats.setValue({mapName,"wave"..name,"minigunTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
 					end
 				end
-				myStatsReset()	
+				myStatsReset()
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -516,7 +536,7 @@ function MinigunTower.new()
 		upgrade.clearCooldown()
 		setCurrentInfo()
 	end
-	local function handleBoost(param)
+	function self.handleBoost(param)
 		if tonumber(param)>upgrade.getLevel("boost") then
 			upgrade.upgrade("boost")
 			if Core.isInMultiplayer() then
@@ -544,7 +564,7 @@ function MinigunTower.new()
 			return--level unchanged
 		end
 	end
-	local function upgradeRange(param)
+	function self.upgradeRange(param)
 		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("range")
 		elseif upgrade.getLevel("range")>tonumber(param) then
@@ -591,7 +611,7 @@ function MinigunTower.new()
 			model:getMesh(meshName..(upgrade.getLevel(name)-1)):setVisible(false)
 		end
 	end
-	local function upgradeGreaseBullet(param)
+	function self.upgradeGreaseBullet(param)
 		if tonumber(param)>upgrade.getLevel("fireCrit") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("fireCrit")
 		elseif upgrade.getLevel("fireCrit")>tonumber(param) then
@@ -612,8 +632,7 @@ function MinigunTower.new()
 		local activeLevel = tonumber(param)
 		support["supportBase"][index] = activeLevel
 	end
-	
-	local function upgradeOverCharge(param)
+	function self.upgradeOverCharge(param)
 		if tonumber(param)>upgrade.getLevel("overCharge") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("overCharge")
 		elseif upgrade.getLevel("overCharge")>tonumber(param) then
@@ -949,10 +968,10 @@ function MinigunTower.new()
 		comUnitTable["dmgDealt"] = damageDealt
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = handleBoost
-		comUnitTable["upgrade3"] = upgradeRange
-		comUnitTable["upgrade4"] = upgradeOverCharge
-		comUnitTable["upgrade5"] = upgradeGreaseBullet
+		comUnitTable["upgrade2"] = self.handleBoost
+		comUnitTable["upgrade3"] = self.upgradeRange
+		comUnitTable["upgrade4"] = self.upgradeOverCharge
+		comUnitTable["upgrade5"] = self.upgradeGreaseBullet
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["NetTarget"] = NetSyncTarget
 		comUnitTable["Retarget"] = handleRetarget

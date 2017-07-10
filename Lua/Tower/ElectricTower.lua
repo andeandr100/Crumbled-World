@@ -84,10 +84,24 @@ function ElectricTower.new()
 					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
 					DamageTotal = billboard:getDouble("DamageTotal"),
-					currentTargetMode = billboard:getInt("currentTargetMode")
+					currentTargetMode = billboard:getInt("currentTargetMode"),
+					boostedOnLevel = boostedOnLevel,
+					currentTargetAreaOffset = billboard:getMatrix("TargetAreaOffset"),
+					boostLevel = upgrade.getLevel("boost"),
+					upgradeLevel = upgrade.getLevel("upgrade"),
+					rangeLevel = upgrade.getLevel("range"),
+					ampedSlowLevel = upgrade.getLevel("ampedSlow"),
+					energyPoolLevel = upgrade.getLevel("energyPool"),
+					energyLevel = upgrade.getLevel("energy")
 				}
 				billboardWaveStats:setTable( waveStr, tab )
 			end
+		end
+	end
+	local function doDegrade(fromLevel,toLevel,callback)
+		while fromLevel>toLevel do
+			fromLevel = fromLevel - 1
+			callback(fromLevel)
 		end
 	end
 	local function restoreWaveChangeStats( wave )
@@ -106,6 +120,13 @@ function ElectricTower.new()
 				if xpManager then
 					xpManager.restoreWaveChangeStats(tab.xpTab)
 				end
+				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
+				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.handleUpgradeRange)
+				doDegrade(upgrade.getLevel("ampedSlow"),tab.ampedSlowLevel,self.handleUpgradeSlow)
+				doDegrade(upgrade.getLevel("energyPool"),tab.energyPoolLevel,self.handleUpgradeEnergyPool)
+				doDegrade(upgrade.getLevel("energy"),tab.energyLevel,self.handleUpgradeEnergy)
+				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
+				--
 				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
@@ -114,6 +135,7 @@ function ElectricTower.new()
 				billboard:setDouble("DamageTotal", tab.DamageTotal)
 				energy = tab.energy
 				self.SetTargetMode(tab.currentTargetMode)
+				boostedOnLevel = tab.boostedOnLevel
 			end
 		end
 	end
@@ -356,7 +378,7 @@ function ElectricTower.new()
 		upgrade.clearCooldown()
 		setCurrentInfo()
 	end
-	local function handleBoost(param)
+	function self.handleBoost(param)
 		if tonumber(param)>upgrade.getLevel("boost") then
 			if Core.isInMultiplayer() then
 				comUnit:sendNetworkSyncSafe("upgrade2","1")
@@ -377,7 +399,7 @@ function ElectricTower.new()
 			return--level unchanged
 		end
 	end
-	local function handleUpgradeRange(param)
+	function self.handleUpgradeRange(param)
 		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("range")
 		elseif upgrade.getLevel("range")>tonumber(param) then
@@ -394,7 +416,7 @@ function ElectricTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleUpgradeSlow(param)
+	function self.handleUpgradeSlow(param)
 		if tonumber(param)>upgrade.getLevel("ampedSlow") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("ampedSlow")
 		elseif upgrade.getLevel("ampedSlow")>tonumber(param) then
@@ -415,7 +437,7 @@ function ElectricTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleUpgradeEnergyPool(param)
+	function self.handleUpgradeEnergyPool(param)
 		if tonumber(param)>upgrade.getLevel("energyPool") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("energyPool")
 		elseif upgrade.getLevel("energyPool")>tonumber(param) then
@@ -436,7 +458,7 @@ function ElectricTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function handleUpgradeWeakSpot(param)
+	function self.handleUpgradeEnergy(param)
 		if tonumber(param)>upgrade.getLevel("energy") and tonumber(param)<=upgrade.getLevel("upgrade") then
 			upgrade.upgrade("energy")
 		elseif upgrade.getLevel("energy")>tonumber(param) then
@@ -800,11 +822,11 @@ function ElectricTower.new()
 		comUnitTable["dmgLost"] = damageLost
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = handleBoost
-		comUnitTable["upgrade3"] = handleUpgradeRange
-		comUnitTable["upgrade4"] = handleUpgradeSlow
-		comUnitTable["upgrade5"] = handleUpgradeEnergyPool
-		comUnitTable["upgrade6"] = handleUpgradeWeakSpot
+		comUnitTable["upgrade2"] = self.handleBoost
+		comUnitTable["upgrade3"] = self.handleUpgradeRange
+		comUnitTable["upgrade4"] = self.handleUpgradeSlow
+		comUnitTable["upgrade5"] = self.handleUpgradeEnergyPool
+		comUnitTable["upgrade6"] = self.handleUpgradeEnergy
 		comUnitTable["canOfferEnergy"] = someoneCanOfferEnergy
 		comUnitTable["sendEnergyTo"] = recivingEnergy
 		comUnitTable["NetOwner"] = setNetOwner
@@ -1094,7 +1116,7 @@ function ElectricTower.new()
 		cTowerUpg.addUpg("range",handleUpgradeRange)
 		cTowerUpg.addUpg("ampedSlow",handleUpgradeSlow)
 		cTowerUpg.addUpg("energyPool",handleUpgradeEnergyPool)
-		cTowerUpg.addUpg("energy",handleUpgradeWeakSpot)
+		cTowerUpg.addUpg("energy",handleUpgradeEnergy)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		return true
 	end
