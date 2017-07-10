@@ -601,12 +601,12 @@ function EventBase.new()
 			--hero waves or pre selected spawns should be available
 			--selection of the wave should be window based in a normaly distributed curve that moves down the spawn options of size 10 or similar
 			--what script to use
-			npc = 	{	rat =			{hp=275,	size=0.5,	script="NPC/npc_rat.lua"},--fast units
-						skeleton =		{hp=450,	size=0.5,	script="NPC/npc_skeleton.lua"},
+			npc = 	{	rat =			{hp=275,	size=0.8,	script="NPC/npc_rat.lua"},--fast units
+						skeleton =		{hp=450,	size=0.8,	script="NPC/npc_skeleton.lua"},
 						scorpion =		{hp=600,	size=0.8,	script="NPC/npc_scorpion.lua"},
-						rat_tank =		{hp=600,	size=0.5,	script="NPC/npc_rat_tank.lua"},--fast units
-						fireSpirit =	{hp=750,	size=0.5,	script="NPC/npc_fireSpirit.lua"},--imune to fire, and restore some amount of hp by fire damage
-						electroSpirit =	{hp=750,	size=0.5,	script="NPC/npc_electroSpirit.lua"},--imune to electricity, and restore some amount of hp by fire damage
+						rat_tank =		{hp=600,	size=0.8,	script="NPC/npc_rat_tank.lua"},--fast units
+						fireSpirit =	{hp=750,	size=0.8,	script="NPC/npc_fireSpirit.lua"},--imune to fire, and restore some amount of hp by fire damage
+						electroSpirit =	{hp=750,	size=0.8,	script="NPC/npc_electroSpirit.lua"},--imune to electricity, and restore some amount of hp by fire damage
 						skeleton_cf =	{hp=1000,	size=0.8,	script="NPC/npc_skeleton_champion_front.lua"},--blocks physical damage
 						skeleton_cb =	{hp=1000,	size=0.8,	script="NPC/npc_skeleton_champion_back.lua"},--blocks physical damage
 						turtle =		{hp=2750,	size=0.8,	script="NPC/npc_turtle.lua"},--shield that abosorb all incoming damage
