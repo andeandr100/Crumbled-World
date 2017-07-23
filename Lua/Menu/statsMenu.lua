@@ -67,6 +67,14 @@ function languageChanged()
 end
 
 function create()	
+	
+	--Protection in multiplayer environment where multiple instances of this script is loaded
+	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
+	if ( node == nil and this:getSceneName() ~= "Stats menu" ) or ( node and node:getClientId() ~= 0 ) then
+		return false
+	end
+	
+	
 	if this:getNodeType() == NodeId.playerNode then
 		local menuNode = this:getRootNode():addChild(SceneNode())
 		--camera = Camera()
