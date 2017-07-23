@@ -74,18 +74,26 @@ function CampaignGameMenu.new(panel)
 		end
 		updateRewardInfo()
 	end
+	local function highScoreCallback(highScoreTable)
+		print("----------------------")
+		print("------ Callback ------")
+		print("----------------------")
+		scoreArea:clear()
+		local labelColor = Vec4(0.9,0.9,0.9,1.0)
+		for i=1, math.min(9,#highScoreTable) do
+			local row = scoreArea:add(Panel(PanelSize(Vec2(-1))))
+			row:add(Label(PanelSize(Vec2(-0.75,-1)), highScoreTable[i].name, labelColor))
+			row:add(Label(PanelSize(Vec2(-1,-1)), tostring(highScoreTable[i].score), labelColor))
+		end
+	end
+	
 	local function updateHighScorePanel()
 		if mainPanel:getVisible() then 
 			scoreArea:clear()
-			local labelColor = Vec4(0.9,0.9,0.9,1.0)
-			local highScoreTable = Core.getHighScoreList(levelInfo.getMapName(),levelInfo.getLevel(),levelInfo.getGameMode())
-			for i=1, math.min(9,#highScoreTable) do
-				local row = scoreArea:add(Panel(PanelSize(Vec2(-1))))
-				row:add(Label(PanelSize(Vec2(-0.75,-1)), highScoreTable[i].name, labelColor))
-				row:add(Label(PanelSize(Vec2(-1,-1)), tostring(highScoreTable[i].score), labelColor))
-			end
+			Core.getHighScore():getHighScoreList(levelInfo.getMapName(),levelInfo.getLevel(),levelInfo.getGameMode(), highScoreCallback)
 		end
 	end
+	
 	local function updateIcons()
 		for i=1, #files do
 			if campaignData.isMapAvailable(i)>0 then

@@ -181,6 +181,13 @@ local function getTowerInfo(towerId, value)
 end
 
 function create()
+	
+	--Protection in multiplayer environment where multiple instances of this script is loaded
+	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
+	if ( node == nil and this:getSceneName() ~= "Tower menu" ) or ( node and node:getClientId() ~= 0 ) then
+		return false
+	end
+	
 	print("TOWERMENU:::Create()\n")
 	if this:getNodeType() == NodeId.playerNode then
 		

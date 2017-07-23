@@ -395,7 +395,7 @@ end
 Settings.multiplayerName = {}
 Settings.multiplayerName.configName = "multiplayerName"
 function Settings.multiplayerName.getSettings()
-	return Settings.config:get(Settings.multiplayerName.configName, "Player"):getString()
+	return Settings.config:get(Settings.multiplayerName.configName, Core.getSteamName()):getString()
 end
 
 --#######################################################################

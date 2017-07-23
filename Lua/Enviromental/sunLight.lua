@@ -9,9 +9,9 @@ function create()
 	sunColor = Vec3(1.05,1.05,1.05)
 	sunsetColor = Vec3(1.08,0.58,0.035)
 	
-	ambientRiseColor = Vec3(0.3)
-	ambientColor = Vec3(0.65)
-	ambientSetColor = Vec3(0.3)
+	ambientRiseColor = Vec3(0.45)
+	ambientColor = Vec3(0.75)
+	ambientSetColor = Vec3(0.45)
 	
 	ready = false
 	

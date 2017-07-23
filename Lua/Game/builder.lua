@@ -223,6 +223,13 @@ function callPrioEvent(eventData)
 end
 
 function create()
+	
+	--Protection in multiplayer environment where multiple instances of this script is loaded
+	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
+	if node and node:getClientId() ~= 0 then
+		return false
+	end
+	
 	if this:getNodeType() == NodeId.buildNode then
 		Core.setScriptNetworkId("Builder")
 		camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") );
