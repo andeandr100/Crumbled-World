@@ -270,6 +270,8 @@ function create()
 		functionList[6] = changeArrowTowerRotation
 		functionList[7] = callPrioEvent
 		
+		
+		
 		replayIndex = 1
 		towerBuildInfo = {}
 		

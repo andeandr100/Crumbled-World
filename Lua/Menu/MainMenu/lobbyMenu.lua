@@ -492,7 +492,8 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 					playersLabel:setText(data)
 				elseif tag=="StartGame" then
 					if mapFile then
-						Core.startMap(mapFile:getPath())
+--						Core.startMap(mapFile:getPath())
+						Core.startMultiplayerClonedMaps(mapFile:getPath(), {Core.getNetworkClient():getClientId(), 5})
 						--start the loading screen
 						Worker("Menu/loadingScreen.lua", true)
 					end

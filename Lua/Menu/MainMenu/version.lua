@@ -42,7 +42,9 @@ function create()
 			
 			form:setRenderLevel(6)
 			
-			form:add(Label(PanelSize(Vec2(-1)), "v0.9.4", Vec3(1)))
+			local version = Core.getGlobalBillboard("version"):getString("version")
+			
+			form:add(Label(PanelSize(Vec2(-1)), "v"..version, Vec3(1)))
 	
 		end
 	end
