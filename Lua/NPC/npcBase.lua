@@ -200,6 +200,8 @@ function NpcBase.new()
 		syncConfirmedDeath = true
 		useDeathAnimationOrPhysic = false
 		self.setGainGoldOnDeath(false)
+		--
+		comUnit:clearMessages()
 	end
 	function self.NETSyncDeath(param)
 		soul.setHp(-1.0)
@@ -353,7 +355,7 @@ function NpcBase.new()
 				--add new npc to waypoints, that have been passed
 				if Core.isInMultiplayer() then
 					local tab = {netName=newNpcNetworkName, scriptName = name, pos=lPos, islandId=this:getParent():getIslandId(), pathList=pathInStr, wayPoints=waypointReachedList}
-					comUnit:sendNetworkSyncSafeTo("Event","NetSpawnNpc",tabToStrMinimal(tab))
+					comUnit:sendNetworkSyncSafeTo("Event"..(Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-"),"NetSpawnNpc",tabToStrMinimal(tab))
 				end
 				--
 				for index,position in pairs(waypointReachedList) do

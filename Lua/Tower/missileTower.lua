@@ -399,9 +399,9 @@ function MissileTower.new()
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("upgrade6",tostring(param))
 		end
---		if upgrade.getLevel("shieldSmasher")>0 then
---			--Achievement
---		end
+		if upgrade.getLevel("shieldSmasher")>0 then
+			comUnit:sendTo("SteamAchievement","forcefieldSmasher","")
+		end
 		setCurrentInfo()
 	end
 	

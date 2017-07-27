@@ -27,7 +27,7 @@ function EventBase.new()
 	local comUnit = Core.getComUnit()--"EventManager"
 	local comUnitTable = {}
 	local bilboardStats = Core.getBillboard("stats")
-	local massKillFrameDelayForRestart = -1
+	local massKillTimeDelayForRestart = -1
 	--local soulmanager
 	local waveUnitIndex = 0
 	local numTowers = 0
@@ -163,7 +163,7 @@ function EventBase.new()
 		if npc[currentSpawn.npc] then
 			--counter for multiplayer
 			npcCounter[currentSpawn.npc] = npcCounter[currentSpawn.npc] and npcCounter[currentSpawn.npc]+1 or 0
-			local netName = currentSpawn.npc..npcCounter[currentSpawn.npc]
+			local netName = (Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-")..currentSpawn.npc..npcCounter[currentSpawn.npc]
 			--spawn the npc
 			local node = createNpcNode(portalId)
 			local script = node:loadLuaScript( npc[currentSpawn.npc].script )
@@ -396,6 +396,13 @@ function EventBase.new()
 			--
 			--
 			--
+			local mapInfo = MapInfo.new()
+			if mapInfo.getGameMode()=="survival" then
+				comUnit:sendTo("stats","setBillboardInt","survivalBonus;"..math.floor(waveCount/10))
+			end
+			--
+			--
+			--
 			comUnit:sendTo("log","println", "========= Wave "..waveCount.." =========")
 			if waveCount>0 then
 				comUnit:sendTo("log","println",waveInfo[waveCount].theoreticalGold)
@@ -492,10 +499,10 @@ function EventBase.new()
 	end
 	function self.init(pStartGold,pWaveFinishedBonus,pInterestOnKill,pGoldMultiplayer,pLives,pLevel)
 		--make sure that only one event script is running
-		if Core.getScriptOfNetworkName("Event") then
+		if Core.getScriptOfNetworkName("Event"..(Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-")) then
 			return false
 		end
-		Core.setScriptNetworkId("Event")
+		Core.setScriptNetworkId("Event"..(Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-"))
 		
 		keyBindRevertWave = keyBinds:getKeyBind("RevertWave")
 		
@@ -588,7 +595,6 @@ function EventBase.new()
 			local theoreticalGold = startGold-350--start cost of wall towers
 			local theoreticalPaidHpPS = 0.0
 			local theoreticalGoldPaid = 0.0
-			local theoreticalSuccess = true
 			local defaultGoldEarned = totalGoldEarned
 			local timerAddBetweenWaves = 5+math.max(0.0,5*(1.0-difficultBase))
 			local npcDelayAfterFirstTowerBuilt = 15.0							--delay for first wave
@@ -834,14 +840,12 @@ function EventBase.new()
 				local towerExtreDamageForRouting = increasedMaxDifficulty>=0.0 and (1.0+(increasedMaxDifficulty/2.5)) or 1.0
 				local dpsPG = (1.0+(i*(0.30/30))*(1.0+math.min(0.30,0.30*(i/15))))*towerExtreDamageForRouting
 				local toPay = ((spawnHealthPerSecond*unitBypassMultiplyer)-(theoreticalGoldPaid*dpsPG))/dpsPG
-				if theoreticalSuccess then
-					if theoreticalGold>toPay then
-						theoreticalGoldPaid = theoreticalGoldPaid + toPay
-						theoreticalGold = theoreticalGold - toPay
-					else
-						theoreticalSuccess = false
-					end
-				end
+				--
+--				if theoreticalGold>toPay then
+--					theoreticalGoldPaid = theoreticalGoldPaid + toPay
+--					theoreticalGold = theoreticalGold - toPay
+--				end
+				--
 				theoreticalPaidHpPS = (spawnHealthPerSecond*unitBypassMultiplyer)
 				
 				--set wave info
@@ -910,10 +914,10 @@ function EventBase.new()
 						totalGoldEarned = totalGoldEarned + calculateGoldValue(groupUnit.npc,hpMultiplyer)
 						waveGoldEarned = waveGoldEarned + calculateGoldValue(groupUnit.npc,hpMultiplyer)
 						waveNpcGold = waveNpcGold + calculateGoldValue(groupUnit.npc,hpMultiplyer)
-						if theoreticalGold>0.0 and theoreticalSuccess then
-							waveGoldEarned = waveGoldEarned + (theoreticalGold*interestOnKill)
-							theoreticalGold = theoreticalGold*(1.0+interestOnKill)
-						end
+						--
+						waveGoldEarned = waveGoldEarned + (theoreticalGold*interestOnKill)
+						theoreticalGold = theoreticalGold*(1.0+interestOnKill)
+						--
 						theoreticalGold = theoreticalGold + calculateGoldValue(groupUnit.npc,hpMultiplyer)--statistics
 						--
 						--add unit to wave info
@@ -942,17 +946,22 @@ function EventBase.new()
 				--
 				totalGoldEarned = totalGoldEarned + calculateGoldForWave(i)
 				waveGoldEarned = waveGoldEarned + calculateGoldForWave(i)
+				--
+				--add gold earned this wave
 				theoreticalGold = theoreticalGold + calculateGoldForWave(i)
-				--print("=waveGoldEarned["..i.."][npc="..waveNpcGold.."][bonus="..calculateGoldForWave(i).."]="..waveGoldEarned.." - TOTAL = "..totalGoldEarned.."\n")
-				if theoreticalSuccess then
-					waveInfo[i].theoreticalGold = string.format("theoreticalGold: %.0f",theoreticalGold)
-				else
-					waveInfo[i].theoreticalGold = "theoreticalGold= GAME LOST"
-				end
+				--remove gold for building costs
+				local COSTPERWAVE = i>numWaves*0.5 and 1.3 or 0.7
+				local waveCost = (waveNpcGold*COSTPERWAVE) + (i>numWaves*0.5 and (theoreticalGold*(1/(numWaves*0.175)))+100 or 0)
+				waveCost = math.min(theoreticalGold , waveCost)
+				theoreticalGold = theoreticalGold - waveCost
+				theoreticalGoldPaid = theoreticalGoldPaid + waveCost
+				--
+				waveInfo[i].theoreticalGold = string.format("theoreticalGold: %.0f",theoreticalGold)
+				--
 				waveInfo[i].totalHp = usedSpawnHP
 				waveInfo[i].waveGold = waveGoldEarned
 				--print("waveInfo["..i.."].totalHp == "..waveInfo[i].totalHp.."\n")
-				--print("="..waveInfo[i].theoreticalGold.."\n")
+--				print("waveInfo["..i.."].theoreticalGold == "..theoreticalGold)
 				--
 				waves[i] = waveDetails
 				waveTotalTime = waveTotalTime + nextWaveDelayTime
@@ -961,22 +970,23 @@ function EventBase.new()
 				--print("==== WAVE"..i..".time=="..waveTotalTime.."\n")
 			end
 			
-			print("\nWaves: "..tostring(waves).."\n")
+			--print("\nWaves: "..tostring(waves).."\n")
 			
 			local hours=math.floor(playTime/3600)
 			playTime = playTime - (hours*3600)
 			local minutes=math.floor(playTime/60)
 			--playTime = playTime - (minutes*60)
---			print(tostring(waves))
---			print("=== longestWave="..longestWave.."s\n")
---			print("=== totalNpcSpawned="..totalNpcSpawned.."\n")
---			print("=== totalGoldEarned(guaranteed)="..totalGoldEarned.."\n")
---			print("=== theoreticalGold(Earned)="..(theoreticalGold+theoreticalGoldPaid).."\n")
---			print("=== interest="..(theoreticalGold+theoreticalGoldPaid-totalGoldEarned).."\n")
---			print("=== playTime=="..hours.."h "..minutes.."m\n")
+			--print(tostring(waves))
+--			print("=== longestWave="..longestWave.."s")
+--			print("=== totalNpcSpawned="..totalNpcSpawned)
+--			print("=== theoreticalGoldPaid="..theoreticalGoldPaid)
+--			print("=== totalGoldEarned(guaranteed)="..totalGoldEarned)
+--			print("=== theoreticalGold(Earned)="..(theoreticalGold+theoreticalGoldPaid))
+--			print("=== interest="..(theoreticalGold+theoreticalGoldPaid-totalGoldEarned))
+--			print("=== playTime=="..hours.."h "..minutes.."m")
+--			abort()
 			--
 			comUnit:sendTo("stats", "setTotalNPCSpawns", totalNpcSpawned)
-			--abort()
 			--1 Wait on tower to be built
 			--2 Wait on timer
 			--3 Wait on all enemies to die
@@ -1005,24 +1015,12 @@ function EventBase.new()
 			--
 			--Special case first wave
 			currentState = EVENT_WAIT_FOR_TOWER_TO_BE_BUILT
---			addState(EVENT_WAIT_FOR_TOWER_TO_BE_BUILT)--Wait on tower to be built
---			addState(EVENT_CHANGE_WAVE)--change wave
---			addState(EVENT_START_SPAWN)--start spawn
---			for i=1, numWaves do
---				addState(EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD)--wait until enemies are dead
---				addState(EVENT_CHANGE_WAVE)--change wave
---				addState(EVENT_START_SPAWN)--start spawn
---			end
---			addState(EVENT_END_GAME)
 		end
 	
 		return true
 	end
 	
 	function self.update()
-		
-		
-		
 		--Handle communication
 		while comUnit:hasMessage() do
 			local msg = comUnit:popMessage()
@@ -1034,8 +1032,7 @@ function EventBase.new()
 		--
 		--
 		--Kill of all strays that spawned on restart of the wave
-		massKillFrameDelayForRestart = massKillFrameDelayForRestart - 1
-		if massKillFrameDelayForRestart==0 then
+		if Core.getGameTime()-massKillTimeDelayForRestart<0.5 then
 			comUnit:broadCast(Vec3(),math.huge,"disappear","")
 		end
 		if spawnListPopulated then
@@ -1044,6 +1041,7 @@ function EventBase.new()
 				local mapInfo = MapInfo.new()
 				if waveCount>=1 then--and mapInfo.getGameMode()~="leveler" 
 					waveCount = math.max(0, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
+					comUnit:sendTo("SteamStats","ReverseTimeCount",1)
 					if waveCount==0 then
 						local restartListener = Listener("Restart")
 						restartListener:pushEvent("restart")
@@ -1051,7 +1049,7 @@ function EventBase.new()
 						currentState = EVENT_CHANGE_WAVE
 						clearActiveSpawn()
 						comUnit:broadCast(Vec3(),math.huge,"disappear","")
-						massKillFrameDelayForRestart=2
+						massKillTimeDelayForRestart=Core.getGameTime()
 						waveRestarted = true
 						--
 						comUnit:sendTo("stats","setBillboardDouble","RestartedWaveGameTime;"..Core.getGameTime())
@@ -1113,11 +1111,18 @@ function EventBase.new()
 					highScoreBillBoard:setInt("life", bilboardStats:getInt("life"))
 					highScoreBillBoard:setDouble("gold", bilboardStats:getInt("gold"))
 					
+					if mapInfo.getGameMode()=="survival" then
+						local crystalGain = bilboardStats:getInt("score")
+						if crystalGain>0 then
+							comUnit:sendTo("stats","setBillboardInt","survivalBonus;"..0)
+							cData.addCrystal( crystalGain )
+						end
+					end
+					
 					if highScoreBillBoard:getBool("replay") then
 						Worker("Menu/loadingScreen.lua", true)
 						Core.quitToMainMenu()
 					else
-					
 						comUnit:sendTo("builder", "sendHightScoreToTheServer","")
 						comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("totalGoldEarned"))
 						comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))

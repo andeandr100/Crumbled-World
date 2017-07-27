@@ -52,6 +52,7 @@ function SwarmTower.new()
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	--stats
 	local mapName = MapInfo.new().getMapName()
+	local totalGoaldEarned = 0
 	--other
 	local lastRestored = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
@@ -215,7 +216,9 @@ function SwarmTower.new()
 	-- purpose:		called when a unit has died with the effect active
 	local function handleGoldStats(param)
 		myStats.goldEarned = myStats.goldEarned + tonumber(param)
+		totalGoaldEarned = totalGoaldEarned + tonumber(param)
 		billboard:setDouble("goldEarnedCurrentWave",myStats.goldEarned)
+		comUnit:sendTo("SteamStats","MaxGoldEarnedFromSingleSupportTower",totalGoaldEarned)
 	end
 	
 	-- function:	setCurrentInfo
@@ -237,6 +240,10 @@ function SwarmTower.new()
 		range = upgrade.getValue("range")
 		--manage support upgrades
 		sendSupporUpgrade()
+		--achievment
+		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("damage")==1 and upgrade.getLevel("weaken")==3 and upgrade.getLevel("gold")==3 then
+			comUnit:sendTo("SteamAchievement","MaxedSupportTower","")
+		end
 	end
 	-- function:	initModel
 	-- purpose:		to initialize the model and set the visibility flag for every mesh
@@ -360,7 +367,7 @@ function SwarmTower.new()
 			end
 			--Acievement
 			if upgrade.getLevel("range")==3 then
-				comUnit:sendTo("SteamAchievement","SupportRange","")
+				comUnit:sendTo("SteamAchievement","UpgradeSupportRange","")
 			end
 		else
 			meshRange = nil
@@ -386,7 +393,7 @@ function SwarmTower.new()
 			doMeshUpgradeForLevel("damage","dmg")
 			--Achievement
 			if upgrade.getLevel("damage")==3 then
-				comUnit:sendTo("SteamAchievement","SupportDamage","")
+				comUnit:sendTo("SteamAchievement","UpgradeSupportDamage","")
 			end
 		end
 		setCurrentInfo()
@@ -447,7 +454,7 @@ function SwarmTower.new()
 			end
 			--Acievement
 			if upgrade.getLevel("weaken")==3 then
-				comUnit:sendTo("SteamAchievement","SupportWeaken","")
+				comUnit:sendTo("SteamAchievement","UpgradeSupportMarkOfDeath","")
 			end
 		end
 	end
@@ -469,7 +476,7 @@ function SwarmTower.new()
 			goldUpdateTimer = 0.0
 			setCurrentInfo()
 			--
-			goldGainAmount = upgrade.getValue("supportGold")
+			goldGainAmount = upgrade.getValue("UpgradeSupportGold")
 		end
 	end
 	-- function:	Updates all tower what upgrades that is available

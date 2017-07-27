@@ -500,6 +500,10 @@ function SwarmTower.new()
 		end
 		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
 		
+		local bLevel = upgrade.getLevel("boost")
+		fireCenter:setScale(1.0+(bLevel*0.4))
+		pointLight:setRange(1.25+(bLevel))
+		
 		--change update speed
 --		local tmpCameraNode = cameraNode
 		local state = tonumber(this:getVisibleInCamera()) * math.max(1,tonumber(cameraNode:getGlobalPosition().y < 25) * 2)

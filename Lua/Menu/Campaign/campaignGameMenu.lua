@@ -61,7 +61,7 @@ function CampaignGameMenu.new(panel)
 			if gameModeBox.getIndexText()~="survival" then
 				rewardLabel:setText( tostring(levelInfo.getReward()) )
 			else
-				rewardLabel:setText( "0" )
+				rewardLabel:setText( "1/10W" )
 			end
 		end
 	end
@@ -402,7 +402,7 @@ function CampaignGameMenu.new(panel)
 		--
 		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
 		rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), "Reward", Vec3(0.7)))--language:getText("reward")
-		rewardLabel = rowPanel:add(Label(PanelSize(Vec2(-0.2,-1)), "2", Vec3(0.7)))
+		rewardLabel = rowPanel:add(Label(PanelSize(Vec2(-0.5,-1)), "2", Vec3(0.7)))
 		--	Crystal
 		local image = rowPanel:add(Image(PanelSize(Vec2(-1),Vec2(1)), Text("icon_table.tga")))
 		image:setUvCoord(Vec2(0.5, 0.375),Vec2(0.625, 0.4375))
