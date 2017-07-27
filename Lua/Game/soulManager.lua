@@ -250,7 +250,25 @@ function destroy()
 	soulManager = nil
 end
 function create()
-	soulManager = SoulManager.new()
+	
+	--Protection in multiplayer environment where multiple instances of this script is loaded
+	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
+	if ( node == nil and this:getSceneName() ~= "soulManager" ) or ( node and node:getClientId() ~= 0 ) then
+		return false
+	end
+	
+	if this:getNodeType() == NodeId.playerNode then
+		local menuNode = this:getRootNode():addChild(SceneNode())
+		--camera = Camera()
+		menuNode:setSceneName("soulManager")
+		menuNode:createWork()
+				
+		--Move this script to the world node
+		menuNode:loadLuaScript(this:getCurrentScript():getFileName());
+		return false
+	else
+		soulManager = SoulManager.new()
+	end
 	return true
 end
 function update()

@@ -942,7 +942,7 @@ function update()
 		end
 		
 		--set tower color
-		builderFunctions.changeColor( currentTower, (canBePlacedHere and buildCost <= gold) and Vec4(1) or Vec4(1.2,0.6,0.6, 1.0))
+		builderFunctions.changeColor( currentTower, (canBePlacedHere and buildCost <= gold) and Vec4(1) or Vec4(1.3,0.45,0.45, 1.0))
 		
 		
 			
