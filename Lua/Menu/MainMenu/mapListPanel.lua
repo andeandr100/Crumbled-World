@@ -72,8 +72,11 @@ function MapListPanel.new(panel, changeMapCallback)
 		
 		for i=1, #files do
 			if files[i]:isFile() then
-				count = count + 1
-				addRowFunction( files[i], count%2 == 0 )
+				local mapInfoItem = MapInformation.getMapInfoFromFileName(files[i]:getName(), files[i]:getPath())
+				if mapInfoItem.players > 1 then
+					count = count + 1
+					addRowFunction( files[i], count%2 == 0 )
+				end
 			end
 		end	
 	end

@@ -179,7 +179,8 @@ function handleSetwave(inWave)
 		killedLessThan5m = billboard:getDouble("killedLessThan5m"),
 		towersSold = billboard:getDouble("towersSold")
 	}
-	Core.getComUnit():sendTo("builder", "newWave", inWave)
+	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
+	Core.getComUnit():sendTo("builder"..node:getClientId(), "newWave", inWave)
 	updateScoreTime = 0.5
 end
 function handleNpcReachedEnd(param)

@@ -1105,11 +1105,13 @@ function EventBase.new()
 					--
 					local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
 					
+					local mapInfo = MapInfo.new()
 					local highScoreBillBoard = Core.getGlobalBillboard("highScoreReplay")
 					highScoreBillBoard:setBool("victory", bilboardStats:getInt("life") > 0)
 					highScoreBillBoard:setInt("score", bilboardStats:getInt("score"))
 					highScoreBillBoard:setInt("life", bilboardStats:getInt("life"))
 					highScoreBillBoard:setDouble("gold", bilboardStats:getInt("gold"))
+					
 					
 					if mapInfo.getGameMode()=="survival" then
 						local crystalGain = bilboardStats:getInt("score")
@@ -1123,12 +1125,13 @@ function EventBase.new()
 						Worker("Menu/loadingScreen.lua", true)
 						Core.quitToMainMenu()
 					else
-						comUnit:sendTo("builder", "sendHightScoreToTheServer","")
+						local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
+						comUnit:sendTo("builder"..node:getClientId(), "sendHightScoreToTheServer","")
 						comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("totalGoldEarned"))
 						comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
 						comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("totalGoldInterestEarned"))
 						if script and bilboardStats:getInt("life")>0 then 
-							local mapInfo = MapInfo.new()
+							
 							--victory
 							if mapInfo.isCampaign() then
 								cData.addCrystal(mapInfo.getReward())

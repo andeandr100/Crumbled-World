@@ -99,8 +99,10 @@ function uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, newLocalBui
 			buildingScript:getBillboard():setBool("IsBuildOnAWallTower", true)
 			buildingScript:setName("tower")
 			
+			
 			if isOwner then
-				comUnit:sendTo("builder", "damgeTowerBuilt", "0")
+				local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
+				comUnit:sendTo("builder"..node:getClientId(), "damgeTowerBuilt", "0")
 				if buildingScript:getBillboard():getString("TargetArea") == "cone" and disableRotatorScript ~= true then
 					buildingToUpgrade:loadLuaScript("Game/buildRotater.lua")
 				end
@@ -117,7 +119,8 @@ function uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, newLocalBui
 				comUnit:sendTo(buildingScript:getIndex(),"NetOwner","NO")
 			end
 			
-			comUnit:sendTo("builder", "damgeTowerBuilt", tostring(playerId))
+			local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
+			comUnit:sendTo("builder"..node:getClientId(), "damgeTowerBuilt", tostring(playerId))
 		end
 	end
 end

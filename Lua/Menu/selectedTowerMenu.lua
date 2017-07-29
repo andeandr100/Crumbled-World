@@ -360,7 +360,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				--print("Lua index: " .. buildingScript:getIndex() .. " Message: " .. buyMessage .. "\n")
 				--print("comUnit:sendTo(...,"..buyMessage..")\n")
 --				comUnit:sendTo("stats","removeGold",tostring(cost))
-				comUnit:sendTo("builder", "buildingSubUpgrade", tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=paramMessage}))
+				comUnit:sendTo("builder"..Core.getNetworkClient():getClientId(), "buildingSubUpgrade", tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=paramMessage}))
 			end
 		end
 	end

@@ -174,7 +174,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local function ignoreNpc()
 		if currentIndex then
 			print("ignoreNpc()")
-			comUnit:sendTo("builder","addPrioEvent",tabToStrMinimal( {netName=currentNetName,event=0} ))
+			comUnit:sendTo("builder"..Core.getNetworkClient():getClientId(),"addPrioEvent",tabToStrMinimal( {netName=currentNetName,event=0} ))
 			comUnit:sendTo(currentIndex,"addState",tostring(state.highPriority)..";0")
 			comUnit:sendTo(currentIndex,"addState",tostring(state.ignore)..";1")
 			if Core.isInMultiplayer() then
@@ -187,7 +187,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local function highPriorityTarget()
 		if currentIndex then
 			print("highPriorityTarget()")
-			comUnit:sendTo("builder","addPrioEvent",tabToStrMinimal( {netName=currentNetName,event=1} ))
+			comUnit:sendTo("builder"..Core.getNetworkClient():getClientId(),"addPrioEvent",tabToStrMinimal( {netName=currentNetName,event=1} ))
 			comUnit:sendTo(currentIndex,"addState",tostring(state.ignore)..";0")
 			comUnit:sendTo(currentIndex,"addState",tostring(state.highPriority)..";1")
 			if Core.isInMultiplayer() then
@@ -270,7 +270,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		if Core.getInput():getMouseDown(MouseKey.left) and isMouseInMainPanel() then
 			if keyBindIgnoreTarget:getHeld() then
 				if nextNode then
-					comUnit:sendTo("builder","addPrioEvent",tabToStrMinimal( {netName=netName,event=0} ))
+					comUnit:sendTo("builder"..Core.getNetworkClient():getClientId(),"addPrioEvent",tabToStrMinimal( {netName=netName,event=0} ))
 					comUnit:sendTo(nextIndex,"addState",tostring(state.highPriority)..";0")
 					comUnit:sendTo(nextIndex,"addState",tostring(state.ignore)..";1")
 					if Core.isInMultiplayer() then
@@ -280,7 +280,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				end
 			elseif keyBindHighPrioritet:getHeld() then
 				if nextNode then
-					comUnit:sendTo("builder","addPrioEvent",tabToStrMinimal( {netName=netName,event=1} ))
+					comUnit:sendTo("builder"..Core.getNetworkClient():getClientId(),"addPrioEvent",tabToStrMinimal( {netName=netName,event=1} ))
 					comUnit:sendTo(nextIndex,"addState",tostring(state.ignore)..";0")
 					comUnit:sendTo(nextIndex,"addState",tostring(state.highPriority)..";1")
 					if Core.isInMultiplayer() then

@@ -147,7 +147,7 @@ end
 
 function buttonPressed(button)
 	print("\nButton pressed. tag: \""..button:getTag():toString().."\"\n\n")
-	comUnit:sendTo("builder", "changeBuilding", button:getTag():toString())
+	comUnit:sendTo("builder"..Core.getNetworkClient():getClientId(), "changeBuilding", button:getTag():toString())
 end
 
 function destroy()
