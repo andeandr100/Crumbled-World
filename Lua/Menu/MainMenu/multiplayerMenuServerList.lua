@@ -158,7 +158,7 @@ function MultiplayerMenuServerList.new(panel)
 				end
 				
 				if tab.info.players then
-					local label = button:add(Label(PanelSize(Vec2(-1),Vec2(2,1)), tab.info.players, Vec3(0.7)))
+					local label = button:add(Label(PanelSize(Vec2(-1),Vec2(2,1)), tostring(tab.info.players), Vec4(0.7)))
 					label:setCanHandleInput(false)
 				end
 				

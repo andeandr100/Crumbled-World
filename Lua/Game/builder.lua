@@ -10,6 +10,7 @@ local towerChangeState = 0
 local towerBuildInfo = {}
 local waveTime = 0
 local curentWave = -1
+local canBuildInThisWorld = false
 
 --TODO
 --In multiplayer add transaction id when buying selling tower, to ensure that towers can only be built in a correct order,
@@ -64,16 +65,18 @@ function updateSelectedTowerToBuild()
 --	if Core.getInput():getKeyPressed(Key.l) then
 --		enableTheCrasher = true
 --	end
-	for i = 1, 9 do
-		if keyBind[i] and keyBind[i]:getPressed() then
-			currentTowerIndex = i;
-			changeSelectedTower( buildings[i] );
+	if canBuildInThisWorld then 
+		for i = 1, 9 do
+			if keyBind[i] and keyBind[i]:getPressed() then
+				currentTowerIndex = i;
+				changeSelectedTower( buildings[i] );
+			end
 		end
-	end
-	
-	if (keyDeselect and keyDeselect:getPressed()) or esqKeyBind:getPressed() then
-		currentTowerIndex = 0;
-		changeSelectedTower( nil );
+		
+		if (keyDeselect and keyDeselect:getPressed()) or esqKeyBind:getPressed() then
+			currentTowerIndex = 0;
+			changeSelectedTower( nil );
+		end
 	end
 
 	while comUnit:hasMessage() do
@@ -226,19 +229,22 @@ function create()
 	
 	--Protection in multiplayer environment where multiple instances of this script is loaded
 	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
-	if node and node:getClientId() ~= 0 then
+	if node == nil then
 		return false
 	end
 	
 	if this:getNodeType() == NodeId.buildNode then
-		Core.setScriptNetworkId("Builder")
+		
+		canBuildInThisWorld = ( node:getClientId() == 0 or node:getClientId() == Core.getNetworkClient():getClientId() )
+		
+		Core.setScriptNetworkId("Builder"..node:getClientId())
 		camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") );
 		
 		--this is the node named "player 1 node"
 		print("------------------------------\n")
 		comUnit = Core.getComUnit()
 		comUnit:setCanReceiveTargeted(true)
-		comUnit:setName("builder")
+		comUnit:setName("builder"..node:getClientId())
 		
 		--functions from autobuilder.lua
 		comUnitTable = {}
@@ -749,7 +755,11 @@ function rebuildSoldTower(tab)
 end
 
 function update()
-	afile = File("aFileName")
+	if canBuildInThisWorld == false then
+		--update event from other players
+		updateSelectedTowerToBuild()
+		return true
+	end
 	
 	if curentWave ~= Core.getBillboard("stats"):getInt("wave") then
 		
@@ -798,8 +808,8 @@ function update()
 		return true		
 	end
 
-	updateSelectedTowerToBuild();
-	rotation = builderFunctions.updateBuildingRotation(rotation);
+	updateSelectedTowerToBuild()
+	rotation = builderFunctions.updateBuildingRotation(rotation)
 	--print( "num built tower: "..buildingBillboard:getInt("NumBuildingBuilt").."\n")
 	
 	if currentTower then

@@ -14,7 +14,12 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 	local customeGamePanel
 	local mapNameLabel
 	local playersLabel
+	local playerNumber
+	local maxPlayers
 	local comboBoxDifficutyBox
+	local comboBoxGameMode
+	local gameModeLabel
+	local gameModeIndex
 	local buttonStart
 	local buttonEditLobbySettings
 	local buttonQuit
@@ -82,7 +87,13 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 			--
 			--
 			local fileName = "Data/Map/"..mapInfo.getMapName()..".map"
-			Core.startMap(mapNameLabel:getTag():toString())
+			local clientIds = {}
+			for i=1, #users do
+				clientIds[i] = users[i].clientId 
+			end
+--						Core.startMap(mapFile:getPath())
+			Core.startMultiplayerClonedMap(mapNameLabel:getTag():toString(), clientIds)
+--			Core.startMap(mapNameLabel:getTag():toString())
 			--start the loading screen
 			Worker("Menu/loadingScreen.lua", true)
 			
@@ -94,24 +105,29 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		end
 	end
 	local function setIsReady()
-		local ready = (buttonStart:getTag() == Text("ready"))
-		lobbyUserPanel.setIsRead(ready)
 		
-		if ready then
-			buttonStart:setText(language:getText("not ready"))
-			labels[1]:setTag("not ready")
+		if isHost then
+			lobbyUserPanel.setIsRead(true)
+			buttonStart:setText(language:getText("start"))
+			labels[1]:setTag("start")
 		else
-			buttonStart:setText(language:getText("ready"))
-			labels[1]:setTag("ready")
+			local ready = (buttonStart:getTag() == Text("ready"))
+			lobbyUserPanel.setIsRead(ready)
+		
+			if ready then
+				buttonStart:setText(language:getText("not ready"))
+				labels[1]:setTag("not ready")
+			else
+				buttonStart:setText(language:getText("ready"))
+				labels[1]:setTag("ready")
+			end
 		end
 	end
 	
 	local function quitLobby()
-		print("-----------------------------")
-		print("-----------------------------")
-		print("		   quitLobby		 ")		
-		print("-----------------------------")
-		print("-----------------------------")
+		print("==========================")
+		print("======= quit lobby =======")	
+		print("==========================")
 		if server then
 			print("Stop server")
 			server:removeFromGlobalServerList()
@@ -199,9 +215,30 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		mapInfo.setLevel(level)
 		return changed
 	end
+	local function setGameMode(level)
+		local changed = ( gameModeIndex ~= level )
+		gameModeIndex = level
+		
+		if level == -1 then
+			mapInfo.setGameMode("coop")
+			gameModeLabel:setVisible(true)
+			comboBoxGameMode.getComboBox():setVisible(false)
+		else
+			gameModeLabel:setVisible(false)
+			mapInfo.setGameMode(comboBoxGameMode.getIndexText())
+			comboBoxGameMode.getComboBox():setVisible(true)
+			comboBoxGameMode.setIndex(level)
+		end
+		return changed		
+	end
 	local function clickedChangeDifficulty(tag, index)
 		if setDifficulty(index) then
 			client:writeSafe("Difficulty:"..index)
+		end
+	end
+	local function clickedChangeGameMode(tag, index)
+		if setGameMode(index) then
+			client:writeSafe("GameMode:"..index)
 		end
 	end
 	local function setMap(mapFilePath)
@@ -240,11 +277,14 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 	end
 	local function uppdateServerInfo()
 		if isHost then
-			local players = tostring(#users).."/"..(mapData.players and mapData.players or "x")
-			playersLabel:setText(players)
-			lobbyUserPanel.setMaxPlayers((mapData.players and mapData.players or 1))
-			client:writeSafe("CMD-SetServerInfo:table="..tabToStrMinimal({map=mapFile:getName(),mapHash=mapFile:getHash(),difficulty=comboBoxDifficutyBox.getIndex(),players=players}))
-			print("set CMD-SetServerInfo:table="..tabToStrMinimal({map=mapFile:getName(),mapHash=mapFile:getHash(),difficulty=comboBoxDifficutyBox.getIndex(),players=players}))
+			playerNumber = mapData.players
+			maxPlayers = ( playerNumber == 1 ) and 4 or playerNumber
+			local playerText = tostring(#users).."/"..(maxPlayers and maxPlayers or "x")
+			
+			playersLabel:setText(playerText)
+			lobbyUserPanel.setMaxPlayers((maxPlayers and maxPlayers or 1))
+			client:writeSafe("CMD-SetServerInfo:table="..tabToStrMinimal({map=mapFile:getName(),mapHash=mapFile:getHash(),difficulty=comboBoxDifficutyBox.getIndex(),players=playerText}))
+			print("set CMD-SetServerInfo:table="..tabToStrMinimal({map=mapFile:getName(),mapHash=mapFile:getHash(),difficulty=comboBoxDifficutyBox.getIndex(),players=playerText}))
 			
 			serverDataChanged = true
 		end
@@ -260,6 +300,11 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		uppdateServerInfo()
 	end
 	function self.startServer(inServerName, mapFilePath, difficulty)
+		
+		print("===========================")
+		print("====== start server =======")
+		print("===========================")
+		
 		serverName = inServerName
 		--start server and show lobby
 		self.setVisible(true, true)
@@ -272,6 +317,16 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		uppdateServerInfo()
 	end
 	
+	local function addTableRow(parentPanel, rowText)
+		--Row panel
+		local rowPanel = parentPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
+		--Label Panel
+		labelsSpecial[#labelsSpecial + 1] = rowPanel:add(Label(PanelSize(Vec2(-1),Vec2(4.5,1)), language:getText(rowText) + ":", Vec3(0.7)))
+		labelsSpecial[#labelsSpecial]:setTag(rowText)	
+		--main Panel
+		local rowMainPanel = rowPanel:add(Panel(PanelSize(Vec2(-1))))
+		return rowMainPanel
+	end
 	
 	local function addMapInfoPanel(panel)
 		local infoPanel = panel:add(Panel(PanelSize(Vec2(-1, -1))))
@@ -285,24 +340,24 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		iconImage:setBorder(Border( BorderSize(Vec4(0.0015), true), Vec3(0)))
 	
 		--Map name		
-		local rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		labelsSpecial[1] = rowPanel:add(Label(PanelSize(Vec2(-1),Vec2(3.5,1)), language:getText("map name") + ":", Vec3(0.7)))
-		labelsSpecial[1]:setTag("map name")
+		local rowPanel = addTableRow( infoPanel, "map name" )
 		mapNameLabel = rowPanel:add(Label(PanelSize(Vec2(-1)),"",Vec3(0.7)))
 		
 		
 		--Players
-		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		labelsSpecial[2] = rowPanel:add(Label(PanelSize(Vec2(-1),Vec2(3.5,1)), language:getText("players") + ":", Vec3(0.7)))
-		labelsSpecial[2]:setTag("players")
+		rowPanel = addTableRow( infoPanel, "players" )
 		playersLabel = rowPanel:add(Label(PanelSize(Vec2(-1)),"",Vec3(0.7)))
 		
+		--Game mode difficulty
+		rowPanel = addTableRow( infoPanel, "game mode" )
+		local gameModeOptions = {"rush", "attack", "normal", "survival"}
+		comboBoxGameMode = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-1)), gameModeOptions, "game mode", gameModeOptions[3], clickedChangeGameMode )
+		gameModeLabel = rowPanel:add(Label(PanelSize(Vec2(-1),Vec2(4.5,1)), "Co-op", Vec3(0.7)))
+		
 		--Map difficulty
-		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		labelsSpecial[3] = rowPanel:add(Label(PanelSize(Vec2(-1),Vec2(3.5,1)), language:getText("difficulty") + ":", Vec3(0.7)))
-		labelsSpecial[3]:setTag("difficulty")
+		rowPanel = addTableRow( infoPanel, "difficulty" )
 		local options = {"easy", "normal", "hard", "extreme", "insane"}
-		comboBoxDifficutyBox = SettingsComboBox.new(infoPanel, PanelSize(Vec2(-1, 0.03)), options, "difficulty", options[2], clickedChangeDifficulty )
+		comboBoxDifficutyBox = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-1, 0.03)), options, "difficulty", options[2], clickedChangeDifficulty )
 		
 		downloadPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
 		labelsSpecial[4] = downloadPanel:add(Label(PanelSize(Vec2(-1),Vec2(3.5,1)), language:getText("download") + ":", Vec3(0.7)))
@@ -409,10 +464,13 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 			--player information
 			client:writeSafe("Players:"..playersLabel:getText())
 			--difficulty
+			client:writeSafe("GameMode:".. ( gameModeLabel:getVisible() and "-1" or comboBoxGameMode.getIndex()) )
+			--difficulty
 			client:writeSafe("Difficulty:"..comboBoxDifficutyBox.getIndex())
 			--max players
-			client:writeSafe("MaxPlayers:"..(mapData.players and mapData.players or "1"))
-			mapInfo.setPlayerCount((mapData.players and mapData.players or 1))
+			local maxPlayer = (mapData.players and (mapData.players == 1 and 4 or mapData.players) or "1")
+			client:writeSafe("MaxPlayers:"..maxPlayer)
+			mapInfo.setPlayerCount(maxPlayer)
 			--send witch client is ready
 			if updateUserInfo then
 				for i=1, #users do
@@ -488,12 +546,18 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 						--settings has changed, player is not ready
 						lobbyUserPanel.settingsChanged()
 					end
+				elseif tag == GameMode then
+					
 				elseif tag == "Players" then
 					playersLabel:setText(data)
 				elseif tag=="StartGame" then
 					if mapFile then
+						local clientIds = {}
+						for i=1, #users do
+							clientIds[i] = users[i].clientId 
+						end
 --						Core.startMap(mapFile:getPath())
-						Core.startMultiplayerClonedMaps(mapFile:getPath(), {Core.getNetworkClient():getClientId(), 5})
+						Core.startMultiplayerClonedMap(mapFile:getPath(), clientIds)
 						--start the loading screen
 						Worker("Menu/loadingScreen.lua", true)
 					end
@@ -510,11 +574,13 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 				elseif tag=="Kick" then
 					--Show kicked messgage
 					if client:getClientId() == tonumber(data) then
+						print("has ben kicked")
 						quitLobby()
 					end
 				elseif tag=="Ban" then
 					--Show banned messgage
 					if client:getClientId() == tonumber(data) then
+						print("has ben banned")
 						quitLobby()
 					end	
 				end
@@ -554,19 +620,29 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 			uppdateServerInfo()
 			--do a full server sync for connected players 
 			serverUpdateInfo(true)
+			
+			--host is always ready
+			if lobbyUserPanel.getIsRead() == false then
+				setIsReady()
+			end
 		end
 		
 		if isHost then
 			buttonStart:setEnabled(lobbyUserPanel.isAllUsersReady())
+			
 		else
 			local text = lobbyUserPanel.getIsRead() and "not ready" or "ready"
 			buttonStart:setText( language:getText(text) )
 			labels[1]:setTag(text)
+			
+			--the host can not be kicked out of the lobby
+			if not client:isConnected() then
+				print("is not connected")
+				quitLobby()
+			end
 		end
 		
-		if not client:isConnected() then
-			quitLobby()
-		end
+		
 	end
 	function self.setIsHost(set)
 		isHost = set

@@ -81,6 +81,9 @@ function create()
 		
 		restoreData.form = form
 	else
+		if loopUpdate == nil then
+			error("nil update")
+		end
 		tmpUpdate = update;
 		update = loopUpdate;
 	end
@@ -97,6 +100,9 @@ end
 
 function loopUpdate()
 	if this:getRootNode():findNodeByName("MainCamera") ~= nil then
+		if tmpUpdate == nil then
+			error("nil update")
+		end
 		update = tmpUpdate;
 		create()
 	end

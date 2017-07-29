@@ -55,6 +55,10 @@ function MultiplayerMapSelectionPanel.new(panel, inServerListPanel, inLobbyMenu)
 	end
 	
 	local function returnToServListPanel()
+		print("===========================")
+		print("== returnToServListPanel ==")
+		print("===========================")
+		
 		if lobbyMenu.getServer() then
 			mainPanel:setVisible(false)	
 			lobbyMenu.getPanel():setVisible(true)
@@ -67,11 +71,18 @@ function MultiplayerMapSelectionPanel.new(panel, inServerListPanel, inLobbyMenu)
 	end
 	
 	local function startServer()
+		
+		print("===========================")
+		print("=== start server button ===")
+		print("===========================")
+	
 		mainPanel:setVisible(false)	
+		lobbyMenu.getPanel():setVisible(true)
 		if lobbyMenu.getServer() then
+			print("Event 1")
 			lobbyMenu.setSettings(serverNameTextField:getText(), mapFile:getPath(), comboBoxDifficutyBox.getIndex())
-			lobbyMenu.getPanel():setVisible(true)
 		else
+			print("Event 2")
 			lobbyMenu.startServer(serverNameTextField:getText(), mapFile:getPath(), comboBoxDifficutyBox.getIndex())
 		end
 		serverListPanel:setVisible(false)
