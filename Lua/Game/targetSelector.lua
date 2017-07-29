@@ -4,6 +4,10 @@ SHIELD_RANGE = 3.5
 TargetSelector = {}
 function TargetSelector.new(pteam)
 	local self = {}
+	
+	local FORCEUPDATE = true
+	local UPDATEIFNEEDED = false
+	
 	local soulManagerBillboard = Core.getBillboard("SoulManager")
 	local position = Vec3()
 	local range = 0.0
@@ -32,7 +36,7 @@ function TargetSelector.new(pteam)
 --				local r = range
 --				local p = position
 				soulTableNamesToUse = {}
-				local rangeLimit = range+5.66--pytagoras y = sqrt((4^2)+(4^2)) = 5.65685 == 5.66 (from the middle of a square is 4m down and right
+				local rangeLimit = range+5.66--pytagoras y = sqrt((4^2)+(4^2)) = 5.65685 == 5.66 (the distance from center of a  8w square to a corner
 				worldMin = soulManagerBillboard:getVec2("min")
 				worldMax = soulManagerBillboard:getVec2("max")
 				local xMin = math.max(worldMin.x, math.floor((position.x-rangeLimit)/8.0))
@@ -43,6 +47,7 @@ function TargetSelector.new(pteam)
 					for y=yMin, yMax do
 						local lx = x*8.0+4.0--4.0 is to the middle
 						local ly = y*8.0+4.0
+						--Core.addDebugLine(Vec3(lx,0,ly),Vec3(lx,2,ly),0.1,Vec3(1))
 						local dx = position.x-lx
 						local dy = position.z-ly
 						local dist = math.sqrt((dx*dx)+(dy*dy))
@@ -58,7 +63,7 @@ function TargetSelector.new(pteam)
 	function self.setPosition(pos)
 		--assert(pos, "When TargetSelector.setPosition(pos), pos must be a Vec3()")
 		position = pos
-		updateTablesToUse(true)
+		updateTablesToUse(FORCEUPDATE)
 	end
 	function self.setAngleLimits(pipeAt,angleLimit)
 		defaultPipeAt = pipeAt
@@ -66,7 +71,7 @@ function TargetSelector.new(pteam)
 	end
 	function self.setRange(pRange)
 		range = pRange
-		updateTablesToUse(true)
+		updateTablesToUse(FORCEUPDATE)
 	end
 	function self.disableRealityCheck()
 		if isThisReal then
@@ -106,7 +111,13 @@ function TargetSelector.new(pteam)
 					soulTable[tonumber(index)] = {
 						position=Vec3(tonumber(x1),tonumber(y1),tonumber(z1)),
 						velocity=Vec3(tonumber(x2),tonumber(y2),tonumber(z2)),
-						distanceToExit=tonumber(dist), hp=tonumber(hp), hpMax=tonumber(hpmax), team=tonumber(team), state=tonumber(state), name=name, index=tonumber(index)
+						distanceToExit=tonumber(dist),
+						hp=tonumber(hp),
+						hpMax=tonumber(hpmax),
+						team=tonumber(team),
+						state=tonumber(state),
+						name=name,
+						index=tonumber(index)
 					}
 				end
 			end
@@ -246,7 +257,7 @@ function TargetSelector.new(pteam)
 	function self.selectAllInRange()
 		local ret = false
 		--
-		updateTablesToUse(true)
+		updateTablesToUse(UPDATEIFNEEDED)
 		--print("soulTableNamesToUse == "..tostring(soulTableNamesToUse))
 		--clear old data
 		targetTable = {}
@@ -266,6 +277,8 @@ function TargetSelector.new(pteam)
 	end
 	function self.selectAllInCapsule(line,lineRange)
 		local ret = false
+		--
+		updateTablesToUse(UPDATEIFNEEDED)
 		--clear old data
 		targetTable = {}
 		targetTableCount = 0
@@ -274,6 +287,7 @@ function TargetSelector.new(pteam)
 		updateSoulsTable()
 		--
 		for index,soul in pairs(soulTable) do
+			--Core.addDebugLine(soul.position, soul.position+Vec3(0,4,0), 0.05, Vec3(1))
 			if soul.team~=team and Collision.lineSegmentPointLength2(line,soul.position)<(lineRange+(self.isTargetInState(index,state.shieldGenerator) and SHIELD_RANGE or 0.0)) then
 				targetTable[index] = 0
 				targetTableCount = targetTableCount + 1

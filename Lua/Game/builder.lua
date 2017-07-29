@@ -677,7 +677,7 @@ function rebuildWallTower(netName)
 			local script = Core.getScriptOfNetworkName(addData.para1.tName)
 			comUnit:sendTo(script:getIndex(),"NetOwner","YES")
 			return
-		elseif towerBuildInfo[i].restore.func == rebuildSoldTower and towerBuildInfo[i].restore.para1.wallTowerName == netName then
+		elseif towerBuildInfo[i].restore and towerBuildInfo[i].restore.func == rebuildSoldTower and towerBuildInfo[i].restore.para1.wallTowerName == netName then
 			--this case happens when a tower is directly built en sold of to a wall tower and then sold again
 			local towerNetName = towerBuildInfo[i].restore.para1.towerName
 			print("take build info from node: "..towerNetName)

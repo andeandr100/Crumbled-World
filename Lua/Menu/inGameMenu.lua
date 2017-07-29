@@ -272,10 +272,30 @@ function showTutorialFunc()
 end
 
 function quitToDesktop(panel)
+	--crystal gain for survival player if they leave
+	local bilboardStats = Core.getBillboard("stats")
+	if bilboardStats then
+		local crystalGain = bilboardStats:getInt("score")
+		if crystalGain>0 then
+			comUnit:sendTo("stats","setBillboardInt","survivalBonus;"..0)
+			cData.addCrystal( crystalGain )
+		end
+	end
+	--
 	Core.quitMainMenu()
 end
 
 function quitToMainMenu(panel)
+	--crystal gain for survival player if they leave
+	local bilboardStats = Core.getBillboard("stats")
+	if bilboardStats then
+		local crystalGain = bilboardStats:getInt("score")
+		if crystalGain>0 then
+			comUnit:sendTo("stats","setBillboardInt","survivalBonus;"..0)
+			cData.addCrystal( crystalGain )
+		end
+	end
+	--
 	Core.quitToMainMenu()
 	Worker("Menu/loadingScreen.lua", true)
 end

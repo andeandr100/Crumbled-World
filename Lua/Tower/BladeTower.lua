@@ -715,6 +715,9 @@ function BladeTower.new()
 		local anyInRange = targetSelector.selectAllInCapsule(attackLine,1.5)
 		if anyInRange then
 			myStats.activeTimer = myStats.activeTimer + deltaTime
+			Core.addDebugLine(attackLine,0.1,Vec3(0,1,0))
+		else
+			Core.addDebugLine(attackLine,0.1,Vec3(1,0,0))
 		end
 --		print("anyInRange["..tostring(status==STATUS_WAITING).."] == "..tostring(anyInRange) )
 --		print("reloadTimeLeft == "..tostring(reloadTimeLeft) )
@@ -882,7 +885,7 @@ function BladeTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 1,
-								stats ={range =				{ upgrade.add, 9.0},
+								stats ={range =				{ upgrade.add, 10.0},
 										damage = 			{ upgrade.add, 150},
 										RPS = 				{ upgrade.add, 1.0/2.5},
 										bladeSpeed =		{ upgrade.add, 10.5},
@@ -897,7 +900,7 @@ function BladeTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 2,
-								stats ={range =				{ upgrade.add, 9.0},
+								stats ={range =				{ upgrade.add, 10.0},
 										damage = 			{ upgrade.add, 480},
 										RPS = 				{ upgrade.add, 1.0/2.5},
 										bladeSpeed =		{ upgrade.add, 10.5},
@@ -912,7 +915,7 @@ function BladeTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 3,
-								stats ={range =				{ upgrade.add, 9.0},
+								stats ={range =				{ upgrade.add, 10.0},
 										damage = 			{ upgrade.add, 1135},
 										RPS = 				{ upgrade.add, 1.0/2.5},
 										bladeSpeed =		{ upgrade.add, 10.5},
@@ -997,9 +1000,9 @@ function BladeTower.new()
 								info = "blade tower slow",
 								order = 4,
 								icon = 55,
-								value1 = 15,
+								value1 = 20,
 								levelRequirement = cTowerUpg.getLevelRequierment("electricBlade",1),
-								stats ={slow =		{ upgrade.add, 0.15},
+								stats ={slow =		{ upgrade.add, 0.20},
 										slowTimer =	{ upgrade.add, 2.0} }--resault==0.2
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -1007,9 +1010,9 @@ function BladeTower.new()
 								info = "blade tower slow",
 								order = 4,
 								icon = 55,
-								value1 = 28,
+								value1 = 36,
 								levelRequirement = cTowerUpg.getLevelRequierment("electricBlade",2),
-								stats ={slow =		{ upgrade.add, 0.28},
+								stats ={slow =		{ upgrade.add, 0.36},
 										slowTimer =	{ upgrade.add, 2.0} }--resault==0.4
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -1017,9 +1020,9 @@ function BladeTower.new()
 								info = "blade tower slow",
 								order = 4,
 								icon = 55,
-								value1 = 39,
+								value1 = 49,
 								levelRequirement = cTowerUpg.getLevelRequierment("electricBlade",3),
-								stats ={slow =		{ upgrade.add, 0.39},
+								stats ={slow =		{ upgrade.add, 0.49},
 										slowTimer =	{ upgrade.add, 2.0} }--resault==0.6
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,

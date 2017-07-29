@@ -4,6 +4,12 @@ local soulManager
 
 SoulManager = {}
 function SoulManager.new()
+	local EXPANDX = true
+	local EXPANDY = false
+	
+--	local debug = {
+--		zoneColors = {}
+--	}
 	local self = {}
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
@@ -17,6 +23,13 @@ function SoulManager.new()
 	local minY = -1
 	local maxY = 1
 	local soulTableStr = {}
+	
+	function self.getDebug()
+		return debug
+	end
+	function self.getLimits()
+		return {minX=minX, maxX=maxX, minY=minY, maxY=maxY}
+	end
 	
 	local function toBits(num)
 		local t={}
@@ -37,6 +50,8 @@ function SoulManager.new()
 		shieldGenerators = {}
 	end
 	
+	-- function:	updateShieldGenTable
+	-- purpose:		Updates the global list of all enemies that are shield generators (turtle)
 	local function updateShieldGenTable()
 		local str = ""
 		local count = 0
@@ -53,6 +68,8 @@ function SoulManager.new()
 		end
 		billboard:setString("shieldGenerators",str)
 	end
+	-- function:	expand
+	-- purpose:		Expands the area where enemies can exist
 	local function expand(isX,toAmount)
 		if isX then
 			if toAmount<0 then
@@ -61,7 +78,11 @@ function SoulManager.new()
 						for y=minY, maxY do
 							billboard:setString("souls"..x.."/"..y,"")
 							soulTableStr[x] = soulTableStr[x] or {}
-							soulTableStr[x][y] = ""
+							soulTableStr[x][y] = soulTableStr[x][y] or ""
+--							if debug then
+--								debug.zoneColors[x] = debug.zoneColors[x] or {}
+--								debug.zoneColors[x][y] = debug.zoneColors[x][y] or math.randomVec3()
+--							end
 						end
 					end
 					minX = toAmount
@@ -73,7 +94,11 @@ function SoulManager.new()
 						for y=minY, maxY do
 							billboard:setString("souls"..x.."/"..y,"")
 							soulTableStr[x] = soulTableStr[x] or {}
-							soulTableStr[x][y] = ""
+							soulTableStr[x][y] = soulTableStr[x][y] or ""
+--							if debug then
+--								debug.zoneColors[x] = debug.zoneColors[x] or {}
+--								debug.zoneColors[x][y] = debug.zoneColors[x][y] or math.randomVec3()
+--							end
 						end
 					end
 					maxX = math.clamp(toAmount,maxX,16)
@@ -87,7 +112,11 @@ function SoulManager.new()
 						for x=minX, maxX do
 							billboard:setString("souls"..x.."/"..y,"")
 							soulTableStr[x] = soulTableStr[x] or {}
-							soulTableStr[x][y] = ""
+							soulTableStr[x][y] = soulTableStr[x][y] or ""
+--							if debug then
+--								debug.zoneColors[x] = debug.zoneColors[x] or {}
+--								debug.zoneColors[x][y] = debug.zoneColors[x][y] or math.randomVec3()
+--							end
 						end
 					end
 					minY = toAmount
@@ -99,7 +128,11 @@ function SoulManager.new()
 						for x=minX, maxX do
 							billboard:setString("souls"..x.."/"..y,"")
 							soulTableStr[x] = soulTableStr[x] or {}
-							soulTableStr[x][y] = ""
+							soulTableStr[x][y] = soulTableStr[x][y] or ""
+--							if debug then
+--								debug.zoneColors[x] = debug.zoneColors[x] or {}
+--								debug.zoneColors[x][y] = debug.zoneColors[x][y] or math.randomVec3()
+--							end
 						end
 					end
 					maxY = math.clamp(toAmount,maxX,16)
@@ -108,23 +141,32 @@ function SoulManager.new()
 			end
 		end
 	end
+	-- function:	updateSoulsTable
+	-- purpose:		Updated the billboard with all npc that can be targeted
 	local function updateSoulsTable()
 		local str = ""
 		local count = 0
 		
-		
+		--clear local soulTable
 		for x=minX, maxX do
 			for y=minY, maxY do
 				soulTableStr[x][y] = ""
 			end
 		end
+		--rebuild local soulTable
 		for index,soul in pairs(soulTable) do
 			if soul.team==0 then
 				local x = math.floor(soul.position.x/8.0)
 				local y = math.floor(soul.position.z/8.0)
-				--Core.addDebugLine(Vec3(x*8.0,0,y*8.0),Vec3(x*8.0,5.0,y*8.0),0.05,Vec3(1))
-				expand(true,x)
-				expand(false,y)
+				--make sure the table is big enough
+				expand(EXPANDX,x)
+				expand(EXPANDY,y)
+				--DEBUG BEG
+--				if debug then
+--					local sPos = soul.position
+--					Core.addDebugLine(sPos, sPos+Vec3(0,2.0,0), 0.05, debug.zoneColors[x][y] or Vec3(1))
+--				end
+				--DEBUG END
 				if soulTableStr[x][y]:len()==0 then
 					soulTableStr[x][y] = string.format("%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%d,%d,%d,%s",index,
 					soul.position.x,soul.position.y,soul.position.z,
@@ -139,6 +181,7 @@ function SoulManager.new()
 				count = count + 1
 			end
 		end
+		--publish the soulTable to the world
 		billboard:setInt("npcsAlive",count)
 		for x=minX, maxX do
 			for y=minY, maxY do
@@ -147,6 +190,8 @@ function SoulManager.new()
 		end
 	end
 	
+	-- function:	addSoul
+	-- purpose:		Adds a soul to the table to be updated in the future
 	function self.addSoul(param, fromIndex)
 		soulTable[fromIndex] = {position=param.pos,
 								velocity=Vec3(),
@@ -159,6 +204,8 @@ function SoulManager.new()
 								state=0}
 		self.update(param.hpMax,fromIndex)
 	end
+	-- function:	updateSoul
+	-- purpose:		updates an existing soul on the table
 	function self.updateSoul(paramHp, fromIndex)
 		local soul = soulTable[fromIndex]
 		if soul then
@@ -172,6 +219,8 @@ function SoulManager.new()
 			soul.hp = paramHp
 		end
 	end
+	-- function:	updateState
+	-- purpose:		updates an existing souls state on the table
 	function self.updateState(param, fromIndex)
 		if soulTable[fromIndex] then
 			soulTable[fromIndex].state = param
@@ -183,6 +232,8 @@ function SoulManager.new()
 			end
 		end
 	end
+	-- function:	remove
+	-- purpose:		removes the soul from the table
 	function self.remove(param,fromIndex)
 		--if soulTable[fromIndex]==nil then
 		--	error("removing dead npc??")
@@ -208,7 +259,9 @@ function SoulManager.new()
 		--billboard:setString("souls",tostring(soulTable.souls))
 	end
 
-	local function restartMap()
+	-- function:	clearData
+	-- purpose:		removes all souls from the table
+	local function clearData()
 		comUnit:clearMessages()
 		soulTable = {}
 		shieldGenerators = {}
@@ -221,6 +274,10 @@ function SoulManager.new()
 			for y=minY, maxY do--for y=-16, 16 do
 				soulTableStr[x][y] = ""
 				billboard:setString("souls"..x.."/"..y,"")
+--				if debug then
+--					debug.zoneColors[x] = debug.zoneColors[x] or {}
+--					debug.zoneColors[x][y] = math.randomVec3()
+--				end
 			end
 		end
 		billboard:setString("shieldGenerators","")
@@ -232,15 +289,36 @@ function SoulManager.new()
 		comUnitTable["addSoul"] = self.addSoul
 		comUnitTable["update"] = self.updateSoul
 		--comUnitTable["updateMovment"] = self.updateMovment
-		comUnitTable["setState"] = self.updateState
+		comUnitTable["setState"] = self.updateState 
 		comUnitTable["remove"] = self.remove
 		--
 		restartListener = Listener("Restart")
-		restartListener:registerEvent("restart", restartMap)
+		restartListener:registerEvent("restart", clearData)
+		--
+		restartListener = Listener("RestartWave")
+		restartListener:registerEvent("restartWave", clearData)
 	end
 	init()
 	
 	return self
+end
+
+function displayDebugSquare(x,y)
+	for x1=0, 8 do
+		local xx = (x1==0 and 0.1) or (x1==8 and 7.9) or x1
+		local pos1 = Vec3(xx+(x*8), 0, 0.1+(y*8))
+		local pos2 = Vec3(xx+(x*8), 0, 7.9+(y*8))
+		local d1 = soulManager.getDebug()
+		Core.addDebugLine(pos1,pos1+Vec3(0,2,0),0.1,soulManager.getDebug().zoneColors[x][y])
+		Core.addDebugLine(pos2,pos2+Vec3(0,2,0),0.1,soulManager.getDebug().zoneColors[x][y])
+	end
+	for y1=0, 8 do
+		local yy = (y1==0 and 0.1) or (y1==8 and 7.9) or y1
+		local pos1 = Vec3(0.1+(x*8), 0, yy+(y*8))
+		local pos2 = Vec3(7.9+(x*8), 0, yy+(y*8))
+		Core.addDebugLine(pos1,pos1+Vec3(0,2,0),0.1,soulManager.getDebug().zoneColors[x][y])
+		Core.addDebugLine(pos2,pos2+Vec3(0,2,0),0.1,soulManager.getDebug().zoneColors[x][y])
+	end
 end
 
 function destroy()
@@ -272,6 +350,13 @@ function create()
 	return true
 end
 function update()
+--	Core.addDebugLine(Vec3(0,0,0),Vec3(0,4,0),0.1,Vec3(1,1,0))
+--	local limits = soulManager.getLimits()
+--	for x=limits.minX, limits.maxX do
+--		for y=limits.minY, limits.maxY do
+--			displayDebugSquare(x,y)
+--		end
+--	end
 	soulManager.update()
 	return true
 end

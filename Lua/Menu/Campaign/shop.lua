@@ -41,7 +41,7 @@ function Shop.new(camera)
 			range = {text="Arrow tower range",[1]={["value1"]="10.5"},[2]={["value1"]="12"},[3]={["value1"]="13.5"}},
 			attackSpeed = {text="blade tower attackSpeed",[1]={["value1"]="15"},[2]={["value1"]="30"},[3]={["value1"]="45"}},
 			masterBlade = {text="blade tower firecrit",[1]={["value1"]="20"},[2]={["value1"]="40"},[3]={["value1"]="60"}},
-			electricBlade = {text="blade tower slow",[1]={["value1"]="15"},[2]={["value1"]="28"},[3]={["value1"]="39"}},
+			electricBlade = {text="blade tower slow",[1]={["value1"]="20"},[2]={["value1"]="36"},[3]={["value1"]="49"}},
 			shieldBreaker = {text="blade tower shield"}
 		},
 		["Tower/missileTower.lua"]={

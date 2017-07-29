@@ -742,9 +742,10 @@ function ElectricTower.new()
 			energyOffers.frameCounter=2
 		end
 	
-		local ampliture = 0.25+(energyPer*0.75)
+		local bLevel = upgrade.getLevel("boost")
+		local ampliture = 0.25+(energyPer*0.75) + (bLevel*0.5)
 		sparkCenter:setScale( ampliture ) 
-		pointLight:setRange(pointLightBaseRange*energyPer)
+		pointLight:setRange(pointLightBaseRange*energyPer + bLevel)
 		
 		ring[1]:rotate(math.randomVec3(), rotationThisFrame*0.33*math.randomFloat())
 		ring[1]:rotate(Vec3(0,1,0), rotationThisFrame*(math.randomFloat()*0.5+0.5))
@@ -822,10 +823,12 @@ function ElectricTower.new()
 		comUnitTable["upgrade4"] = self.handleUpgradeSlow
 		comUnitTable["upgrade5"] = self.handleUpgradeEnergyPool
 		comUnitTable["upgrade6"] = self.handleUpgradeEnergy
-		comUnitTable["sendMeEnergy"] = sendEnergyTo
-		comUnitTable["requestEnergy"] = doWeHaveEnergyOver
-		comUnitTable["canOfferEnergy"] = someoneCanOfferEnergy
-		comUnitTable["sendEnergyTo"] = recivingEnergy
+		if isThisReal then
+			comUnitTable["sendMeEnergy"] = sendEnergyTo
+			comUnitTable["requestEnergy"] = doWeHaveEnergyOver
+			comUnitTable["canOfferEnergy"] = someoneCanOfferEnergy
+			comUnitTable["sendEnergyTo"] = recivingEnergy
+		end
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["NetTarget"] = NetSyncTarget
 		comUnitTable["Retarget"] = handleRetarget
@@ -852,7 +855,7 @@ function ElectricTower.new()
 								icon = 56,
 								value1 = 1,
 								stats ={range =		{ upgrade.add, 4.0},
-										damage = 	{ upgrade.add, 575},
+										damage = 	{ upgrade.add, 575*1.30},
 										minDamage = { upgrade.add, 145},
 										RPS = 		{ upgrade.add, 3.0/3.0},
 										slow = 		{ upgrade.add, 0.15},
@@ -874,7 +877,7 @@ function ElectricTower.new()
 								icon = 56,
 								value1 = 2,
 								stats ={range =		{ upgrade.add, 4.0},
-										damage = 	{ upgrade.add, 1370},
+										damage = 	{ upgrade.add, 1370*1.30},
 										minDamage = { upgrade.add, 340},
 										RPS = 		{ upgrade.add, 4.0/3.0},
 										slow = 		{ upgrade.add, 0.28},
@@ -896,7 +899,7 @@ function ElectricTower.new()
 								icon = 56,
 								value1 = 3,
 								stats ={range =		{ upgrade.add, 4.0},
-										damage = 	{ upgrade.add, 2700},
+										damage = 	{ upgrade.add, 2700*1.30},
 										minDamage = { upgrade.add, 675},
 										RPS = 		{ upgrade.add, 5.0/3.0},
 										slow = 		{ upgrade.add, 0.39},
