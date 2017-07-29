@@ -7,7 +7,7 @@ end
 function create()
 	print("Rat::create()")
 	npcBase = NpcBase.new()
-	npcBase.init("rat","npc_rat.mym",0.175,0.4,0.45,3.5)
+	npcBase.init("rat","npc_rat.mym",0.175,0.6,0.45,3.5)
 	local mat = npcBase.getModel():getLocalMatrix()
 	npcBase.getSoul().enableBlood("BloodSplatterSphere",1.0,Vec3(0,0.2,0))
 	mat:scale(Vec3(0.75,0.75,0.75))

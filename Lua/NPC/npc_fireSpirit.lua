@@ -20,7 +20,7 @@ function create()
 	pLightRange = 1.1
 
 
-	npcBase.init("fireSpirit",nil,0.2,0.5,0.75,2.0)
+	npcBase.init("fireSpirit",nil,0.2,0.6,0.75,2.0)
 	npcBase.setDefaultState(state.burning)--fire crit
 	--particle effect
 	effect = ParticleSystem(ParticleEffect.NPCSpirit)

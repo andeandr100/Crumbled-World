@@ -19,7 +19,7 @@ function create()
 	effect = nil
 	pLightRange = 1.1
 	
-	npcBase.init("electroSpirit",nil,0.2,0.5,0.75,2.0)
+	npcBase.init("electroSpirit",nil,0.2,0.6,0.75,2.0)
 	npcBase.setDefaultState(state.electrecuted)
 	--particle effect
 	effect = ParticleSystem(ParticleEffect.SparkSpirit)

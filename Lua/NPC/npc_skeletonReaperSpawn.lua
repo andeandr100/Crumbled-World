@@ -9,7 +9,7 @@ function create()
 	
 	npcBase = NpcBase.new()
 	
-	npcBase.init("skeleton","npc_skeleton1.mym",0.25,0.5,0.90,2.0)
+	npcBase.init("skeleton","npc_skeleton1.mym",0.25,0.6,0.90,2.0)
 	npcBase.getSoul().enableBlood("BoneSplatterSphere",0.85,Vec3(0,0.3,0))
 	npcBase.setDefaultState(state.spawned)
 	--death animations
