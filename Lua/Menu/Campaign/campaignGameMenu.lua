@@ -79,11 +79,13 @@ function CampaignGameMenu.new(panel)
 		print("------ Callback ------")
 		print("----------------------")
 		scoreArea:clear()
-		local labelColor = Vec4(0.9,0.9,0.9,1.0)
-		for i=1, math.min(9,#highScoreTable) do
-			local row = scoreArea:add(Panel(PanelSize(Vec2(-1))))
-			row:add(Label(PanelSize(Vec2(-0.75,-1)), highScoreTable[i].name, labelColor))
-			row:add(Label(PanelSize(Vec2(-1,-1)), tostring(highScoreTable[i].score), labelColor))
+		if type(highScoreTable) == "table" then
+			local labelColor = Vec4(0.9,0.9,0.9,1.0)
+			for i=1, math.min(9,#highScoreTable) do
+				local row = scoreArea:add(Panel(PanelSize(Vec2(-1))))
+				row:add(Label(PanelSize(Vec2(-0.75,-1)), highScoreTable[i].name, labelColor))
+				row:add(Label(PanelSize(Vec2(-1,-1)), tostring(highScoreTable[i].score), labelColor))
+			end
 		end
 	end
 	
