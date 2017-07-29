@@ -3,6 +3,7 @@ require("Menu/MainMenu/optionsMenu.lua")
 require("Menu/connectionIssueForm.lua")
 require("Menu/infoScreen.lua")
 require("Game/mapInfo.lua")
+require("Game/campaignData.lua")
 require("Menu/settings.lua")
 --this = SceneNode()
 
@@ -275,9 +276,10 @@ function quitToDesktop(panel)
 	--crystal gain for survival player if they leave
 	local bilboardStats = Core.getBillboard("stats")
 	if bilboardStats then
-		local crystalGain = bilboardStats:getInt("score")
+		local crystalGain = bilboardStats:getInt("survivalBonus")
 		if crystalGain>0 then
 			comUnit:sendTo("stats","setBillboardInt","survivalBonus;"..0)
+			local cData = CampaignData.new()
 			cData.addCrystal( crystalGain )
 		end
 	end
@@ -289,9 +291,10 @@ function quitToMainMenu(panel)
 	--crystal gain for survival player if they leave
 	local bilboardStats = Core.getBillboard("stats")
 	if bilboardStats then
-		local crystalGain = bilboardStats:getInt("score")
+		local crystalGain = bilboardStats:getInt("survivalBonus")
 		if crystalGain>0 then
 			comUnit:sendTo("stats","setBillboardInt","survivalBonus;"..0)
+			local cData = CampaignData.new()
 			cData.addCrystal( crystalGain )
 		end
 	end

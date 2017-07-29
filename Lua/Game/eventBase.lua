@@ -1345,5 +1345,5 @@ function EventBase.new()
 		--
 		return true
 	end
-	return self
+	return self'
 end

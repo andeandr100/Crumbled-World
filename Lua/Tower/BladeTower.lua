@@ -715,9 +715,9 @@ function BladeTower.new()
 		local anyInRange = targetSelector.selectAllInCapsule(attackLine,1.5)
 		if anyInRange then
 			myStats.activeTimer = myStats.activeTimer + deltaTime
-			Core.addDebugLine(attackLine,0.1,Vec3(0,1,0))
-		else
-			Core.addDebugLine(attackLine,0.1,Vec3(1,0,0))
+--			Core.addDebugLine(attackLine,0.1,Vec3(0,1,0))
+--		else
+--			Core.addDebugLine(attackLine,0.1,Vec3(1,0,0))
 		end
 --		print("anyInRange["..tostring(status==STATUS_WAITING).."] == "..tostring(anyInRange) )
 --		print("reloadTimeLeft == "..tostring(reloadTimeLeft) )

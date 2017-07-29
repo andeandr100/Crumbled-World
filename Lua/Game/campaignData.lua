@@ -28,9 +28,9 @@ function CampaignData.new()
 		{file=File("Data/Map/Campaign/Plaza.map"),			statId="Plaza",			statIdOld="L9",		type="Crystal",	sead=169366078,	waveCount=20},
 		{file=File("Data/Map/Campaign/Long haul.map"),		statId="LongHaul",		statIdOld="L10",	type="Cart",	sead=202469227,	waveCount=20},--			U
 		{file=File("Data/Map/Campaign/Dock.map"),			statId="Dock",			statIdOld="L11",	type="Crystal",	sead=742525885,	waveCount=25},--			X
-		{file=File("Data/Map/Campaign/Desperado.map"),		statId="Desperado",							type="Crystal",	sead=842172835,	waveCount=25},--			X
 		{file=File("Data/Map/Campaign/Crossroad.map"),		statId="Crossroad",		statIdOld="L12",	type="Crystal",	sead=365654225,	waveCount=25},--17500		X
 		{file=File("Data/Map/Campaign/Mine.map"),			statId="Mine",			statIdOld="L13",	type="Cart",	sead=464004721,	waveCount=20},--			U
+		{file=File("Data/Map/Campaign/West river.map"),		statId="West river",						type="Crystal",	sead=242072855,	waveCount=25},--			X
 		{file=File("Data/Map/Campaign/Blocked path.map"),	statId="BlockedPath",	statIdOld="L14",	type="Crystal",	sead=32111861,	waveCount=20},
 		{file=File("Data/Map/Campaign/The line.map"),		statId="TheLine",		statIdOld="L15",	type="Cart",	sead=752499248,	waveCount=20},--			X
 		{file=File("Data/Map/Campaign/Dump station.map"),	statId="DumpStation",						type="Crystal",	sead=32111861,	waveCount=25},
@@ -39,6 +39,7 @@ function CampaignData.new()
 		{file=File("Data/Map/Campaign/Divided.map"),		statId="Divided",		statIdOld="L18",	type="Crystal",	sead=615837167,	waveCount=25},--18000
 		{file=File("Data/Map/Campaign/Nature.map"),			statId="Nature",		statIdOld="L19",	type="Crystal",	sead=581083960,	waveCount=25},--			BAD MAP
 		{file=File("Data/Map/Campaign/Train station.map"),	statId="TrainStation",	statIdOld="L20",	type="Cart",	sead=680821396,	waveCount=25},
+		{file=File("Data/Map/Campaign/Desperado.map"),		statId="Desperado",							type="Crystal",	sead=842172835,	waveCount=30},--			X
 		{file=File("Data/Map/Campaign/The end.map"),		statId="TheEnd",		statIdOld="L21",	type="Crystal",	sead=394914309,	waveCount=30} --23600
 	}
 	function init()
