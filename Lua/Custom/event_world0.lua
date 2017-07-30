@@ -21,9 +21,9 @@ function create()
 		--nothing
 	elseif mapInfo.getGameMode()=="survival" then
 		--lower the availabel gold to make the spawned npc's easier. (this will make it easier to get intrest in the available gold)
-		startGold = 800
-		interestOnKill = interestOnKill*0.80
-		numWaves = 999
+		startGold = startGold*0.5				--(makes the spawn easier, restored after the generating of the waves)
+		interestOnKill = interestOnKill*0.5		--(makes the spawn easier, restored after the generating of the waves)
+		numWaves = 100
 	elseif mapInfo.getGameMode()=="training" then
 		--nothing, so the spawns will be the same as if in normal game
 	elseif mapInfo.getGameMode()=="only interest" then
@@ -135,8 +135,8 @@ function create()
 	event.generateWaves(numWaves,difficult,difficultIncreaser,startSpawnWindow,sead)
 	
 	if mapInfo.getGameMode()=="survival" then
-		startGold = 1000
-		interestOnKill = interestOnKill * 1.5
+		startGold = startGold * 2.0
+		interestOnKill = interestOnKill * 2.0
 	elseif mapInfo.getGameMode()=="training" then
 		startGold = 5500
 		waveFinishedGold = 0

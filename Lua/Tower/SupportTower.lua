@@ -518,8 +518,8 @@ function SwarmTower.new()
 		if goldGainAmount then
 			goldUpdateTimer = goldUpdateTimer - Core.getDeltaTime()
 			if goldUpdateTimer<0.0 then
-				goldUpdateTimer = 0.125
-				comUnit:broadCast(this:getGlobalPosition(),range,"markOfGold",{goldGain=goldGainAmount,timer=0.25,type="area"})
+				goldUpdateTimer = 0.1
+				comUnit:broadCast(this:getGlobalPosition(),range,"markOfGold",{goldGain=goldGainAmount,timer=0.15,type="area"})
 			end
 		end
 		

@@ -26,7 +26,7 @@ function create()
 		--lower the availabel gold to make the spawned npc's easier. (this will make it easier to get intrest in the available gold)
 		startGold = startGold*0.5				--(makes the spawn easier, restored after the generating of the waves)
 		interestOnKill = interestOnKill*0.5		--(makes the spawn easier, restored after the generating of the waves)
-		numWaves = 999
+		numWaves = 100
 	elseif mapInfo.getGameMode()=="training" then
 		--nothing, so the spawns will be the same as if in normal game
 	elseif mapInfo.getGameMode()=="only interest" then
@@ -37,7 +37,7 @@ function create()
 	end
 	--
 	if Core.isInMultiplayer() then
-		numWaves = 999
+		numWaves = 100
 	end
 	--
 	--
