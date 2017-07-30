@@ -11,7 +11,7 @@ function NpcBase.new()
 	local npcPath = NpcPath.new()
 	local soul = TheSoul.new()
 	local model
-	local gainGoldOnDeath = 1.0
+	local gainGoldOnDeath = true
 	local value
 	local interest
 	local lifeValueCount = "1"--npc is usually only one soul
@@ -407,7 +407,6 @@ function NpcBase.new()
 				comUnit:sendTo("stats","goldInterest",interest)--allways full interest
 				comUnit:sendTo("stats","addGold", (value*mul)+soul.getGoldGainAdd() )
 			end
-			soul.fixGoldEarned()
 		end
 	end
 	--removed from soulmanager, so we can't be targeted
@@ -582,9 +581,11 @@ function NpcBase.new()
 					if not Core.isInMultiplayer() then
 						--single player
 						goldOnDeath(1.0)
+						soul.fixGoldEarned()
 					else
 						--multiplayer
 						goldOnDeath(1.0/Core.getNetworkClient():getConnectedPlayerCount())
+						soul.fixGoldEarned()
 					end
 					if canSyncNPC() then
 						comUnit:sendNetworkSyncSafe("Net-death","byTower")

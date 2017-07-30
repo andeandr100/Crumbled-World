@@ -106,7 +106,7 @@ function CustomeGameMenu.new(panel)
 				local filePath =  file:getPath()
 				local mapInfoItem = MapInformation.getMapInfoFromFileName(file:getName(), file:getPath())
 				if activeGameMode=="survival" then
-					files[i].waveCountLabel:setText( mapInfoItem and "999" or "" )
+					files[i].waveCountLabel:setText( mapInfoItem and "100" or "" )
 				else
 					files[i].waveCountLabel:setText( mapInfoItem and tostring(mapInfoItem.waveCount) or "" )
 				end

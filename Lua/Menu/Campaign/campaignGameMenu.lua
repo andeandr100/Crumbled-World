@@ -113,7 +113,7 @@ function CampaignGameMenu.new(panel)
 		if gameModeBox then
 			if gameModeBox.getIndexText()=="survival" then
 				for i=1, #files do
-					campaignList[i].waveLabel:setText("999")
+					campaignList[i].waveLabel:setText("100")
 				end
 			else
 				for i=1, #files do
