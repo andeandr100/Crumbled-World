@@ -68,6 +68,7 @@ function CampaignData.new()
 	init()
 	--
 	function self.fixCrystalLimits()
+		print("self.fixCrystalLimits()")
 		if campaingDataConfig:get("crystal",0):getInt()>self.getMaxGoldNeededToUnlockEverything() then
 			campaingDataConfig:get("crystal"):setInt(self.getMaxGoldNeededToUnlockEverything())
 		end
@@ -184,6 +185,7 @@ function CampaignData.new()
 		return ret
 	end
 	function self.getMaxGoldNeededToUnlockEverything()
+		print("==> self.getMaxGoldNeededToUnlockEverything()")
 		local leftToBuyTab = {	[0]={[0]=0},
 								[1]={[0]=1,[1]=0},
 								[2]={[0]=3,[1]=2,[3]=0},
@@ -205,7 +207,7 @@ function CampaignData.new()
 				end
 			end
 			local leftToBuy = PERMENANTBOUGHTUPGRADECOUNT-self.getTotalBuyablesBoughtForTower(towers[i],true)
-			local costLeft = leftToBuyTab[PERMENANTBOUGHTUPGRADECOUNT][self.getTotalBuyablesBoughtForTower(towers[i],true)]*PERMENANTUPGCOST
+			local costLeft = leftToBuy==1 and PERMENANTUPGCOST or 0
 			print("Permenant("..leftToBuy.."): "..tostring(ret + costLeft).." = "..ret.." + "..costLeft)
 			ret = ret + costLeft
 		end
@@ -240,10 +242,14 @@ function CampaignData.new()
 	end
 	--
 	function self.addCrystal(addCount)
-		print("self.addCrystal("..addCount..")")
+		print("==> self.addCrystal("..addCount..")")
+		--update current crystal count
 		campaingDataConfig:get("crystal"):setInt(self.getCrystal()+addCount)
-		self.fixCrystalLimits()
+		--update upgrade tables for towers
 		campaignDataTable = campaingDataConfig:getTable()
+		--fix crystals
+		self.fixCrystalLimits()
+		--save cahnges
 		campaingDataConfig:save()
 	end
 	function self.canBuyUnlock(towerName,upgradeName,permUnlocked)
@@ -271,13 +277,17 @@ function CampaignData.new()
 		end
 	end
 	function self.clear(towerName,upgradeName,permUnlocked)
-		local count = {[0]=0,[1]=1,[2]=3,[3]=6}
-		local upgCount = self.getBoughtUpg(towerName,upgradeName,permUnlocked)
-		campaingDataConfig:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):setInt(0)
-		self.addCrystal( count[upgCount]*(permUnlocked and PERMENANTUPGCOST or NORMALUPGCOST) )
-		local val = campaingDataConfig:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):getInt()
-		if val>0 then
-			error("Clearing failed for unlocked upgrades!!!")
+		if permUnlocked then
+			print("========================================")
+			print("==> self.clear("..towerName..","..upgradeName..","..tostring(permUnlocked)..")")
+			local upgCount = self.getBoughtUpg(towerName,upgradeName,permUnlocked)
+			campaingDataConfig:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):setInt(0)
+			self.addCrystal( upgCount==1 and PERMENANTUPGCOST or 0 )
+			--debug code
+			local val = campaingDataConfig:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):getInt()
+			assert(val==0, "Clearing failed for unlocked upgrades!!!")
+		else
+			error("this should not happen!!!")
 		end
 	end
 	function self.getLevelCompleted(map)
