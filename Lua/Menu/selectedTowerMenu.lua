@@ -1642,6 +1642,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		return billboardStats:getPanel("MainPanel") == Core.getPanelWithMouseFocus()
 	end
 	
+	function self.getVisible()
+		return towerPanel:getVisible()
+	end
+	
 	function self.setVisible(visible)
 		wallTowerPanel:setVisible(visible)
 		towerPanel:setVisible(visible)

@@ -52,6 +52,10 @@ function instalForm()
 	comUnit:setCanReceiveTargeted(true);
 	comUnit:setCanReceiveBroadcast(true);
 	
+	restartWaveListener = Listener("RestartWave")
+	restartWaveListener:registerEvent("restartWave", restartWave)
+	reloadTowerMenu = -1
+	
 	--Handle communication
 	comUnitTable = {}					
 --	comUnitTable["NetSell"] = towerMenu.networkSellTower
@@ -61,6 +65,12 @@ function instalForm()
 	comUnitTable["downGradeTowerBynetId"] = towerMenu.downGradeTower
 	comUnitTable["updateSelectedTower"] = towerMenu.updateSelectedTower
 
+end
+
+function restartWave()
+	if towerMenu.getVisible() then
+		reloadTowerMenu = 2
+	end
 end
 
 function setVisibleClass(class)
@@ -190,6 +200,15 @@ function update()
 	if esqKeyBind:getPressed() or buildingNodeBillboard:getBool("inBuildMode") then
 		form:setVisible(false)
 		setVisibleClass(nil)
+	end
+	
+	--this ocure when a restart wave event is called
+	if reloadTowerMenu > 0 then
+		reloadTowerMenu = reloadTowerMenu - 1
+		if reloadTowerMenu == 0 and form:getVisible() and towerMenu.getVisible() then
+			--reload tower menu
+			towerMenu.updateSelectedTower()
+		end
 	end
 	
 	towerMenu.update()
