@@ -20,25 +20,23 @@ function CampaignTowerUpg.new(pTowerFile,pUpgrade)
 		return mapInfo.isCampaign() and cData.getBoughtUpg(towerFile,upgName,true)>=level
 	end
 	function self.addUpg(upgName,callback)
+		assert(type(callback)=="function", "CampaignTowerUpg.addUpg(upgName,callback) \"callback\" must be a function")
 		upgCallback[upgName] = callback
 	end
 	function self.fixAllPermBoughtUpgrades()
-		if mapInfo.isCampaign() then
-			local currentLevel = upgrade.getLevel("upgrade")
-			for upgName,func in pairs(upgCallback) do
---				if (upgName=="shieldBreaker" or upgName=="shieldSmasher") then
---					if upgrade.getLevel("upgrade")==3 and self.getIsPermUpgraded(upgName,1) then
---						upgrade.addFreeSubUpgrade()--because it is a free upgrade
---						func( tostring(upgrade.getLevel(upgName)+1) )
---						--upgrade.removeFreeSubUpgrade()
---					end
---				else
+		local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
+		if isThisReal then
+			if mapInfo.isCampaign() then
+				local currentLevel = upgrade.getLevel("upgrade")
+				print("currentLevel=="..currentLevel)
+				for upgName,func in pairs(upgCallback) do
+					print("upgName = "..upgName.."("..type(func)..").isPermUpgraded = "..tostring(self.isPermUpgraded(upgName,currentLevel)))
 					if self.isPermUpgraded(upgName,currentLevel) then
 						upgrade.addFreeSubUpgrade()--because it is a free upgrade
-						func( tostring(upgrade.getLevel(upgName)+1) )
+						func( "1" )
 						--upgrade.removeFreeSubUpgrade()
 					end
-				--end
+				end
 			end
 		end
 	end

@@ -828,9 +828,9 @@ function SwarmTower.new()
 	
 		myStatsReset()
 		
-		cTowerUpg.addUpg("range",handleUpgradeRange)
-		cTowerUpg.addUpg("burnDamage",handleUpgradeBurnDamage)
-		cTowerUpg.addUpg("fuel",handleUpgradeFuel)
+		cTowerUpg.addUpg("range",self.handleUpgradeRange)
+		cTowerUpg.addUpg("burnDamage",self.handleUpgradeBurnDamage)
+		cTowerUpg.addUpg("fuel",self.handleUpgradeFuel)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 	
 		--ParticleEffects

@@ -23,8 +23,8 @@ function Shop.new(camera)
 		},
 		["Tower/ArrowTower.lua"]={
 			range = {text="Arrow tower range",[1]={["value1"]="10.5"},[2]={["value1"]="12"},[3]={["value1"]="13.5"}},
-			hardArrow = {text="Arrow tower hardArrow",[1]={["value1"]="135",["value2"]="50"},[2]={["value1"]="240",["value2"]="60"},[3]={["value1"]="510",["value2"]="70"}},
-			markOfDeath = {text="Arrow tower mark of death",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}}
+			hardArrow = {text="Arrow tower hardArrow",[1]={["value1"]="135",["value2"]="50"},[2]={["value1"]="240",["value2"]="60"},[3]={["value1"]="410",["value2"]="70"}},
+			markOfDeath = {text="Arrow tower mark of death",[1]={["value1"]="8"},[2]={["value1"]="16"},[3]={["value1"]="24"}}
 		},
 		["Tower/SwarmTower.lua"]={
 			range = {text="swarm tower range",[1]={["value1"]="7.25"},[2]={["value1"]="8"},[3]={["value1"]="8.75"}},

@@ -1085,11 +1085,11 @@ function BladeTower.new()
 		soundRelease:setSoundPlayLimit(4)
 		soundRelease:setLocalSoundPLayLimit(3)
 		
-		cTowerUpg.addUpg("attackSpeed",handleAttackSpeed)
-		cTowerUpg.addUpg("masterBlade",handleMasterBlade)
-		cTowerUpg.addUpg("electricBlade",handleElectrified)
-		cTowerUpg.addUpg("shieldBreaker",handleShieldBypass)
-		cTowerUpg.addUpg("range",handleRange)
+		cTowerUpg.addUpg("attackSpeed",self.handleAttackSpeed)
+		cTowerUpg.addUpg("masterBlade",self.handleMasterBlade)
+		cTowerUpg.addUpg("electricBlade",self.handleElectrified)
+		cTowerUpg.addUpg("shieldBreaker",self.handleShieldBypass)
+		cTowerUpg.addUpg("range",self.handleRange)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		return true
 	end

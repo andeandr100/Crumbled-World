@@ -916,7 +916,9 @@ function QuakeTower.new()
 		
 		--manage campaign shop
 		setCurrentInfo()
-		cTowerUpg.addUpg("fireCrit",handleFireCrit)
+		cTowerUpg.addUpg("fireCrit",self.handleFireCrit)
+		cTowerUpg.addUpg("fireStrike",self.handleFlameStrike)
+		cTowerUpg.addUpg("electricStrike",self.handleElectricStrike)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		--add free upgrade if unlocked
 		if cTowerUpg.isPermUpgraded("freeUpgrade",1) then

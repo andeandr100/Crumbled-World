@@ -1113,10 +1113,10 @@ function ElectricTower.new()
 		
 		setCurrentInfo()
 		myStatsReset()
-		cTowerUpg.addUpg("range",handleUpgradeRange)
-		cTowerUpg.addUpg("ampedSlow",handleUpgradeSlow)
-		cTowerUpg.addUpg("energyPool",handleUpgradeEnergyPool)
-		cTowerUpg.addUpg("energy",handleUpgradeEnergy)
+		cTowerUpg.addUpg("range",self.handleUpgradeRange)
+		cTowerUpg.addUpg("ampedSlow",self.handleUpgradeSlow)
+		cTowerUpg.addUpg("energyPool",self.handleUpgradeEnergyPool)
+		cTowerUpg.addUpg("energy",self.handleUpgradeEnergy)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 		return true
 	end

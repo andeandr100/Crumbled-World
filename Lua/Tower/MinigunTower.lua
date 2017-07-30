@@ -987,9 +987,9 @@ function MinigunTower.new()
 		initModel()
 		setCurrentInfo()
 				
-		cTowerUpg.addUpg("range",upgradeRange)
-		cTowerUpg.addUpg("overCharge",upgradeOverCharge)
-		cTowerUpg.addUpg("fireCrit",upgradeGreaseBullet)
+		cTowerUpg.addUpg("range",self.upgradeRange)
+		cTowerUpg.addUpg("overCharge",self.upgradeOverCharge)
+		cTowerUpg.addUpg("fireCrit",self.upgradeGreaseBullet)
 		cTowerUpg.fixAllPermBoughtUpgrades()--fix the permanant upgrades from the shop
 		
 		myStatsReset()

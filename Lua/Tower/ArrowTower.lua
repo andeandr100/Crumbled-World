@@ -927,11 +927,11 @@ function ArrowTower.new()
 								info = "Arrow tower hardArrow",
 								order = 3,
 								icon = 2,
-								value1 = 510,
+								value1 = 410,
 								value2 = 70,
 								levelRequirement = cTowerUpg.getLevelRequierment("hardArrow",3),
 								stats ={RPS = 		{ upgrade.mul, 0.3},
-										damage = 	{ upgrade.mul, 6.1} }
+										damage = 	{ upgrade.mul, 5.1} }
 							} )
 		-- MARK OF DEATH (amplified by other towers, increases damage take to target with 5% every upgrade)
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -939,9 +939,9 @@ function ArrowTower.new()
 								info = "Arrow tower mark of death",
 								order = 4,
 								icon = 61,
-								value1 = 10,
+								value1 = 8,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",1),
-								stats ={weaken =		{ upgrade.add, 0.10, ""},
+								stats ={weaken =		{ upgrade.add, 0.8, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -949,9 +949,9 @@ function ArrowTower.new()
 								info = "Arrow tower mark of death",
 								order = 4,
 								icon = 61,
-								value1 = 20,
+								value1 = 16,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",2),
-								stats ={weaken =		{ upgrade.add, 0.20, ""},
+								stats ={weaken =		{ upgrade.add, 0.16, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -959,9 +959,9 @@ function ArrowTower.new()
 								info = "Arrow tower mark of death",
 								order = 4,
 								icon = 61,
-								value1 = 30,
+								value1 = 24,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",3),
-								stats ={weaken =		{ upgrade.add, 0.30, ""},
+								stats ={weaken =		{ upgrade.add, 0.24, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 --		-- SMART TARGETING

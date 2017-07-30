@@ -781,10 +781,10 @@ function SwarmTower.new()
 	
 		myStatsReset()
 		
-		cTowerUpg.addUpg("range",handleUpgradeRange)
-		cTowerUpg.addUpg("damage",handleUpgradeDamage)
-		cTowerUpg.addUpg("weaken",handleUpgradeWeaken)
-		cTowerUpg.addUpg("gold",handleUpgradegold)
+		cTowerUpg.addUpg("range",self.handleUpgradeRange)
+		cTowerUpg.addUpg("damage",self.handleUpgradeDamage)
+		cTowerUpg.addUpg("weaken",self.handleUpgradeWeaken)
+		cTowerUpg.addUpg("gold",self.handleUpgradegold)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 	
 		--ParticleEffects
