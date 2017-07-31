@@ -67,6 +67,13 @@ function CampaignData.new()
 	end
 	init()
 	--
+	function self.shouldExist(towerName,upgradeName)
+		if campaingDataConfig:exist(towerName)==false or campaingDataConfig:get(towerName):exist(upgradeName)==false then
+			campaingDataConfig:get(towerName):get(upgradeName):get("permUnlocked",0)
+			campaingDataConfig:get(towerName):get(upgradeName):get("buyable",0)
+			campaignDataTable = campaingDataConfig:getTable()
+		end
+	end
 	function self.fixCrystalLimits()
 		print("self.fixCrystalLimits()")
 		if campaingDataConfig:get("crystal",0):getInt()>self.getMaxGoldNeededToUnlockEverything() then
@@ -123,14 +130,6 @@ function CampaignData.new()
 	end
 	function self.getMapModeBeatenLevel(number,mode)
 		return tonumber((campaignDataTable["mapsFinished"] and campaignDataTable["mapsFinished"][files[number].statId] and campaignDataTable["mapsFinished"][files[number].statId][mode or "-"]) or 0)
---		local it = campaignDataTable["mapsFinished"]
---		if it then
---			it = campaignDataTable["mapsFinished"][files[number].statId]
---		end
---		if it then
---			it = it[mode or "-"]
---		end
---		return tonumber(it or 0)
 	end
 	function self.hasMapModeBeenBeaten(number,mode)
 		return self.getMapModeBeatenLevel(number,mode)>0
@@ -162,19 +161,23 @@ function CampaignData.new()
 	end
 	function self.getTotalBuyablesBoughtForTower(towerName,permUnlocked)
 		local tab = campaignDataTable[towerName]
-		local ret = 0
-		for k,v in pairs(tab) do
-			if permUnlocked then
-				if v.permUnlocked then
-					ret = ret + v.permUnlocked
-				end
-			else
-				if v.buyable then
-					ret = ret + v.buyable
+		if tab then
+			local ret = 0
+			for k,v in pairs(tab) do
+				if permUnlocked then
+					if v.permUnlocked then
+						ret = ret + v.permUnlocked
+					end
+				else
+					if v.buyable then
+						ret = ret + v.buyable
+					end
 				end
 			end
+			return ret
+		else
+			return 0
 		end
-		return ret
 	end
 	function self.getTotalBuyablesBought()
 		local ret = 0
@@ -192,6 +195,8 @@ function CampaignData.new()
 								[3]={[0]=6,[1]=5,[2]=3,[3]=0}}
 		local ret = 0
 		print("for i=1, "..#towers.." do")
+		local d1 = towers
+		local d2 = campaignDataTable
 		for i=1, #towers do
 			print("i = "..i)
 			print("for k,v in pairs("..towers[i]..") do")
@@ -215,7 +220,7 @@ function CampaignData.new()
 		return ret
 	end
 	function self.getBoughtUpg(towerName,upgradeName,permUnlocked)
-		if campaignDataTable[towerName][upgradeName] then
+		if campaignDataTable[towerName] and campaignDataTable[towerName][upgradeName] then
 			return tonumber(campaignDataTable[towerName][upgradeName][permUnlocked and "permUnlocked" or "buyable"] or 0)
 		else
 			return 0

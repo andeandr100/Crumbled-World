@@ -317,6 +317,8 @@ function Shop.new(camera)
 			--
 			local unlocked = data.getBoughtUpg(towers[towerIndex],name,false)
 			local unlocksAvailable = data.getBuyablesTotal(name,false)
+			-- make sure
+			data.shouldExist(towers[towerIndex],name)
 			-- info
 			if spacing then
 				panel:add(Panel(PanelSize(Vec2(-1,0.03),Vec2(0.25,1))))--spacing
@@ -430,7 +432,6 @@ function Shop.new(camera)
 		local stuff = upper:add(Panel(PanelSize(Vec2(-1,0.03))))--line breaker
 		--stuff:setBackground( Sprite( Vec4(0,1,1,0.5) ))--DEBUG coloring
 		--
-		data.fixCrystalLimits()
 --		local breakLinePanel = shopPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
 --		breakLinePanel:setBackground(Sprite(Vec3(0.45)))
 	end
@@ -512,6 +513,8 @@ function Shop.new(camera)
 		for i=1, #towers do
 			addTowerButtons(i)
 		end
+		--fixe crystal limits
+		data.fixCrystalLimits()
 		--Update all information
 		updateAllLabels()
 		updateAllToolTips()
