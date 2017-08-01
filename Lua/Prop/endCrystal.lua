@@ -31,7 +31,10 @@ end
 function restartWave(param)
 	local waveNum = tonumber(param)
 	if waveData[waveNum] then
-		waveSpiritCount = waveData[waveNum].waveSpiritCount
+		spiritCount = waveData[waveNum].waveSpiritCount
+		for i=1, spiritCount do
+			spirits[spiritCount].effect:setVisible(true)
+		end
 	end
 end
 function handleWaveChanged(param)
@@ -151,7 +154,6 @@ function handleNpcReachedEnd(param)
 		doLightning(Vec3(0.0,0.7+0.2,0.0),lPos+Vec3(0,0.25,0))
 		--
 		spirits[spiritCount].effect:setVisible(false)
-		spirits[spiritCount] = nil
 		spiritCount = spiritCount - 1
 	end
 end

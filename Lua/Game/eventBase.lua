@@ -362,6 +362,10 @@ function EventBase.new()
 		comUnit:sendTo("stats","setBillboardInt","npc_reaper_gold;"..calculateGoldValue("reaper",hpMul))
 		comUnit:sendTo("stats","setBillboardInt","npc_stoneSpirit_gold;"..calculateGoldValue("stoneSpirit",hpMul))
 		comUnit:sendTo("stats","setBillboardInt","npc_hydra1_gold;"..calculateGoldValue("hydra1",hpMul))
+		comUnit:sendTo("stats","setBillboardInt","npc_hydra2_gold;0")
+		comUnit:sendTo("stats","setBillboardInt","npc_hydra3_gold;0")
+		comUnit:sendTo("stats","setBillboardInt","npc_hydra4_gold;0")
+		comUnit:sendTo("stats","setBillboardInt","npc_hydra5_gold;0")
 		--interest rate
 		comUnit:sendTo("stats","setBillboardString","npc_interest;"..interestOnKill)--0.2% intereset per kill
 	end
@@ -627,8 +631,7 @@ function EventBase.new()
 						hydra5 =		{hp=550,	size=0.8,	script="NPC/npc_hydra5.lua"},--L5 totalHP = 550+(450*2)+(400*4)+(350*8)+(300*16) == 9050
 					}
 			local groupCompOriginal = {
-				--{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1}},--2000/2s <-> 1000ps
-				--{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
+				--{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="turtle",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
 		--		{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
 		--		{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
 		--		{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
@@ -1269,10 +1272,14 @@ function EventBase.new()
 									comUnit:sendTo("SteamAchievement","MapCo-opTheTinyRoad","")
 								elseif mapInfo.getMapName()=="Co-op Triworld" then
 									comUnit:sendTo("SteamAchievement","MapCo-opTriworld","")
-								elseif mapInfo.getMapName()=="Co-op Triworld" then
+								elseif mapInfo.getMapName()=="Broken mine" then
 									comUnit:sendTo("SteamAchievement","MapBrokenMine","")
-								elseif mapInfo.getMapName()=="Co-op Triworld" then
+								elseif mapInfo.getMapName()=="Dump station" then
 									comUnit:sendTo("SteamAchievement","MapDumpStation","")
+								elseif mapInfo.getMapName()=="Desperado" then
+									comUnit:sendTo("SteamAchievement","MapDesperado","")
+								elseif mapInfo.getMapName()=="West river" then
+									comUnit:sendTo("SteamAchievement","MapWestRiver","")
 								end
 							end
 							--

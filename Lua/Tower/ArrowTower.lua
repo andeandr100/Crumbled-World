@@ -941,7 +941,7 @@ function ArrowTower.new()
 								icon = 61,
 								value1 = 8,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",1),
-								stats ={weaken =		{ upgrade.add, 0.8, ""},
+								stats ={weaken =		{ upgrade.add, 0.08, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,

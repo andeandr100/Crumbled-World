@@ -2,7 +2,7 @@
 local npcBase
 function createHydra(level,scale,pnpcBase)
 	npcBase = pnpcBase
-	npcBase.init("hydra","npc_hydra"..level..".mym",0.5*scale,0.6,0.8,1.45)
+	npcBase.init("hydra"..level,"npc_hydra"..level..".mym",0.5*scale,0.6,0.8,1.45)
 	npcBase.getSoul().enableBlood("BloodSplatterSphere",2.5*scale,Vec3(0,0.3*scale,-0.4*scale))
 	local mat = npcBase.getModel():getLocalMatrix()
 	mat:scale(Vec3(scale))
