@@ -214,14 +214,17 @@ function addPrioEvent(intabData)
 end
 
 function callPrioEvent(eventData)
-	local comIndex = Core.getScriptOfNetworkName(eventData.netName):getIndex()
-	if eventData.event == 1 then
-		
-		comUnit:sendTo(comIndex,"addState",tostring(state.ignore)..";0")
-		comUnit:sendTo(comIndex,"addState",tostring(state.highPriority)..";1")
-	else
-		comUnit:sendTo(comIndex,"addState",tostring(state.highPriority)..";0")
-		comUnit:sendTo(comIndex,"addState",tostring(state.ignore)..";1")
+	local script = Core.getScriptOfNetworkName(eventData.netName)
+	if script then
+		local comIndex = script:getIndex()
+		if eventData.event == 1 then
+			
+			comUnit:sendTo(comIndex,"addState",tostring(state.ignore)..";0")
+			comUnit:sendTo(comIndex,"addState",tostring(state.highPriority)..";1")
+		else
+			comUnit:sendTo(comIndex,"addState",tostring(state.highPriority)..";0")
+			comUnit:sendTo(comIndex,"addState",tostring(state.ignore)..";1")
+		end
 	end
 end
 
