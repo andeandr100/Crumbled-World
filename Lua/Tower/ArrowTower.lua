@@ -872,7 +872,7 @@ function ArrowTower.new()
 										detonationRange =	{ upgrade.add, 2.0}}
 							} )
 		-- RANGE
-		upgrade.addUpgrade( {	cost = 100,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,
 								name = "range",
 								info = "Arrow tower range",
 								order = 2,
@@ -881,7 +881,7 @@ function ArrowTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
 								stats ={range =		{ upgrade.add, 1.5, ""} }
 							} )
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 100 or 200,
 								name = "range",
 								info = "Arrow tower range",
 								order = 2,
@@ -890,7 +890,7 @@ function ArrowTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
 								stats ={range =		{ upgrade.add, 3.0, ""} }
 							} )
-		upgrade.addUpgrade( {	cost = 300,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 200 or 300,
 								name = "range",
 								info = "Arrow tower range",
 								order = 2,

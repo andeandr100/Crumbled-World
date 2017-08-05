@@ -10,6 +10,7 @@ require("Game/mapInfo.lua")
 --this = SceneNode()
 ElectricTower = {}
 function ElectricTower.new()
+	local MAXTHEORETICALENERGYTRANSFERRANGE = (4+2.25)*1.3+0.75
 	local self = {}
 	local myStats = {}
 	local myStatsTimer = 0
@@ -178,17 +179,20 @@ function ElectricTower.new()
 		--if we are futher away or has no known target then we can give energy
 		if targetSelector.isAnyInRange()==false and reloadTimeLeft<0.0 then
 			local energyMax = upgrade.getValue("energyMax")
-			if param.deficit>1 then
-				--actual energy needed
-				local attackCost = (upgrade.getValue("damage")/damagePerEnergy)
-				if param.prio or (param.deficit>energyMax-energy+attackCost*1.25) then
-					--give energy if they are in priority or we have a defecit that is larget then ours with some margin
-					if energy>attackCost then
-						comUnit:sendTo(fromIndex,"canOfferEnergy",attackCost*2.0)
+			--make sure the tower is in range
+			if (this:getGlobalPosition()-Core.getBillboard(fromIndex):getVec3("GlobalPosition")):length()<=upgrade.getValue("range")+0.75 then
+				if param.deficit>1 then
+					--actual energy needed
+					local attackCost = (upgrade.getValue("damage")/damagePerEnergy)
+					if param.prio or (param.deficit>energyMax-energy+attackCost*1.25) then
+						--give energy if they are in priority or we have a defecit that is larget then ours with some margin
+						if energy>attackCost then
+							comUnit:sendTo(fromIndex,"canOfferEnergy",attackCost*2.0)
+						end
 					end
+				elseif energy+1>energyMax then
+					comUnit:sendTo(fromIndex,"canOfferEnergy",0.1)-- offers<1 will not send any energy
 				end
-			elseif energy+1>energyMax then
-				comUnit:sendTo(fromIndex,"canOfferEnergy",0.1)-- offers<1 will not send any energy
 			end
 		end
 		--no targets available, more then 50% energy in store and we can offer more than a single attack of energy. Then we can offer energy
@@ -727,9 +731,9 @@ function ElectricTower.new()
 		if energy<energyMax*0.95 and lastEnergyRequest>(targetSelector.isAnyInRange() and 0.4 or 1.0) then--can ask 1/s or 2/s if there is any enemies in range
 			lastEnergyRequest = 0.0
 			if targetSelector.isAnyInRange() then
-				comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range")+0.75,"requestEnergy",{prio=true,deficit=(energyMax-energy)})
+				comUnit:broadCast(this:getGlobalPosition(),MAXTHEORETICALENERGYTRANSFERRANGE,"requestEnergy",{prio=true,deficit=(energyMax-energy)})
 			else
-				comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range")+0.75,"requestEnergy",{prio=(energy<energyMax*0.65),deficit=(energyMax-energy)})
+				comUnit:broadCast(this:getGlobalPosition(),MAXTHEORETICALENERGYTRANSFERRANGE,"requestEnergy",{prio=(energy<energyMax*0.65),deficit=(energyMax-energy)})
 			end
 			energyOffers.size=0
 			energyOffers.frameCounter=2
@@ -737,7 +741,7 @@ function ElectricTower.new()
 			--max energy (make a light show, to indicate that there is a link between the towers)
 			lastEnergyRequest = 0.0
 			energyLightShow = math.randomFloat(3.0,7.0)
-			comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range")+0.75,"requestEnergy",{prio=false,deficit=0})
+			comUnit:broadCast(this:getGlobalPosition(),MAXTHEORETICALENERGYTRANSFERRANGE,"requestEnergy",{prio=false,deficit=0})
 			energyOffers.size=0
 			energyOffers.frameCounter=2
 		end
@@ -810,6 +814,7 @@ function ElectricTower.new()
 		billboard:setString("TargetArea","sphere")
 		billboard:setString("Name", "Electric tower")
 		billboard:setString("FileName", "Tower/ElectricTower.lua")
+		billboard:setVec3("GlobalPosition",this:getGlobalPosition())
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
 	
@@ -929,7 +934,7 @@ function ElectricTower.new()
 										attackCost ={ upgrade.set, 0.0}}
 							} )
 		-- RANGE
-		upgrade.addUpgrade( {	cost = 100,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,
 								name = "range",
 								info = "electric tower range",
 								order = 2,
@@ -938,7 +943,7 @@ function ElectricTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
 								stats ={range =		{ upgrade.add, 0.75, ""} }
 							} )
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 100 or 200,
 								name = "range",
 								info = "electric tower range",
 								order = 2,
@@ -947,7 +952,7 @@ function ElectricTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
 								stats ={range =		{ upgrade.add, 1.50, ""} }
 							} )
-		upgrade.addUpgrade( {	cost = 300,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 200 or 300,
 								name = "range",
 								info = "electric tower range",
 								order = 2,

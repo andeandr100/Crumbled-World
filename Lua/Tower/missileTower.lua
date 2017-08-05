@@ -768,7 +768,7 @@ function MissileTower.new()
 										replaceTime =	{ upgrade.mul, 0.5} }
 							} )
 		-- RANGE
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,
 								name = "range",
 								info = "missile tower range",
 								order = 2,
@@ -777,7 +777,7 @@ function MissileTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
 								stats = {range = 		{ upgrade.add, 1.0}}
 							} )
-		upgrade.addUpgrade( {	cost = 300,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 100 or 200,
 								name = "range",
 								info = "missile tower range",
 								order = 2,
@@ -786,7 +786,7 @@ function MissileTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
 								stats = {range = 		{ upgrade.add, 2.0}}
 							} )
-		upgrade.addUpgrade( {	cost = 400,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 200 or 300,
 								name = "range",
 								info = "missile tower range",
 								order = 2,
