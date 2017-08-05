@@ -683,7 +683,7 @@ function ElectricTower.new()
 				upgrade.clearCooldown()
 			end
 		end
-	
+		comUnit:setPos(this:getGlobalPosition())
 		updateEnergy()
 		local deltaTime = Core.getDeltaTime()
 		local energyMax = upgrade.getValue("energyMax")
@@ -805,7 +805,7 @@ function ElectricTower.new()
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(true)
 		comUnit:setPos(this:getGlobalPosition())
-		comUnit:broadCast(this:getGlobalPosition(),3.0,"shockwave","")
+		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 		billboard:setDouble("rangePerUpgrade",0.75)
 		billboard:setString("hullName","hull")
 		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))

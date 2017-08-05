@@ -668,6 +668,7 @@ function BladeTower.new()
 	function self.update()
 	
 		local deltaTime = Core.getDeltaTime()
+		comUnit:setPos(this:getGlobalPosition())
 		--Handle communication
 		while comUnit:hasMessage() do
 			local msg = comUnit:popMessage()
@@ -835,7 +836,7 @@ function BladeTower.new()
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(true)--debug myStats
 		comUnit:setPos(this:getGlobalPosition())
-		comUnit:broadCast(this:getGlobalPosition(),3.0,"shockwave","")
+		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))
 		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
 		billboard:setModel("tower",model)
