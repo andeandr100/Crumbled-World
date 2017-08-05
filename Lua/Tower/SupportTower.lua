@@ -649,7 +649,7 @@ function SwarmTower.new()
 								stats =	{}
 							} )
 		-- RANGE
-		upgrade.addUpgrade( {	cost = 100,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,
 								name = "range",
 								info = "support tower range",
 								order = 2,
@@ -658,7 +658,7 @@ function SwarmTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
 								stats = {SupportRange =			{ upgrade.add, 1}}
 							} )
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 100 or 200,
 								name = "range",
 								info = "support tower range",
 								order = 2,
@@ -667,7 +667,7 @@ function SwarmTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
 								stats = {SupportRange =			{ upgrade.add, 2}}
 							} )
-		upgrade.addUpgrade( {	cost = 300,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 200 or 300,
 								name = "range",
 								info = "support tower range",
 								order = 2,
@@ -677,7 +677,7 @@ function SwarmTower.new()
 								stats = {SupportRange =			{ upgrade.add, 3}}
 							} )
 		-- Damage
-		upgrade.addUpgrade( {	cost = 100,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("damage",1) and 0 or 100,
 								name = "damage",
 								info = "support tower damage",
 								order = 3,
@@ -686,7 +686,7 @@ function SwarmTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("damage",1),
 								stats = {supportDamage =		{ upgrade.add, 1}}
 							} )
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("damage",1) and 100 or 200,
 								name = "damage",
 								info = "support tower damage",
 								order = 3,
@@ -695,7 +695,7 @@ function SwarmTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("damage",2),
 								stats = {supportDamage =		{ upgrade.add, 2}}
 							} )
-		upgrade.addUpgrade( {	cost = 300,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("damage",1) and 200 or 300,
 								name = "damage",
 								info = "support tower damage",
 								order = 3,
@@ -705,7 +705,7 @@ function SwarmTower.new()
 								stats = {supportDamage =		{ upgrade.add, 3}}
 							} )
 		-- weaken
-		upgrade.addUpgrade( {	cost = 100,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("weaken",1) and 0 or 100,
 								name = "weaken",
 								info = "support tower weaken",
 								order = 4,
@@ -715,7 +715,7 @@ function SwarmTower.new()
 								stats = {weaken =		{ upgrade.add, 0.08},
 										 weakenTimer =	{ upgrade.add, 1} }
 							} )
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("weaken",1) and 100 or 200,
 								name = "weaken",
 								info = "support tower weaken",
 								order = 4,
@@ -725,7 +725,7 @@ function SwarmTower.new()
 								stats = {weaken =		{ upgrade.add, 0.16},
 										 weakenTimer =	{ upgrade.add, 1} }
 							} )
-		upgrade.addUpgrade( {	cost = 300,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("weaken",1) and 200 or 300,
 								name = "weaken",
 								info = "support tower weaken",
 								order = 4,
@@ -736,7 +736,7 @@ function SwarmTower.new()
 										 weakenTimer =	{ upgrade.add, 1} }
 							} )
 		-- gold
-		upgrade.addUpgrade( {	cost = 100,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("gold",1) and 0 or 100,
 								name = "gold",
 								info = "support tower gold",
 								order = 5,
@@ -745,7 +745,7 @@ function SwarmTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("gold",1),
 								stats = {supportGold =	{ upgrade.add, 1} }
 							} )
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("gold",1) and 100 or 200,
 								name = "gold",
 								info = "support tower gold",
 								order = 5,
@@ -754,7 +754,7 @@ function SwarmTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("gold",2),
 								stats = {supportGold =	{ upgrade.add, 2} }
 							} )
-		upgrade.addUpgrade( {	cost = 300,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("gold",1) and 200 or 300,
 								name = "gold",
 								info = "support tower gold",
 								order = 5,

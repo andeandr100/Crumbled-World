@@ -33,6 +33,7 @@ function NpcBase.new()
 	local waypointReachedList = {}
 	local idName
 	local useDeathAnimationOrPhysic = true
+	local retargetForHighPpriorityTarget = 0.0
 	--stats
 	local npcAge = 0.0
 	--debug
@@ -511,6 +512,7 @@ function NpcBase.new()
 			defaultState = defaultState + (bool==0 and -lstate or lstate)
 			if bool==1 and lstate==state.highPriority then
 				comUnit:broadCast(this:getGlobalPosition(),7.5,"Retarget","")
+				retargetForHighPpriorityTarget = Core.getGameTime()
 			end
 			--
 		end
@@ -561,6 +563,12 @@ function NpcBase.new()
 			--fadeOut(body,deltaTime,"normal")
 		else
 			comUnit:sendTo("SoulManager","update",soul.getHp())
+		end
+		
+		--if is high priority target make towers close by attack you
+		if lstate==state.highPriority and Core.getGameTime()-retargetForHighPpriorityTarget>2.5 then
+			comUnit:broadCast(this:getGlobalPosition(),7.5,"Retarget","")
+			retargetForHighPpriorityTarget = Core.getGameTime()
 		end
 		
 		--update npc path

@@ -710,7 +710,7 @@ function SwarmTower.new()
 										fieringTime =		{ upgrade.set, 0.55}}
 							} )
 		-- RANGE
-		upgrade.addUpgrade( {	cost = 100,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,
 								name = "range",
 								info = "swarm tower range",
 								order = 2,
@@ -719,7 +719,7 @@ function SwarmTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
 								stats = {range = 		{ upgrade.add, 0.75, ""}}
 							} )
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 100 or 200,
 								name = "range",
 								info = "swarm tower range",
 								order = 2,
@@ -728,7 +728,7 @@ function SwarmTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
 								stats = {range = 		{ upgrade.add, 1.5, ""}}
 							} )
-		upgrade.addUpgrade( {	cost = 300,
+		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 200 or 300,
 								name = "range",
 								info = "swarm tower range",
 								order = 2,
