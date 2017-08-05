@@ -489,6 +489,7 @@ function SwarmTower.new()
 				upgrade.clearCooldown()
 			end
 		end
+		comUnit:setPos(this:getGlobalPosition())
 		while comUnit:hasMessage() do
 			local msg = comUnit:popMessage()
 			if comUnitTable[msg.message]~=nil then
@@ -588,7 +589,7 @@ function SwarmTower.new()
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(true)--debug myStats
 		comUnit:setPos(this:getGlobalPosition())
-		comUnit:broadCast(this:getGlobalPosition(),3.0,"shockwave","")
+		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 	
 		billboard:setDouble("rangePerUpgrade",0.75)
 		billboard:setString("hullName","hull")

@@ -189,7 +189,7 @@ function Shop.new(camera)
 				end
 				textPanels[towerName].buyable:setText(str)
 			end
-			if data.getBoughtUpg(towerName,upgName,false)==3 and (upgName=="overCharge" or (towerName=="Tower/quakerTower.lua" and (upgName=="fireCrit" or upgName=="fireStrike" or upgName=="electricStrike"))) then
+			if data.getBoughtUpg(towerName,upgName,false)==3 and (towerName=="Tower/quakerTower.lua" and (upgName=="fireCrit" or upgName=="fireStrike" or upgName=="electricStrike")) then
 				textPanels[towerName][upgName]["0"].button:setEnabled(false)
 			end
 			if permUnlockLeft<=0 and upgName=="freeUpgrade" then

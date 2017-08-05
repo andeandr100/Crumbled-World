@@ -352,6 +352,7 @@ function SwarmTower.new()
 			model:getMesh("range".. upgrade.getLevel("range")):setVisible(false)
 			upgrade.degrade("range")
 		else
+			setCurrentInfo()
 			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
@@ -374,7 +375,6 @@ function SwarmTower.new()
 			rangeMatrix = nil
 		end
 		setCurrentInfo()
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportRange",upgrade.getLevel("range"))
 	end
 	-- function:	handleUpgradeDamage
 	-- purpose:		do all changes for upgrading the damage
@@ -384,6 +384,7 @@ function SwarmTower.new()
 		elseif upgrade.getLevel("damage")>tonumber(param) then
 			upgrade.degrade("damage")
 		else
+			setCurrentInfo()
 			return--level unchanged
 		end
 		if Core.isInMultiplayer() then
@@ -397,7 +398,6 @@ function SwarmTower.new()
 			end
 		end
 		setCurrentInfo()
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("damage"),"supportDamage",upgrade.getLevel("damage"))
 	end
 	-- function:	handleUpgradeWeaken
 	-- purpose:		do all changes for upgrading the weakening
@@ -487,7 +487,7 @@ function SwarmTower.new()
 	-- function:	update
 	-- purpose:		default update sycle
 	function self.update()
-
+		comUnit:setPos(this:getGlobalPosition())
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
@@ -580,7 +580,7 @@ function SwarmTower.new()
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(true)--debug myStats
 		comUnit:setPos(this:getGlobalPosition())
-		comUnit:broadCast(this:getGlobalPosition(),3.0,"shockwave","")
+		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 	
 		billboard:setString("hullName","hull")
 		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))

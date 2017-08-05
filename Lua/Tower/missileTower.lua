@@ -587,7 +587,7 @@ function MissileTower.new()
 	end
 	--
 	function self.update()
-		
+		comUnit:setPos(this:getGlobalPosition())
 		if upgrade.update() then
 			myStats.disqualified = true
 			model:getMesh("boost"):setVisible( false )
@@ -669,7 +669,7 @@ function MissileTower.new()
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(true)--debug for stats
 		comUnit:setPos(this:getGlobalPosition())
-		comUnit:broadCast(this:getGlobalPosition(),3.0,"shockwave","")
+		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 		
 		billboard:setDouble("rangePerUpgrade",1.0)
 		upgrade.setBillboard(billboard)

@@ -22,7 +22,7 @@ function CampaignData.new()
 		{file=File("Data/Map/Campaign/Expansion.map"), 		statId="Expansion",		statIdOld="L4",		type="Crystal",	sead=864885368,	waveCount=25},
 		{file=File("Data/Map/Campaign/Repair station.map"),	statId="RepairStation",	statIdOld="L5",		type="Cart",	sead=256546887,	waveCount=20},--12000
 		{file=File("Data/Map/Campaign/Bridges.map"),		statId="Bridges",		statIdOld="L6",		type="Crystal",	sead=617196048,	waveCount=20},
-		{file=File("Data/Map/Campaign/Spiral.map"),			statId="Spiral",		statIdOld="L7",		type="Crystal",	sead=109720780,	waveCount=25},--			X
+		{file=File("Data/Map/Campaign/Spiral.map"),			statId="Spiral",		statIdOld="L7",		type="Crystal",	sead=109723780,	waveCount=25},--			X
 		{file=File("Data/Map/Campaign/Broken mine.map"),	statId="BrokenMine",						type="Cart",	sead=104266217,	waveCount=25},
 		{file=File("Data/Map/Campaign/Town.map"),			statId="Town",			statIdOld="L8",		type="Crystal",	sead=956148502,	waveCount=25},--			LONGEST AVG PLAYTIME
 		{file=File("Data/Map/Campaign/Plaza.map"),			statId="Plaza",			statIdOld="L9",		type="Crystal",	sead=169366078,	waveCount=20},

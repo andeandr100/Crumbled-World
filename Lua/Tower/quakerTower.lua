@@ -573,6 +573,7 @@ function QuakeTower.new()
 		end
 	end
 	function self.update()
+		comUnit:setPos(this:getGlobalPosition())
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
@@ -708,7 +709,7 @@ function QuakeTower.new()
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(true)
 		comUnit:setPos(this:getGlobalPosition())
-		comUnit:broadCast(this:getGlobalPosition(),3.0,"shockwave","")
+		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 		billboard:setDouble("rangePerUpgrade",0.75)
 		billboard:setString("hullName","hull")
 		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))
