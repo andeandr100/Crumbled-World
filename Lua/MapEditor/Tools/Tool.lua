@@ -4,7 +4,7 @@ Tool = {}
 
 local camera = nil
 local mapEditor = nil
-
+local copyBufferBillboard = nil
 
 function Tool.create()
 	camera = this:getRootNode():findNodeByType(NodeId.camera)
@@ -20,6 +20,9 @@ function Tool.create()
 	superDeActivated = deActivated
 	deActivated = Tool.deactivated
 	Tool.enableChangeOfSelectedScene = true
+	
+	
+	copyBufferBillboard = Core.getGlobalBillboard("copyBuffer")
 	
 	selectState = 0	
 end
@@ -352,6 +355,7 @@ function Tool.getSelectedNodesMatrix(selectedScenesNodes)
 end
 
 function Tool.update()
+
 	
 	if Core.getInput():getMouseDown( MouseKey.right ) then
 		toolManager = this:getRootNode():findNodeByTypeTowardsLeafe(NodeId.toolManager)
@@ -395,25 +399,62 @@ function Tool.update()
 		if Core.getInput():getKeyHeld(Key.lctrl) then
 			
 			local selectedScene =  Tool.getSelectedSceneNodes()
-	--		if selectedScene and Core.getInput():getKeyDown(Key.c)then
-	--			local tmpSceneNode = SceneNode()
-	--			for i=1, #selectedScene do
-	--				selectedScene[i]:getParent():removeChild(selectedScene[i])
-	--				tmpSceneNode:addChild(selectedScene[i])
-	--			end
-	--			tmpSceneNode:saveScene("sceneCopyBuffer")
-	--		elseif selectedScene and Core.getInput():getKeyDown(Key.v) then
-	----			local tmpSceneNode = SceneNode()
-	----			tmpSceneNode:loadScene("sceneCopyBuffer")
-	----			local mainNode = tmpSceneNode:getChildNode(0)
-	----			for i
-	--		end
+			if selectedScene and Core.getInput():getKeyDown(Key.c)then
+				copyBufferBillboard:setInt("numBuffers", #selectedScene)
+				local globalCenterPos = Vec3()
+				for i=1, #selectedScene do
+					globalCenterPos = globalCenterPos + selectedScene[i]:getGlobalPosition()
+				end
+				local globalMatrixOffset = Matrix(globalCenterPos / #selectedScene)
+				globalMatrixOffset:inverse()
+				
+				for i=1, #selectedScene do
+					selectedScene[i]:saveScene("Data/Dynamic/tmpbuffer/scenes/sceneCopyBuffer"..i)
+					copyBufferBillboard:setBool("isBufferAIsland"..i, selectedScene[i]:findNodeByTypeTowardsLeafe(NodeId.island) ~= nil )
+					copyBufferBillboard:setMatrix("LocalMatrix"..i, globalMatrixOffset * selectedScene[i]:getGlobalMatrix());
+				end
+				
+			elseif selectedScene and Core.getInput():getKeyDown(Key.v) then
+				
+				local node, globalPosition = Tool.getCollision(false, true)
+				local parentNode = node:findNodeByTypeTowardsRoot(NodeId.island) and node:findNodeByTypeTowardsRoot(NodeId.island) or node:findNodeByTypeTowardsRoot(NodeId.playerNode)
+				local offsetLocalPos = parentNode:getGlobalMatrix():inverseM() * globalPosition
+				
+				if parentNode then
+					Tool.clearSelectedNodes()
+					
+					local numBuffers = copyBufferBillboard:getInt("numBuffers")
+					for i=1, numBuffers do
+	
+						if copyBufferBillboard:getBool("isBufferAIsland"..i) and parentNode:getNodeType() ~= NodeId.playerNode then
+							local playerNode = parentNode:findNodeByType(NodeId.playerNode)
+							if playerNode then
+								local node = parentNode:loadScene("Data/Dynamic/tmpbuffer/scenes/sceneCopyBuffer"..i)
+								node:setLocalMatrix( copyBufferBillboard:getMatrix("LocalMatrix"..i))
+								node:setLocalPosition( node:getLocalPosition() + globalPosition )
+								Tool.addSelectedScene( node )
+							else
+								print("player node was not found the copy buffer is ignored")
+							end
+							
+						else
+							local node = parentNode:loadScene("Data/Dynamic/tmpbuffer/scenes/sceneCopyBuffer"..i)
+							node:setLocalMatrix( copyBufferBillboard:getMatrix("LocalMatrix"..i))
+							node:setLocalPosition( node:getLocalPosition() + offsetLocalPos )
+							Tool.addSelectedScene( node )
+						end
+						
+					end
+				end
+			end
 			
 			if #selectedScene and #selectedScene > 0 then
 				if Core.getInput():getKeyDown(Key.d) then
+					Tool.clearSelectedNodes()
+					copyBufferBillboard:setInt("numBuffers", 0)
 					for i=1, #selectedScene do
-						selectedScene[i]:saveScene("sceneCopyBuffer")
-						selectedScene[i]:getParent():loadScene("sceneCopyBuffer")
+						selectedScene[i]:saveScene("Data/Dynamic/tmpbuffer/scenes/sceneCopyBuffer")
+						Tool.addSelectedScene( selectedScene[i]:getParent():loadScene("Data/Dynamic/tmpbuffer/scenes/sceneCopyBuffer") )
 					end
 				end
 				
