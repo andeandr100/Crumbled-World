@@ -212,9 +212,14 @@ function SoulManager.new()
 			local billboard = Core.getBillboard(fromIndex)
 			if billboard then
 				local mover = billboard:getNodeMover("nodeMover")
-				soul.position = mover:getCurrentPosition()+soul.aimHeight
-				soul.velocity = mover:getCurrentVelocity()
-				soul.distanceToExit = mover:getDistanceToExit()
+				if mover then
+					soul.position = mover:getCurrentPosition()+soul.aimHeight
+					soul.velocity = mover:getCurrentVelocity()
+					soul.distanceToExit = mover:getDistanceToExit()
+				else
+					--something is wrong kill that npc
+					Core.getComUnit():sendTo(fromIndex,"attack","100000000")
+				end
 			end
 			soul.hp = paramHp
 		end
