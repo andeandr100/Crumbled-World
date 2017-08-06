@@ -444,12 +444,22 @@ end
 function upgradeWallTower(param)
 	
 	local tab = totable(param)
-	local building = Core.getScriptOfNetworkName(tab.netName):getParentNode()
-	uppgradeWallTower(building, 0, tab.upgToScripName, nil, tab.tName, true, tab.playerId )
-	comUnit:sendTo("SelectedMenu", "updateSelectedTower", "")
-	
-	if Core.isInMultiplayer() then
-		comUnit:sendNetworkSyncSafe("NetUpgradeWallTower",param)
+	local script = Core.getScriptOfNetworkName(tab.netName)
+	if script then
+		local building = script:getParentNode()
+		uppgradeWallTower(building, 0, tab.upgToScripName, nil, tab.tName, true, tab.playerId )
+		comUnit:sendTo("SelectedMenu", "updateSelectedTower", "")
+		
+		if Core.isInMultiplayer() then
+			comUnit:sendNetworkSyncSafe("NetUpgradeWallTower",param)
+		end
+	else
+		print("---------------------")
+		print("  Crash information  ")
+		print("---------------------\n")
+		print(tostring(towerBuildInfo))
+		print("\n---------------------\n\n")
+		abort("CRASH: send the white console information bettwen Crash information to me")
 	end
 end
 
