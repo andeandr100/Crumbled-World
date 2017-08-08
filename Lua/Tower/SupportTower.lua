@@ -11,6 +11,9 @@ require("Game/mapInfo.lua")
 --this = SceneNode()
 SwarmTower = {}
 function SwarmTower.new()
+	local TOWERRANGE = 2.8
+	local TOWERRANGEMAX = 3.0
+	--
 	local self = {}
 	local myStats = {}
 	local myStatsTimer = 0
@@ -119,9 +122,15 @@ function SwarmTower.new()
 			end
 		end
 	end
-	
+	-- function:	sendSupporUpgrade
+	-- purpose:		broadcasting what upgrades the towers close by should use
+	local function sendSupporUpgrade()
+		comUnit:broadCast(this:getGlobalPosition(),upgrade.getLevel("range")==0 and TOWERRANGE*2.0 or TOWERRANGEMAX,"supportRange",upgrade.getLevel("range"))
+		comUnit:broadCast(this:getGlobalPosition(),upgrade.getLevel("damage")==0 and TOWERRANGE*2.0 or TOWERRANGEMAX,"supportDamage",upgrade.getLevel("damage"))
+	end
 	local function restartWave(param)
 		restoreWaveChangeStats( tonumber(param) )
+		sendSupporUpgrade()
 	end
 	
 	-- function:	myStatsReset
@@ -158,12 +167,6 @@ function SwarmTower.new()
 			upgrade.setInterpolation(interpolation)
 			upgrade.fixBillboardAndStats()
 		end
-	end
-	-- function:	sendSupporUpgrade
-	-- purpose:		broadcasting what upgrades the towers close by should use
-	local function sendSupporUpgrade()
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range")+0.25,"supportRange",upgrade.getLevel("range"))
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range")+0.25,"supportDamage",upgrade.getLevel("damage"))
 	end
 	-- function:	waveChanged
 	-- purpose:		called on wavechange. updates the towers stats
@@ -332,7 +335,7 @@ function SwarmTower.new()
 			upgrade.upgrade("boost")
 			setCurrentInfo()
 			--
-			comUnit:broadCast(this:getGlobalPosition(),upgrade.getValue("range"),"supportBoost",1)
+			comUnit:broadCast(this:getGlobalPosition(),TOWERRANGEMAX,"supportBoost",1)
 			--Achievement
 			comUnit:sendTo("SteamAchievement","Boost","")
 		else
@@ -511,7 +514,7 @@ function SwarmTower.new()
 			weakenUpdateTimer = weakenUpdateTimer - Core.getDeltaTime()
 			if weakenUpdateTimer<0.0 then
 				weakenUpdateTimer = 0.25
-				comUnit:broadCast(this:getGlobalPosition(),range,"markOfDeath",{per=weakenPer,timer=weakenTimer,type="area"})
+				comUnit:broadCast(this:getGlobalPosition(),TOWERRANGE,"markOfDeath",{per=weakenPer,timer=weakenTimer,type="area"})
 			end
 		end
 		--gold gain aura
@@ -519,7 +522,7 @@ function SwarmTower.new()
 			goldUpdateTimer = goldUpdateTimer - Core.getDeltaTime()
 			if goldUpdateTimer<0.0 then
 				goldUpdateTimer = 0.1
-				comUnit:broadCast(this:getGlobalPosition(),range,"markOfGold",{goldGain=goldGainAmount,timer=0.15,type="area"})
+				comUnit:broadCast(this:getGlobalPosition(),TOWERRANGE,"markOfGold",{goldGain=goldGainAmount,timer=0.15,type="area"})
 			end
 		end
 		
@@ -618,7 +621,7 @@ function SwarmTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 1,
-								stats ={range =				{ upgrade.add, 2.8},
+								stats ={range =				{ upgrade.add, TOWERRANGE},
 										model = 			{ upgrade.set, "tower_support_l1.mym"} }
 							} )
 		upgrade.addUpgrade( {	cost = 200,
@@ -627,7 +630,7 @@ function SwarmTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 2,
-								stats ={range =				{ upgrade.add, 2.8},
+								stats ={range =				{ upgrade.add, TOWERRANGE},
 										model = 			{ upgrade.set, "tower_support_l2.mym"}}
 							},0 )
 		upgrade.addUpgrade( {	cost = 200,
@@ -636,7 +639,7 @@ function SwarmTower.new()
 								order = 1,
 								icon = 56,
 								value1 = 3,
-								stats ={range =				{ upgrade.add, 2.8},
+								stats ={range =				{ upgrade.add, TOWERRANGE},
 										model = 			{ upgrade.set, "tower_support_l3.mym"}}
 							},0 )
 		upgrade.addUpgrade( {	cost = 0,
@@ -793,8 +796,8 @@ function SwarmTower.new()
 	end
 	init()
 	function self.destroy()
-		comUnit:broadCast(this:getGlobalPosition(),range,"supportRange",0)
-		comUnit:broadCast(this:getGlobalPosition(),range,"supportDamage",0)
+		comUnit:broadCast(this:getGlobalPosition(),TOWERRANGE*2.0,"supportRange",0)
+		comUnit:broadCast(this:getGlobalPosition(),TOWERRANGE*2.0,"supportDamage",0)
 	end
 	--
 	return self

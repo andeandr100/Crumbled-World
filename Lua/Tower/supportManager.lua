@@ -11,8 +11,8 @@ function SupportManager.new()
 	local PERUNITDAMGINCPERLEVEL = 10
 	local PERDAMGINCPERLEVEL = 0.10
 	--
-	local waveCount = 1
-	
+	local restartListenerSupport
+	--
 	local supportLevel = {}
 	
 	-- function:	fixLevel
@@ -20,11 +20,19 @@ function SupportManager.new()
 	-- upg:			The name of the upgrade
 	-- level:		What level is should have
 	local function fixLevel(upg,level)
+		print("fixLevel("..upg..","..level..")")
+		local dCount = 0
 		while upgrade.getLevel(upg)~=level do
+			dCount = dCount + 1
+			print("upgrade.getLevel("..upg..") = "..upgrade.getLevel(upg))
+			print("level = "..level)
 			if upgrade.getLevel(upg)>level then
 				upgrade.degrade(upg)
 			else
 				upgrade.upgrade(upg)
+			end
+			if dCount==5 then
+				abort()
 			end
 		end
 	end
@@ -122,6 +130,9 @@ function SupportManager.new()
 	-- function:	addHiddenUpgrades
 	-- purpose:		Add the hidden upgrades for the support tower to the upgrade list
 	function self.addHiddenUpgrades()
+--		restartListenerSupport = Listener("RestartWave")
+--		restartListenerSupport:registerEvent("restartWave", self.waveRestart)
+		--
 		if not upgrade then
 			error("The setUpgrade must have been used")
 		else
@@ -206,6 +217,9 @@ function SupportManager.new()
 	end
 	function self.addSetCallbackOnChange(func)
 		onChangeCallback = func
+	end
+	function self.restartWave()
+		supportLevel = {}
 	end
 	return self
 end

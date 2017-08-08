@@ -170,6 +170,7 @@ function BladeTower.new()
 	local function restartWave(param)
 		projectiles.clear()
 		restoreWaveChangeStats( tonumber(param) )
+		supportManager.restartWave()
 	end
 	local function waveChanged(param)
 		local name

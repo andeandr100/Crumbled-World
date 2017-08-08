@@ -198,6 +198,7 @@ function MinigunTower.new()
 		--
 		projectiles.clear()
 		restoreWaveChangeStats( tonumber(param) )
+		supportManager.restartWave()
 	end
 	local function setCurrentInfo()
 		if xpManager then
@@ -993,6 +994,10 @@ function MinigunTower.new()
 		cTowerUpg.fixAllPermBoughtUpgrades()--fix the permanant upgrades from the shop
 		
 		myStatsReset()
+		
+--		if upgrade.getFreeSubUpgradeCounts()>0 then
+--			abort()
+--		end
 		
 		return true
 	end

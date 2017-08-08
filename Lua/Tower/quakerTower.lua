@@ -128,6 +128,7 @@ function QuakeTower.new()
 	
 	local function restartWave(param)
 		restoreWaveChangeStats( tonumber(param) )
+		supportManager.restartWave()
 	end
 	
 	--

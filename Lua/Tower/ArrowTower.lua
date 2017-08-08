@@ -157,6 +157,7 @@ function ArrowTower.new()
 	local function restartWave(param)
 		projectiles.clear()
 		restoreWaveChangeStats( tonumber(param) )
+		supportManager.restartWave()
 	end
 	local function damageDealt(param)
 		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
