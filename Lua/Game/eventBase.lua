@@ -197,6 +197,8 @@ function EventBase.new()
 		if waves[waveCount] then
 			currentWaves[#currentWaves+1] = getCopyOfTable( waves[waveCount] )--make a copy of it, then we can go back and re use it
 			currentWaves[#currentWaves].waveUnitIndex = 2
+			currentWaves[#currentWaves].groupCounter = 1
+			currentWaves[#currentWaves].waveCount = waveCount
 			comUnit:sendTo("statsMenu","startWave",tostring(waveCount)..";"..(reloadIcons and "1" or "0") )
 		end
 	end
@@ -244,7 +246,9 @@ function EventBase.new()
 						end
 					elseif spawnPattern==SPAWN_PATTERN.Grouped then
 						if not npc[currentSpawn.npc] then
-							currentPortalId = currentPortalId==#spawns and 1 or currentPortalId+1
+							--currentPortalId = currentPortalId==#spawns and 1 or currentPortalId+1
+							currentPortalId = ((current.waveCount+current.groupCounter)%(#spawns))+1
+							current.groupCounter = current.groupCounter + 1
 						end
 						spawnCurrentUnit(current,currentPortalId)
 					else
@@ -490,10 +494,10 @@ function EventBase.new()
 		numState = numState + 1
 		stateList[numState] = stateId
 	end
-	function self.addGroupToSpawn(wave,position,group)
-		fixedGroupToSpawn[wave] = fixedGroupToSpawn[wave] or {}
-		fixedGroupToSpawn[wave][position] = group
-	end
+--	function self.addGroupToSpawn(wave,position,group)
+--		fixedGroupToSpawn[wave] = fixedGroupToSpawn[wave] or {}
+--		fixedGroupToSpawn[wave][position] = group
+--	end
 	function self.disableUnit(npcName)
 		disableUnits[npcName] = true
 	end
@@ -852,7 +856,7 @@ function EventBase.new()
 				theoreticalPaidHpPS = (spawnHealthPerSecond*unitBypassMultiplyer)
 				
 				--set wave info
-				waveDetails[1] = {hpMul=hpMultiplyer,info=waveDetailsInfo}
+				waveDetails[1] = {hpMul=hpMultiplyer, info=waveDetailsInfo, waveIndex=i}
 				waveDetails[2] = {npc="none", delay=((i==1) and npcDelayAfterFirstTowerBuilt or npcDelayBetweenWaves)}
 				waveDiff[i] = hpMultiplyer
 				local waveTotalTime = 0.0

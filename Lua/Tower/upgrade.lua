@@ -581,11 +581,16 @@ function Upgrade.new()
 				local d1 = self.getLevel("upgrade")
 				local d2 = interpolation
 				local currentStats = type(stats[stat])=="function" and stats[stat]() or stats[stat]
-				self.upgradeOnly( "upgrade", false)
-				local futureStats = type(stats[stat])=="function" and stats[stat]() or stats[stat]
-				self.degradeOnly( "upgrade", false)
-				if currentStats and futureStats then
-					return currentStats + (futureStats-currentStats)*interpolation
+				--interpolation can only occurre if it is a number to work with
+				if type(currentStats)=="string" then
+					return currentStats
+				else
+					self.upgradeOnly( "upgrade", false)
+					local futureStats = type(stats[stat])=="function" and stats[stat]() or stats[stat]
+					self.degradeOnly( "upgrade", false)
+					if currentStats and futureStats then
+						return currentStats + (futureStats-currentStats)*interpolation
+					end
 				end
 			end
 			if type(stats[stat])=="function" then

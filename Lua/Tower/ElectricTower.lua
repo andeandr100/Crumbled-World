@@ -141,6 +141,7 @@ function ElectricTower.new()
 	end
 	local function restartWave(param)
 		restoreWaveChangeStats( tonumber(param) )
+		supportManager.restartWave()
 	end
 	
 	local function doLightning(targetPosition,sphere)
