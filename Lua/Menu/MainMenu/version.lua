@@ -11,6 +11,7 @@ function create()
 	this:loadLuaScript("settings.lua")
 	
 	
+	local version = Core.getGlobalBillboard("version"):getString("version")
 	local versionCamera = Camera("Version camera", false, 512,128 )
 	
 	form = Form( versionCamera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
@@ -18,7 +19,7 @@ function create()
 	form:setLayout(FallLayout());
 	form:setRenderLevel(1)
 	
-	form:add(Label(PanelSize(Vec2(-1, -0.9)), "v0.9.4", Vec3(1), Alignment.MIDDLE_CENTER ))
+	form:add(Label(PanelSize(Vec2(-1, -0.9)), version, Vec3(1), Alignment.MIDDLE_CENTER ))
 	form:update()
 	versionCamera:render()
 	
@@ -42,7 +43,7 @@ function create()
 			
 			form:setRenderLevel(6)
 			
-			local version = Core.getGlobalBillboard("version"):getString("version")
+			
 			
 			form:add(Label(PanelSize(Vec2(-1)), "v"..version, Vec3(1)))
 	
