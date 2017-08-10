@@ -479,7 +479,7 @@ function SwarmTower.new()
 			goldUpdateTimer = 0.0
 			setCurrentInfo()
 			--
-			goldGainAmount = upgrade.getValue("UpgradeSupportGold")
+			goldGainAmount = upgrade.getValue("supportGold")
 		end
 	end
 	-- function:	Updates all tower what upgrades that is available

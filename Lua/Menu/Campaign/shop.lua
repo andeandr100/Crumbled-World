@@ -213,11 +213,7 @@ function Shop.new(camera)
 	
 			if textPanels[towerName][upgName]["0"] then
 				local permLeft = data.getBuyablesTotal(upgName,true)-data.getBoughtUpg(towerName,upgName,true)
-				if data.getBoughtUpg(towerName,upgName,false)==3 and upgName=="overCharge" then
-					textPanels[towerName][upgName]["0"].button:setEnabled(false)
-				else
-					textPanels[towerName][upgName]["0"].button:setEnabled(data.canBuyUnlock(towerName,upgName,false) or permLeft>0)
-				end
+				textPanels[towerName][upgName]["0"].button:setEnabled(data.canBuyUnlock(towerName,upgName,false) or permLeft>0)
 			end
 		end
 	end

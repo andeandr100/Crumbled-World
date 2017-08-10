@@ -197,8 +197,8 @@ function MinigunTower.new()
 		myStatsReset()
 		--
 		projectiles.clear()
-		restoreWaveChangeStats( tonumber(param) )
 		supportManager.restartWave()
+		restoreWaveChangeStats( tonumber(param) )
 	end
 	local function setCurrentInfo()
 		if xpManager then

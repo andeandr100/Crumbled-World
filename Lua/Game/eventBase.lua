@@ -652,12 +652,19 @@ function EventBase.new()
 				--{{npc="skeleton_cf",delay=1}},
 				--{{npc="reaper",delay=0.0}},
 				--{{npc="dino",delay=0.0}},
-				--{{npc="hydra5",delay=0.0}},
+--				{{npc="hydra5",delay=0.0}},
+--				{{npc="hydra5",delay=0.0}},
 				--{{npc="electroSpirit",delay=0.0}},
 				--{{npc="fireSpirit",delay=0.0}},
 				--{{npc="turtle",delay=0.0}},
 --				{{npc="turtle",delay=0.0}},
 --				{{npc="turtle",delay=0.0}},
+--				{{npc="stoneSpirit",delay=0.0}},
+--				{{npc="stoneSpirit",delay=0.0}},
+--				{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
+--				{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
+--				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
+--				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
 --				{{npc="turtle",delay=0.0}},
 --				{{npc="turtle",delay=0.0}},
 --				{{npc="turtle",delay=0.0}},
@@ -768,7 +775,8 @@ function EventBase.new()
 				hydra2 = 1,
 				hydra3 = 1,
 				hydra4 = 1,
-				hydra5 = 1
+				hydra5 = 1,
+				superHeavy = 4
 			}
 			--
 			--
@@ -804,13 +812,18 @@ function EventBase.new()
 				local spawnCount = {}
 				local groupCountForWave = 0
 				--
-				--	remove illegale groupComp
+				--	Force npc limits, and superheavy comps, that are just out of this world
 				--
 				local waveUnitLimit = getCopyOfTable(waveUnitLimitOriginal)
 				local function isGroupContainingLimitedUnits(group)
 					for k,v in pairs(group) do
-						if type(v)=="table" and waveUnitLimit[v.npc] and waveUnitLimit[v.npc]<=0 then
-							return true
+						if type(v)=="table" then
+							if waveUnitLimit[v.npc] and waveUnitLimit[v.npc]<=0 then
+								return true
+							elseif v.npc=="hydra5" or v.npc=="hydra4" or v.npc=="stoneSpirit" or v.npc=="turtle" or v.npc=="reaper" or v.npc=="dino" then
+								waveUnitLimit.superHeavy = waveUnitLimit.superHeavy - ( v.npc=="reaper" and 0.51 or (v.npc=="dino" and 0.26 or 1.0))
+								return waveUnitLimit.superHeavy<=0.0
+							end
 						end
 					end
 					return false

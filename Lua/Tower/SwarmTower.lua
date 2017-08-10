@@ -121,9 +121,9 @@ function SwarmTower.new()
 	end
 	
 	local function restartWave(param)
+		supportManager.restartWave()
 		restoreWaveChangeStats( tonumber(param) )
 		projectiles.clear()
-		supportManager.restartWave()
 	end
 	
 	local function myStatsReset()

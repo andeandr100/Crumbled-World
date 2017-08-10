@@ -236,8 +236,8 @@ function MissileTower.new()
 	end
 	function restartWave(param)
 		projectiles.clear()
-		restoreWaveChangeStats( tonumber(param) )
 		supportManager.restartWave()
+		restoreWaveChangeStats( tonumber(param) )
 	end
 	local function doMeshUpgradeForLevel(name,meshName)
 		model:getMesh(meshName..upgrade.getLevel(name)):setVisible(true)
