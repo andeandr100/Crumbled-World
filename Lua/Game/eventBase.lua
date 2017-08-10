@@ -868,8 +868,7 @@ function EventBase.new()
 				--
 				theoreticalPaidHpPS = (spawnHealthPerSecond*unitBypassMultiplyer)
 				
-				--set wave info
-				waveDetails[1] = {hpMul=hpMultiplyer, info=waveDetailsInfo, waveIndex=i}
+				--set wave infowaveDetails[1] = {hpMul=hpMultiplyer, info=waveDetailsInfo, waveIndex=i}
 				waveDetails[2] = {npc="none", delay=((i==1) and npcDelayAfterFirstTowerBuilt or npcDelayBetweenWaves)}
 				waveDiff[i] = hpMultiplyer
 				local waveTotalTime = 0.0
@@ -1132,7 +1131,6 @@ function EventBase.new()
 					highScoreBillBoard:setInt("life", bilboardStats:getInt("life"))
 					highScoreBillBoard:setDouble("gold", bilboardStats:getInt("gold"))
 					
-					
 					if mapInfo.getGameMode()=="survival" then
 						local crystalGain = bilboardStats:getInt("score")
 						if crystalGain>0 then
@@ -1151,7 +1149,6 @@ function EventBase.new()
 						comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
 						comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("totalGoldInterestEarned"))
 						if script and bilboardStats:getInt("life")>0 then 
-							
 							--victory
 							if mapInfo.isCampaign() then
 								cData.addCrystal(mapInfo.getReward())
