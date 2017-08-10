@@ -494,10 +494,10 @@ function EventBase.new()
 		numState = numState + 1
 		stateList[numState] = stateId
 	end
---	function self.addGroupToSpawn(wave,position,group)
---		fixedGroupToSpawn[wave] = fixedGroupToSpawn[wave] or {}
---		fixedGroupToSpawn[wave][position] = group
---	end
+	function self.addGroupToSpawn(wave,position,group)
+		fixedGroupToSpawn[wave] = fixedGroupToSpawn[wave] or {}
+		fixedGroupToSpawn[wave][position] = group
+	end
 	function self.disableUnit(npcName)
 		disableUnits[npcName] = true
 	end
