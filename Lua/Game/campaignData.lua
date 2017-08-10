@@ -130,8 +130,6 @@ function CampaignData.new()
 	end
 	function self.getMapModeBeatenLevel(number,mode)
 		return tonumber((campaignDataTable["mapsFinished"] and campaignDataTable["mapsFinished"][files[number].statId] and campaignDataTable["mapsFinished"][files[number].statId][mode or "-"]) or 0)
-<<<<<<< Updated upstream
-=======
 --		local it = campaignDataTable["mapsFinished"]
 --		if it then
 --			it = campaignDataTable["mapsFinished"][files[number].statId]
@@ -140,7 +138,6 @@ function CampaignData.new()
 --			it = it[mode or "-"]
 --		end
 --		return tonumber(it or 0)
->>>>>>> Stashed changes
 	end
 	function self.hasMapModeBeenBeaten(number,mode)
 		return self.getMapModeBeatenLevel(number,mode)>0
@@ -172,7 +169,6 @@ function CampaignData.new()
 	end
 	function self.getTotalBuyablesBoughtForTower(towerName,permUnlocked)
 		local tab = campaignDataTable[towerName]
-<<<<<<< Updated upstream
 		if tab then
 			local ret = 0
 			for k,v in pairs(tab) do
@@ -190,21 +186,6 @@ function CampaignData.new()
 		else
 			return 0
 		end
-=======
-		local ret = 0
-		for k,v in pairs(tab) do
-			if permUnlocked then
-				if v.permUnlocked then
-					ret = ret + v.permUnlocked
-				end
-			else
-				if v.buyable then
-					ret = ret + v.buyable
-				end
-			end
-		end
-		return ret
->>>>>>> Stashed changes
 	end
 	function self.getTotalBuyablesBought()
 		local ret = 0
@@ -215,21 +196,12 @@ function CampaignData.new()
 		return ret
 	end
 	function self.getMaxGoldNeededToUnlockEverything()
-<<<<<<< Updated upstream
-		print("==> self.getMaxGoldNeededToUnlockEverything()")
-=======
->>>>>>> Stashed changes
 		local leftToBuyTab = {	[0]={[0]=0},
 								[1]={[0]=1,[1]=0},
 								[2]={[0]=3,[1]=2,[3]=0},
 								[3]={[0]=6,[1]=5,[2]=3,[3]=0}}
 		local ret = 0
 		print("for i=1, "..#towers.." do")
-<<<<<<< Updated upstream
-		local d1 = towers
-		local d2 = campaignDataTable
-=======
->>>>>>> Stashed changes
 		for i=1, #towers do
 			print("i = "..i)
 			print("for k,v in pairs("..towers[i]..") do")
@@ -245,11 +217,7 @@ function CampaignData.new()
 				end
 			end
 			local leftToBuy = PERMENANTBOUGHTUPGRADECOUNT-self.getTotalBuyablesBoughtForTower(towers[i],true)
-<<<<<<< Updated upstream
 			local costLeft = leftToBuy==1 and PERMENANTUPGCOST or 0
-=======
-			local costLeft = leftToBuyTab[PERMENANTBOUGHTUPGRADECOUNT][self.getTotalBuyablesBoughtForTower(towers[i],true)]*PERMENANTUPGCOST
->>>>>>> Stashed changes
 			print("Permenant("..leftToBuy.."): "..tostring(ret + costLeft).." = "..ret.." + "..costLeft)
 			ret = ret + costLeft
 		end
@@ -257,11 +225,7 @@ function CampaignData.new()
 		return ret
 	end
 	function self.getBoughtUpg(towerName,upgradeName,permUnlocked)
-<<<<<<< Updated upstream
 		if campaignDataTable[towerName] and campaignDataTable[towerName][upgradeName] then
-=======
-		if campaignDataTable[towerName][upgradeName] then
->>>>>>> Stashed changes
 			return tonumber(campaignDataTable[towerName][upgradeName][permUnlocked and "permUnlocked" or "buyable"] or 0)
 		else
 			return 0
@@ -288,7 +252,6 @@ function CampaignData.new()
 	end
 	--
 	function self.addCrystal(addCount)
-<<<<<<< Updated upstream
 		print("==> self.addCrystal("..addCount..")")
 		--update current crystal count
 		campaingDataConfig:get("crystal"):setInt(self.getCrystal()+addCount)
@@ -297,12 +260,6 @@ function CampaignData.new()
 		--fix crystals
 		self.fixCrystalLimits()
 		--save cahnges
-=======
-		print("self.addCrystal("..addCount..")")
-		campaingDataConfig:get("crystal"):setInt(self.getCrystal()+addCount)
-		self.fixCrystalLimits()
-		campaignDataTable = campaingDataConfig:getTable()
->>>>>>> Stashed changes
 		campaingDataConfig:save()
 	end
 	function self.canBuyUnlock(towerName,upgradeName,permUnlocked)
@@ -330,7 +287,6 @@ function CampaignData.new()
 		end
 	end
 	function self.clear(towerName,upgradeName,permUnlocked)
-<<<<<<< Updated upstream
 		if permUnlocked then
 			print("========================================")
 			print("==> self.clear("..towerName..","..upgradeName..","..tostring(permUnlocked)..")")
@@ -342,15 +298,6 @@ function CampaignData.new()
 			assert(val==0, "Clearing failed for unlocked upgrades!!!")
 		else
 			error("this should not happen!!!")
-=======
-		local count = {[0]=0,[1]=1,[2]=3,[3]=6}
-		local upgCount = self.getBoughtUpg(towerName,upgradeName,permUnlocked)
-		campaingDataConfig:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):setInt(0)
-		self.addCrystal( count[upgCount]*(permUnlocked and PERMENANTUPGCOST or NORMALUPGCOST) )
-		local val = campaingDataConfig:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):getInt()
-		if val>0 then
-			error("Clearing failed for unlocked upgrades!!!")
->>>>>>> Stashed changes
 		end
 	end
 	function self.getLevelCompleted(map)
