@@ -494,6 +494,7 @@ function EventBase.new()
 		numState = numState + 1
 		stateList[numState] = stateId
 	end
+	--used by event_world0.lua, the purpose is to force a group to spawn
 	function self.addGroupToSpawn(wave,position,group)
 		fixedGroupToSpawn[wave] = fixedGroupToSpawn[wave] or {}
 		fixedGroupToSpawn[wave][position] = group
@@ -1154,7 +1155,7 @@ function EventBase.new()
 							
 							--victory
 							if mapInfo.isCampaign() then
-								cData.addCrystal(mapInfo.getReward())
+								cData.addCrystal(mapInfo.getReward()<=1 and 1 or mapInfo.getReward())
 							end
 							--set level that was finished to allow harder difficulty level
 							cData.setLevelCompleted(mapInfo.getMapNumber(),mapFinishingLevel,mapInfo.getGameMode())
