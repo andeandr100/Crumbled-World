@@ -868,7 +868,8 @@ function EventBase.new()
 				--
 				theoreticalPaidHpPS = (spawnHealthPerSecond*unitBypassMultiplyer)
 				
-				--set wave infowaveDetails[1] = {hpMul=hpMultiplyer, info=waveDetailsInfo, waveIndex=i}
+				--set wave info
+				waveDetails[1] = {hpMul=hpMultiplyer, info=waveDetailsInfo, waveIndex=i}
 				waveDetails[2] = {npc="none", delay=((i==1) and npcDelayAfterFirstTowerBuilt or npcDelayBetweenWaves)}
 				waveDiff[i] = hpMultiplyer
 				local waveTotalTime = 0.0
@@ -1058,7 +1059,7 @@ function EventBase.new()
 			--handle the event restart wave
 			if keyBindRevertWave:getPressed() and currentState ~= EVENT_END_GAME then
 				local mapInfo = MapInfo.new()
-				if waveCount>=1 then--and mapInfo.getGameMode()~="leveler" 
+				if waveCount>=1 and mapInfo.getGameMode()~="leveler" then
 					waveCount = math.max(0, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
 					comUnit:sendTo("SteamStats","ReverseTimeCount",1)
 					if waveCount==0 then
@@ -1131,6 +1132,7 @@ function EventBase.new()
 					highScoreBillBoard:setInt("life", bilboardStats:getInt("life"))
 					highScoreBillBoard:setDouble("gold", bilboardStats:getInt("gold"))
 					
+					
 					if mapInfo.getGameMode()=="survival" then
 						local crystalGain = bilboardStats:getInt("score")
 						if crystalGain>0 then
@@ -1149,6 +1151,7 @@ function EventBase.new()
 						comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
 						comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("totalGoldInterestEarned"))
 						if script and bilboardStats:getInt("life")>0 then 
+							
 							--victory
 							if mapInfo.isCampaign() then
 								cData.addCrystal(mapInfo.getReward())
@@ -1343,24 +1346,24 @@ function EventBase.new()
 		--
 		--	Cheat for development
 		--
-		if DEBUG or true then
-		 	if Core.getInput():getKeyPressed(Key.p) then
-				comUnit:sendTo("log", "println", "cheat-addGold")
-				statsBilboard = Core.getBillboard("stats")
-				comUnit:sendTo("stats", "addGold", tostring(statsBilboard:getDouble("gold")+500.0))
-				saveStats = false
-				Core.getGlobalBillboard("highScoreReplay"):setBool("saveHighScore",saveStats)
-			end
-			if Core.getInput():getKeyPressed(Key.o) then
-				spawnNextGroup()
-			end
---			local a = 1
---			if Core.getInput():getKeyPressed(Key.m) then
---				for i=1, 50000000 do
---					a = a + Core.getDeltaTime() + i
---				end
+--		if DEBUG or true then
+--		 	if Core.getInput():getKeyPressed(Key.p) then
+--				comUnit:sendTo("log", "println", "cheat-addGold")
+--				statsBilboard = Core.getBillboard("stats")
+--				comUnit:sendTo("stats", "addGold", tostring(statsBilboard:getDouble("gold")+500.0))
+--				saveStats = false
+--				Core.getGlobalBillboard("highScoreReplay"):setBool("saveHighScore",saveStats)
 --			end
-		end
+--			if Core.getInput():getKeyPressed(Key.o) then
+--				spawnNextGroup()
+--			end
+----			local a = 1
+----			if Core.getInput():getKeyPressed(Key.m) then
+----				for i=1, 50000000 do
+----					a = a + Core.getDeltaTime() + i
+----				end
+----			end
+--		end
 		--
 		--
 		--
