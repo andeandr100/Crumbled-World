@@ -519,6 +519,7 @@ function EventBase.new()
 		
 		restartListener = Listener("Restart")
 		restartListener:registerEvent("restart", restartMap)
+		restartListener:registerEvent("EventBaseRestartWave", self.doRestartWave)
 		
 		comUnitTable["NetGenerateWave"] = syncEvent
 		comUnitTable["ChangeWave"] = syncChangeWave
@@ -1043,6 +1044,30 @@ function EventBase.new()
 		return true
 	end
 	
+	function self.doRestartWave()
+		local mapInfo = MapInfo.new()
+		if waveCount>=1 and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival") then
+			waveCount = math.max(0, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
+			comUnit:sendTo("SteamStats","ReverseTimeCount",1)
+			if waveCount==0 then
+				local restartListener = Listener("Restart")
+				restartListener:pushEvent("restart")
+			else
+				currentState = EVENT_CHANGE_WAVE
+				clearActiveSpawn()
+				comUnit:broadCast(Vec3(),math.huge,"disappear","")
+				massKillTimeDelayForRestart=Core.getGameTime()
+				waveRestarted = true
+				--
+				comUnit:sendTo("stats","setBillboardDouble","RestartedWaveGameTime;"..Core.getGameTime())
+				--
+				local restartWaveListener = Listener("RestartWave")
+				restartWaveListener:pushEvent("restartWave",waveCount+1)
+				print("======== DO_WAVE_RESTART_"..tostring(waveCount+1).." ========")
+			end
+		end
+	end
+	
 	function self.update()
 		--Handle communication
 		while comUnit:hasMessage() do
@@ -1060,28 +1085,8 @@ function EventBase.new()
 		end
 		if spawnListPopulated then
 			--handle the event restart wave
-			if keyBindRevertWave:getPressed() and currentState ~= EVENT_END_GAME then
-				local mapInfo = MapInfo.new()
-				if waveCount>=1 and mapInfo.getGameMode()~="leveler" then
-					waveCount = math.max(0, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
-					comUnit:sendTo("SteamStats","ReverseTimeCount",1)
-					if waveCount==0 then
-						local restartListener = Listener("Restart")
-						restartListener:pushEvent("restart")
-					else
-						currentState = EVENT_CHANGE_WAVE
-						clearActiveSpawn()
-						comUnit:broadCast(Vec3(),math.huge,"disappear","")
-						massKillTimeDelayForRestart=Core.getGameTime()
-						waveRestarted = true
-						--
-						comUnit:sendTo("stats","setBillboardDouble","RestartedWaveGameTime;"..Core.getGameTime())
-						--
-						local restartWaveListener = Listener("RestartWave")
-						restartWaveListener:pushEvent("restartWave",waveCount+1)
-						print("======== DO_WAVE_RESTART_"..tostring(waveCount+1).." ========")
-					end
-				end
+			if keyBindRevertWave:getPressed() then
+				self.doRestartWave()
 			else
 				--spawn only units if we are not trying to restart the wave
 				spawnUnits()

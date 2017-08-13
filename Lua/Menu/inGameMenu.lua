@@ -170,6 +170,7 @@ function create()
 			local continueButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("continue")))
 			local optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("options")))
 			local tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("tutorial"))) or nil
+			local RestartWaveButton = (not Core.isInMultiplayer() and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival")) and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("revert wave"))) or nil
 			local RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("restart"))) or nil
 			local quitToMenuButton = nil
 			local quitToEditorButton = nil
@@ -201,7 +202,12 @@ function create()
 			end
 			
 			
-			
+			if RestartWaveButton then
+				textPanels[#textPanels + 1] = RestartWaveButton
+				textPanels[#textPanels]:setTag("revert wave")
+				RestartWaveButton:addEventCallbackExecute(restartWave)
+				RestartWaveButton:addEventCallbackExecute(toggleVisible)
+			end
 			if RestartButton then
 				textPanels[#textPanels + 1] = RestartButton
 				textPanels[#textPanels]:setTag("restart")
@@ -255,6 +261,10 @@ function toggleVisible(panel)
 		form:setVisible( backgroundPanel:getVisible())
 	end
 	pauseGame( form:getVisible() or optionsForm:getVisible() )
+end
+
+function restartWave()
+	restartListener:pushEvent("EventBaseRestartWave")
 end
 
 function restartMap()
