@@ -26,7 +26,7 @@ function InputPanel.create(mainPanel)
 	InputPanel.form:setVisible(false)
 	
 	--mainPanel = Panel()
-	local inputPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.8,-0.95))))
+	local inputPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9,-0.95))))
 	inputPanel:setLayout(FallLayout(PanelSize(Vec2(0,0.0015))))
 	inputPanel:setEnableYScroll()
 	
@@ -53,10 +53,8 @@ function InputPanel.create(mainPanel)
 		
 		groupedKeys[groupName][subGroupName][name] = keyBind
 	end
-	
-	
 	local count = 1
-	for groupName, group in pairs(groupedKeys) do
+	local function addInputGroup(groupName, group)
 		print("Goup: "..groupName.."\n")
 		InputPanel.labels[count] = OptionsMenuStyle.addOptionsHeader( inputPanel, language:getText( string.lower(groupName)) )
 		InputPanel.labels[count]:setTag( string.lower(groupName) )
@@ -77,6 +75,22 @@ function InputPanel.create(mainPanel)
 				InputPanel.addKeyBindButton( rowPanel, Vec2(-0.9,-1), keyBind:getKeyBindName(1), name, 1)
 				count = count + 1				
 			end
+		end
+	end
+	local displayOrder = {"Camera", "WaveHeader", "BuildHeader"}
+	for key, groupName in pairs(displayOrder) do
+		addInputGroup(groupName,groupedKeys[groupName])
+	end
+	for groupName, group in pairs(groupedKeys) do
+		local alreadyDisplayed = false
+		for key, groupNameSearch in pairs(displayOrder) do
+			if groupNameSearch==groupName then
+				alreadyDisplayed = true
+				break
+			end
+		end
+		if not alreadyDisplayed then
+			addInputGroup(groupName, group)
 		end
 	end
 	InputPanel.inputPanel = inputPanel

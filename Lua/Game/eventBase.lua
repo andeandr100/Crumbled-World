@@ -130,6 +130,8 @@ function EventBase.new()
 			update = destroyEventBase
 			--reload script
 			print("restartMap")
+			--
+			massKillTimeDelayForRestart=Core.getGameTime()
 		end
 	end
 	

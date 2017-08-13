@@ -10,6 +10,16 @@ function CampaignData.new()
 	local campaignDataTable = campaingDataConfig:getTable()	--used for ingame/shop for getting what can be upgraded and is free
 	local maps
 	local towers = { "Tower/MinigunTower.lua", "Tower/ArrowTower.lua", "Tower/SwarmTower.lua", "Tower/ElectricTower.lua", "Tower/BladeTower.lua", "Tower/missileTower.lua", "Tower/quakerTower.lua", "Tower/SupportTower.lua" }
+	local towersContent = {
+		["Tower/MinigunTower.lua"] = {"range", "overCharge", "fireCrit"},
+		["Tower/ArrowTower.lua"] = {"range", "hardArrow", "markOfDeath"},
+		["Tower/SwarmTower.lua"] = {"range", "burnDamage", "fuel"},
+		["Tower/ElectricTower.lua"] = {"range", "ampedSlow", "energyPool", "energy"},
+		["Tower/BladeTower.lua"] = {"range", "attackSpeed", "masterBlade", "electricBlade", "shieldBreaker"},
+		["Tower/missileTower.lua"] = {"range", "Blaster", "fuel", "shieldSmasher"},
+		["Tower/quakerTower.lua"] = {"fireCrit", "fireStrike", "electricStrike", "freeUpgrade"},
+		["Tower/SupportTower.lua"] = {"range", "damage", "weaken", "gold"}
+	}
 	
 	local highScoreReplayBillboard = Core.getGlobalBillboard("highScoreReplay")
 	local isAReplay = highScoreReplayBillboard:getBool("replay")
@@ -52,6 +62,8 @@ function CampaignData.new()
 				tab:renameChild(files[i].statIdOld,files[i].statId)
 			end
 		end
+		--make sure that all upgrades for the towers are available
+		self.garanteExistenze()
 		campaingDataConfig:save()
 		campaignDataTable = campaingDataConfig:getTable()
 		if isInGame then
@@ -72,6 +84,16 @@ function CampaignData.new()
 			campaingDataConfig:get(towerName):get(upgradeName):get("permUnlocked",0)
 			campaingDataConfig:get(towerName):get(upgradeName):get("buyable",0)
 			campaignDataTable = campaingDataConfig:getTable()
+		end
+	end
+	function self.garanteExistenze()
+		--get the table that we will do the tests on
+		campaignDataTable = campaingDataConfig:getTable()
+		--make sure that every upgrade is available
+		for towerName, table in pairs(towersContent) do
+			for i=1, #table do
+				self.shouldExist(towerName,table[i])
+			end
 		end
 	end
 	function self.fixCrystalLimits()
@@ -201,10 +223,7 @@ function CampaignData.new()
 								[2]={[0]=3,[1]=2,[3]=0},
 								[3]={[0]=6,[1]=5,[2]=3,[3]=0}}
 		local ret = 0
-		print("for i=1, "..#towers.." do")
 		for i=1, #towers do
-			print("i = "..i)
-			print("for k,v in pairs("..towers[i]..") do")
 			for k,v in pairs(campaignDataTable[towers[i]]) do
 				if v.buyable then
 					local leftToBuy = self.getBuyablesTotal(k,false)-v.buyable
@@ -212,16 +231,13 @@ function CampaignData.new()
 					if leftToBuy==1 and self.getBuyablesTotal(k,false)==leftToBuy then
 						costLeft = 3*NORMALUPGCOST
 					end
-					print(k.." =="..self.getBuyablesTotal(k,false).." left "..leftToBuy.." ["..tostring(ret + costLeft).." = "..ret.." + "..costLeft.."]")
 					ret = ret + costLeft
 				end
 			end
 			local leftToBuy = PERMENANTBOUGHTUPGRADECOUNT-self.getTotalBuyablesBoughtForTower(towers[i],true)
 			local costLeft = leftToBuy==1 and PERMENANTUPGCOST or 0
-			print("Permenant("..leftToBuy.."): "..tostring(ret + costLeft).." = "..ret.." + "..costLeft)
 			ret = ret + costLeft
 		end
-		print("ret = "..ret)
 		return ret
 	end
 	function self.getBoughtUpg(towerName,upgradeName,permUnlocked)
