@@ -81,7 +81,6 @@ function NpcBase.new()
 		if Core.isInMultiplayer() then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
-		print("NpcBase.init()")
 		--
 		--set name for the scene
 		idName = name
