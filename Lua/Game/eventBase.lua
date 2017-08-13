@@ -515,7 +515,7 @@ function EventBase.new()
 		end
 		Core.setScriptNetworkId("Event"..(Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-"))
 		
-		keyBindRevertWave = keyBinds:getKeyBind("RevertWave")
+		keyBindRevertWave = keyBinds:getKeyBind("Revert wave")
 		
 		restartListener = Listener("Restart")
 		restartListener:registerEvent("restart", restartMap)
