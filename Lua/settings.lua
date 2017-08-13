@@ -31,23 +31,23 @@ function create()
 	
 	pKeyBinds = Core.getGlobalBillboard("keyBind")
 	
-	createKeyboardBind("Build", "hotKey", "Building 1", -1, Key.k1);
-	createKeyboardBind("Build", "hotKey", "Building 2", -1, Key.k2);
-	createKeyboardBind("Build", "hotKey", "Building 3", -1, Key.k3);
-	createKeyboardBind("Build", "hotKey", "Building 4", -1, Key.k4);
-	createKeyboardBind("Build", "hotKey", "Building 5", -1, Key.k5);
-	createKeyboardBind("Build", "hotKey", "Building 6", -1, Key.k6);
-	createKeyboardBind("Build", "hotKey", "Building 7", -1, Key.k7);
-	createKeyboardBind("Build", "hotKey", "Building 8", -1, Key.k8);
-	createKeyboardBind("Build", "hotKey", "Building 9", -1, Key.k9);
-	createMouseBind("Build", "placment", "Place", -1, MouseKey.left);
-	createMouseBind("Build", "placment", "Deselect", -1, MouseKey.right);
-	createKeyboardBind("Build", "placment", "Locked rotation", -1, Key.lctrl);
+	createKeyboardBind("BuildHeader", "hotKey", "Building 1", -1, Key.k1);
+	createKeyboardBind("BuildHeader", "hotKey", "Building 2", -1, Key.k2);
+	createKeyboardBind("BuildHeader", "hotKey", "Building 3", -1, Key.k3);
+	createKeyboardBind("BuildHeader", "hotKey", "Building 4", -1, Key.k4);
+	createKeyboardBind("BuildHeader", "hotKey", "Building 5", -1, Key.k5);
+	createKeyboardBind("BuildHeader", "hotKey", "Building 6", -1, Key.k6);
+	createKeyboardBind("BuildHeader", "hotKey", "Building 7", -1, Key.k7);
+	createKeyboardBind("BuildHeader", "hotKey", "Building 8", -1, Key.k8);
+	createKeyboardBind("BuildHeader", "hotKey", "Building 9", -1, Key.k9);
+	createMouseBind("BuildHeader", "placment", "Place", -1, MouseKey.left);
+	createMouseBind("BuildHeader", "placment", "Deselect", -1, MouseKey.right);
+	createKeyboardBind("BuildHeader", "placment", "Locked rotation", -1, Key.lctrl);
 	
-	createKeyboardBind("Build", "placment", "Sell", -1, Key.delete);
+	createKeyboardBind("BuildHeader", "placment", "Sell", -1, Key.delete);
 	
-	createKeyboardBind("Build", "upgrade", "Boost", -1, Key.b, Key.v);
-	createKeyboardBind("Build", "upgrade", "Upgrade", -1, Key.u, Key.y);
+	createKeyboardBind("BuildHeader", "upgrade", "Boost", -1, Key.b, Key.v);
+	createKeyboardBind("BuildHeader", "upgrade", "Upgrade", -1, Key.u, Key.y);
 	
 	createKeyboardBind("NPC input", "controll", "Ignore target", -1, Key.t);
 	createKeyboardBind("NPC input", "controll", "High priority", -1, Key.r);
@@ -62,7 +62,7 @@ function create()
 	createKeyboardBind("Camera", "group 3", "Camera raise", -1, Key.pageup);
 	createKeyboardBind("Camera", "group 3", "Camera lower", -1, Key.pagedown);
 	
-	createKeyboardBind("Revert wave", "Revert wave", "RevertWave", -1, Key.backSpace);
+	createKeyboardBind("WaveHeader", "Revert wave", "Revert wave", -1, Key.backSpace);
 
 	createKeyboardBind("Multiplayer", "Info screen", "Info screen", -1, Key.tab);
 

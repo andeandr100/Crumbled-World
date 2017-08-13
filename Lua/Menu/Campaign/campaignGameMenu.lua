@@ -218,9 +218,11 @@ function CampaignGameMenu.new(panel)
 		return true
 	end
 	local function customeGameChangedMap(button)
-		local mNum,path = string.match(button:getTag():toString(),"(.*):(.*)")
-		--mNum = tonumber(mNum)
-		changeMapTo(path)
+		if type(button)=="userdata" then
+			local mNum,path = string.match(button:getTag():toString(),"(.*):(.*)")
+			--mNum = tonumber(mNum)
+			changeMapTo(path)
+		end
 	end
 	local function setLabelListItemColor(label,available)
 		if available>0 then
