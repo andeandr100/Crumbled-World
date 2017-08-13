@@ -52,6 +52,24 @@ function CampaignData.new()
 		{file=File("Data/Map/Campaign/Desperado.map"),		statId="Desperado",							type="Crystal",	sead=842172835,	waveCount=30},--			X
 		{file=File("Data/Map/Campaign/The end.map"),		statId="TheEnd",		statIdOld="L21",	type="Crystal",	sead=394914309,	waveCount=30} --23600
 	}
+	function self.shouldExist(towerName,upgradeName)
+		if campaingDataConfig:exist(towerName)==false or campaingDataConfig:get(towerName):exist(upgradeName)==false then
+			campaingDataConfig:get(towerName):get(upgradeName):get("permUnlocked",0)
+			campaingDataConfig:get(towerName):get(upgradeName):get("buyable",0)
+			campaignDataTable = campaingDataConfig:getTable()
+		end
+	end
+	function self.garanteExistenze()
+		--get the table that we will do the tests on
+		campaignDataTable = campaingDataConfig:getTable()
+		--make sure that every upgrade is available
+		for towerName, table in pairs(towersContent) do
+			for i=1, #table do
+				self.shouldExist(towerName,table[i])
+			end
+		end
+	end
+	--
 	function init()
 		--
 		--backward compability
@@ -79,23 +97,6 @@ function CampaignData.new()
 	end
 	init()
 	--
-	function self.shouldExist(towerName,upgradeName)
-		if campaingDataConfig:exist(towerName)==false or campaingDataConfig:get(towerName):exist(upgradeName)==false then
-			campaingDataConfig:get(towerName):get(upgradeName):get("permUnlocked",0)
-			campaingDataConfig:get(towerName):get(upgradeName):get("buyable",0)
-			campaignDataTable = campaingDataConfig:getTable()
-		end
-	end
-	function self.garanteExistenze()
-		--get the table that we will do the tests on
-		campaignDataTable = campaingDataConfig:getTable()
-		--make sure that every upgrade is available
-		for towerName, table in pairs(towersContent) do
-			for i=1, #table do
-				self.shouldExist(towerName,table[i])
-			end
-		end
-	end
 	function self.fixCrystalLimits()
 		print("self.fixCrystalLimits()")
 		if campaingDataConfig:get("crystal",0):getInt()>self.getMaxGoldNeededToUnlockEverything() then
