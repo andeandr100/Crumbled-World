@@ -53,6 +53,7 @@ function ExportForm.new()
 	
 		local worker = Worker("MapEditor/exportScript.lua",false)
 		worker:addCallbackFinished(self.hide)
+		worker:start()
 		form:setVisible(true)
 		optionsForm:setVisible(false)
 	end

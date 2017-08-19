@@ -310,11 +310,13 @@ function quitToMainMenu(panel)
 	end
 	--
 	Core.quitToMainMenu()
-	Worker("Menu/loadingScreen.lua", true)
+	local worker = Worker("Menu/loadingScreen.lua", true)
+	worker:start()
 end
 
 function quitToMapeditor(panel)
-	--Worker("Menu/loadingScreen.lua", true)
+	--local worker = Worker("Menu/loadingScreen.lua", true)
+	--worker:start()
 	Core.quitToMapeditor()
 end
 

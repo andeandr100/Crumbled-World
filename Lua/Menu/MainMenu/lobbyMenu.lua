@@ -95,8 +95,9 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 			Core.startMultiplayerClonedMap(mapNameLabel:getTag():toString(), clientIds)
 --			Core.startMap(mapNameLabel:getTag():toString())
 			--start the loading screen
-			Worker("Menu/loadingScreen.lua", true)
-			
+			local worker = Worker("Menu/loadingScreen.lua", true)
+			worker:start()
+
 			--no more clients can join this server
 			server:removeFromGlobalServerList()
 		else
@@ -559,7 +560,8 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 --						Core.startMap(mapFile:getPath())
 						Core.startMultiplayerClonedMap(mapFile:getPath(), clientIds)
 						--start the loading screen
-						Worker("Menu/loadingScreen.lua", true)
+						local worker = Worker("Menu/loadingScreen.lua", true)
+						worker:start()
 					end
 				elseif tag=="CMD-ServerInfo" then
 					print("CMD-ServerInfo")

@@ -152,7 +152,8 @@ function CustomeGameMenu.new(panel)
 		menuPrevSelect:save()
 		--
 		Core.startMap(selectedFile)
-		Worker("Menu/loadingScreen.lua", true)
+		local worker = Worker("Menu/loadingScreen.lua", true)
+		worker:start()
 	end
 	local function addMapInfoPanel(panel)
 		local infoPanel = panel:add(Panel(PanelSize(Vec2(-1, -1))))

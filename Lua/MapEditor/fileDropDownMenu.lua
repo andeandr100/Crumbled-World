@@ -71,7 +71,8 @@ function FileDropDownMenu.new(inButton)
 	end
 	
 	function self.quitToMenu()
-		Worker("Menu/loadingScreen.lua", true)
+		local worker = Worker("Menu/loadingScreen.lua", true)
+		worker:start()
 		Core.quitToMainMenu()
 	end
 	

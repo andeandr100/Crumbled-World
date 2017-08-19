@@ -49,7 +49,8 @@ function ConnectionIssueForm.new()
 	
 	local function quitToMenu()
 		Core.quitToMainMenu()
-		Worker("Menu/loadingScreen.lua", true)
+		local worker = Worker("Menu/loadingScreen.lua", true)
+		worker:start()
 	end
 	
 	local function hideForm()

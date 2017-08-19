@@ -366,7 +366,8 @@ function CampaignGameMenu.new(panel)
 		menuPrevSelect:save()
 		--
 		Core.startMap(selectedFile)
-		Worker("Menu/loadingScreen.lua", true)
+		local worker = Worker("Menu/loadingScreen.lua", true)
+		worker:start()
 	end
 	local function showShop()
 		windowShop.setVisible(true)

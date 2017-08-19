@@ -1149,7 +1149,8 @@ function EventBase.new()
 					end
 					
 					if highScoreBillBoard:getBool("replay") then
-						Worker("Menu/loadingScreen.lua", true)
+						local worker = Worker("Menu/loadingScreen.lua", true)
+						worker:start()
 						Core.quitToMainMenu()
 					else
 						local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)

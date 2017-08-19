@@ -92,12 +92,14 @@ end
 
 function MapEditorMenu.createNewMap()
 	Core.startMapEditor("")
-	Worker("Menu/loadingScreen.lua", true)
+	local worker = Worker("Menu/loadingScreen.lua", true)
+	worker:start()
 end
 
 function MapEditorMenu.loadmap()
 	Core.startMapEditor(MapEditorMenu.selectedFile)
-	Worker("Menu/loadingScreen.lua", true)
+	local worker = Worker("Menu/loadingScreen.lua", true)
+	worker:start()
 end
 
 function MapEditorMenu.addMapsPanel(panel)

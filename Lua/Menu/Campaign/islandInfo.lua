@@ -103,7 +103,8 @@ function IslandInfo.new(camera)
 		if activeMapFile then
 			Core.startMap(activeMapFile)
 			--start the loading screen
-			Worker("Menu/loadingScreen.lua", true)
+			local worker = Worker("Menu/loadingScreen.lua", true)
+			worker:start()
 		else
 			--do someThing
 		end

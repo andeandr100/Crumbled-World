@@ -99,7 +99,8 @@ function playTheMap()
 	--Pause the editor we do not want to update and render the editor while we test the map
 	Editor.pauseEditor()
 	--start the loading screen
-	Worker("Menu/loadingScreen.lua", true)
+	local worker = Worker("Menu/loadingScreen.lua", true)
+	worker:start()
 end
 
 function createMenuBar()

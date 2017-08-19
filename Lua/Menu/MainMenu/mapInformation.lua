@@ -12,6 +12,7 @@ function MapInformation.init()
 	if MapInformation.worker == nil then	
 		MapInformation.worker = Worker("Menu/MainMenu/loadCustomGameInfo.lua")
 		MapInformation.worker:addCallbackUpdated(MapInformation.mapInfoLoaded)
+		MapInformation.worker:start()
 	end
 end
 

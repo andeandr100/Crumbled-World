@@ -32,7 +32,8 @@ function defeated()
 end
 
 function startNextMap()
-	Worker("Menu/loadingScreen.lua", true)
+	local worker = Worker("Menu/loadingScreen.lua", true)
+	worker:start()
 	Core.startNextMap(selectedFile)
 end
 
@@ -116,7 +117,8 @@ end
 
 function quitToMainMenu(panel)
 	run = false
-	Worker("Menu/loadingScreen.lua", true)
+	local worker = Worker("Menu/loadingScreen.lua", true)
+	worker:start()
 	Core.quitToMainMenu()
 end
 
