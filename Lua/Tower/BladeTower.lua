@@ -928,7 +928,7 @@ function BladeTower.new()
 		--DPSpG = (RPS*AHB(Average hits per blade)*damage)/cost = (1/2.75)*5.5*670))/1400 == 0.96
 		--DPSpG = 1/3*6*750(*0.8 = 0.96
 		-- BOOST (increases damage output with 400%)
-		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*3.0*(waveCount/25+1.0) end
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
@@ -938,6 +938,7 @@ function BladeTower.new()
 								order = 10,
 								icon = 57,
 								stats ={damage = 			{ upgrade.func, boostDamage},
+										RPS = 				{ upgrade.mul, 2.0},
 										shieldBypass =		{ upgrade.add, 1.0}, }
 							} )
 		-- attack speed

@@ -642,8 +642,8 @@ function SwarmTower.new()
 								icon = 56,
 								value1 = 1,
 								stats ={range =				{ upgrade.add, 6.5},
-										damage = 			{ upgrade.add, 100},--120
-										fireDPS = 			{ upgrade.add, 50},--60
+										damage = 			{ upgrade.add, 106},--120
+										fireDPS = 			{ upgrade.add, 53},--60
 										burnTime = 			{ upgrade.add, 2.0},
 										burnTimeMul =		{ upgrade.add, 1.0},
 										fireballSpeed = 	{ upgrade.add, 5.5},
@@ -665,8 +665,8 @@ function SwarmTower.new()
 								icon = 56,
 								value1 = 2,
 								stats ={range =				{ upgrade.add, 6.5},
-										damage = 			{ upgrade.add, 308},
-										fireDPS = 			{ upgrade.add, 154},
+										damage = 			{ upgrade.add, 324},
+										fireDPS = 			{ upgrade.add, 162},
 										burnTime = 			{ upgrade.add, 2.0},
 										burnTimeMul =		{ upgrade.add, 1.0},
 										fireballSpeed = 	{ upgrade.add, 5.5},
@@ -684,8 +684,8 @@ function SwarmTower.new()
 								icon = 56,
 								value1 = 3,
 								stats ={range =				{ upgrade.add, 6.5},
-										damage = 			{ upgrade.add, 736},
-										fireDPS = 			{ upgrade.add, 368},
+										damage = 			{ upgrade.add, 772},
+										fireDPS = 			{ upgrade.add, 386},
 										burnTime = 			{ upgrade.add, 2.0},
 										burnTimeMul =		{ upgrade.add, 1.0},
 										fireballSpeed = 	{ upgrade.add, 5.5},
@@ -696,8 +696,8 @@ function SwarmTower.new()
 										model = 			{ upgrade.set, "tower_swarm_l3.mym"}}
 							},0 )
 		--bestEstimateDPSPG = (13/2)*0.5*((790+(395*2))/3)*0.69/1400 = 0.84
-		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
-		function boostFireDamage() return upgrade.getStats("fireDPS")*2.0*(waveCount/25+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*1.75*(waveCount/25+1.0) end
+		function boostFireDamage() return upgrade.getStats("fireDPS")*1.75*(waveCount/25+1.0) end
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
@@ -709,7 +709,7 @@ function SwarmTower.new()
 								stats ={range =				{ upgrade.add, 0.5},
 										damage = 			{ upgrade.func, boostDamage},
 										fireDPS = 			{ upgrade.func, boostFireDamage},
-										fieringTime =		{ upgrade.set, 0.55}}
+										fieringTime =		{ upgrade.mul, 0.3}}
 							} )
 		-- RANGE
 		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,

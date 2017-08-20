@@ -465,7 +465,7 @@ function EventBase.new()
 			local i=1
 			while i<=#currentWaves do
 				local current = currentWaves[i]
-				if current==waves[waveCount] then
+				if currentWaves[i][1].waveIndex==waves[waveCount][1].waveIndex then
 					local index = 2
 					local fakeWave = {waveUnitIndex=2,[1]=current[1]}
 					while current[current.waveUnitIndex] do

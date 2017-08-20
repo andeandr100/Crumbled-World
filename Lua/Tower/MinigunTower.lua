@@ -842,9 +842,9 @@ function MinigunTower.new()
 							}, 0 )
 		--DPSpG == Damage*RPS/cost == 146*5/700 = 1.04
 		-- BOOST
-		local function fireDamage() return upgrade.getStats("damage")*(waveCount/25+1.0) end
+		local function fireDamage() return upgrade.getStats("damage")*3.0*(waveCount/25+1.0) end
 		--(boost)	0=1x	25=2x	50=3x
-		local function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.5) end
+		local function boostDamage() return upgrade.getStats("damage")*3.0*(waveCount/25+1.5) end
 		--(boost)	0=1x	25=2x	50=3x
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
@@ -854,11 +854,11 @@ function MinigunTower.new()
 								duration = 10,
 								cooldown = 3,
 								icon = 57,
-								stats = {range = 	{ upgrade.add, 0.5, ""},
+								stats = {range = 	{ upgrade.add, 0.75, ""},
 										fireDPS =	{ upgrade.func, fireDamage, ""},
 										burnTime =	{ upgrade.add, 1.0, ""},
 										damage =	{ upgrade.func, boostDamage, ""},
-										RPS = 		{ upgrade.mul, 0.5, ""},
+										RPS = 		{ upgrade.mul, 1.25, ""},
 										rotationSpeed =	{ upgrade.mul, 2.5, ""} }
 							} )
 		-- RANGE

@@ -777,7 +777,7 @@ function QuakeTower.new()
 										RPS = 		{ upgrade.add, 0.4},--1.0/2.5},
 										model = 	{ upgrade.set, "tower_quaker_l3.mym"} }
 							}, 0 )
-		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*3.0*(waveCount/25+1.0) end
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
@@ -788,7 +788,7 @@ function QuakeTower.new()
 								icon = 57,
 								stats ={range =		{ upgrade.add, 0.5},
 										damage = 	{ upgrade.func, boostDamage},
-										RPS = 		{ upgrade.mul, 1.25}}
+										RPS = 		{ upgrade.mul, 1.35}}
 							} )
 		-- firecrit
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,

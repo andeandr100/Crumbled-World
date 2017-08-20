@@ -932,7 +932,7 @@ function ElectricTower.new()
 							},0 )
 		--MDPSpG == RPS*DMG/cost = 3.2
 		--ADPSpG = RPS*damge/cost == (8/36)*2700/1400 = 0.42
-		function boostDamage() return upgrade.getStats("damage")*1.2*(waveCount/25+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*1.5*(waveCount/25+1.0) end
 		--(total)	0=1.2x	25=2.4x	50=3.6x	(+ unlimited energy)
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
@@ -943,7 +943,7 @@ function ElectricTower.new()
 								icon = 57,
 								stats ={range =		{ upgrade.add, 1.0},
 										damage = 	{ upgrade.func, boostDamage},
-										RPS = 		{ upgrade.mul, 1.3},
+										RPS = 		{ upgrade.mul, 1.5},
 										attackCost ={ upgrade.set, 0.0}}
 							} )
 		-- RANGE
