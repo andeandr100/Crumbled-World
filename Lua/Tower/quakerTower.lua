@@ -26,7 +26,7 @@ function QuakeTower.new()
 	local supportManager = SupportManager.new()
 	local cTowerUpg = CampaignTowerUpg.new("Tower/quakerTower.lua",upgrade)
 	--XP
-	local xpManager = XpSystem.new(upgrade)
+	local xpManager = XpSystem.new(upgrade,"Tower/quakerTower.lua")
 	--model
 	local model
 	local log
@@ -546,7 +546,8 @@ function QuakeTower.new()
 			local fireTime = upgrade.getValue("burnTime")
 			local dmg = upgrade.getValue("damage")
 			for index,score in pairs(targets) do
-				if upgrade.getLevel("fireStrike")>0 then
+				local distance = (this:getGlobalPosition()-targetSelector.getTargetPosition(index)):length()
+				if upgrade.getLevel("fireStrike")>0 and upgrade.getValue("range")>=distance then
 					comUnit:sendTo(index,"attackFireDPS",{DPS=fireDPS,time=fireTime,type="fire"})
 					damageDone = damageDone + (fireDPS*fireTime)
 				end

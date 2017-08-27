@@ -20,11 +20,12 @@ function MinigunTower.new()
 	local waveCount = 0
 	local smartTargetingRetargetTime = 0.0
 	local tStats = Stats.new()
-	local upgrade = Upgrade.new()
 	local supportManager = SupportManager.new()
 	local cTowerUpg = CampaignTowerUpg.new("Tower/MinigunTower.lua",upgrade)
 	--XP
-	local xpManager = XpSystem.new(upgrade)
+	local xpManager = XpSystem.new(upgrade,"Tower/MinigunTower.lua")
+	--Upgrade
+	local upgrade = Upgrade.new()
 	--constants
 	local ROTATEPIPETIMEAFTERFIERING = 1.0
 	--sound

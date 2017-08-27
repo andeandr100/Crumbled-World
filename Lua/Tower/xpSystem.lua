@@ -1,7 +1,8 @@
 require("Game/particleEffect.lua")
+require("Game/campaignData.lua")
 --this = SceneNode()
 XpSystem = {}
-function XpSystem.new(upg)
+function XpSystem.new(upg,towerName)
 	local self = {}
 	local mapInfoBillboard = Core.getGlobalBillboard("MapInfo")
 	--
@@ -25,6 +26,9 @@ function XpSystem.new(upg)
 	local SUBUPGRADE = 1
 	local MAINUPGRADE = 2
 	local whatIsLeveling = MAINUPGRADE
+	local cData = CampaignData.new()
+	local SUBUPGRADESBUYABLE = cData.getTotalBuyablesBoughtForTower(towerName,false)-cData.getTotalBuyablesBoughtForTower(towerName,true)
+	local MAXSUBUPGRADES = math.min(3,SUBUPGRADESBUYABLE)
 	--
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
@@ -32,7 +36,7 @@ function XpSystem.new(upg)
 	local upgrade = upg
 	-- function:	xpSetSubupgradeDiscount
 	-- purpose:		changes the discount for the subupgrades, so they can be bought cheaper
-	local function xpSetSubupgradeDiscount(amount)
+	local function xpSetSubUpgradeDiscount(amount)
 		upgrade.setUpgradeDiscount(0.0)
 		upgrade.setSubUpgradeDiscount(amount)
 		upgrade.fixBillboardAndStats()
@@ -124,7 +128,7 @@ function XpSystem.new(upg)
 				--tower has been sub upgraded
 				xp = 0.0
 			end
-			if (upgrade.getLevel("upgrade")==2 and subUpGradesAvailable<1) or (upgrade.getLevel("upgrade")==3 and subUpGradesAvailable<3) then
+			if (upgrade.getLevel("upgrade")==2 and subUpGradesAvailable<1 and MAXSUBUPGRADES>=1) or (upgrade.getLevel("upgrade")==3 and subUpGradesAvailable<3 and MAXSUBUPGRADES>=3) then
 				--next thing up is a subupgrade
 				whatIsLeveling = SUBUPGRADE
 				xpToNextLevel = upgrade.getNextPaidSubUpgradeCost()
@@ -141,8 +145,8 @@ function XpSystem.new(upg)
 				whatIsLeveling = 0
 				xpToNextLevel = -1
 				billboard:setDouble("xpToNextLevel",xp)
-				billboard:setDouble("xp",xp)
 			end
+			billboard:setDouble("xp",xp)
 		end
 	end
 	-- function:	getLevelPercentDoneToNextLevel
@@ -171,32 +175,37 @@ function XpSystem.new(upg)
 		end
 	end
 	-- function:	addXp
-	-- purpose:		manage when new xp has been added
+	-- purpose:		manage when new xp has been gained
 	function self.addXp(amount)
 		amount = amount * xpPerDamage
 		xp = xp + (amount * xpBonusMul)
 		xpNotPaid = xpNotPaid + amount
 		if xpToNextLevel>0 then
-			--can still level
+			--fixed stored xp
 			if xpNotPaid>1.0 then
 				--the if statment is to minimize trafic
 				if whatIsLeveling==SUBUPGRADE then
-					xpSetSubupgradeDiscount(math.clamp(xp/xpToNextLevel,0.0,1.0))
+					xpSetSubUpgradeDiscount(math.clamp(xp/xpToNextLevel,0.0,1.0))
 				else
 					xpSetUpgradeDiscount(math.clamp(xp/xpToNextLevel,0.0,1.0))
 				end
 				self.payStoredXp()
 			end
+			--check if we have leveled up something
 			if xp>xpToNextLevel then
 				xp = xp - xpToNextLevel
 				xpForLevel = upgrade.getLevel("upgrade")+1
 				if whatIsLeveling==SUBUPGRADE then
 					upgrade.addFreeSubUpgrade()
+					xpSetSubUpgradeDiscount(0.0)
 				else
+					--make the upgrade for free (needed because xp==0, which gives a 0% discount
+					xpSetUpgradeDiscount(1.0)
+					--upgrade
 					xpCallback(tostring(xpForLevel))
+					--something for the player to see
 					particleEffectTowerUpgraded:activate(Vec3(0,1.5,0))
 				end
-				xpSetUpgradeDiscount(0.0)
 				self.updateXpToNextLevel()
 				self.payStoredXp()
 			end
@@ -220,6 +229,7 @@ function XpSystem.new(upg)
 		this:addChild(particleEffectUpgradeAvailable)
 		this:addChild(particleEffectTowerUpgraded)
 		self.addXp(0)
+		upgrade.setXpSystem(self)
 	end
 	init()
 	--

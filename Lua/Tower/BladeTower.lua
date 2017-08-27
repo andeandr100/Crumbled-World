@@ -28,7 +28,7 @@ function BladeTower.new()
 	local electricPointLight1
 	local electricPointLight2
 	--XP
-	local xpManager = XpSystem.new(upgrade)
+	local xpManager = XpSystem.new(upgrade,"Tower/BladeTower.lua")
 	--constants
 	local STATUS_WAITING   							= 1
 	local STATUS_MOVING_ARM_INTO_ATTACK_POSITION	= 2
