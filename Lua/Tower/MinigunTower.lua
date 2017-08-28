@@ -843,9 +843,9 @@ function MinigunTower.new()
 							}, 0 )
 		--DPSpG == Damage*RPS/cost == 146*5/700 = 1.04
 		-- BOOST
-		local function fireDamage() return upgrade.getStats("damage")*3.0*(waveCount/25+1.0) end
+		local function fireDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
 		--(boost)	0=1x	25=2x	50=3x
-		local function boostDamage() return upgrade.getStats("damage")*3.0*(waveCount/25+1.5) end
+		local function boostDamage() return upgrade.getStats("damage")*3.0*(waveCount/25+1.0) end
 		--(boost)	0=1x	25=2x	50=3x
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,

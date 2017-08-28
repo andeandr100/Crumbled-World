@@ -763,7 +763,7 @@ function MissileTower.new()
 								icon = 57,
 								stats = {range = 		{ upgrade.add, 1.0},
 										dmg =		{ upgrade.func, boostDamage},
-										dmg_range ={ upgrade.mul, 1.25},
+										dmg_range ={ upgrade.mul, 1.1},
 										missileSpeedAcc={ upgrade.mul, 1.25},
 										fieringTime =	{ upgrade.add, -0.25},
 										replaceTime =	{ upgrade.mul, 0.5} }

@@ -860,7 +860,7 @@ function ArrowTower.new()
 							},0 )
 		--DPSpG == Damage*RPS*(radius/2+3)*0.111/cost == 1920*(1/1.1)/1400 == 1.25
 		-- BOOST (increases damage output with 400%)
-		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.5) end
+		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",

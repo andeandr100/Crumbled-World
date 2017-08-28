@@ -28,7 +28,9 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local keyBinds
 	local keyBindIgnoreTarget
 	local keyBindHighPrioritet
-	local hp, hpMax, name
+	local hp=0
+	local hpMax=0
+	local name=""
 	
 	--this = SceneNode()
 	local function instalForm()
@@ -81,7 +83,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			
 			if currentIndex == data.id then
 				healtBar:setValue(0)
-				healtBar:setText("0/"..hpMax)	
+				healtBar:setText("0/"..(hpMax or 0))	
 				deadTimer = 7
 			end
 		end
