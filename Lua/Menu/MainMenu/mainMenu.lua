@@ -206,6 +206,11 @@ function createTopMenu()
 		buttons[i].button:addEventCallbackExecute(toglePanelVisible)
 	end
 	
+--	local testPanel = centerTopPanel:add(Panel(PanelSize(Vec2(-1),Vec2(4,1))))
+--	local aGradient = Gradient()
+--	aGradient:setGradientColorsVertical({Vec3(1.0), Vec3(1,1,0), Vec3(0,1,0), Vec3(0,0,1)})
+--	testPanel:setBackground(aGradient)
+	
 --	local progresbar = centerTopPanel:add(ProgressBar(PanelSize(Vec2(-1),Vec2(4,1))))
 --	progresbar:setColor({Vec3(0,1,0), Vec3(0,0.35,0), Vec3(1,1,0), Vec3(1,1,0),Vec3(0,1,1), Vec3(0,1,1)})
 --	progresbar:setValue({0.4,0.2,0.4})
@@ -226,7 +231,7 @@ function createMainArea()
 	
 	
 	pagePanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
-	pagePanel:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)),MainMenuStyle.borderColor))
+	pagePanel:setBorder(DoubleBorder(BorderSize(Vec4(MainMenuStyle.borderSize * 2)),MainMenuStyle.borderColor,BorderSize(Vec4(MainMenuStyle.borderSize * 2)),Vec4(), BorderSize(Vec4(MainMenuStyle.borderSize * 2)),MainMenuStyle.borderColor))
 	
 	print("CustomeGameMenu\n")
 	buttons[3].panel = CustomeGameMenu.new(pagePanel)

@@ -191,6 +191,14 @@ end
 function addRebuildTowerEvent(textData)
 	local tab = totable(textData)
 	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab.upp,func=5},restore={para1=tab.down,func=rebuildSoldTower}}
+	
+	print("\n\n")
+	print("---------------------------")
+	print("---------------------------")
+	print("---------------------------")
+	print("\n\n")
+	print(tostring(towerBuildInfo))
+	print("\n\n")
 end
 
 function addDowngradeTower(textData)
@@ -225,6 +233,60 @@ function callPrioEvent(eventData)
 			comUnit:sendTo(comIndex,"addState",tostring(state.highPriority)..";0")
 			comUnit:sendTo(comIndex,"addState",tostring(state.ignore)..";1")
 		end
+	end
+end
+
+function DropLatestBuildingEvent(netName)
+	print("\n\n")
+	print("netName: " .. netName)
+	print("---------------------------")
+	print("---------------------------")
+	print("---------------------------")
+	print("\n\n")
+	print(tostring(towerBuildInfo))
+	print("\n\n")
+	
+--	 [3]={
+--				restore={
+--						func=nil,
+--						name="WallTowerupgrade",
+--						para1={
+--								tName="T0_1",
+--								netName="T0_2",
+--								playerId=0,
+--								buildCost=0,
+--								upgToScripName="Tower/WallTower.lua"
+--						}
+--				}
+	
+	
+	for i=#towerBuildInfo, 1, -1 do
+		if towerBuildInfo[i] and towerBuildInfo[i].restore and towerBuildInfo[i].restore.para1 and towerBuildInfo[i].restore.para1.netName == netName then
+			nameMaping[#nameMaping+1] = {netName.."V3",towerBuildInfo[i].restore.para1.tName}
+			print("remove index: "..i)
+			table.remove(towerBuildInfo, i)
+			i = 0
+		end
+	end
+	
+
+	print("\n\n")
+	print("---------------------------")
+	print("---------------------------")
+	print("---------------------------")
+	print("\n\n")
+	print(tostring(towerBuildInfo))
+	print("\n\n")
+
+end
+
+function ChangeTowerName(tabString)
+	
+	local data = totable(tabString)
+	
+	local script = Core.getScriptOfNetworkName(data.name)
+	if script then
+		
 	end
 end
 
@@ -263,12 +325,15 @@ function create()
 		comUnitTable["NetUpgradeWallTower"] = netUpgradeWallTower
 		comUnitTable["buildingSubUpgrade"] = towerUpgrade
 		comUnitTable["addDowngradeTower"] = addDowngradeTower
+		comUnitTable["DropLatestBuildingEvent"] = DropLatestBuildingEvent
+		
 
 		comUnitTable["addRebuildTower"] = addRebuildTowerEvent
 		comUnitTable["sendHightScoreToTheServer"] = sendHightScoreToTheServer
 		comUnitTable["setBuildingTargetVec"] = setBuildingTargetVec
 		comUnitTable["addPrioEvent"] = addPrioEvent
 		
+		comUnitTable["ChangeTowerName"] = ChangeTowerName
 		
 		functionList = {}
 		functionList[1] = towerUpgradefunc
@@ -279,6 +344,9 @@ function create()
 		functionList[6] = changeArrowTowerRotation
 		functionList[7] = callPrioEvent
 		
+		
+		--used for arrow tower whos building is canceld
+		nameMaping = {}
 		
 		
 		replayIndex = 1
@@ -446,9 +514,23 @@ function upgradeWallTower(param)
 	local tab = totable(param)
 	local script = Core.getScriptOfNetworkName(tab.netName)
 	if script then
+		
+		local tName = tab.tName
+		for i=1, #nameMaping do
+			if nameMaping[i][1] == tName then
+				tName = nameMaping[i][2]
+				table.remove(nameMaping, i)
+				i = #nameMaping + 2
+			end
+		end
+		
 		local building = script:getParentNode()
-		uppgradeWallTower(building, 0, tab.upgToScripName, nil, tab.tName, true, tab.playerId )
+		uppgradeWallTower(building, 0, tab.upgToScripName, nil, tName, true, tab.playerId )
 		comUnit:sendTo("SelectedMenu", "updateSelectedTower", "")
+		
+		
+		
+		
 		
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("NetUpgradeWallTower",param)

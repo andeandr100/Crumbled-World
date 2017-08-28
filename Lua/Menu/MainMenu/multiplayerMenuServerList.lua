@@ -338,7 +338,9 @@ function MultiplayerMenuServerList.new(panel)
 		
 		--Add BreakLine
 		local breakLinePanel = customeGamePanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
-		breakLinePanel:setBackground(Sprite(Vec3(0.45)))
+		local gradient = Gradient()
+		gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.90),Vec3(0.45)})
+		breakLinePanel:setBackground(gradient)
 		
 		local bodyPanel = customeGamePanel:add(Panel(PanelSize(Vec2(-0.9, -0.90))))
 		

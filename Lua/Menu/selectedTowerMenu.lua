@@ -202,13 +202,15 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	function self.downGradeTower(paraNetWorkName)
 		local buildingScript = Core.getScriptOfNetworkName(paraNetWorkName)		
 		local towerNode = buildingScript:getBillboard():getSceneNode("TowerNode")
+--		local tab = {netName = paraNetWorkName, upgToScripName = "Tower/WallTower.lua", tName = (paraNetWorkName.."V3"), playerId = Core.getPlayerId(), buildCost=0}
 		local tab = {netName = paraNetWorkName, upgToScripName = "Tower/WallTower.lua", tName = (paraNetWorkName.."V3"), playerId = Core.getPlayerId()}
 		senToBuildNode( "UpgradeWallTower", tabToStrMinimal(tab))
+--		senToBuildNode( "addRebuildTower", tabToStrMinimal({upp=tab,down={towerName=paraNetWorkName,wallTowerName=(paraNetWorkName.."V3")}}) )
 		
 		local billBoard = buildingScript:getBillboard()
-		if billBoard and billBoard:getBool("isNetOwner") then
-			comUnit:sendTo("stats", "addGold", tostring(math.max(billBoard:getFloat("value")-getTowerCost(1),0)))
-		end
+--		if billBoard and billBoard:getBool("isNetOwner") then
+--			comUnit:sendTo("stats", "addGold", tostring(math.max(billBoard:getFloat("value")-getTowerCost(1),0)))
+--		end
 		
 	end
 	

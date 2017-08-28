@@ -83,6 +83,11 @@ function update()
 			if towerBilboard:exist("IsBuildOnAWallTower") and towerBilboard:getBool("IsBuildOnAWallTower") then
 				towerBilboard:setSceneNode("TowerNode", this)
 				comUnit:sendTo("SelectedMenu", "downGradeTowerBynetId", netName)
+				
+				local buildNode = playerNode:findNodeByType(NodeId.buildNode)
+				if buildNode then
+					comUnit:sendTo( buildNode:getScriptByName("BuilderScript"):getIndex(), "DropLatestBuildingEvent", netName)
+				end
 			else
 				comUnit:sendTo("SelectedMenu", "sellTowerBynetId", netName)
 			end

@@ -30,7 +30,11 @@ function update()
 	local difficulty = Core.getGlobalBillboard("highScoreReplay"):getInt("difficulty")
 	local mapFile = File(filePath)
 	
+	print("filePath: "..filePath)
+	
 	local mNum = getMapIndex(filePath)
+	
+	print("mapIndex: "..mNum)
 	
 	levelInfo.setIsCampaign(true)
 	levelInfo.setMapNumber(mNum)
