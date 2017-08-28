@@ -28,7 +28,7 @@ function BladeTower.new()
 	local electricPointLight1
 	local electricPointLight2
 	--XP
-	local xpManager = XpSystem.new(upgrade)
+	local xpManager = XpSystem.new(upgrade,"Tower/BladeTower.lua")
 	--constants
 	local STATUS_WAITING   							= 1
 	local STATUS_MOVING_ARM_INTO_ATTACK_POSITION	= 2
@@ -938,6 +938,7 @@ function BladeTower.new()
 								order = 10,
 								icon = 57,
 								stats ={damage = 			{ upgrade.func, boostDamage},
+										RPS = 				{ upgrade.mul, 2.0},
 										shieldBypass =		{ upgrade.add, 1.0}, }
 							} )
 		-- attack speed

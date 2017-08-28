@@ -244,7 +244,7 @@ function SwarmTower.new()
 		--manage support upgrades
 		sendSupporUpgrade()
 		--achievment
-		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("damage")==1 and upgrade.getLevel("weaken")==3 and upgrade.getLevel("gold")==3 then
+		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("damage")==3 and upgrade.getLevel("weaken")==3 and upgrade.getLevel("gold")==3 then
 			comUnit:sendTo("SteamAchievement","MaxedSupportTower","")
 		end
 	end
@@ -480,6 +480,10 @@ function SwarmTower.new()
 			setCurrentInfo()
 			--
 			goldGainAmount = upgrade.getValue("supportGold")
+		end
+		--Acievement
+		if upgrade.getLevel("gold")==3 then
+			comUnit:sendTo("SteamAchievement","UpgradeSupportGold","")
 		end
 	end
 	-- function:	Updates all tower what upgrades that is available

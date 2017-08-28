@@ -442,10 +442,6 @@ function EventBase.new()
 	end
 	local function syncEvent(param)
 		local tab = totable(param)
-		--assert(not Core.getNetworkClient():isAdmin(),"Admin should not receive this message")
-		if tab.numWaves == 0 then
-			abort()
-		end
 		self.generateWaves(tab.numWaves, tab.difficultBase, tab.difficultIncreaser, tab.startSpawnWindow, tab.globalSeed)
 	end
 	local function syncChangeWave(param)
@@ -465,7 +461,7 @@ function EventBase.new()
 			local i=1
 			while i<=#currentWaves do
 				local current = currentWaves[i]
-				if current==waves[waveCount] then
+				if currentWaves[i][1].waveIndex==waves[waveCount][1].waveIndex then
 					local index = 2
 					local fakeWave = {waveUnitIndex=2,[1]=current[1]}
 					while current[current.waveUnitIndex] do
@@ -671,6 +667,11 @@ function EventBase.new()
 --				{{npc="turtle",delay=0.0}},
 --				{{npc="turtle",delay=0.0}},
 --				{{npc="turtle",delay=0.0}},
+--				{{npc="turtle",delay=0.0}},
+--				{{npc="turtle",delay=0.0}},
+--				{{npc="turtle",delay=0.0}},
+--				{{npc="turtle",delay=0.0}},
+--				{{npc="turtle",delay=0.0}},
 				--{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
 		--		{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
 		--		{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
@@ -762,10 +763,10 @@ function EventBase.new()
 			}
 			--How many of each npc type that is allowed to spawn, this is so you dont get a wave of only dinos for example
 			local waveUnitLimitOriginal = {
-				rat = math.huge,
+				rat = 16,
 				skeleton =	math.huge,
 				scorpion =	math.huge,
-				rat_tank =	math.huge,
+				rat_tank =	10,
 				fireSpirit = 10,
 				electroSpirit =	10,
 				skeleton_cf = 2,
@@ -797,7 +798,7 @@ function EventBase.new()
 				--launch difficulty (1.0 i max, and should never be used)[Because 1.0 is damge output limit and a of many other factors will make it unsustanable]{0.85 is probably max, increase difficultIncreaser instead}
 				
 				--adds time between spawned groups making powerful groups easier to handle, as you get more time to kill them
-				--an exponential equation that picks up speed by how many levels that have passed. with the goul to out run the interest gain for gold 
+				--an exponential equation that picks up speed by how many levels that have passed. with the goal to out run the interest gain for gold 
 				local difficult = (difficultIncreaser^i)+(i*(0.2/30))-math.max(0.0,(1.0-difficultBase))--((1.033+(0.0001*x))^x)
 				local unitBypassMultiplyer = 0.95 + (0.5*(i/numWaves))--this value increases the amount of hp that spawns each wave
 				local spawnHealthPerSecond = totalGoldEarned*0.7*difficult--0.7 magic number with no ties to reality anymore
@@ -1110,7 +1111,7 @@ function EventBase.new()
 					end
 					comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("totalGoldEarned"))
 					comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("totalGoldInterestEarned"))
-					comUnit:sendTo("SteamStats","goldGainedFromSupportSingeGame",bilboardStats:getInt("totalGoldSupportEarned"))
+					comUnit:sendTo("SteamStats","MaxGoldGainedFromSupportSingeGame",bilboardStats:getInt("totalGoldSupportEarned"))
 					comUnit:sendNetworkSyncSafe("ChangeWave",tostring(waveCount))
 					comUnit:sendTo("SteamStats","SaveStats","")
 					firstNpcOfWaveHasSpawned = false

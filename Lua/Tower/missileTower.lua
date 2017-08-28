@@ -752,7 +752,7 @@ function MissileTower.new()
 		--AUH == Average Units Hitts == (2.0*1.6) == 3.2
 		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 1080*(2.0*1.6)*(5/12)/1400 == 1.03
 		--boost
-		function boostDamage() return upgrade.getStats("dmg")*2.0*(waveCount/25+1.0) end
+		function boostDamage() return upgrade.getStats("dmg")*2.5*(waveCount/25+1.0) end
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
@@ -763,7 +763,7 @@ function MissileTower.new()
 								icon = 57,
 								stats = {range = 		{ upgrade.add, 1.0},
 										dmg =		{ upgrade.func, boostDamage},
-										dmg_range ={ upgrade.mul, 1.25},
+										dmg_range ={ upgrade.mul, 1.1},
 										missileSpeedAcc={ upgrade.mul, 1.25},
 										fieringTime =	{ upgrade.add, -0.25},
 										replaceTime =	{ upgrade.mul, 0.5} }

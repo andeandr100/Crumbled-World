@@ -145,7 +145,8 @@ function SupportManager.new()
 								cooldown = 0,
 								icon = 68,
 								hidden = true,
-								stats = {damage =	{ upgrade.mul, 1.5, ""} }
+								stats = {	damage =	{ upgrade.mul, 1.80, ""},
+											range =		{ upgrade.mul, 1.15 } }
 							} )
 			upgrade.addUpgrade( {	cost = 0,
 									name = "supportRange",

@@ -20,7 +20,7 @@ function Upgrade.new()
 	local displayOrder = {}		--displayOrder["upgrade"]=1
 	local subUpgradeCount = 0
 	local subUpgradeCountTotal = 0
-	local SubUpgradeDiscount = 0.0
+	local subUpgradeDiscount = 0.0
 	local freeSubUpgradesCount = 0
 	local upgradeDiscount = 0
 	local diffUpgradeCount = 0 
@@ -28,6 +28,7 @@ function Upgrade.new()
 	local comUnit = Core.getComUnit()
 	local bilboardStats = Core.getBillboard("stats")
 	local ignoreUpgrade = true
+	local xpSystem
 
 	--real version:
 	--billboard(cost) = 150
@@ -152,7 +153,7 @@ function Upgrade.new()
 			stats = getCopyOfTable(stats),
 			subUpgradeCount = subUpgradeCount,
 			subUpgradeCountTotal = subUpgradeCountTotal,
-			SubUpgradeDiscount = SubUpgradeDiscount,
+			subUpgradeDiscount = subUpgradeDiscount,
 			freeSubUpgradesCount = freeSubUpgradesCount,
 			upgradeDiscount = upgradeDiscount,
 			diffUpgradeCount = diffUpgradeCount,
@@ -196,7 +197,7 @@ function Upgrade.new()
 		combineTables(stats,tab.stats)
 		subUpgradeCount = tab.subUpgradeCount
 		subUpgradeCountTotal = tab.subUpgradeCountTotal
-		SubUpgradeDiscount = tab.SubUpgradeDiscount
+		subUpgradeDiscount = tab.subUpgradeDiscount
 		freeSubUpgradesCount = tab.freeSubUpgradesCount
 		upgradeDiscount = tab.upgradeDiscount
 		diffUpgradeCount = tab.diffUpgradeCount
@@ -229,16 +230,22 @@ function Upgrade.new()
 			local lCost = (upgraded[order] and upgradesAvailable[name][upgraded[order].level+1].cost or upgradesAvailable[name][1].cost)
 			totalCost = totalCost + lCost
 			
+			if isInXpMode then
+				if name=="upgrade" then
+					lCost = lCost - (lCost * upgradeDiscount)
+					upgradeDiscount = 0.0
+				else
+					lCost = lCost - (lCost * subUpgradeDiscount)
+					subUpgradeDiscount = 0.0
+				end
+			end
+			
 			if ignoreUpgrade == false then
 				print("# upgrade: "..name)
 				print("# cost: "..lCost)
 				comUnit:sendTo("stats","removeGold",tostring(lCost))
 			else
 				ignoreUpgrade = false
-			end
-			
-			if name=="upgrade" then
-				upgradeDiscount = 0.0
 			end
 		end
 		billboard:setFloat("value", totalCost*valueEfficiency)--value)
@@ -270,6 +277,9 @@ function Upgrade.new()
 			interpolation = prevInterpolation
 		end
 		self.fixBillboardAndStats()
+		if isInXpMode then
+			xpSystem.updateXpToNextLevel()
+		end
 	end
 	-- function:	fixBillboardAndStats
 	-- purpose:		updates all billboards and recalculates all stats
@@ -349,6 +359,9 @@ function Upgrade.new()
 			--self.timerName = ""
 		end
 		self.fixBillboardAndStats()
+		if isInXpMode then
+			xpSystem.updateXpToNextLevel()
+		end
 	end
 	-- function:	degradeOnly
 	-- purpose:		a fake degrade to allow us to se what effect this upgrade will have
@@ -424,9 +437,14 @@ function Upgrade.new()
 					str = str.."require=\"Wave\";"--..tostring(value[1].startWaveCooldown+value[1].cooldown).."\";"
 				else
 					--upgrade is available
-					if isInXpMode and value[level].name=="upgrade" and upgradeDiscount>0.0 then
-						local calculatedCost = math.max(0.0, value[level].cost - (value[level].cost*upgradeDiscount) )
-						str = str.."cost="..math.floor(calculatedCost)..";"
+					if isInXpMode then
+						if value[level].name=="upgrade" then
+							local calculatedCost = math.max(0.0, value[level].cost - (value[level].cost*upgradeDiscount) )
+							str = str.."cost="..math.floor(calculatedCost)..";"
+						else
+							local calculatedCost = math.max(0.0, value[level].cost - (value[level].cost*subUpgradeDiscount) )
+							str = str.."cost="..math.floor(calculatedCost)..";"
+						end
 					else
 						str = str.."cost="..math.floor(value[level].cost)..";"
 					end
@@ -627,18 +645,7 @@ function Upgrade.new()
 	function self.getNextPaidSubUpgradeCost()
 		local baseCost = upgradesAvailable["upgrade"][1].cost*0.5
 		local totalCost = isInXpMode and baseCost + (subUpgradeCountTotal*baseCost) or baseCost + (subUpgradeCount*baseCost)
-		--local totalCost = isInXpMode and baseCost + ((subUpgradeCountTotal+freeSubUpgradesCount)*baseCost) or baseCost + (subUpgradeCount*baseCost)
-		return totalCost-(totalCost*SubUpgradeDiscount)--freeSubUpgrades is a discount value (sort of)
-	end
-	-- function:	calculateCostUpgrade
-	-- purpose:		calculate actual subUpgradeCost with discount
-	function self.calculateCostUpgrade()
-		if freeSubUpgradesCount<1.0 then
-			local baseCost = upgradesAvailable["upgrade"][1].cost*0.5
-			local totalCost = isInXpMode and baseCost + (subUpgradeCountTotal*baseCost) or baseCost + (subUpgradeCount*baseCost)
-			return totalCost-(totalCost*SubUpgradeDiscount)--freeSubUpgrades is a discount value (sort of)
-		end
-		return 0
+		return totalCost-(totalCost*subUpgradeDiscount)--freeSubUpgrades is a discount value (sort of)
 	end
 	-- function:	getNextUpgradeCost
 	-- purpose:
@@ -646,11 +653,29 @@ function Upgrade.new()
 		local order = upgradesAvailable[name][1].order
 		--protection from upgrading non existing upgrades
 		if upgraded[order] and not upgradesAvailable[name][upgraded[order].level+1] then
-			--print("upgraded=="..tostring(upgraded).."\n")
-			--print("upgradesAvailable=="..tostring(upgradesAvailable).."\n")
 			return 0
 		end
 		return (upgraded[order] and upgradesAvailable[name][upgraded[order].level+1].cost or upgradesAvailable[name][1].cost)
+	end
+	-- function:	calculateCostUpgrade
+	-- purpose:		calculate actual subUpgradeCost with discount
+	function self.calculateCostUpgrade()
+		if freeSubUpgradesCount<1.0 then
+			local baseCost = upgradesAvailable["upgrade"][1].cost*0.5
+			local totalCost = isInXpMode and baseCost + (subUpgradeCountTotal*baseCost) or baseCost + (subUpgradeCount*baseCost)
+			return totalCost-(totalCost*subUpgradeDiscount)--freeSubUpgrades is a discount value (sort of)
+		end
+		return 0
+	end
+	-- function:	calculateCostUpgrade
+	-- purpose:		calculate actual subUpgradeCost with discount
+	function self.calculateCostSubUpgrade()
+		if freeSubUpgradesCount<1.0 then
+			local baseCost = upgradesAvailable["upgrade"][1].cost*0.5
+			local totalCost = isInXpMode and baseCost + (subUpgradeCountTotal*baseCost) or baseCost + (subUpgradeCount*baseCost)
+			return totalCost-(totalCost*subUpgradeDiscount)--freeSubUpgrades is a discount value (sort of)
+		end
+		return 0
 	end
 	-- function:	getSubUpgradeCount
 	-- purpose:
@@ -673,14 +698,14 @@ function Upgrade.new()
 		freeSubUpgradesCount = math.max(0,freeSubUpgradesCount - 1)
 	end
 	-- function:	setSubUpgradeDiscount
-	-- purpose:
+	-- purpose:		makes the next subUpgrade cheaper. 1.0==free upgrade, 0.0==full price
 	function self.setSubUpgradeDiscount(amount)
-		SubUpgradeDiscount = amount
+		subUpgradeDiscount = amount
 	end
 	-- function:	setUpgradeDiscount
-	-- purpose:
-	function self.setUpgradeDiscount(descount)
-		upgradeDiscount = descount
+	-- purpose:		makes the next upgrade cheaper. 1.0==free upgrade, 0.0==full price
+	function self.setUpgradeDiscount(discount)
+		upgradeDiscount = discount
 	end
 	-- function:	add
 	-- purpose:
@@ -711,6 +736,11 @@ function Upgrade.new()
 	-- purpose:
 	function self.func(stat, value)
 		stats[stat] = value()
+	end
+	-- function:	setXpSystem
+	-- purpose:		to set xp manager, to enable updates
+	function self.setXpSystem(lXpSystem)
+		xpSystem = lXpSystem
 	end
 	-- function:	update
 	-- purpose:

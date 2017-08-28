@@ -6,6 +6,7 @@ function MapInfo.new()
 	local self = {}
 	local FIRSTTIMEVICTORYBONUS = 2
 	local FIRSTTIMEGAMEMODEVICTORYBONUS = 1
+	local BASEBONUS = 1
 	local billboard = false
 	local increasedDifficultyMax = 0.0
 	local increasedDifficultyMin = 0.0
@@ -46,7 +47,7 @@ function MapInfo.new()
 	end
 	function self.getReward()
 		local cData = CampaignData.new()
-		local reward = math.max(1,math.floor( (self.getLevel()*self.getWaveCount()+0.01)/25 ))
+		local reward = BASEBONUS+math.max(1,math.floor( (self.getLevel()*self.getWaveCount()+0.01)/25 ))
 		if cData.hasMapBeenBeaten(self.getMapNumber())==false then
 			reward = reward + FIRSTTIMEVICTORYBONUS
 		end

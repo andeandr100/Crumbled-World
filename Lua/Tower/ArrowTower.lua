@@ -26,7 +26,7 @@ function ArrowTower.new()
 	local rotator = Rotator.new()
 	local currentGlobalVec = ""
 	--XP
-	local xpManager = XpSystem.new(upgrade)
+	local xpManager = XpSystem.new(upgrade,"Tower/ArrowTower.lua")
 	--constants
 	local RECOIL_ON_ATTACK = math.pi/18.0	 	 --default kickback
 	local SCOPE_ROTATION_ON_BOOST = math.pi*30/180 --rotation to avoid ammo coger when boost is activated
@@ -871,7 +871,7 @@ function ArrowTower.new()
 								icon = 57,
 								stats ={range =				{ upgrade.add, 1.5},
 										damage = 			{ upgrade.func, boostDamage},
-										detonationRange =	{ upgrade.add, 2.0}}
+										detonationRange =	{ upgrade.add, 2.25}}
 							} )
 		-- RANGE
 		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,

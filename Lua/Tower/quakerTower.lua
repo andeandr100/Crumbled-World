@@ -26,7 +26,7 @@ function QuakeTower.new()
 	local supportManager = SupportManager.new()
 	local cTowerUpg = CampaignTowerUpg.new("Tower/quakerTower.lua",upgrade)
 	--XP
-	local xpManager = XpSystem.new(upgrade)
+	local xpManager = XpSystem.new(upgrade,"Tower/quakerTower.lua")
 	--model
 	local model
 	local log
@@ -546,7 +546,8 @@ function QuakeTower.new()
 			local fireTime = upgrade.getValue("burnTime")
 			local dmg = upgrade.getValue("damage")
 			for index,score in pairs(targets) do
-				if upgrade.getLevel("fireStrike")>0 then
+				local distance = (this:getGlobalPosition()-targetSelector.getTargetPosition(index)):length()
+				if upgrade.getLevel("fireStrike")>0 and upgrade.getValue("range")>=distance then
 					comUnit:sendTo(index,"attackFireDPS",{DPS=fireDPS,time=fireTime,type="fire"})
 					damageDone = damageDone + (fireDPS*fireTime)
 				end
@@ -777,7 +778,7 @@ function QuakeTower.new()
 										RPS = 		{ upgrade.add, 0.4},--1.0/2.5},
 										model = 	{ upgrade.set, "tower_quaker_l3.mym"} }
 							}, 0 )
-		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*3.0*(waveCount/25+1.0) end
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",
@@ -788,7 +789,7 @@ function QuakeTower.new()
 								icon = 57,
 								stats ={range =		{ upgrade.add, 0.5},
 										damage = 	{ upgrade.func, boostDamage},
-										RPS = 		{ upgrade.mul, 1.25}}
+										RPS = 		{ upgrade.mul, 1.35}}
 							} )
 		-- firecrit
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
