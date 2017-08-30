@@ -22,7 +22,7 @@ function OptionsMenu.create(panel)
 	--Add BreakLine
 	local breakLinePanel = optionsPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
 	local gradient = Gradient()
-	gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.90),Vec3(0.45)})
+	gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.66),Vec3(0.45)})
 	breakLinePanel:setBackground(gradient)
 	
 

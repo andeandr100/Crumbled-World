@@ -206,7 +206,7 @@ function MultiplayerMenuServerList.new(panel)
 		infoPanel:setBackground(Gradient(Vec4(0,0,0,0.9), Vec4(0,0,0,0.9)))
 		
 		iconImage = infoPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("noImage")))
-		iconImage:setBorder(Border( BorderSize(Vec4(0.0015), true), Vec3(0)))
+		iconImage:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 		
 		local infoField = {{name="serverNameLabel",text="server name"},{name="playerLabel",text="players"},{name="mapLabel",text="map name"},{name="difficulty",text="difficulty"}}
 		for i=1, #infoField do
@@ -339,13 +339,18 @@ function MultiplayerMenuServerList.new(panel)
 		--Add BreakLine
 		local breakLinePanel = customeGamePanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
 		local gradient = Gradient()
-		gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.90),Vec3(0.45)})
+		gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.66),Vec3(0.45)})
 		breakLinePanel:setBackground(gradient)
 		
 		local bodyPanel = customeGamePanel:add(Panel(PanelSize(Vec2(-0.9, -0.90))))
+		bodyPanel:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 		
 		--Add map panel
 		addServersPanel(bodyPanel)
+		
+		--add midle Border line
+		bodyPanel:add(Panel(PanelSize(Vec2(MainMenuStyle.borderSize,-1),PanelSizeType.WindowPercentBasedOny))):setBackground(Sprite(MainMenuStyle.borderColor))
+		
 		--Add info panel (about what map is playing)
 		addMapInfoPanel(bodyPanel)
 		

@@ -2,7 +2,7 @@
 MainMenuStyle = {}
 
 MainMenuStyle.borderColor = Vec4(Vec3(0.45), 1.0)
-MainMenuStyle.borderSize = 0.0015
+MainMenuStyle.borderSize = 0.00135
 MainMenuStyle.backgroundTopColor = Vec4(0,0,0,0.7)
 MainMenuStyle.backgroundDownColor = Vec4(0,0,0,0.5)
 MainMenuStyle.textColor = Vec3(0.7)

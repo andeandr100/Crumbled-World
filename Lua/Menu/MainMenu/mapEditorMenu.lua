@@ -24,7 +24,7 @@ function MapEditorMenu.create(panel)
 	--Add BreakLine
 	local breakLinePanel = mapEditorPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
 	local gradient = Gradient()
-	gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.90),Vec3(0.45)})
+	gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.66),Vec3(0.45)})
 	breakLinePanel:setBackground(gradient)
 	
 	local mainPanel = mapEditorPanel:add(Panel(PanelSize(Vec2(-0.9, -0.95))))
@@ -32,9 +32,14 @@ function MapEditorMenu.create(panel)
 	
 	local newMapRowPanel = mainPanel:add(Panel(PanelSize(Vec2(-1, 0.035))))
 	local mainAreaPanel = mainPanel:add(Panel(PanelSize(Vec2(-1))))
+	mainAreaPanel:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 	
 	--Add map panel
 	MapEditorMenu.addMapsPanel(mainAreaPanel)
+	
+	--add midle Border line
+	mainAreaPanel:add(Panel(PanelSize(Vec2(MainMenuStyle.borderSize,-1),PanelSizeType.WindowPercentBasedOny))):setBackground(Sprite(MainMenuStyle.borderColor))
+	
 	--Add info panel
 	MapEditorMenu.addMapInfoPanel(mainAreaPanel)
 	
@@ -61,7 +66,7 @@ function MapEditorMenu.addMapInfoPanel(panel)
 	infoPanel:setBackground(Gradient(Vec4(0,0,0,0.9), Vec4(0,0,0,0.9)))
 	
 	MapEditorMenu.iconImage = infoPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("noImage")))
-	MapEditorMenu.iconImage:setBorder(Border( BorderSize(Vec4(0.0015), true), Vec3(0)))
+	MapEditorMenu.iconImage:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 	
 	MapEditorMenu.mapLabel = infoPanel:add(Label(PanelSize(Vec2(-1, 0.03)), "The island world", Vec3(0.7)))
 	

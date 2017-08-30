@@ -162,7 +162,7 @@ function CustomeGameMenu.new(panel)
 		infoPanel:setBackground(Gradient(Vec4(0,0,0,0.9), Vec4(0,0,0,0.9)))
 		
 		iconImage = infoPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("noImage")))
-		iconImage:setBorder(Border( BorderSize(Vec4(0.0015), true), Vec3(0)))
+		iconImage:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 		
 		mapLabel = infoPanel:add(Label(PanelSize(Vec2(-1, 0.03)), "The island world", Vec3(0.7), Alignment.MIDDLE_CENTER))
 		
@@ -438,13 +438,18 @@ function CustomeGameMenu.new(panel)
 		--Add BreakLine
 		local breakLinePanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
 		local gradient = Gradient()
-		gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.90),Vec3(0.45)})
+		gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.66),Vec3(0.45)})
 		breakLinePanel:setBackground(gradient)
 		
 		local sPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9, -0.95))))
+		sPanel:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 		
 		--Add map panel
 		addMapsPanel(sPanel)
+		
+		--add midle Border line
+		sPanel:add(Panel(PanelSize(Vec2(MainMenuStyle.borderSize,-1),PanelSizeType.WindowPercentBasedOny))):setBackground(Sprite(MainMenuStyle.borderColor))
+		
 		--Add info panel
 		addMapInfoPanel(sPanel)
 		

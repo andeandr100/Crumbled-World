@@ -229,9 +229,9 @@ function createMainArea()
 	pagePanel:setVisible(false)
 	
 	
-	
+	local borderSize =  0.00135
 	pagePanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
-	pagePanel:setBorder(DoubleBorder(BorderSize(Vec4(MainMenuStyle.borderSize * 2)),MainMenuStyle.borderColor,BorderSize(Vec4(MainMenuStyle.borderSize * 2)),Vec4(), BorderSize(Vec4(MainMenuStyle.borderSize * 2)),MainMenuStyle.borderColor))
+	pagePanel:setBorder(DoubleBorder(BorderSize(Vec4(borderSize * 2)),MainMenuStyle.borderColor,BorderSize(Vec4(borderSize * 3)),Vec4(0,0,0,0.5), BorderSize(Vec4(borderSize)),MainMenuStyle.borderColor))
 	
 	print("CustomeGameMenu\n")
 	buttons[3].panel = CustomeGameMenu.new(pagePanel)
