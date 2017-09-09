@@ -82,20 +82,18 @@ function update()
 	end
 	form:update()
 	
-	if DEBUG then
-		if Core.getInput():getKeyPressed(Key.F1) then
-			setGameSpeed(2.0)
-		elseif Core.getInput():getKeyPressed(Key.F2) then
-			setGameSpeed(1.0)
-		elseif Core.getInput():getKeyPressed(Key.F3) then
-			setGameSpeed(0.5)
-		elseif Core.getInput():getKeyPressed(Key.F4) then
-			setGameSpeed(0.25)
-		elseif Core.getInput():getKeyPressed(Key.kp_plus) then
-			setGameSpeed(Core.getTimeSpeed()*2.0)
-		elseif Core.getInput():getKeyPressed(Key.kp_minus) then
-			setGameSpeed(Core.getTimeSpeed()*0.5)
-		end
+	if Core.getInput():getKeyPressed(Key.F1) then
+		setGameSpeed(2.0)
+	elseif Core.getInput():getKeyPressed(Key.F2) then
+		setGameSpeed(1.0)
+	elseif Core.getInput():getKeyPressed(Key.F3) then
+		setGameSpeed(0.5)
+	elseif Core.getInput():getKeyPressed(Key.F4) then
+		setGameSpeed(0.25)
+	elseif Core.getInput():getKeyPressed(Key.kp_plus) then
+		setGameSpeed(Core.getTimeSpeed()*2.0)
+	elseif Core.getInput():getKeyPressed(Key.kp_minus) then
+		setGameSpeed(Core.getTimeSpeed()*0.5)
 	end
 	
 	return true

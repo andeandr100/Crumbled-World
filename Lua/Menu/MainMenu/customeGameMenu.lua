@@ -24,7 +24,7 @@ function CustomeGameMenu.new(panel)
 	local diffNames = {}
 	local labels = {}
 	--Select
-	local gameModes = {"default", "survival", "training", "leveler"}
+	local gameModes = {"default", "survival", "rush", "training", "leveler"}
 	local menuPrevSelect	--menuPrevSelect=Config()
 	local files
 	
@@ -120,7 +120,7 @@ function CustomeGameMenu.new(panel)
 		--
 		gameModeBox.setIndex(index)
 		--
-		if levelInfo.getGameMode()=="survival" then
+		if levelInfo.getGameMode()=="survival" or levelInfo.getGameMode()=="rush" then
 			changeDifficulty("",2)
 			difficutyBox.setEnabled(false)
 		else

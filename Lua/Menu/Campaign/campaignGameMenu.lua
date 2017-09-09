@@ -25,7 +25,7 @@ function CampaignGameMenu.new(panel)
 	local mainPanel
 	local rewardLabel
 	--Game modes
-	local gameModes = {"default", "survival", "training", "leveler"}
+	local gameModes = {"default", "survival", "rush", "training", "leveler"}
 	--Select
 	local menuPrevSelect	--menuPrevSelect=Config()
 	--
@@ -326,7 +326,7 @@ function CampaignGameMenu.new(panel)
 		gameModeBox.setIndex(index)
 		--
 		menuPrevSelect:get("campaign"):get("selectedGameMode"):setInt(index)
-		if gameModes[index]=="survival" then
+		if gameModes[index]=="survival" or gameModes[index]=="rush" then
 			changeDifficulty("",2)
 			difficutyBox.setEnabled(false)
 		else

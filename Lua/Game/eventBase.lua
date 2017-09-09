@@ -488,6 +488,36 @@ function EventBase.new()
 			end
 		end
 	end
+	local function removeNextDelay()
+		local success = false
+		local wCount = waveCount<=1 and 1 or waveCount
+		local index = wCount==1 and 3 or 2
+		--loop all added waves that will spawn
+		for i=1, #currentWaves do
+			if currentWaves[i][1].waveIndex==wCount then
+				--we found the wave
+				index = math.max(index, currentWaves[i].waveUnitIndex)
+				while currentWaves[i][index] do
+					local item = currentWaves[i][index]
+					if item.npc == "none" and item.delay>0.01 then
+						item.delay = 0.0	
+						currentWaves[i][index+1].delay = 0.5
+						--
+						success = true
+						break
+					end
+					index = index + 1
+				end
+				--there should not be any more with this wave number
+				break
+			end
+		end
+		--
+		if not success then
+			local d1 = currentWaves
+			abort()
+		end
+	end
 	local function addState(stateId)
 		numState = numState + 1
 		stateList[numState] = stateId
@@ -521,6 +551,7 @@ function EventBase.new()
 		comUnitTable["ChangeWave"] = syncChangeWave
 		comUnitTable["NetSpawnNpc"] = syncSpawnNpc
 		comUnitTable["spawnNextGroup"] = spawnNextGroup
+		comUnitTable["removeNextDelay"] = removeNextDelay
 		--
 		mapFinishingLevel = pLevel
 		comUnit:setName("EventManager")

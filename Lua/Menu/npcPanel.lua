@@ -22,6 +22,37 @@ function NpcPanel.new(panel)
 		comUnit:sendTo("EventManager","spawnNextGroup","")
 		comUnit:sendTo("SteamAchievement","Skip","")
 	end
+	local function removeNextDelay(panel)
+--		local d1 = spawnList
+--		abort()
+		if currentWaveIndex>=1 then
+			local success = false
+			for i=spawnList.index, spawnList.count do
+				if spawnList[i].name == "none" then
+					if spawnList[i].noneType=="group splitter" then
+						if not spawnList[i].disabled and i+1<=spawnList.count then
+							spawnList[i+1].delay = 0.5
+							spawnList[i+1].startDelay = 0.0
+							spawnList[i].disabled = true
+							success = true
+							break
+						end
+					else
+						break
+					end
+				elseif currentWaveIndex>1 and spawnList[i].startDelay>0.01 then
+					spawnList[i].delay = 0.5
+					spawnList[i].startDelay = 0.0
+					success = true
+					break
+				end
+			end
+			if success then
+				comUnit:sendTo("EventManager","removeNextDelay","")
+				comUnit:sendTo("SteamAchievement","Skip","")
+			end
+		end
+	end
 	
 	function self.getTopPanelRight()
 		return topPanelRight
@@ -29,11 +60,11 @@ function NpcPanel.new(panel)
 	
 	local function init()
 		local mapInfo = MapInfo.new()
-		if mapInfo.getGameMode()=="training" then
+		if mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="rush" then
 			local nextIcon = Core.getTexture("icon_table.tga")
 			local SkipWaveButton = panel:add(Button(PanelSize(Vec2(-0.6,-1), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, nextIcon, Vec2(0.375,0.25), Vec2(0.50, 0.3125)))
 
-			SkipWaveButton:addEventCallbackExecute(LaunchNextWave)
+			SkipWaveButton:addEventCallbackExecute(removeNextDelay)
 			SkipWaveButton:setTag("NextWave")
 			SkipWaveButton:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
 			SkipWaveButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
@@ -66,15 +97,19 @@ function NpcPanel.new(panel)
 		local tDelay = DELAYOFFSET
 		for i=spawnList.index, spawnList.count do
 			local npc = spawnList[i]
-			tDelay = tDelay + npc.delay
-			--alpha on units to the far right side
-			local npcX = tDelay*xPixelPerSecond-npc.width
-			local leftFlank = xPixelPerSecond*3.0
-			--local alpha = tDelay<2.0 and tDelay-1.0 or 1.0--npcX<targetPanel:getPanelContentPixelSize().x-leftFlank and 1.0 or 1.0-((npcX-(targetPanel:getPanelContentPixelSize().x-leftFlank))/leftFlank)
-			local alpha = npc.startAlpha*math.clamp(tDelay-(DELAYOFFSET-0.5),0,1)--if 0<alpha or alpha>1 then the npc is not visible
-			--
-			npc.icon:setColor(Vec4(1,1,1,alpha))
-			npc.icon:setPosition( Vec2(npcX,npc.yOffset) )
+			if not npc.disabled then
+				tDelay = tDelay + npc.delay
+				--alpha on units to the far right side
+				local npcX = tDelay*xPixelPerSecond-npc.width
+				local leftFlank = xPixelPerSecond*3.0
+				--local alpha = tDelay<2.0 and tDelay-1.0 or 1.0--npcX<targetPanel:getPanelContentPixelSize().x-leftFlank and 1.0 or 1.0-((npcX-(targetPanel:getPanelContentPixelSize().x-leftFlank))/leftFlank)
+				local alpha = npc.startAlpha*math.clamp(tDelay-(DELAYOFFSET-0.5),0,1)--if 0<alpha or alpha>1 then the npc is not visible
+				--
+				npc.icon:setColor(Vec4(1,1,1,alpha))
+				npc.icon:setPosition( Vec2(npcX,npc.yOffset) )
+			else
+				npc.icon:setColor(Vec4(1,1,1,0))
+			end
 		end
 	end
 	local function removeTimeLineIcon(delay)
@@ -91,17 +126,14 @@ function NpcPanel.new(panel)
 		end
 		--
 		spawnList.index = spawnList.index + 1
+		if spawnList[spawnList.index] and spawnList[spawnList.index].disabled then
+			spawnList.index = spawnList.index + 1
+		end
 		if spawnList[spawnList.index] then
 			originalStartDelay = spawnList[spawnList.index].startDelay>0.1 and spawnList[spawnList.index].startDelay or originalStartDelay
 			spawnList[spawnList.index].delay = spawnList[spawnList.index].delay + delay
 		end
 	end
-	local function clearSpawnList()
---		while spawnList.index<=spawnList.count do
---			removeTimeLineIcon(0.0)
---		end
-	end
-	
 	
 	local function getSize(index)
 		if currentWave[index].npc=="rat_tank" then
@@ -174,7 +206,7 @@ function NpcPanel.new(panel)
 	
 	local function fixCurrentWave(param,restore,isFirstWave)
 		currentWave = waves[param]
-		--if we try to add (last wave + 1) then is should not crash
+		--if we try to add (last wave + 1) then it should not crash
 		if currentWave==nil then
 			return false
 		end
@@ -235,14 +267,6 @@ function NpcPanel.new(panel)
 				npc.startDelay = 0.0
 				npc.startAlpha = 1.0
 				npc.waveIndex = param
---				if npc.name~=currentWave[i].npc or (npc.name=="none" and i==2 and param==1) then
---					print("npc.name = "..npc.name)
---					print("i = "..i)
---					print("currentWave = "..tostring(currentWave))
---					print("spawListExistingPosIterator = "..spawListExistingPosIterator)
---					print("spawnList = "..tostring(spawnList))
---					abort()
---				end
 				npc.name = currentWave[i].npc
 				if not (npc.name=="none" and i==2 and param==1) then
 					spawListExistingPosIterator = spawListExistingPosIterator + 1
@@ -430,7 +454,6 @@ function NpcPanel.new(panel)
 		local pWave,pReload = string.match(param, "(.*);(.*)")
 		pWave = tonumber(pWave)
 		pReload = tonumber(pReload)
-		local d1 = currentWaveIndex
 		npcToBeRemoved = npcToBeRemoved or {size=0}
 		spawnList = spawnList or {count=0,index=1}
 		xPixelPerSecond = targetPanel:getPanelContentPixelSize().y*1.75
@@ -443,7 +466,8 @@ function NpcPanel.new(panel)
 		fillMenu(pWave,pReload>=1,true)
 		updatePosition()
 		--
-		originalStartDelay = originalStartDelay or spawnList[1].startDelay or 30.0
+		originalStartDelay = originalStartDelay or spawnList[1].startDelay
+		assert(originalStartDelay, "An originalStartDelay must be set")
 		currentWaveDelay = 0.0
 		currentWaveIndex = pWave
 		currentWave = waves[pWave]
