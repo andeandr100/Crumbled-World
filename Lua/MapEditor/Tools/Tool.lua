@@ -207,7 +207,6 @@ function Tool.getCollision(collisionAgainsObject, collisionAgainsSpace)
 			return nil, Vec3(), Vec3()
 		end
 	end
-	
 	return nil, Vec3(), Vec3()
 end
 
@@ -417,6 +416,9 @@ function Tool.update()
 			elseif selectedScene and Core.getInput():getKeyDown(Key.v) then
 				
 				local node, globalPosition = Tool.getCollision(false, true)
+				if node == nil then
+					node = this:findNodeByType(NodeId.playerNode)
+				end
 				local parentNode = node:findNodeByTypeTowardsRoot(NodeId.island) and node:findNodeByTypeTowardsRoot(NodeId.island) or node:findNodeByTypeTowardsRoot(NodeId.playerNode)
 				local offsetLocalPos = parentNode:getGlobalMatrix():inverseM() * globalPosition
 				
@@ -445,6 +447,7 @@ function Tool.update()
 						end
 						
 					end
+					
 				end
 			end
 			
