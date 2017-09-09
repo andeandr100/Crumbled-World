@@ -170,7 +170,7 @@ function create()
 			local continueButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("continue")))
 			local optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("options")))
 			local tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("tutorial"))) or nil
-			local RestartWaveButton = (not Core.isInMultiplayer() and (mapInfo.getGameMode()=="default" mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="survival")) and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("revert wave"))) or nil
+			local RestartWaveButton = (not Core.isInMultiplayer() and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="survival")) and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("revert wave"))) or nil
 			local RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("restart"))) or nil
 			local quitToMenuButton = nil
 			local quitToEditorButton = nil
