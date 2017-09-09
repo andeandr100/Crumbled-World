@@ -22,6 +22,8 @@ function create()
 	--
 	if mapInfo.getGameMode()=="default" then
 		--nothing
+	elseif mapInfo.getGameMode()=="rush" then
+		--nothing
 	elseif mapInfo.getGameMode()=="survival" then
 		--lower the availabel gold to make the spawned npc's easier. (this will make it easier to get intrest in the available gold)
 		startGold = startGold*0.5				--(makes the spawn easier, restored after the generating of the waves)
