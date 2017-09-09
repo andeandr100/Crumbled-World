@@ -206,6 +206,19 @@ function createTopMenu()
 		buttons[i].button:addEventCallbackExecute(toglePanelVisible)
 	end
 	
+	local button = centerTopPanel:add(Button(PanelSize(Vec2(-1),Vec2(4,1)), "Gjame",ButtonStyle.SQUARE_LIGHT) )
+	local edgeColor = MainMenuStyle.borderColor
+	button:setEdgeColor(edgeColor)
+	button:setEdgeHoverColor(edgeColor)
+	button:setEdgeDownColor(Vec4(edgeColor:toVec3() * 0.8, edgeColor.w))
+	
+	button:setInnerColor(Vec4(0.18,0.18,0.18,1),Vec4(),Vec4(0,0,0,1))
+	button:setInnerHoverColor(Vec4(0.08,0.08,0.08,1),Vec4(0.5,0.5,0.5,1),Vec4(0,0,0,1))
+	button:setInnerDownColor(Vec4(0.08,0.08,0.08,1),Vec4(0.4,0.4,0.4,1),Vec4(0,0,0,1))
+	button:setTextColor(MainMenuStyle.textColor)
+	button:setTextHoverColor(Vec4(1))
+	button:setTextDownColor(Vec4(1))
+	
 --	local testPanel = centerTopPanel:add(Panel(PanelSize(Vec2(-1),Vec2(4,1))))
 --	local aGradient = Gradient()
 --	aGradient:setGradientColorsVertical({Vec3(1.0), Vec3(1,1,0), Vec3(0,1,0), Vec3(0,0,1)})

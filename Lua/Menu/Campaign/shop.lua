@@ -491,7 +491,7 @@ function Shop.new(camera)
 		end
 		--
 		
-		form = Form(camera, PanelSize(Vec2(-0.9,-0.8), Vec2(3.5,4)), Alignment.MIDDLE_CENTER);
+		form = Form(camera, PanelSize(Vec2(-1,-0.9), Vec2(1,1)), Alignment.MIDDLE_CENTER);
 		form:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(panelSpacingVec2)));
 		form:setRenderLevel(9)	
 		form:setVisible(false)
@@ -505,15 +505,39 @@ function Shop.new(camera)
 		--Add the title
 		addTitle()
 		
-		--Add all diffrent towers
-		for i=1, #towers do
-			addTowerButtons(i)
+		local shopArea = shopPanel:add(Panel(PanelSize(Vec2(-0.85,-0.9))))
+		shopArea:setLayout(GridLayout(4,2)):setPanelSpacing(PanelSize( Vec2(0.025), Vec2(1), PanelSizeType.WindowPercent ))
+		
+		for i=1, 8 do
+			local towerPane1 = shopArea:add(Panel(PanelSize(Vec2(-1))))
+			
+			
+			if i == 1 then
+				towerPane1:setBackground(Sprite(Vec3(1)))
+			else
+				towerPane1:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
+			end
+			
+			towerPane1:setBorder(Border( BorderSize( Vec4(MainMenuStyle.borderSize) ), MainMenuStyle.borderColor ) )
+			towerPane1:setPadding(BorderSize(Vec4(MainMenuStyle.borderSize * 3)))
+			
+			towerPane1:setLayout(FlowLayout(PanelSize(Vec2(MainMenuStyle.borderSize * 3),Vec2(1))))
+			
+			local towerImage = towerPane1:add(Image(PanelSize(Vec2(-1), Vec2(1)), "icon_tower_table.tga"))
+			towerImage:setBorder(Border( BorderSize( Vec4(MainMenuStyle.borderSize * 2) ), MainMenuStyle.borderColor ) )
+			local textureOffset = Vec2((i%3)/3.0, 1.0 - math.floor(i/3.0) * 0.3333)
+			towerImage:setUvCoord( textureOffset, textureOffset + Vec2(0.3333))
 		end
-		--fixe crystal limits
-		data.fixCrystalLimits()
-		--Update all information
-		updateAllLabels()
-		updateAllToolTips()
+		
+		--Add all diffrent towers
+--		for i=1, #towers do
+--			addTowerButtons(i)
+--		end
+--		--fixe crystal limits
+--		data.fixCrystalLimits()
+--		--Update all information
+--		updateAllLabels()
+--		updateAllToolTips()
 		
 		--bottom info
 		local bottomPanel = shopPanel:add(Panel(PanelSize(Vec2(-1))))

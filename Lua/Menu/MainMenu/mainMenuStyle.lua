@@ -49,18 +49,33 @@ function MainMenuStyle.createMenuButton(size, scale, text)
 end
 
 function MainMenuStyle.createButton(size, scale, text)
-	local button = Button(PanelSize(size, scale), text, ButtonStyle.SQUARE)
-	button:setTextColor(Vec3(0.7))
-	button:setTextHoverColor(Vec3(0.92))
-	button:setTextDownColor(Vec3(1))
+	local button = Button(PanelSize(size, scale), text, ButtonStyle.SQUARE_LIGHT)
+	
 	
 	button:setEdgeColor(MainMenuStyle.borderColor)
 	button:setEdgeHoverColor(MainMenuStyle.borderColor)
-	button:setEdgeDownColor(MainMenuStyle.borderColor)
-
-	button:setInnerColor(Vec4(0))
-	button:setInnerHoverColor(Vec4(1,1,1,0.2))
-	button:setInnerDownColor(Vec4(1,1,1,0.1))
+	button:setEdgeDownColor(Vec4(MainMenuStyle.borderColor:toVec3() * 0.8, MainMenuStyle.borderColor.w))
+	
+	button:setInnerColor(Vec4(0.18,0.18,0.18,1),Vec4(),Vec4(0,0,0,1))
+	button:setInnerHoverColor(Vec4(0.08,0.08,0.08,1),Vec4(0.5,0.5,0.5,1),Vec4(0,0,0,1))
+	button:setInnerDownColor(Vec4(0.08,0.08,0.08,1),Vec4(0.4,0.4,0.4,1),Vec4(0,0,0,1))
+	
+	button:setTextColor(MainMenuStyle.textColor)
+	button:setTextHoverColor(Vec4(1))
+	button:setTextDownColor(Vec4(1))
+	
+	
+--	button:setTextColor(Vec3(0.7))
+--	button:setTextHoverColor(Vec3(0.92))
+--	button:setTextDownColor(Vec3(1))
+--	
+--	button:setEdgeColor(MainMenuStyle.borderColor)
+--	button:setEdgeHoverColor(MainMenuStyle.borderColor)
+--	button:setEdgeDownColor(MainMenuStyle.borderColor)
+--
+--	button:setInnerColor(Vec4(0))
+--	button:setInnerHoverColor(Vec4(1,1,1,0.2))
+--	button:setInnerDownColor(Vec4(1,1,1,0.1))
 	
 	return button
 end
