@@ -1,7 +1,9 @@
 --this = SceneNode()
+local timer = 0.0
 function restartWave(wave)
 	local d1 = waveHistory
 	local item = waveHistory[wave]
+	currentWave = wave
 	if not item then
 		error("the wave must be cretated, to be able to restore it")
 	else
@@ -20,6 +22,8 @@ function restartWave(wave)
 		billboard:setInt("wave", wave)--the current wave number
 		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])--achivemenet
 		billboard:setInt("towersSold", item["towersSold"])--achivemenet
+		timer = wave<=1 and 0 or item.timer
+		updateTimerStr()
 	end
 end
 function create()
@@ -35,6 +39,7 @@ function create()
 		netSyncTimer = Core.getTime()
 	end
 	waveHistory = {}
+	currentWave = 0
 	
 	restartWaveListener = Listener("RestartWave")
 	restartWaveListener:registerEvent("restartWave", restartWave)
@@ -52,6 +57,7 @@ function create()
 	billboard:setInt("wave", 1)
 	billboard:setInt("maxWave", 1)
 	billboard:setInt("killedLessThan5m",0)
+	billboard:setString("timerStr","0s")
 	--
 	billboard:setInt("NPCSpawnedThisWave", 0)
 	billboard:setInt("NPCSpawnsThisWave", 0)
@@ -162,6 +168,8 @@ function handleSetMaxwave(inWave)
 end
 function handleSetwave(inWave)
 	billboard:setInt("wave", inWave)
+	currentWave = inWave
+	timer = inWave==1 and 0 or timer
 	waveHistory[inWave] = {
 		life = billboard:getDouble("life"),
 		score = billboard:getDouble("score"),
@@ -175,6 +183,8 @@ function handleSetwave(inWave)
 		DamageTotal = billboard:getDouble("DamageTotal"),
 		waveGold = billboard:getDouble("waveGold"),
 		totalHp = billboard:getDouble("totalHp"),
+		timer = timer,
+		
 		--Achivements
 		killedLessThan5m = billboard:getDouble("killedLessThan5m"),
 		towersSold = billboard:getDouble("towersSold")
@@ -290,6 +300,22 @@ function waveChanged()
 		averageDamage = math.round(averageDamage / #waveDamages)
 	end
 end
+function updateTimerStr()
+	if currentWave>=1 then
+		timer = timer + Core.getDeltaTime()
+		local str = ""
+		local left = timer
+		if left>60.0 then
+			local min = math.floor(left/60.0)
+			left = left - (min*60.0)
+			str = str..tostring(min).."m "
+		end
+		str = str..tostring(math.floor(left)).."s"
+		billboard:setString("timerStr",str)
+	else
+		billboard:setString("timerStr","0s")
+	end
+end
 function update()
 	--Handle communication
 	while comUnit:hasMessage() do
@@ -298,6 +324,7 @@ function update()
 			comUnitTable[msg.message](msg.parameter)
 		end
 	end
+	updateTimerStr()
 	if netSyncTimer then
 		
 		--update wave damage, this can only be done after the towers has updated, this can take a 0.1 seconds

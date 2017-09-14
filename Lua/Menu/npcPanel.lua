@@ -23,8 +23,6 @@ function NpcPanel.new(panel)
 		comUnit:sendTo("SteamAchievement","Skip","")
 	end
 	local function removeNextDelay(panel)
---		local d1 = spawnList
---		abort()
 		if currentWaveIndex>=1 then
 			local success = false
 			for i=spawnList.index, spawnList.count do
@@ -57,9 +55,146 @@ function NpcPanel.new(panel)
 	function self.getTopPanelRight()
 		return topPanelRight
 	end
+	local function getSize(npc)
+		if npc.name=="rat_tank" then
+			return 0.66
+		elseif npc.name=="rat" then
+			return 0.575
+		elseif npc.name=="scorpion" then
+			return 0.66
+		elseif npc.name=="skeleton" then
+			return 0.75
+		elseif npc.name=="fireSpirit" or npc.name=="electroSpirit" then
+			return 0.75
+		elseif npc.name=="turtle" then
+			return 0.66
+		end
+		return 1.0
+	end
+	local function updateNpcIcon(npc)
+		local heightData = targetPanel:getPanelContentPixelSize().y
+		local height = heightData * getSize(npc)
+		--
+		if not (npc.name=="turtle" or npc.name=="background" or npc.name=="none") then
+			npc.icon:setRenderLevel(2)
+			npc.yOffset = heightData - height 
+			if height<heightData then
+				if npc.currentUp then
+					npc.yOffset = 0.0
+				end
+			end
+		end
+		if npc.name=="rat" or npc.name=="rat_tank" then
+			npc.icon:setUvCoord(Vec2(0.0,0.0625),Vec2(0.1875,0.125))
+			npc.icon:setSize(Vec2(height*1.5,height))
+			npc.width = height*1.5*0.5
+		elseif npc.name=="scorpion" then
+			npc.icon:setUvCoord(Vec2(0.25,0.0625),Vec2(0.375,0.125))
+			npc.icon:setSize(Vec2(height))
+			npc.width = height*0.5
+		elseif npc.name=="skeleton" then
+			npc.icon:setUvCoord(Vec2(0.1875,0.0625),Vec2(0.25,0.125))
+			npc.icon:setSize(Vec2(height*0.5,height))
+			npc.width = height*0.5*0.5
+		elseif npc.name=="electroSpirit" then
+			npc.icon:setUvCoord(Vec2(0.375,0.0625),Vec2(0.50,0.125))
+			npc.icon:setSize(Vec2(height))
+			npc.width = height*0.5
+		elseif npc.name=="fireSpirit" then
+			npc.icon:setUvCoord(Vec2(0.625,0.0625),Vec2(0.75,0.125))
+			npc.icon:setSize(Vec2(height))
+			npc.width = height*0.5
+		elseif npc.name=="dino" then
+			npc.icon:setUvCoord(Vec2(0.0,0.125),Vec2(0.1875,0.1875))
+			npc.icon:setSize(Vec2(height*1.5,height))
+			npc.width = height*1.5*0.5
+		elseif npc.name=="turtle" then
+			npc.icon:setUvCoord(Vec2(0.1875,0.125),Vec2(0.375,0.1875))
+			npc.icon:setSize(Vec2(height*1.5,height))
+			npc.icon:setRenderLevel(3)
+			npc.width = height*1.5*0.5
+		elseif npc.name=="background" then
+			npc.icon:setRenderLevel(-2)
+			npc.icon:setUvCoord(Vec2(0.125,0.1875),Vec2(0.875,0.250))
+			npc.icon:setSize(Vec2(heightData*6.2,heightData))
+			npc.startAlpha = 0.5
+			npc.icon:setColor(Vec4(1,1,1,npc.startAlpha))
+		elseif npc.name=="skeleton_cf" then
+			npc.icon:setUvCoord(Vec2(0.375,0.125),Vec2(0.4375,0.1875))
+			npc.icon:setSize(Vec2(height*0.5,height))
+			npc.width = height*0.5*0.5
+		elseif npc.name=="skeleton_cb" then
+			npc.icon:setUvCoord(Vec2(0.4375,0.125),Vec2(0.5,0.1875))
+			npc.icon:setSize(Vec2(height*0.5,height))
+			npc.width = height*0.5*0.5
+		elseif npc.name=="reaper" then
+			npc.icon:setUvCoord(Vec2(0.50,0.125),Vec2(0.625,0.1875))
+			npc.icon:setSize(Vec2(height))
+			npc.width = height*0.5
+		elseif npc.name=="stoneSpirit" then
+			npc.icon:setUvCoord(Vec2(0.50,0.0625),Vec2(0.625,0.125))
+			npc.icon:setSize(Vec2(height))
+			npc.width = height*0.5
+		elseif npc.name=="hydra5" or npc.name=="hydra4" or npc.name=="hydra3" or npc.name=="hydra2" or npc.name=="hydra1" then
+			npc.icon:setUvCoord(Vec2(0.625,0.125),Vec2(0.75,0.1875))
+			npc.icon:setSize(Vec2(height))
+			npc.width = height*0.5
+		elseif npc.name=="none" then
+			if npc.noneType == "wave splitter" then
+				npc.icon:setUvCoord(Vec2(0.0,0.1885),Vec2(0.083984,0.231445))
+				npc.icon:setSize(Vec2(height))
+				npc.width = height*0.5
+			elseif npc.noneType == "group splitter" then
+				npc.icon:setUvCoord(Vec2(0.091797,0.18842),Vec2(0.11914,0.24903))
+				npc.icon:setSize(Vec2(height*0.225806,height))
+				npc.width = height*0.225806*0.5
+			else
+				abort()
+			end
+		else
+			abort()
+		end
+	end
+	local function updatePosition()
+		local tDelay = DELAYOFFSET
+		if spawnList then
+			for i=spawnList.index, spawnList.count do
+				local npc = spawnList[i]
+				if not npc.disabled then
+					tDelay = tDelay + npc.delay
+					--alpha on units to the far right side
+					local npcX = tDelay*xPixelPerSecond-npc.width
+					local leftFlank = xPixelPerSecond*3.0
+					--local alpha = tDelay<2.0 and tDelay-1.0 or 1.0--npcX<targetPanel:getPanelContentPixelSize().x-leftFlank and 1.0 or 1.0-((npcX-(targetPanel:getPanelContentPixelSize().x-leftFlank))/leftFlank)
+					local alpha = npc.startAlpha*math.clamp(tDelay-(DELAYOFFSET-0.5),0,1)--if 0<alpha or alpha>1 then the npc is not visible
+					--
+					npc.icon:setColor(Vec4(1,1,1,alpha))
+					npc.icon:setPosition( Vec2(npcX,npc.yOffset) )
+				else
+					npc.icon:setColor(Vec4(1,1,1,0))
+				end
+			end
+		end
+	end
+	local function resize()
+		print("resize("..(spawnList and spawnList.count or 0)..")")
+		print("Y = "..targetPanel:getPanelContentPixelSize().y)
+		--update default variables, that is based on size
+		xPixelPerSecond = targetPanel:getPanelContentPixelSize().y*1.75
+		--if any npc has been initiated
+		if spawnList then
+			--update all initiated npcs
+			for i=spawnList.index, spawnList.count do
+				updateNpcIcon( spawnList[i] )
+			end
+		end
+		--update position
+		updatePosition()
+	end
 	
 	local function init()
 		local mapInfo = MapInfo.new()
+		panel:addEventCallbackResized(resize)
 		if mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="rush" then
 			local nextIcon = Core.getTexture("icon_table.tga")
 			local SkipWaveButton = panel:add(Button(PanelSize(Vec2(-0.6,-1), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, nextIcon, Vec2(0.375,0.25), Vec2(0.50, 0.3125)))
@@ -93,25 +228,6 @@ function NpcPanel.new(panel)
 	
 	init()
 	
-	local function updatePosition()
-		local tDelay = DELAYOFFSET
-		for i=spawnList.index, spawnList.count do
-			local npc = spawnList[i]
-			if not npc.disabled then
-				tDelay = tDelay + npc.delay
-				--alpha on units to the far right side
-				local npcX = tDelay*xPixelPerSecond-npc.width
-				local leftFlank = xPixelPerSecond*3.0
-				--local alpha = tDelay<2.0 and tDelay-1.0 or 1.0--npcX<targetPanel:getPanelContentPixelSize().x-leftFlank and 1.0 or 1.0-((npcX-(targetPanel:getPanelContentPixelSize().x-leftFlank))/leftFlank)
-				local alpha = npc.startAlpha*math.clamp(tDelay-(DELAYOFFSET-0.5),0,1)--if 0<alpha or alpha>1 then the npc is not visible
-				--
-				npc.icon:setColor(Vec4(1,1,1,alpha))
-				npc.icon:setPosition( Vec2(npcX,npc.yOffset) )
-			else
-				npc.icon:setColor(Vec4(1,1,1,0))
-			end
-		end
-	end
 	local function removeTimeLineIcon(delay)
 		--remove npc/item
 		npcToBeRemoved[npcToBeRemoved.size+1] = spawnList.index
@@ -135,22 +251,6 @@ function NpcPanel.new(panel)
 		end
 	end
 	
-	local function getSize(index)
-		if currentWave[index].npc=="rat_tank" then
-			return 0.66
-		elseif currentWave[index].npc=="rat" then
-			return 0.575
-		elseif currentWave[index].npc=="scorpion" then
-			return 0.66
-		elseif currentWave[index].npc=="skeleton" then
-			return 0.75
-		elseif currentWave[index].npc=="fireSpirit" or currentWave[index].npc=="electroSpirit" then
-			return 0.75
-		elseif currentWave[index].npc=="turtle" then
-			return 0.66
-		end
-		return 1.0
-	end
 	local function getStartDelayForTurtle(checkWave,index)
 		local tDelay = 0.0
 		--turtle,npc,npc,npc,none
@@ -277,43 +377,16 @@ function NpcPanel.new(panel)
 				end
 			end
 			npc.icon:setRenderLevel(2)
-			local height = heightData * getSize(i)
+			local height = heightData * getSize(npc)
 			npc.yOffset = heightData - height 
+			npc.currentUp = currentUp
 			if height<heightData then
 				if currentUp then
 					npc.yOffset = 0.0
 				end
 				currentUp = not currentUp 
 			end
-			if currentWave[i].npc=="rat" or currentWave[i].npc=="rat_tank" then
-				npc.icon:setUvCoord(Vec2(0.0,0.0625),Vec2(0.1875,0.125))
-				npc.icon:setSize(Vec2(height*1.5,height))
-				npc.width = height*1.5*0.5
-			elseif currentWave[i].npc=="scorpion" then
-				npc.icon:setUvCoord(Vec2(0.25,0.0625),Vec2(0.375,0.125))
-				npc.icon:setSize(Vec2(height))
-				npc.width = height*0.5
-			elseif currentWave[i].npc=="skeleton" then
-				npc.icon:setUvCoord(Vec2(0.1875,0.0625),Vec2(0.25,0.125))
-				npc.icon:setSize(Vec2(height*0.5,height))
-				npc.width = height*0.5*0.5
-			elseif currentWave[i].npc=="electroSpirit" then
-				npc.icon:setUvCoord(Vec2(0.375,0.0625),Vec2(0.50,0.125))
-				npc.icon:setSize(Vec2(height))
-				npc.width = height*0.5
-			elseif currentWave[i].npc=="fireSpirit" then
-				npc.icon:setUvCoord(Vec2(0.625,0.0625),Vec2(0.75,0.125))
-				npc.icon:setSize(Vec2(height))
-				npc.width = height*0.5
-			elseif currentWave[i].npc=="dino" then
-				npc.icon:setUvCoord(Vec2(0.0,0.125),Vec2(0.1875,0.1875))
-				npc.icon:setSize(Vec2(height*1.5,height))
-				npc.width = height*1.5*0.5
-			elseif currentWave[i].npc=="turtle" then
-				npc.icon:setUvCoord(Vec2(0.1875,0.125),Vec2(0.375,0.1875))
-				npc.icon:setSize(Vec2(height*1.5,height))
-				npc.icon:setRenderLevel(3)
-				npc.width = height*1.5*0.5
+			if npc.name=="turtle" then
 				--
 				--	Background
 				--
@@ -336,33 +409,9 @@ function NpcPanel.new(panel)
 						selectedCamera:add2DScene(npc2.icon)
 					end
 				end
-				npc2.icon:setRenderLevel(-2)
-				npc2.icon:setUvCoord(Vec2(0.125,0.1875),Vec2(0.875,0.250))
-				npc2.icon:setSize(Vec2(heightData*6.2,heightData))
-				npc2.startAlpha = 0.5
-				npc2.icon:setColor(Vec4(1,1,1,npc2.startAlpha))
-			elseif currentWave[i].npc=="skeleton_cf" then
-				npc.icon:setUvCoord(Vec2(0.375,0.125),Vec2(0.4375,0.1875))
-				npc.icon:setSize(Vec2(height*0.5,height))
-				npc.width = height*0.5*0.5
-			elseif currentWave[i].npc=="skeleton_cb" then
-				npc.icon:setUvCoord(Vec2(0.4375,0.125),Vec2(0.5,0.1875))
-				npc.icon:setSize(Vec2(height*0.5,height))
-				npc.width = height*0.5*0.5
-			elseif currentWave[i].npc=="reaper" then
-				npc.icon:setUvCoord(Vec2(0.50,0.125),Vec2(0.625,0.1875))
-				npc.icon:setSize(Vec2(height))
-				npc.width = height*0.5
-			elseif currentWave[i].npc=="stoneSpirit" then
-				npc.icon:setUvCoord(Vec2(0.50,0.0625),Vec2(0.625,0.125))
-				npc.icon:setSize(Vec2(height))
-				npc.width = height*0.5
-			elseif currentWave[i].npc=="hydra5" or currentWave[i].npc=="hydra4" or currentWave[i].npc=="hydra3" or currentWave[i].npc=="hydra2" or currentWave[i].npc=="hydra1" then
-				npc.icon:setUvCoord(Vec2(0.625,0.125),Vec2(0.75,0.1875))
-				npc.icon:setSize(Vec2(height))
-				npc.width = height*0.5
+				updateNpcIcon(npc2)
 			end
-			if currentWave[i].npc=="none" then
+			if npc.name=="none" then
 				startDelayBuff = startDelayBuff + currentWave[i].delay
 				local isFirstItem = (i==2 and npc.waveIndex==1)
 				if not isFirstItem then--spawnList.count>0 then
@@ -370,6 +419,8 @@ function NpcPanel.new(panel)
 					--npc.waveIndex = npc.waveIndex - 1
 					local indexPos = spawListExistingPosIterator and spawListExistingPosIterator or spawnList.count
 					if i==2 then
+						npc.noneType = "wave splitter"
+						updateNpcIcon(npc)
 						--wave splitter
 						local sizeDelay = (height*0.5+(spawnList[indexPos].width or 0.0)+5.0)/xPixelPerSecond--shift for this icon
 						local turtleDelay = param>1 and getMinDelayForTurtle(waves[param-1],#waves[param-1]) or getMinDelayForTurtle(waves[param],i)
@@ -381,30 +432,26 @@ function NpcPanel.new(panel)
 							noneDelayBuff = testDelayBuff
 						end
 						startDelayBuff = startDelayBuff - sizeDelay
-						npc.icon:setUvCoord(Vec2(0.0,0.1885),Vec2(0.083984,0.231445))
-						npc.icon:setSize(Vec2(height))
-						npc.width = height*0.5
-						npc.noneType = "wave splitter"
 						if isFirstWave and spawListExistingPosIterator then
 							startDelayBuff = startDelayBuff + npc.delay
 							npc.delay = -1.1
 						end
 					else
+						npc.noneType = "group splitter"
+						updateNpcIcon(npc)
 						--group splitter
 						noneDelayBuff = getStartDelayForTurtle(waves[param],i)
 						noneDelayBuff = noneDelayBuff - (noneDelayBuff>0.0 and 0.25 or 0.0)--because of bad math somewhere
-						npc.width = height*0.225806*0.5
 						local sizeDelay = (npc.width+(spawnList[indexPos].width or 0.0)+5.0)/xPixelPerSecond
 						local turtleDelay = getMinDelayForTurtle(waves[param],i)
 						sizeDelay = turtleDelay>0.0 and turtleDelay or sizeDelay--sizeDelay = turtleDelay>sizeDelay and turtleDelay or sizeDelay
 						npc.delay = sizeDelay
 						startDelayBuff = startDelayBuff - sizeDelay
-						npc.icon:setUvCoord(Vec2(0.091797,0.18842),Vec2(0.11914,0.24903))
-						npc.icon:setSize(Vec2(height*0.225806,height))
-						npc.noneType = "group splitter"
 					end
 				end
 			else
+				updateNpcIcon(npc)
+				--
 				npc.delay = currentWave[i].delay
 				--check if we need to add a delay to the first npc (to move it away from the left edge)
 				local sizeDelay = math.max(0.5,(height*0.5+5.0)/xPixelPerSecond + noneDelayBuff)
@@ -413,14 +460,13 @@ function NpcPanel.new(panel)
 					npc.delay = npc.delay + missing
 					startDelayBuff = startDelayBuff - missing
 				end
-				if currentWave[i+1] and currentWave[i+1].npc=="none" then
-					--noneDelayBuff = sizeDelay
-				end
 				if startDelayBuff>0.0 then
 					npc.startDelay = startDelayBuff
 					startDelayBuff = 0.0
 				end
 			end
+			--update icon
+			
 			--if the icons did not exist from the begining then add tem
 			if not spawListExistingPosIterator then
 				addNpc(npc)

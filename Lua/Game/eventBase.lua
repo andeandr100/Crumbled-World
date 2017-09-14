@@ -1077,7 +1077,7 @@ function EventBase.new()
 	
 	function self.doRestartWave()
 		local mapInfo = MapInfo.new()
-		if waveCount>=1 and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival") then
+		if waveCount>=1 and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival" or mapInfo.getGameMode()=="rush") then
 			waveCount = math.max(0, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
 			comUnit:sendTo("SteamStats","ReverseTimeCount",1)
 			if waveCount==0 then
