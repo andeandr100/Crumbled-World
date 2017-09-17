@@ -165,6 +165,9 @@ function MapInfo.new()
 	function self.isCartMap()
 		return billboard:getBool("isCart")
 	end
+	function self.getStartWave()
+		return self.getGameMode()=="training" and self.getWaveCount()-5 or 0
+	end
 	function self.getWaveCount()
 		return billboard:getInt("waveCount")
 	end

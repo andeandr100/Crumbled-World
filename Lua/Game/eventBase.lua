@@ -22,7 +22,9 @@ function EventBase.new()
 	local waveRestarted
 	local firstNpcOfWaveHasSpawned = false
 	
-	local waveCount = 0		--what wave we are currently playing
+	local mapInfo = MapInfo.new()
+	local STARTWAVE = mapInfo.getStartWave()
+	local waveCount = STARTWAVE		--what wave we are currently playing
 	local waveCountState = 0
 	local comUnit = Core.getComUnit()--"EventManager"
 	local comUnitTable = {}
@@ -390,6 +392,23 @@ function EventBase.new()
 		comUnit:sendTo("stats", "setNPCSpawnsThisWave", count)
 		comUnit:sendTo("stats", "setNPCSpawnedThisWave", 0)
 	end
+	local function setWaveNumber(waveNumber)
+		waveCount = waveNumber
+		if waveCount <= #waves then
+			--first the most important gold (because it needs to be registered when going back in history
+			if waveInfo[waveCount] then
+				comUnit:sendTo("stats", "setTotalHp", waveInfo[waveCount].totalHp)
+				comUnit:sendTo("stats", "addWaveGold", waveInfo[waveCount].waveGold-calculateGoldForWave(waveCount))
+			end
+			--this also pushes the info to the history table
+			comUnit:sendTo("stats", "setWave", math.min(waveCount,numWaves))
+			comUnit:sendTo("stats", "setMaxWave", numWaves)
+			
+			countTotalSpawnsThisWave()
+			--update all npc health levels
+			updateHpBillboard(waves[waveCount][1].hpMul)
+		end
+	end
 	local function changeWave()
 		if waveCount<=numWaves then
 			comUnit:sendTo("SteamStats","MaxWaveFinished",waveCount)
@@ -421,21 +440,7 @@ function EventBase.new()
 					waveFinishedMoneyBonus()
 				end
 			end
-			waveCount = waveCount + 1
-			if waveCount <= #waves then
-				--first the most important gold (because it needs to be registered when going back in history
-				if waveInfo[waveCount] then
-					comUnit:sendTo("stats", "setTotalHp", waveInfo[waveCount].totalHp)
-					comUnit:sendTo("stats", "addWaveGold", waveInfo[waveCount].waveGold-calculateGoldForWave(waveCount))
-				end
-				--this also pushes the info to the history table
-				comUnit:sendTo("stats", "setWave", math.min(waveCount,numWaves))
-				comUnit:sendTo("stats", "setMaxWave", numWaves)
-				
-				countTotalSpawnsThisWave()
-				--update all npc health levels
-				updateHpBillboard(waves[waveCount][1].hpMul)
-			end
+			setWaveNumber( waveCount + 1 )
 			return true
 		end
 		return false
@@ -557,13 +562,6 @@ function EventBase.new()
 		comUnit:setName("EventManager")
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(false)
-		--soulmanager = this:findNodeByType(NodeId.soulManager)
-		--
---		if not backgroundMusicSet then
---			local musicList = {"Music/Oceanfloor.wav","Music/Forward_Assault.wav","Music/Ancient_Troops_Amassing.wav","Music/Tower-Defense.wav"}
---			Core.getBillboard("stats"):setString("bgMusic",musicList[math.randomInt(1,#musicList)])
---			backgroundMusicSet = true
---		end
 	
 		--mapp setttings for initiating the waves
 		waveFinishedBonus = pWaveFinishedBonus
@@ -575,6 +573,10 @@ function EventBase.new()
 		setMaxLife(pLives)
 		local tab = {startGold=pstartGold,WaveFinishedBonus=pWaveFinishedBonus,lives=pLives,level=pLevel}
 		comUnit:sendNetworkSyncSafe("NetInitData",tabToStrMinimal(tab))
+		--
+		--
+		--
+		local mapInfo = MapInfo.new()
 		--
 		--	SteamStat id
 		--
@@ -1077,10 +1079,10 @@ function EventBase.new()
 	
 	function self.doRestartWave()
 		local mapInfo = MapInfo.new()
-		if waveCount>=1 and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival" or mapInfo.getGameMode()=="rush") then
-			waveCount = math.max(0, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
+		if waveCount>=(STARTWAVE+1) and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival" or mapInfo.getGameMode()=="rush") then
+			waveCount = math.max(STARTWAVE, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
 			comUnit:sendTo("SteamStats","ReverseTimeCount",1)
-			if waveCount==0 then
+			if waveCount==STARTWAVE then
 				local restartListener = Listener("Restart")
 				restartListener:pushEvent("restart")
 			else
