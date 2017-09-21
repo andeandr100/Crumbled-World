@@ -4,12 +4,17 @@ NpcPanel = {}
 
 function NpcPanel.new(panel)
 	local self = {}
+	
+	local mapInfo = MapInfo.new()
+	
 	local selectedCamera
 	local targetPanel
 	local DELAYOFFSET = 0.25
 	local topPanelRight
 	local frameBufferSize = Vec2i(0,0)
 	local currentWaveIndex = 0
+	local mainPanel = panel
+	local customButton
 	--
 	local loadBarIcon1
 	local loadBarIcon2
@@ -59,6 +64,13 @@ function NpcPanel.new(panel)
 				comUnit:sendTo("EventManager","removeNextDelay","")
 				comUnit:sendTo("SteamAchievement","Skip","")
 			end
+		end
+	end
+	local function startTraining(panel)
+		if customButton then
+			mainPanel:removePanel(customButton)
+			customButton = nil
+			comUnit:sendTo("EventManager","startWaves","")
 		end
 	end
 	-- function:	getTopPanelRight
@@ -211,20 +223,31 @@ function NpcPanel.new(panel)
 	-- function:	init
 	-- purpose:		the constructor
 	local function init()
-		local mapInfo = MapInfo.new()
 		panel:addEventCallbackResized(resize)
 		if mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="rush" then
 			local nextIcon = Core.getTexture("icon_table.tga")
-			local SkipWaveButton = panel:add(Button(PanelSize(Vec2(-0.6,-1), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, nextIcon, Vec2(0.375,0.25), Vec2(0.50, 0.3125)))
+			customButton = panel:add(Button(PanelSize(Vec2(-0.6,-1), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, nextIcon, Vec2(0.375,0.25), Vec2(0.50, 0.3125)))
 
-			SkipWaveButton:addEventCallbackExecute(removeNextDelay)
-			SkipWaveButton:setTag("NextWave")
-			SkipWaveButton:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
-			SkipWaveButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
-			SkipWaveButton:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
-			SkipWaveButton:setEdgeColor(Vec4(0), Vec4(0))
-			SkipWaveButton:setEdgeHoverColor(Vec4(0), Vec4(0))
-			SkipWaveButton:setEdgeDownColor(Vec4(0), Vec4(0))
+			customButton:addEventCallbackExecute(removeNextDelay)
+			customButton:setTag("NextWave")
+			customButton:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
+			customButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
+			customButton:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
+			customButton:setEdgeColor(Vec4(0), Vec4(0))
+			customButton:setEdgeHoverColor(Vec4(0), Vec4(0))
+			customButton:setEdgeDownColor(Vec4(0), Vec4(0))
+		elseif mapInfo.getGameMode()=="training" then
+			local nextIcon = Core.getTexture("icon_table.tga")
+			customButton = panel:add(Button(PanelSize(Vec2(-0.6,-1), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, nextIcon, Vec2(0.125,0.25), Vec2(0.25, 0.3125)))
+
+			customButton:addEventCallbackExecute(startTraining)
+			customButton:setTag("NextWave")
+			customButton:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
+			customButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
+			customButton:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
+			customButton:setEdgeColor(Vec4(0), Vec4(0))
+			customButton:setEdgeHoverColor(Vec4(0), Vec4(0))
+			customButton:setEdgeDownColor(Vec4(0), Vec4(0))
 		end
 		
 		topPanelRight = panel:add(Panel(PanelSize(Vec2(-1,-1))))
@@ -440,7 +463,7 @@ function NpcPanel.new(panel)
 			end
 			if npc.name=="none" then
 				startDelayBuff = startDelayBuff + currentWave[i].delay
-				local isFirstItem = (i==2 and npc.waveIndex==1)
+				local isFirstItem = (i==2 and npc.waveIndex==(mapInfo.getStartWave()+1))
 				if not isFirstItem then--spawnList.count>0 then
 					currentUp = false
 					--npc.waveIndex = npc.waveIndex - 1
@@ -449,6 +472,7 @@ function NpcPanel.new(panel)
 						npc.noneType = "wave splitter"
 						updateNpcIcon(npc)
 						--wave splitter
+						local d1 = spawnList
 						local sizeDelay = (height*0.5+(spawnList[indexPos].width or 0.0)+5.0)/getPixelsPerSecond()--shift for this icon
 						local turtleDelay = param>1 and getMinDelayForTurtle(waves[param-1],#waves[param-1]) or getMinDelayForTurtle(waves[param],i)
 						sizeDelay = turtleDelay>0.0 and turtleDelay or sizeDelay--turtleDelay>sizeDelay and turtleDelay or sizeDelay
@@ -557,8 +581,9 @@ function NpcPanel.new(panel)
 	-- function:	handleWaveInfo
 	-- purpose:		callback to set base data for all waves
 	function self.handleWaveInfo(paramTable)
+		local startWave = mapInfo.getStartWave()>1 and mapInfo.getStartWave()+1 or 1
 		waves = paramTable
-		self.handleStartWave("1;0")
+		self.handleStartWave(tostring(startWave)..";0")
 		currentWaveIndex = 0
 	end
 	-- function:	handleSetWaveNpcIndex

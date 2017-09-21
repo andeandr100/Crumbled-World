@@ -588,6 +588,7 @@ function netSellTower(paramNetworkName,doNotReturnMoney)
 		local billBoard = buildingScript:getBillboard()
 		local buildingToSell = buildingScript:getParentNode()
 		local buildingValue = billBoard:getFloat("value")
+		local buildingValueLost = billBoard:getFloat("totalCost")-billBoard:getFloat("value")
 		
 		
 		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=paramNetworkName,func=4},restore={para1=netName,func=rebuildWallTower,name="rebuildWallTower"}}
@@ -596,6 +597,7 @@ function netSellTower(paramNetworkName,doNotReturnMoney)
 		if this:removeBuilding( buildingToSell ) then
 			if billBoard:getBool("isNetOwner") and doNotReturnMoney ~= true then
 				comUnit:sendTo("stats", "addGoldNoScore", tostring(buildingValue))
+				comUnit:sendTo("stats","setBillboardDouble","goldLostFromSelling;"..tostring(buildingValueLost))
 				comUnit:sendTo("stats","addTowersSold","")
 			end
 			--comUnit:sendTo("builder", "soldTower", tostring(buildingId))

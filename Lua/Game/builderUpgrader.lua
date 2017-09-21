@@ -110,9 +110,12 @@ function uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, newLocalBui
 				towerBuiltSteamStats(buildingScript)
 				--remove cost of the new tower
 				if towerCost > wallTowerCost then 
-					comUnit:sendTo("stats","removeGold",tostring( math.max( towerCost - wallTowerCost, 0)))		
+					local buildCost = math.max( towerCost - wallTowerCost, 0)
+					comUnit:sendTo("stats","removeGold",tostring( buildCost))		
+					comUnit:sendTo("stats","setBillboardDouble","goldInsertedToTowers;"..tostring(buildCost))
 				else
-					comUnit:sendTo("stats","addGoldNoScore",tostring( math.max( wallTowerCost - towerCost, 0)))	
+					--comUnit:sendTo("stats","addGoldNoScore",tostring( math.max( wallTowerCost - towerCost, 0)))	
+					error("Can this realy happen")
 				end
 				comUnit:sendTo(buildingScript:getIndex(),"NetOwner","YES")
 			else

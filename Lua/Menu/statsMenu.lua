@@ -27,7 +27,7 @@ function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
 	
 	toolTips[#toolTips + 1] = {panel=panel, text=toolTipText}
 	
-	return label;
+	return label
 end
 
 function destroy()
@@ -158,6 +158,7 @@ function create()
 			--money
 			money = statsBilboard:getInt("gold")
 			moneyLabel = createStat(Vec2(0.0, 0.0),Vec2(0.125, 0.0625), tostring(money), "money")
+			
 			--Life
 			life = statsBilboard:getInt("life")
 			lifeLabel = createStat(Vec2(0.375, 0.0),Vec2(0.5,0.0625), tostring(life), "life remaining")
@@ -258,6 +259,16 @@ function update()
 	if money ~= statsBilboard:getDouble("gold") then
 		money = statsBilboard:getDouble("gold")
 		moneyLabel:setText(numberToSmalString(math.max(0,money)))
+		for i=1, #toolTips do
+			toolTips[i].text =	Text("goldGainedTotal: "..tostring(statsBilboard:getDouble("goldGainedTotal"))..
+									"\ngoldGainedTotal: "..tostring(statsBilboard:getDouble("goldGainedTotal"))..
+									"\ngoldGainedFromKills: "..tostring(statsBilboard:getDouble("goldGainedFromKills"))..
+									"\ngoldGainedFromInterest: "..tostring(statsBilboard:getDouble("goldGainedFromInterest"))..
+									"\ngoldGainedFromWaves: "..tostring(statsBilboard:getDouble("goldGainedFromWaves"))..
+									"\ngoldGainedFromSupportTowers: "..tostring(statsBilboard:getDouble("goldGainedFromSupportTowers"))..
+									"\ngoldLostFromSelling: "..tostring(statsBilboard:getDouble("goldLostFromSelling")))
+			toolTips[i].panel:setToolTip(toolTips[i].text)
+		end
 	end
 
 	form:update();
