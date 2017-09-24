@@ -405,7 +405,10 @@ function NpcBase.new()
 				comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;"..soul.getGoldGainAdd())
 			else
 				comUnit:sendTo("stats","goldInterest",interest)--allways full interest
-				comUnit:sendTo("stats","addGold", (value*mul)+soul.getGoldGainAdd() )
+				--gold from the killing
+				local killValue = (value*mul)+soul.getGoldGainAdd()
+				comUnit:sendTo("stats","addGold", killValue )
+				comUnit:sendTo("stats","addBillboardDouble","goldGainedFromKills;"..tostring(killValue))
 			end
 		end
 	end

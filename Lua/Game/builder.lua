@@ -504,7 +504,7 @@ function netUpgradeWallTower(param)
 	--print("netUpgradeWallTower()\n")
 	local tab = totable(param)
 	local building = Core.getScriptOfNetworkName(tab.netName):getParentNode()
-	uppgradeWallTower(building, 0, tab.upgToScripName, nil, tab.tName, false, tab.playerId )
+	upgradeFromTowerToTower(building, 0, tab.upgToScripName, nil, tab.tName, false, tab.playerId )
 	
 	comUnit:sendTo("SelectedMenu", "updateSelectedTower", "")
 end
@@ -525,7 +525,7 @@ function upgradeWallTower(param)
 		end
 		
 		local building = script:getParentNode()
-		uppgradeWallTower(building, 0, tab.upgToScripName, nil, tName, true, tab.playerId )
+		upgradeFromTowerToTower(building, 0, tab.upgToScripName, nil, tName, true, tab.playerId )
 		comUnit:sendTo("SelectedMenu", "updateSelectedTower", "")
 		
 		
@@ -588,6 +588,7 @@ function netSellTower(paramNetworkName,doNotReturnMoney)
 		local billBoard = buildingScript:getBillboard()
 		local buildingToSell = buildingScript:getParentNode()
 		local buildingValue = billBoard:getFloat("value")
+		local buildingValueLost = billBoard:getFloat("totalCost")-billBoard:getFloat("value")
 		
 		
 		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=paramNetworkName,func=4},restore={para1=netName,func=rebuildWallTower,name="rebuildWallTower"}}
@@ -596,6 +597,7 @@ function netSellTower(paramNetworkName,doNotReturnMoney)
 		if this:removeBuilding( buildingToSell ) then
 			if billBoard:getBool("isNetOwner") and doNotReturnMoney ~= true then
 				comUnit:sendTo("stats", "addGoldNoScore", tostring(buildingValue))
+				comUnit:sendTo("stats","addBillboardDouble","goldLostFromSelling;"..tostring(buildingValueLost))
 				comUnit:sendTo("stats","addTowersSold","")
 			end
 			--comUnit:sendTo("builder", "soldTower", tostring(buildingId))
@@ -648,7 +650,7 @@ function UpgradeWallBuilding(param)
 		updateIsAllreadyToPlay()
 	end
 	
-	uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, tab.matrix, tab.tName, false)
+	upgradeFromTowerToTower(buildingToUpgrade, buildCost, scriptName, tab.matrix, tab.tName, false)
 end
 
 --"{ buildingId = 2, islandId = 0, localPos = Vec3(6.29053593,0,-6.13610077), rotation = 0}"
@@ -1022,7 +1024,7 @@ function update()
 						
 						
 						
-						uppgradeWallTower(building, buildingCost, scriptName, newBuildingMatrix, tab.tName, true)
+						upgradeFromTowerToTower(building, buildingCost, scriptName, newBuildingMatrix, tab.tName, true)
 						
 						readyToPlay[0] = true
 						readyToPlay[Core.getPlayerId()] = true

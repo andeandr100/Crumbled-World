@@ -14,6 +14,7 @@ function EventBase.new()
 	local self = {}
 	
 	local EVENT_WAIT_FOR_TOWER_TO_BE_BUILT =		1
+	local EVENT_WAIT_FOR_START_BUTTON_BUILT =		2
 	local EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD =	3
 	local EVENT_CHANGE_WAVE =						5
 	local EVENT_START_SPAWN =						6 
@@ -22,12 +23,13 @@ function EventBase.new()
 	local waveRestarted
 	local firstNpcOfWaveHasSpawned = false
 	
-	local waveCount = 0		--what wave we are currently playing
+	local mapInfo = MapInfo.new()
+	local STARTWAVE = mapInfo.getStartWave()
+	local waveCount = STARTWAVE		--what wave we are currently playing
 	local waveCountState = 0
 	local comUnit = Core.getComUnit()--"EventManager"
 	local comUnitTable = {}
 	local bilboardStats = Core.getBillboard("stats")
-	local massKillTimeDelayForRestart = -1
 	--local soulmanager
 	local waveUnitIndex = 0
 	local numTowers = 0
@@ -103,19 +105,18 @@ function EventBase.new()
 	--Gold options
 	local function setGold(gold)
 		if not Core.isInMultiplayer() then
-			local mapInfo = MapInfo.new()
 			local gMul = 1.0 + ( (mapInfo.getPlayerCount()-1)*0.5 )
 			comUnit:sendTo("stats", "setGold", tostring(gold*gMul))
 		else
 			comUnit:sendTo("stats", "setGold", tostring(gold))
 		end
 	end
-	local function addGold(gold)
-		comUnit:sendTo("stats", "addGold", tostring(gold))
-	end
-	local function removeGold(gold)
-		comUnit:sendTo("stats", "removeGold", tostring(gold))
-	end
+--	local function addGold(gold)
+--		comUnit:sendTo("stats", "addGold", tostring(gold))
+--	end
+--	local function removeGold(gold)
+--		comUnit:sendTo("stats", "removeGold", tostring(gold))
+--	end
 	
 	local function restartMap()
 		if destroyInNFrames == nil then 
@@ -130,8 +131,6 @@ function EventBase.new()
 			update = destroyEventBase
 			--reload script
 			print("restartMap")
-			--
-			massKillTimeDelayForRestart=Core.getGameTime()
 		end
 	end
 	
@@ -390,6 +389,23 @@ function EventBase.new()
 		comUnit:sendTo("stats", "setNPCSpawnsThisWave", count)
 		comUnit:sendTo("stats", "setNPCSpawnedThisWave", 0)
 	end
+	local function setWaveNumber(waveNumber)
+		waveCount = waveNumber
+		if waveCount <= #waves then
+			--first the most important gold (because it needs to be registered when going back in history
+			if waveInfo[waveCount] then
+				comUnit:sendTo("stats", "setTotalHp", waveInfo[waveCount].totalHp)
+				comUnit:sendTo("stats", "addWaveGold", waveInfo[waveCount].waveGold-calculateGoldForWave(waveCount))
+			end
+			--this also pushes the info to the history table
+			comUnit:sendTo("stats", "setWave", math.min(waveCount,numWaves))
+			comUnit:sendTo("stats", "setMaxWave", numWaves)
+			
+			countTotalSpawnsThisWave()
+			--update all npc health levels
+			updateHpBillboard(waves[waveCount][1].hpMul)
+		end
+	end
 	local function changeWave()
 		if waveCount<=numWaves then
 			comUnit:sendTo("SteamStats","MaxWaveFinished",waveCount)
@@ -406,7 +422,6 @@ function EventBase.new()
 			--
 			--
 			--
-			local mapInfo = MapInfo.new()
 			if mapInfo.getGameMode()=="survival" then
 				comUnit:sendTo("stats","setBillboardInt","survivalBonus;"..math.floor(waveCount/10))
 			end
@@ -416,26 +431,12 @@ function EventBase.new()
 			comUnit:sendTo("log","println", "========= Wave "..waveCount.." =========")
 			if waveCount>0 then
 				comUnit:sendTo("log","println",waveInfo[waveCount].theoreticalGold)
-				comUnit:sendTo("log","println",bilboardStats:getInt("totalGoldEarned"))
+				comUnit:sendTo("log","println",bilboardStats:getInt("goldGainedTotal"))
 				if waveRestarted==false then
 					waveFinishedMoneyBonus()
 				end
 			end
-			waveCount = waveCount + 1
-			if waveCount <= #waves then
-				--first the most important gold (because it needs to be registered when going back in history
-				if waveInfo[waveCount] then
-					comUnit:sendTo("stats", "setTotalHp", waveInfo[waveCount].totalHp)
-					comUnit:sendTo("stats", "addWaveGold", waveInfo[waveCount].waveGold-calculateGoldForWave(waveCount))
-				end
-				--this also pushes the info to the history table
-				comUnit:sendTo("stats", "setWave", math.min(waveCount,numWaves))
-				comUnit:sendTo("stats", "setMaxWave", numWaves)
-				
-				countTotalSpawnsThisWave()
-				--update all npc health levels
-				updateHpBillboard(waves[waveCount][1].hpMul)
-			end
+			setWaveNumber( waveCount + 1 )
 			return true
 		end
 		return false
@@ -534,6 +535,11 @@ function EventBase.new()
 		Core.getBillboard("stats"):setString("bgMusic",musicName)
 		backgroundMusicSet = true
 	end
+	local function startButtonPressed()
+		if currentState == EVENT_WAIT_FOR_START_BUTTON_BUILT then
+			currentState = EVENT_CHANGE_WAVE
+		end
+	end
 	function self.init(pStartGold,pWaveFinishedBonus,pInterestOnKill,pGoldMultiplayer,pLives,pLevel)
 		--make sure that only one event script is running
 		if Core.getScriptOfNetworkName("Event"..(Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-")) then
@@ -552,18 +558,12 @@ function EventBase.new()
 		comUnitTable["NetSpawnNpc"] = syncSpawnNpc
 		comUnitTable["spawnNextGroup"] = spawnNextGroup
 		comUnitTable["removeNextDelay"] = removeNextDelay
+		comUnitTable["startWaves"] = startButtonPressed
 		--
 		mapFinishingLevel = pLevel
 		comUnit:setName("EventManager")
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(false)
-		--soulmanager = this:findNodeByType(NodeId.soulManager)
-		--
---		if not backgroundMusicSet then
---			local musicList = {"Music/Oceanfloor.wav","Music/Forward_Assault.wav","Music/Ancient_Troops_Amassing.wav","Music/Tower-Defense.wav"}
---			Core.getBillboard("stats"):setString("bgMusic",musicList[math.randomInt(1,#musicList)])
---			backgroundMusicSet = true
---		end
 	
 		--mapp setttings for initiating the waves
 		waveFinishedBonus = pWaveFinishedBonus
@@ -578,7 +578,6 @@ function EventBase.new()
 		--
 		--	SteamStat id
 		--
-		local mapInfo = MapInfo.new()
 		local fileName = mapInfo.getMapFileName()
 		local index1 = fileName:match(".*/()")
 		isCartMap = mapInfo.isCartMap()
@@ -626,7 +625,6 @@ function EventBase.new()
 			npcPathOffset = Random(seed)
 			numWaves = pNumWaves
 			local isInMultiplayer = Core.isInMultiplayer()
-			local mapInfo = MapInfo.new()
 			local increasedMaxDifficulty = mapInfo.getIncreasedDifficultyMax()
 			local longestWave = 0.0
 			local totalNpcSpawned = 0
@@ -639,7 +637,7 @@ function EventBase.new()
 			local npcDelayAfterFirstTowerBuilt = 15.0							--delay for first wave
 			local npcDelayBetweenWaves = math.clamp(8.0-((difficultBase-0.75)/0.35*5),3.0,8.0)	--delay for all other waves
 			--
-			comUnit:sendTo("stats", "setWave", 0)
+			comUnit:sendTo("stats", "setWave", mapInfo.getStartWave())
 			comUnit:sendTo("stats", "setMaxWave", numWaves)
 			--
 			fixedGroupToSpawn.pos = 1
@@ -1069,25 +1067,27 @@ function EventBase.new()
 			soundWind:playSound(0.055,true)
 			--
 			--Special case first wave
-			currentState = EVENT_WAIT_FOR_TOWER_TO_BE_BUILT
+			if mapInfo.getGameMode()~="training" then
+				currentState = EVENT_WAIT_FOR_TOWER_TO_BE_BUILT
+			else
+				currentState = EVENT_WAIT_FOR_START_BUTTON_BUILT
+			end
 		end
 	
 		return true
 	end
 	
 	function self.doRestartWave()
-		local mapInfo = MapInfo.new()
-		if waveCount>=1 and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival") then
-			waveCount = math.max(0, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
+		if waveCount>=(STARTWAVE+1) and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="training") then
+			waveCount = math.max(STARTWAVE, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
 			comUnit:sendTo("SteamStats","ReverseTimeCount",1)
-			if waveCount==0 then
+			if waveCount==STARTWAVE then
 				local restartListener = Listener("Restart")
 				restartListener:pushEvent("restart")
 			else
 				currentState = EVENT_CHANGE_WAVE
 				clearActiveSpawn()
 				comUnit:broadCast(Vec3(),math.huge,"disappear","")
-				massKillTimeDelayForRestart=Core.getGameTime()
 				waveRestarted = true
 				--
 				comUnit:sendTo("stats","setBillboardDouble","RestartedWaveGameTime;"..Core.getGameTime())
@@ -1110,10 +1110,6 @@ function EventBase.new()
 		--
 		--
 		--
-		--Kill of all strays that spawned on restart of the wave
-		if Core.getGameTime()-massKillTimeDelayForRestart<0.5 then
-			comUnit:broadCast(Vec3(),math.huge,"disappear","")
-		end
 		if spawnListPopulated then
 			--handle the event restart wave
 			if keyBindRevertWave:getPressed() then
@@ -1140,9 +1136,9 @@ function EventBase.new()
 						comUnit:sendTo("SteamStats",mapStatId.."MinPlayed",timeDiff)
 						steamStatMinPlayedTime = Core.getTime()
 					end
-					comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("totalGoldEarned"))
-					comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("totalGoldInterestEarned"))
-					comUnit:sendTo("SteamStats","MaxGoldGainedFromSupportSingeGame",bilboardStats:getInt("totalGoldSupportEarned"))
+					comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("goldGainedTotal"))
+					comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("goldGainedFromInterest"))
+					comUnit:sendTo("SteamStats","MaxGoldGainedFromSupportSingeGame",bilboardStats:getInt("goldGainedFromSupportTowers"))
 					comUnit:sendNetworkSyncSafe("ChangeWave",tostring(waveCount))
 					comUnit:sendTo("SteamStats","SaveStats","")
 					firstNpcOfWaveHasSpawned = false
@@ -1164,7 +1160,6 @@ function EventBase.new()
 					--
 					local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
 					
-					local mapInfo = MapInfo.new()
 					local highScoreBillBoard = Core.getGlobalBillboard("highScoreReplay")
 					highScoreBillBoard:setBool("victory", bilboardStats:getInt("life") > 0)
 					highScoreBillBoard:setInt("score", bilboardStats:getInt("score"))
@@ -1187,9 +1182,9 @@ function EventBase.new()
 					else
 						local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 						comUnit:sendTo("builder"..node:getClientId(), "sendHightScoreToTheServer","")
-						comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("totalGoldEarned"))
+						comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("goldGainedTotal"))
 						comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
-						comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("totalGoldInterestEarned"))
+						comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("goldGainedFromInterest"))
 						if script and bilboardStats:getInt("life")>0 then 
 							
 							--victory

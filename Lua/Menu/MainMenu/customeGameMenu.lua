@@ -263,7 +263,7 @@ function CustomeGameMenu.new(panel)
 				button:setTag(curentDirectory.."/"..file:getName())
 				button:addEventCallbackExecute(changeFolderButton)
 				local img = button:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
-				img:setUvCoord(Vec2(0.75,0.0),Vec2(0.875,0.125))
+				img:setUvCoord(Vec2(0.75,0.0),Vec2(0.875,0.0625))
 			elseif file:isFile() then
 				button:setTag(tostring(num)..":"..file:getPath())
 				button:addEventCallbackExecute(customeGameChangedMap)

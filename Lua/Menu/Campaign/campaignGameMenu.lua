@@ -26,6 +26,7 @@ function CampaignGameMenu.new(panel)
 	local rewardLabel
 	--Game modes
 	local gameModes = {"default", "survival", "rush", "training", "leveler"}
+	local optionsTooltip = {"default tooltip", "survival tooltip", "rush tooltip", "training tooltip", "leveler tooltip"}
 	--Select
 	local menuPrevSelect	--menuPrevSelect=Config()
 	--
@@ -401,7 +402,6 @@ function CampaignGameMenu.new(panel)
 		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
 		labels[2] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("game mode"), Vec3(0.7)))
 		labels[2]:setTag("game mode")
-		local optionsTooltip = {"default tooltip", "survival tooltip", "training tooltip", "leveler tooltip"}
 		local defaultMode = 1
 		gameModeBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), gameModes, "game mode", gameModes[defaultMode], changeGameMode, optionsTooltip )
 		

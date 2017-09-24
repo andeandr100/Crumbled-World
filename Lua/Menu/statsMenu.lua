@@ -4,7 +4,8 @@ require("Menu/npcPanel.lua")
 --this = SceneNode()
 
 local toolTips = {}
-
+local gameMode = ""
+local toolTipsIndexGold = 0
 
 function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
 	
@@ -27,7 +28,7 @@ function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
 	
 	toolTips[#toolTips + 1] = {panel=panel, text=toolTipText}
 	
-	return label;
+	return label
 end
 
 function destroy()
@@ -66,14 +67,15 @@ function languageChanged()
 	end
 end
 
-function create()	
-	
+function create()
 	--Protection in multiplayer environment where multiple instances of this script is loaded
 	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 	if ( node == nil and this:getSceneName() ~= "Stats menu" ) or ( node and node:getClientId() ~= 0 ) then
 		return false
 	end
 	
+	local mapInfo = MapInfo.new()
+	gameMode = mapInfo.getGameMode()
 	
 	if this:getNodeType() == NodeId.playerNode then
 		local menuNode = this:getRootNode():addChild(SceneNode())
@@ -142,15 +144,23 @@ function create()
 			timeLabel = createStat(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed")
 --			--Score
 --			to be used When implemented
-			score = statsBilboard:getInt("score")
-			scoreLabel = createStat(Vec2(0.125,0.0),Vec2(0.25,0.0625), tostring(score), "score")
-			scoreLabel:setToolTip(Text("Score"))
+			if gameMode~="rush" then
+				score = statsBilboard:getInt("score")
+				scoreLabel = createStat(Vec2(0.125,0.0),Vec2(0.25,0.0625), tostring(score), "score")
+				scoreLabel:setToolTip(Text("Score"))
+			else
+				timerStr = "0s"
+				scoreLabel = createStat(Vec2(0.625,0.5),Vec2(0.75,0.5625), "0s", "timer")
+				scoreLabel:setToolTip(Text("Timer"))
+			end
 --			--Enemies
 --			numEnemies = statsBilboard:getInt("alive enemies")
 --			numEnemiesLabel = createStat(Vec2(0.25,0.0),Vec2(0.375,0.0625), tostring(numEnemies), "enemies remaining")
 			--money
 			money = statsBilboard:getInt("gold")
 			moneyLabel = createStat(Vec2(0.0, 0.0),Vec2(0.125, 0.0625), tostring(money), "money")
+			toolTipsIndexGold = #toolTips
+			
 			--Life
 			life = statsBilboard:getInt("life")
 			lifeLabel = createStat(Vec2(0.375, 0.0),Vec2(0.5,0.0625), tostring(life), "life remaining")
@@ -204,6 +214,9 @@ local function numberToSmalString(num)
 	local exp = digitCount-3
 	return string.format("%.0fe+%.0f",math.floor(num/math.pow(10,exp)),exp)
 end
+local function getBillboardStr(billboardName)
+	return numberToSmalString(statsBilboard:getDouble(billboardName))
+end
 function update()
 	--Handle communication
 	while comUnit:hasMessage() do
@@ -220,9 +233,16 @@ function update()
 		waveLabel:setText(tostring(wave).."/"..maxWave)
 	end
 --	to be used When implemented
-	if score ~= statsBilboard:getDouble("score") then
-		score = statsBilboard:getDouble("score")
-		scoreLabel:setText(numberToSmalString(score))
+	if gameMode~="rush" then
+		if score ~= statsBilboard:getDouble("score") then
+			score = statsBilboard:getDouble("score")
+			scoreLabel:setText(numberToSmalString(score))
+		end
+	else
+		if timerStr ~= statsBilboard:getString("timerStr") then
+			timerStr = statsBilboard:getString("timerStr")
+			scoreLabel:setText(timerStr)
+		end
 	end
 --	if numEnemies ~= statsBilboard:getInt("alive enemies") then
 --		numEnemies = statsBilboard:getInt("alive enemies")
@@ -241,9 +261,18 @@ function update()
 			timeLabel:setText(tostring(time).."x("..setSpeed.."x)")
 		end
 	end
-	if money ~= statsBilboard:getDouble("gold") then
-		money = statsBilboard:getDouble("gold")
+	if money ~= getBillboardStr("gold") then
+		money = getBillboardStr("gold")
 		moneyLabel:setText(numberToSmalString(math.max(0,money)))
+		
+		toolTips[toolTipsIndexGold].text =	Text("Total gold earned:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedTotal").."</font>"..
+								"\nGold from kills:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromKills").."</font>"..
+								"\nGold from interest:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromInterest").."</font>"..
+								"\nGold from waves:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromWaves").."</font>"..
+								"\nGold from towers:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromSupportTowers").."</font>"..
+								"\nGold spent in towers:\t<font color=rgb(255,255,40))>"..getBillboardStr("goldInsertedToTowers").."</font>"..
+								"\nGold lost from selling:\t<font color=rgb(255,40,40)>"..getBillboardStr("goldLostFromSelling").."</font>")
+		toolTips[toolTipsIndexGold].panel:setToolTip(toolTips[toolTipsIndexGold].text)
 	end
 
 	form:update();

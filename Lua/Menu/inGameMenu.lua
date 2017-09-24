@@ -9,6 +9,21 @@ require("Menu/settings.lua")
 
 local textPanels = {}
 local restartCounter = 0
+local mapInfo = MapInfo.new()
+--billboards
+local statsBillboard
+local stateBillboard
+--panels
+local mainPanel
+--buttons
+local continueButton
+local optionsButton
+local tutorialButton
+local launchWavesButton
+local RestartWaveButton
+local RestartButton
+local quitToMenuButton
+local quitToEditorButton
 
 function destroy()
 	if form then
@@ -42,13 +57,27 @@ function reloadeMap()
 	end
 	
 end
-
+function launchWaveCallback()
+	comUnit:sendTo("EventManager","startWaves","")
+	if launchWavesButton then
+		launchWavesButton:setEnabled(false)
+		toggleVisible()
+	end
+end
 function restartMapCallback()
 	restartCounter = restartCounter + 1
 	comUnit:sendTo("SteamStats","RestartCount",1)
 	comUnit:sendTo("SteamAchievement","Restart","")
 	if restartCounter>=5 then
 		comUnit:sendTo("SteamAchievement","JustOneMoreTry","")
+	end
+	--
+	--show buttons if used
+	if launchWavesButton then
+		launchWavesButton:setEnabled(true)
+	end
+	if RestartWaveButton then
+		RestartWaveButton:setEnabled(false)
 	end
 end
 
@@ -99,6 +128,8 @@ function create()
 		stateBillboard = Core.getGameSessionBillboard("state")
 		stateBillboard:setBool("inMenu", false)		
 		
+		statsBillboard = Core.getBillboard("stats")
+		
 		Core.setScriptNetworkId("InGameMenu")
 		comUnit = Core.getComUnit()
 		comUnit:setName("InGameMenu")
@@ -122,7 +153,6 @@ function create()
 		settingsListener = Listener("Settings")
 		settingsListener:registerEvent("LanguageChanged",languageChanged)
 		
-		mapInfo = MapInfo.new()
 		fileName = mapInfo.getMapFileName()
 		
 		local showTutorial = (fileName=="Data/Map/Campaign/Beginning.map" or fileName=="Data/Map/Campaign/Intrusion.map" or fileName=="Data/Map/Campaign/Expansion.map")
@@ -143,7 +173,7 @@ function create()
 				infoScreen = InfoScreen.new(camera)
 			end
 			
-			local mainPanel = form:add(Panel(PanelSize(Vec2(0.17,1))))
+			mainPanel = form:add(Panel(PanelSize(Vec2(0.17,1))))
 			mainPanel:getPanelSize():setFitChildren(false, true);
 			mainPanel:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 			mainPanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
@@ -166,14 +196,14 @@ function create()
 			mainPanel:setPanelSize(PanelSize(Vec2(math.max(0.17/5 * scale.x,0.03),-1)))
 			mainPanel:getPanelSize():setFitChildren(false, true)
 			
-			
-			local continueButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("continue")))
-			local optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("options")))
-			local tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("tutorial"))) or nil
-			local RestartWaveButton = (not Core.isInMultiplayer() and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="survival")) and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("revert wave"))) or nil
-			local RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("restart"))) or nil
-			local quitToMenuButton = nil
-			local quitToEditorButton = nil
+			continueButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("continue")))
+			optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("options")))
+			tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("tutorial"))) or nil
+			launchWavesButton = mapInfo.getGameMode()=="training" and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("launch waves"))) or nil
+			RestartWaveButton = (not Core.isInMultiplayer() and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="survival") or mapInfo.getGameMode()=="training") and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("revert wave"))) or nil
+			RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("restart"))) or nil
+			quitToMenuButton = nil
+			quitToEditorButton = nil
 			if Core.isInEditor() then
 				quitToEditorButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("quit to map editor")))
 			else
@@ -201,12 +231,18 @@ function create()
 				textPanels[5]:setTag("quit to map editor")
 			end
 			
-			
+			if launchWavesButton then
+				textPanels[#textPanels + 1] = launchWavesButton
+				textPanels[#textPanels]:setTag("launch waves")
+				launchWavesButton:addEventCallbackExecute(launchWaveCallback)
+				launchWavesButton:setEnabled(false)
+			end
 			if RestartWaveButton then
 				textPanels[#textPanels + 1] = RestartWaveButton
 				textPanels[#textPanels]:setTag("revert wave")
 				RestartWaveButton:addEventCallbackExecute(restartWave)
 				RestartWaveButton:addEventCallbackExecute(toggleVisible)
+				RestartWaveButton:setEnabled(false)
 			end
 			if RestartButton then
 				textPanels[#textPanels + 1] = RestartButton
@@ -368,6 +404,12 @@ function update()
 	
 	if keyBind:getPressed() then
 		toggleVisible()
+	end
+	--disable button if needed
+	if RestartWaveButton then
+		if statsBillboard:getInt("wave")>mapInfo.getStartWave() then
+			RestartWaveButton:setEnabled(true)
+		end
 	end
 	
 	--info screen when pressing tab in multiplayer

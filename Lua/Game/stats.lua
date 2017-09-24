@@ -1,25 +1,35 @@
+require("Game/mapInfo.lua")
 --this = SceneNode()
+
+local timer = 0.0
 function restartWave(wave)
 	local d1 = waveHistory
 	local item = waveHistory[wave]
+	currentWave = wave
 	if not item then
 		error("the wave must be cretated, to be able to restore it")
 	else
 		billboard:setDouble("gold", item["gold"] )--how much gold
 		billboard:setDouble("defaultGold", item["defaultGold"])--how much gold you start the game with
-		billboard:setDouble("totalGoldEarned", item["totalGoldEarned"])--the total amount of gold earned during the game
-		billboard:setDouble("totalGoldInterestEarned", item["totalGoldInterestEarned"])--the total interest of gold earned during the game
-		billboard:setDouble("totalGoldSupportEarned", item["totalGoldSupportEarned"])--the total amount of gold the support tower has earned
+		billboard:setDouble("goldGainedTotal", item["goldGainedTotal"])
+		billboard:setDouble("goldGainedFromKills", item["goldGainedFromKills"])
+		billboard:setDouble("goldGainedFromInterest", item["goldGainedFromInterest"])
+		billboard:setDouble("goldGainedFromWaves", item["goldGainedFromWaves"])
+		billboard:setDouble("goldGainedFromSupportTowers", item["goldGainedFromSupportTowers"])
+		billboard:setDouble("goldInsertedToTowers", item["goldInsertedToTowers"])
+		billboard:setDouble("goldLostFromSelling", item["goldLostFromSelling"])
 		billboard:setDouble("totalDamageDone", item["totalDamageDone"])--the total damage done by all towers
 		billboard:setDouble("DamagePreviousWave", item["DamagePreviousWave"])--the total damage done the previous wave
 		billboard:setDouble("DamageTotal", item["DamageTotal"])
 		billboard:setDouble("waveGold", item["waveGold"])--the amount of gold that can be erarned as xp in the "leveler" game mode
 		billboard:setDouble("totalHp", item["totalHp"])--the total amount of hp that will spawn this wave, in the "leveler" game mode
-		billboard:setInt("life", item["life"])--the total of units you can let threw before losing
+		billboard:setInt("life", item["life"])--the total of units you can let through before losing
 		billboard:setDouble("score", item["score"])--your highscore
 		billboard:setInt("wave", wave)--the current wave number
 		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])--achivemenet
 		billboard:setInt("towersSold", item["towersSold"])--achivemenet
+		timer = wave<=1 and 0 or item.timer
+		updateTimerStr()
 	end
 end
 function create()
@@ -34,24 +44,34 @@ function create()
 	if Core.isInMultiplayer() then
 		netSyncTimer = Core.getTime()
 	end
+	
+	local mapInfo = MapInfo.new()
+	
 	waveHistory = {}
+	currentWave = mapInfo.getStartWave()
+	
 	
 	restartWaveListener = Listener("RestartWave")
 	restartWaveListener:registerEvent("restartWave", restartWave)
 	
 	billboard:setDouble("gold", 650)
+	billboard:setDouble("goldGainedTotal", billboard:getInt("gold"))
+	billboard:setDouble("goldGainedFromKills", 0.0)
+	billboard:setDouble("goldGainedFromInterest", 0.0)
+	billboard:setDouble("goldGainedFromWaves", 0.0)
+	billboard:setDouble("goldGainedFromSupportTowers", 0.0)
+	billboard:setDouble("goldInsertedToTowers", 0.0)
+	billboard:setDouble("goldLostFromSelling", 0.0)
 	billboard:setDouble("defaultGold", 650)
-	billboard:setDouble("totalGoldEarned", billboard:getInt("gold"))
-	billboard:setDouble("totalGoldInterestEarned", 0.0)
-	billboard:setDouble("totalGoldSupportEarned", 0.0)
 	billboard:setDouble("totalDamageDone", 0.0)
 	billboard:setInt("life", 20)
 	billboard:setDouble("score", 0)
 	billboard:setFloat("difficult", 1.0)
 	billboard:setInt("alive enemies", 0)
-	billboard:setInt("wave", 1)
-	billboard:setInt("maxWave", 1)
+	billboard:setInt("wave", currentWave)
+	billboard:setInt("maxWave", 100)
 	billboard:setInt("killedLessThan5m",0)
+	billboard:setString("timerStr","0s")
 	--
 	billboard:setInt("NPCSpawnedThisWave", 0)
 	billboard:setInt("NPCSpawnsThisWave", 0)
@@ -75,6 +95,7 @@ function create()
 	comUnitTable["setMaxWave"] = handleSetMaxwave
 	comUnitTable["setBillboardDouble"] = handleSetBillboardDouble
 	comUnitTable["setBillboardInt"] = handleSetBillboardInt
+	comUnitTable["addBillboardDouble"] = handleAddBillboardDouble
 	comUnitTable["addBillboardInt"] = handleAddBillboardInt
 	comUnitTable["setBillboardString"] = handleSetBillboardString
 	--
@@ -129,52 +150,57 @@ function handleSetMaxLife(maxNumLife)
 end
 function handleSetGold(amount)
 	billboard:setDouble("gold", tonumber(amount))
-	billboard:setDouble("totalGoldEarned", tonumber(amount))
+	billboard:setDouble("goldGainedTotal", tonumber(amount))
 	billboard:setDouble("defaultGold", tonumber(amount))
 end
 function handleAddGold(amount)
 	addScoreBasedOnAddedGold(tonumber(amount))
 	billboard:setDouble("gold", billboard:getDouble("gold")+tonumber(amount))
-	billboard:setDouble("totalGoldEarned", billboard:getDouble("totalGoldEarned")+tonumber(amount))
+	billboard:setDouble("goldGainedTotal", billboard:getDouble("goldGainedTotal")+tonumber(amount))
 end
 function handleAddGoldNoScore(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")+tonumber(amount))
-	billboard:setDouble("totalGoldEarned", billboard:getDouble("totalGoldEarned")+tonumber(amount))
+	--there was no new goldGainedTotal. as this is just gold from sold towers
 end
 function handleAddGoldWaveBonus(amount)
 	handleAddGold(amount)
+	billboard:setDouble("goldGainedFromWaves",billboard:getDouble("goldGainedFromWaves")+tonumber(amount))
 end
 function handleGoldInterest(amount)
 	local interestEarned = billboard:getDouble("gold")*tonumber(amount)
 	handleAddGold( interestEarned )
-	billboard:setDouble( "totalGoldInterestEarned", billboard:getDouble("totalGoldInterestEarned")+interestEarned )
+	billboard:setDouble( "goldGainedFromInterest", billboard:getDouble("goldGainedFromInterest")+interestEarned )
 end
 function handleRemoveGold(amount)
-	if billboard:getDouble("gold")-tonumber(amount) < 1.0 then
-		print("\n##########################")
-		print("Gold: "..billboard:getDouble("gold")-tonumber(amount))
-		print("##########################")
-	end
 	billboard:setDouble("gold", billboard:getDouble("gold")-tonumber(amount))
+	billboard:setDouble("goldInsertedToTowers", billboard:getDouble("goldInsertedToTowers")+tonumber(amount))
 end
 function handleSetMaxwave(inWave)
 	billboard:setInt("maxWave", inWave)
 end
 function handleSetwave(inWave)
 	billboard:setInt("wave", inWave)
+	currentWave = inWave
+	timer = inWave==1 and 0 or timer
 	waveHistory[inWave] = {
 		life = billboard:getDouble("life"),
 		score = billboard:getDouble("score"),
 		gold = billboard:getDouble("gold"),
 		defaultGold = billboard:getDouble("defaultGold"),
-		totalGoldEarned = billboard:getDouble("totalGoldEarned"),
-		totalGoldInterestEarned = billboard:getDouble("totalGoldInterestEarned"),
-		totalGoldSupportEarned = billboard:getDouble("totalGoldSupportEarned"),
+		goldGainedTotal = billboard:getDouble("goldGainedTotal"),
+		goldGainedFromKills = billboard:getDouble("goldGainedFromKills"),
+		goldGainedFromInterest = billboard:getDouble("goldGainedFromInterest"),
+		goldGainedFromWaves = billboard:getDouble("goldGainedFromWaves"),
+		goldGainedFromSupportTowers = billboard:getDouble("goldGainedFromSupportTowers"),
+		goldInsertedToTowers = billboard:getDouble("goldInsertedToTowers"),
+		goldLostFromSelling = billboard:getDouble("goldLostFromSelling"),
 		totalDamageDone = billboard:getDouble("totalDamageDone"),
 		DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 		DamageTotal = billboard:getDouble("DamageTotal"),
 		waveGold = billboard:getDouble("waveGold"),
 		totalHp = billboard:getDouble("totalHp"),
+		timer = timer,
+		
 		--Achivements
 		killedLessThan5m = billboard:getDouble("killedLessThan5m"),
 		towersSold = billboard:getDouble("towersSold")
@@ -208,6 +234,17 @@ function handleSetBillboardInt(param)
 		error("string was not formated correctly, should be like \"(.*);(.*)\". input=="..tostring(param))
 	end
 	billboard:setInt(bName,tonumber(bValue))
+end
+function handleAddBillboardDouble(param)
+	local bName,bValue = string.match(param, "(.*);(.*)")
+	if not bName or not bValue then
+		error("string was not formated correctly, should be like \"(.*);(.*)\". input=="..tostring(param))
+	end
+	if billboard:exist(bName) then
+		billboard:setDouble(bName,billboard:getDouble(bName)+tonumber(bValue))
+	else
+		billboard:setDouble(bName,tonumber(bValue))
+	end
 end
 function handleAddBillboardInt(param)
 	local bName,bValue = string.match(param, "(.*);(.*)")
@@ -290,6 +327,22 @@ function waveChanged()
 		averageDamage = math.round(averageDamage / #waveDamages)
 	end
 end
+function updateTimerStr()
+	if currentWave>=1 then
+		timer = timer + Core.getDeltaTime()
+		local str = ""
+		local left = timer
+		if left>60.0 then
+			local min = math.floor(left/60.0)
+			left = left - (min*60.0)
+			str = str..tostring(min).."m "
+		end
+		str = str..tostring(math.floor(left)).."s"
+		billboard:setString("timerStr",str)
+	else
+		billboard:setString("timerStr","0s")
+	end
+end
 function update()
 	--Handle communication
 	while comUnit:hasMessage() do
@@ -298,6 +351,7 @@ function update()
 			comUnitTable[msg.message](msg.parameter)
 		end
 	end
+	updateTimerStr()
 	if netSyncTimer then
 		
 		--update wave damage, this can only be done after the towers has updated, this can take a 0.1 seconds

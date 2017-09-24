@@ -368,11 +368,6 @@ function TheSoul.new()
 		if markOfGold.isNotEmpty() then
 			if markOfGoldOwner.isNotEmpty() then
 				comUnit:sendTo(markOfGoldOwner.getMaxValue(),"extraGoldEarned",markOfGold.getMaxKey())
---				local p1 = this:getGlobalPosition()
---				Core.addDebugLine(Line3D(p1,p1+Vec3(0,3,0)),3.0,Vec3(1,1,0))
---			else
---				local p1 = this:getGlobalPosition()
---				Core.addDebugLine(Line3D(p1,p1+Vec3(0,3,0)),3.0,Vec3(1,0,0))
 			end
 		end
 	end
