@@ -408,7 +408,7 @@ function NpcBase.new()
 				--gold from the killing
 				local killValue = (value*mul)+soul.getGoldGainAdd()
 				comUnit:sendTo("stats","addGold", killValue )
-				comUnit:sendTo("stats","setBillboardDouble","goldGainedFromKills;"..tostring(killValue))
+				comUnit:sendTo("stats","addBillboardDouble","goldGainedFromKills;"..tostring(killValue))
 			end
 		end
 	end

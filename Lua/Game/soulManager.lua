@@ -268,8 +268,16 @@ function SoulManager.new()
 	-- purpose:		removes all souls from the table
 	local function clearData()
 		comUnit:clearMessages()
+		--kill all NPCs
+		for index,soul in pairs(soulTable) do
+			if soul.team==0 then
+				comUnit:sendTo(index,"disappear","")
+			end
+		end
+		--remove them
 		soulTable = {}
 		shieldGenerators = {}
+		--update it to billboard
 		updateSoulsTable()
 	end
 
@@ -293,7 +301,6 @@ function SoulManager.new()
 		comUnit:setCanReceiveTargeted(true)
 		comUnitTable["addSoul"] = self.addSoul
 		comUnitTable["update"] = self.updateSoul
-		--comUnitTable["updateMovment"] = self.updateMovment
 		comUnitTable["setState"] = self.updateState 
 		comUnitTable["remove"] = self.remove
 		--

@@ -49,28 +49,28 @@ end
 
 function uppgradeWallTowerTab(tab)
 	local building = Core.getScriptOfNetworkName(tab[1]):getParentNode()
-	uppgradeWallTower(building, tab[2], tab[3], tab[4], tab[5], tab[6], nil, true)
+	upgradeFromTowerToTower(building, tab[2], tab[3], tab[4], tab[5], tab[6], nil, true)
 end
-function uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, newLocalBuildngMatrix, networkName, isOwner, playerId, disableRotatorScript)
+function upgradeFromTowerToTower(buildingToUpgrade, buildCost, scriptName, newLocalBuildngMatrix, networkName, isOwner, playerId, disableRotatorScript)
 	--buildingToUpgrade = SceneNode()
 	--upgradeToBuilding = SCeneNode()
 	
-	local towerCost = 200
+	local toTowerCost = 200
 	for i=1, #buildings do
-		local towerScript = buildings[i]:getScriptByName("tower")
-		if towerScript:getFileName() == scriptName then
-			towerCost = towerScript:getBillboard():getFloat("cost")
+		local toTowerScript = buildings[i]:getScriptByName("tower")
+		if toTowerScript:getFileName() == scriptName then
+			toTowerCost = toTowerScript:getBillboard():getFloat("cost")
 		end
 	end
 
 	print("\n\n\nShow Node\n")
 	if scriptName and buildingToUpgrade then		
 		print("scriptName"..scriptName)
-		local wallTowerScript = buildingToUpgrade:getScriptByName("tower")
+		local fromTowerScript = buildingToUpgrade:getScriptByName("tower")
 		--Get the cost of the wall tower
-		local wallTowerCost = wallTowerScript:getBillboard():getFloat("cost")
+		local fromTowerCost = fromTowerScript:getBillboard():getFloat("value")
 		--get the tower hull
-		local towerHull = wallTowerScript:getBillboard():getVectorVec2("hull2dGlobal")
+		local towerHull = fromTowerScript:getBillboard():getVectorVec2("hull2dGlobal")
 		
 
 		--Clean up the wall tower from the map
@@ -109,13 +109,15 @@ function uppgradeWallTower(buildingToUpgrade, buildCost, scriptName, newLocalBui
 				--
 				towerBuiltSteamStats(buildingScript)
 				--remove cost of the new tower
-				if towerCost > wallTowerCost then 
-					local buildCost = math.max( towerCost - wallTowerCost, 0)
-					comUnit:sendTo("stats","removeGold",tostring( buildCost))		
-					comUnit:sendTo("stats","setBillboardDouble","goldInsertedToTowers;"..tostring(buildCost))
+				if toTowerCost > fromTowerCost then 
+					--from wallTower to otherTower (upgrading)
+					local buildCost = math.max( toTowerCost - fromTowerCost, 0)
+					comUnit:sendTo("stats","removeGold",tostring( buildCost))
 				else
-					--comUnit:sendTo("stats","addGoldNoScore",tostring( math.max( wallTowerCost - towerCost, 0)))	
-					error("Can this realy happen")
+					--from otherTower to wallTower (selling)
+					comUnit:sendTo("stats","addGoldNoScore",tostring( math.max( fromTowerCost - toTowerCost, 0)))
+					local buildingValueLost = fromTowerScript:getBillboard():getFloat("totalCost")-fromTowerScript:getBillboard():getFloat("value")
+					comUnit:sendTo("stats","addBillboardDouble","goldLostFromSelling;"..tostring(buildingValueLost))
 				end
 				comUnit:sendTo(buildingScript:getIndex(),"NetOwner","YES")
 			else

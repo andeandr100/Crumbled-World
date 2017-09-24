@@ -252,6 +252,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	addLanguageRow("leveler")
 	addLanguageRow("default tooltip")
 	addLanguageRow("survival tooltip")
+	addLanguageRow("rush tooltip")
 	addLanguageRow("training tooltip")
 	addLanguageRow("leveler tooltip")
 

@@ -12,16 +12,18 @@ function restartWave(wave)
 		billboard:setDouble("gold", item["gold"] )--how much gold
 		billboard:setDouble("defaultGold", item["defaultGold"])--how much gold you start the game with
 		billboard:setDouble("goldGainedTotal", item["goldGainedTotal"])
+		billboard:setDouble("goldGainedFromKills", item["goldGainedFromKills"])
 		billboard:setDouble("goldGainedFromInterest", item["goldGainedFromInterest"])
 		billboard:setDouble("goldGainedFromWaves", item["goldGainedFromWaves"])
 		billboard:setDouble("goldGainedFromSupportTowers", item["goldGainedFromSupportTowers"])
+		billboard:setDouble("goldInsertedToTowers", item["goldInsertedToTowers"])
 		billboard:setDouble("goldLostFromSelling", item["goldLostFromSelling"])
 		billboard:setDouble("totalDamageDone", item["totalDamageDone"])--the total damage done by all towers
 		billboard:setDouble("DamagePreviousWave", item["DamagePreviousWave"])--the total damage done the previous wave
 		billboard:setDouble("DamageTotal", item["DamageTotal"])
 		billboard:setDouble("waveGold", item["waveGold"])--the amount of gold that can be erarned as xp in the "leveler" game mode
 		billboard:setDouble("totalHp", item["totalHp"])--the total amount of hp that will spawn this wave, in the "leveler" game mode
-		billboard:setInt("life", item["life"])--the total of units you can let threw before losing
+		billboard:setInt("life", item["life"])--the total of units you can let through before losing
 		billboard:setDouble("score", item["score"])--your highscore
 		billboard:setInt("wave", wave)--the current wave number
 		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])--achivemenet
@@ -58,6 +60,7 @@ function create()
 	billboard:setDouble("goldGainedFromInterest", 0.0)
 	billboard:setDouble("goldGainedFromWaves", 0.0)
 	billboard:setDouble("goldGainedFromSupportTowers", 0.0)
+	billboard:setDouble("goldInsertedToTowers", 0.0)
 	billboard:setDouble("goldLostFromSelling", 0.0)
 	billboard:setDouble("defaultGold", 650)
 	billboard:setDouble("totalDamageDone", 0.0)
@@ -92,6 +95,7 @@ function create()
 	comUnitTable["setMaxWave"] = handleSetMaxwave
 	comUnitTable["setBillboardDouble"] = handleSetBillboardDouble
 	comUnitTable["setBillboardInt"] = handleSetBillboardInt
+	comUnitTable["addBillboardDouble"] = handleAddBillboardDouble
 	comUnitTable["addBillboardInt"] = handleAddBillboardInt
 	comUnitTable["setBillboardString"] = handleSetBillboardString
 	--
@@ -156,10 +160,11 @@ function handleAddGold(amount)
 end
 function handleAddGoldNoScore(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")+tonumber(amount))
-	billboard:setDouble("goldGainedTotal", billboard:getDouble("goldGainedTotal")+tonumber(amount))
+	--there was no new goldGainedTotal. as this is just gold from sold towers
 end
 function handleAddGoldWaveBonus(amount)
 	handleAddGold(amount)
+	billboard:setDouble("goldGainedFromWaves",billboard:getDouble("goldGainedFromWaves")+tonumber(amount))
 end
 function handleGoldInterest(amount)
 	local interestEarned = billboard:getDouble("gold")*tonumber(amount)
@@ -167,12 +172,8 @@ function handleGoldInterest(amount)
 	billboard:setDouble( "goldGainedFromInterest", billboard:getDouble("goldGainedFromInterest")+interestEarned )
 end
 function handleRemoveGold(amount)
-	if billboard:getDouble("gold")-tonumber(amount) < 1.0 then
-		print("\n##########################")
-		print("Gold: "..billboard:getDouble("gold")-tonumber(amount))
-		print("##########################")
-	end
 	billboard:setDouble("gold", billboard:getDouble("gold")-tonumber(amount))
+	billboard:setDouble("goldInsertedToTowers", billboard:getDouble("goldInsertedToTowers")+tonumber(amount))
 end
 function handleSetMaxwave(inWave)
 	billboard:setInt("maxWave", inWave)
@@ -188,8 +189,10 @@ function handleSetwave(inWave)
 		defaultGold = billboard:getDouble("defaultGold"),
 		goldGainedTotal = billboard:getDouble("goldGainedTotal"),
 		goldGainedFromKills = billboard:getDouble("goldGainedFromKills"),
+		goldGainedFromInterest = billboard:getDouble("goldGainedFromInterest"),
 		goldGainedFromWaves = billboard:getDouble("goldGainedFromWaves"),
 		goldGainedFromSupportTowers = billboard:getDouble("goldGainedFromSupportTowers"),
+		goldInsertedToTowers = billboard:getDouble("goldInsertedToTowers"),
 		goldLostFromSelling = billboard:getDouble("goldLostFromSelling"),
 		totalDamageDone = billboard:getDouble("totalDamageDone"),
 		DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
@@ -231,6 +234,17 @@ function handleSetBillboardInt(param)
 		error("string was not formated correctly, should be like \"(.*);(.*)\". input=="..tostring(param))
 	end
 	billboard:setInt(bName,tonumber(bValue))
+end
+function handleAddBillboardDouble(param)
+	local bName,bValue = string.match(param, "(.*);(.*)")
+	if not bName or not bValue then
+		error("string was not formated correctly, should be like \"(.*);(.*)\". input=="..tostring(param))
+	end
+	if billboard:exist(bName) then
+		billboard:setDouble(bName,billboard:getDouble(bName)+tonumber(bValue))
+	else
+		billboard:setDouble(bName,tonumber(bValue))
+	end
 end
 function handleAddBillboardInt(param)
 	local bName,bValue = string.match(param, "(.*);(.*)")

@@ -30,7 +30,6 @@ function EventBase.new()
 	local comUnit = Core.getComUnit()--"EventManager"
 	local comUnitTable = {}
 	local bilboardStats = Core.getBillboard("stats")
-	local massKillTimeDelayForRestart = -1
 	--local soulmanager
 	local waveUnitIndex = 0
 	local numTowers = 0
@@ -132,8 +131,6 @@ function EventBase.new()
 			update = destroyEventBase
 			--reload script
 			print("restartMap")
-			--
-			massKillTimeDelayForRestart=Core.getGameTime()
 		end
 	end
 	
@@ -326,7 +323,6 @@ function EventBase.new()
 		--comUnit:sendTo("stats", "goldInterest", tostring(goldIntr))
 		--static gold income that makes it easier to buy the more expansive upgrades and towers (no interest earned on this money)
 		comUnit:sendTo("stats", "addGoldWaveBonus", tostring(waveBonus))	--earned a static gold amount
-		comUnit:sendTo("stats","setBillboardDouble","addGoldWaveBonus;"..tostring(waveBonus))
 	end
 	local function calculateGoldValue(npcName,hpMul)
 		local maxGoldMul = 1.50
@@ -1092,7 +1088,6 @@ function EventBase.new()
 				currentState = EVENT_CHANGE_WAVE
 				clearActiveSpawn()
 				comUnit:broadCast(Vec3(),math.huge,"disappear","")
-				massKillTimeDelayForRestart=Core.getGameTime()
 				waveRestarted = true
 				--
 				comUnit:sendTo("stats","setBillboardDouble","RestartedWaveGameTime;"..Core.getGameTime())
@@ -1115,10 +1110,6 @@ function EventBase.new()
 		--
 		--
 		--
-		--Kill of all strays that spawned on restart of the wave
-		if Core.getGameTime()-massKillTimeDelayForRestart<0.5 then
-			comUnit:broadCast(Vec3(),math.huge,"disappear","")
-		end
 		if spawnListPopulated then
 			--handle the event restart wave
 			if keyBindRevertWave:getPressed() then

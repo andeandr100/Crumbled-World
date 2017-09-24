@@ -5,6 +5,7 @@ require("Menu/npcPanel.lua")
 
 local toolTips = {}
 local gameMode = ""
+local toolTipsIndexGold = 0
 
 function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
 	
@@ -158,6 +159,7 @@ function create()
 			--money
 			money = statsBilboard:getInt("gold")
 			moneyLabel = createStat(Vec2(0.0, 0.0),Vec2(0.125, 0.0625), tostring(money), "money")
+			toolTipsIndexGold = #toolTips
 			
 			--Life
 			life = statsBilboard:getInt("life")
@@ -212,6 +214,9 @@ local function numberToSmalString(num)
 	local exp = digitCount-3
 	return string.format("%.0fe+%.0f",math.floor(num/math.pow(10,exp)),exp)
 end
+local function getBillboardStr(billboardName)
+	return numberToSmalString(statsBilboard:getDouble(billboardName))
+end
 function update()
 	--Handle communication
 	while comUnit:hasMessage() do
@@ -256,19 +261,18 @@ function update()
 			timeLabel:setText(tostring(time).."x("..setSpeed.."x)")
 		end
 	end
-	if money ~= statsBilboard:getDouble("gold") then
-		money = statsBilboard:getDouble("gold")
+	if money ~= getBillboardStr("gold") then
+		money = getBillboardStr("gold")
 		moneyLabel:setText(numberToSmalString(math.max(0,money)))
-		for i=1, #toolTips do
-			toolTips[i].text =	Text("goldGainedTotal: "..tostring(statsBilboard:getDouble("goldGainedTotal"))..
-									"\ngoldGainedTotal: "..tostring(statsBilboard:getDouble("goldGainedTotal"))..
-									"\ngoldGainedFromKills: "..tostring(statsBilboard:getDouble("goldGainedFromKills"))..
-									"\ngoldGainedFromInterest: "..tostring(statsBilboard:getDouble("goldGainedFromInterest"))..
-									"\ngoldGainedFromWaves: "..tostring(statsBilboard:getDouble("goldGainedFromWaves"))..
-									"\ngoldGainedFromSupportTowers: "..tostring(statsBilboard:getDouble("goldGainedFromSupportTowers"))..
-									"\ngoldLostFromSelling: "..tostring(statsBilboard:getDouble("goldLostFromSelling")))
-			toolTips[i].panel:setToolTip(toolTips[i].text)
-		end
+		
+		toolTips[toolTipsIndexGold].text =	Text("Total gold earned:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedTotal").."</font>"..
+								"\nGold from kills:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromKills").."</font>"..
+								"\nGold from interest:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromInterest").."</font>"..
+								"\nGold from waves:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromWaves").."</font>"..
+								"\nGold from towers:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromSupportTowers").."</font>"..
+								"\nGold spent in towers:\t<font color=rgb(255,255,40))>"..getBillboardStr("goldInsertedToTowers").."</font>"..
+								"\nGold lost from selling:\t<font color=rgb(255,40,40)>"..getBillboardStr("goldLostFromSelling").."</font>")
+		toolTips[toolTipsIndexGold].panel:setToolTip(toolTips[toolTipsIndexGold].text)
 	end
 
 	form:update();

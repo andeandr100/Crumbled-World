@@ -218,10 +218,12 @@ function SwarmTower.new()
 	-- function:	handleGoldStats
 	-- purpose:		called when a unit has died with the effect active
 	local function handleGoldStats(param)
-		myStats.goldEarned = myStats.goldEarned + tonumber(param)
-		totalGoaldEarned = totalGoaldEarned + tonumber(param)
+		local goldGained = tonumber(param)
+		myStats.goldEarned = myStats.goldEarned + goldGained
+		totalGoaldEarned = totalGoaldEarned + goldGained
 		billboard:setDouble("goldEarnedCurrentWave",myStats.goldEarned)
 		comUnit:sendTo("SteamStats","MaxGoldEarnedFromSingleSupportTower",totalGoaldEarned)
+		comUnit:sendTo("stats","addBillboardDouble","goldGainedFromSupportTowers;"..tostring(goldGained))
 	end
 	
 	-- function:	setCurrentInfo
