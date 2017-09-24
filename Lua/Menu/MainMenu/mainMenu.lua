@@ -37,11 +37,17 @@ function languageChanged()
 	buttons[6].text = language:getText("options")
 	buttons[7].text = language:getText("credits")
 	
-	for i=1, 7 do
-		buttons[i].button:setText(buttons[i].text)
-		buttons[i].button:setPanelSize(PanelSize(Vec2(-1), Vec2(math.max(buttons[i].text:getTextScale().x/2 + 1,1), 1)))
-	end
 	
+	local addExtraLength = Core.getScreenResolution().y * 0.025
+	for i=1, 7 do
+		local labeltmp = Label( PanelSize(Vec2(1)), buttons[i].text)
+		labeltmp:setTextHeight(Core.getScreenResolution().y * 0.027)
+		print("Text: "..buttons[i].text:toString())
+		print("Length: "..labeltmp:getTextSizeInPixel().x)
+		buttons[i].button:setText(buttons[i].text)
+		buttons[i].button:setPanelSize(PanelSize(Vec2(labeltmp:getTextSizeInPixel().x + addExtraLength, -1),PanelSizeType.Pixel))
+	end
+
 	OptionsMenu.languageChanged()
 	buttons[3].panel.languageChanged()
 	MapEditorMenu.languageChanged()
@@ -78,6 +84,8 @@ function create()
 		print("createMainArea\n")
 		createMainArea()
 		print("Done\n")
+		
+		languageChanged()
 		
 		restoreData.form = form
 	else
@@ -206,18 +214,20 @@ function createTopMenu()
 		buttons[i].button:addEventCallbackExecute(toglePanelVisible)
 	end
 	
-	local button = centerTopPanel:add(Button(PanelSize(Vec2(-1),Vec2(4,1)), "Gjame",ButtonStyle.SQUARE_LIGHT) )
-	local edgeColor = MainMenuStyle.borderColor
-	button:setEdgeColor(edgeColor)
-	button:setEdgeHoverColor(edgeColor)
-	button:setEdgeDownColor(Vec4(edgeColor:toVec3() * 0.8, edgeColor.w))
+--	local button = centerTopPanel:add(Button(PanelSize(Vec2(-1),Vec2(4,1)), "Gjame",ButtonStyle.SQUARE_LIGHT) )
+--	local edgeColor = MainMenuStyle.borderColor
+--	button:setEdgeColor(edgeColor)
+--	button:setEdgeHoverColor(edgeColor)
+--	button:setEdgeDownColor(Vec4(edgeColor:toVec3() * 0.8, edgeColor.w))
+--	
+--	button:setInnerColor(Vec4(0.18,0.18,0.18,1),Vec4(),Vec4(0,0,0,1))
+--	button:setInnerHoverColor(Vec4(0.08,0.08,0.08,1),Vec4(0.5,0.5,0.5,1),Vec4(0,0,0,1))
+--	button:setInnerDownColor(Vec4(0.08,0.08,0.08,1),Vec4(0.4,0.4,0.4,1),Vec4(0,0,0,1))
+--	button:setTextColor(MainMenuStyle.textColor)
+--	button:setTextHoverColor(Vec4(1))
+--	button:setTextDownColor(Vec4(1))
 	
-	button:setInnerColor(Vec4(0.18,0.18,0.18,1),Vec4(),Vec4(0,0,0,1))
-	button:setInnerHoverColor(Vec4(0.08,0.08,0.08,1),Vec4(0.5,0.5,0.5,1),Vec4(0,0,0,1))
-	button:setInnerDownColor(Vec4(0.08,0.08,0.08,1),Vec4(0.4,0.4,0.4,1),Vec4(0,0,0,1))
-	button:setTextColor(MainMenuStyle.textColor)
-	button:setTextHoverColor(Vec4(1))
-	button:setTextDownColor(Vec4(1))
+	
 	
 --	local testPanel = centerTopPanel:add(Panel(PanelSize(Vec2(-1),Vec2(4,1))))
 --	local aGradient = Gradient()
