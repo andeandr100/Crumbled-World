@@ -71,11 +71,19 @@ end
 function OptionsMenu.updateButton(button, textId )
 	local text = language:getText(textId)
 	button:setText(text)
-	button:setPanelSize(PanelSize(Vec2(-1),Vec2(math.max(text:getTextScale().x/2 + 1,1), 1)))
+	
+	local labeltmp = Label( PanelSize(Vec2(1)), text)
+	labeltmp:setTextHeight(Core.getScreenResolution().y * 0.021)
+	
+--	button:setPanelSize(PanelSize(Vec2(-1),Vec2(math.max(text:getTextScale().x/2 + 1,1), 1)))
+	button:setPanelSize(PanelSize(Vec2(labeltmp:getTextSizeInPixel().x + Core.getScreenResolution().y * 0.02, -1),PanelSizeType.Pixel))
 	
 	button:setTextColor(Vec3(0.7))
 	button:setTextHoverColor(Vec3(0.92))
 	button:setTextDownColor(Vec3(1))
+	
+
+	
 end
 
 function OptionsMenu.languageChanged()
