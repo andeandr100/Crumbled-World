@@ -104,6 +104,8 @@ end
 
 function create()
 	
+	mapEditorListener = Listener("mapeditor")
+	mapEditorListener:registerEvent("islandDestroyed", islandDestroyed)
 
 	Tool.create()
 	Tool.enableChangeOfSelectedScene = false
@@ -436,6 +438,33 @@ function collisionAgainsPath()
 	end
 	
 	return nil, nil, nil
+end
+
+function islandDestroyed(inIslandId)
+	local islandId = tonumber(inIslandId)
+	
+	for i=#path.paths, 1, -1 do
+		if path.paths[i][1].islandId == islandId or path.paths[i][2].islandId == islandId then
+			path.paths[i].mesh.destroy()
+			table.remove( path.paths, i)
+		end
+	end
+	
+	
+	local data = {path.spawnAreas, path.pathPoints, path.targetAreas}
+	
+	for i=1, #data  do
+		local pathData = data[i]
+		for n=1, #pathData do
+			if pathData[n].islandId == islandId then
+				if pathData.mesh then
+					pathData.mesh.destroy()
+				end
+				table.remove( pathData, n)
+			end
+		end
+	end
+	
 end
 
 --As long as the tool is active update is caled
