@@ -270,7 +270,7 @@ function update()
 								"\nGold from interest:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromInterest").."</font>"..
 								"\nGold from waves:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromWaves").."</font>"..
 								"\nGold from towers:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromSupportTowers").."</font>"..
-								"\nGold spent in towers:\t<font color=rgb(255,255,40))>"..getBillboardStr("goldInsertedToTowers").."</font>"..
+								"\nGold spent in towers:\t<font color=rgb(255,255,40)>"..getBillboardStr("goldInsertedToTowers").."</font>"..
 								"\nGold lost from selling:\t<font color=rgb(255,40,40)>"..getBillboardStr("goldLostFromSelling").."</font>")
 		toolTips[toolTipsIndexGold].panel:setToolTip(toolTips[toolTipsIndexGold].text)
 	end
