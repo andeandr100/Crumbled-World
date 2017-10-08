@@ -353,8 +353,31 @@ function Tool.getSelectedNodesMatrix(selectedScenesNodes)
 	end
 end
 
-function Tool.update()
+function renderAllChildBoundVolumes(node)
+	if node then
+		if node:getBoundType() == BoundType.Sphere then
+			Core.addDebugSphere(node:getGlobalBoundingSphere(), 60, Vec3(1) )
+		elseif node:getBoundType() == BoundType.Box then
+			Core.addDebugBox(node:getGlobalBoundingBox(), 60, Vec3(1) )
+		end
+		
+		for i=1, node:getChildSize() do
+			renderAllChildBoundVolumes( node:getChildNode(i) )
+		end
+	end
+end
 
+function Tool.update()
+	
+	
+--	if Core.getInput():getKeyPressed( Key.t ) then
+--		
+--		local islands = this:getRootNode():findAllNodeByTypeTowardsLeaf(NodeId.island)
+--		
+--		for i=1, #islands do
+--			renderAllChildBoundVolumes(islands[i])
+--		end
+--	end
 	
 	if Core.getInput():getMouseDown( MouseKey.right ) then
 		toolManager = this:getRootNode():findNodeByTypeTowardsLeafe(NodeId.toolManager)

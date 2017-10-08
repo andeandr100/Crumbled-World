@@ -13,6 +13,7 @@ function create()
 	ambientColor = Vec3(0.75)
 	ambientSetColor = Vec3(0.45)
 	
+	camera = nil
 	ready = false
 	
 	--find the lighr nodes
@@ -43,6 +44,9 @@ function create()
 		return true
 	end
 	
+	
+	
+	
 	init()
 	
 	
@@ -70,10 +74,12 @@ end
 
 --update color based on light values calculated
 function updateColor()
-	local camera = Core.getMainCamera()
+	camera = Core.getMainCamera()
 	if camera then
+
 		ambientLight = camera:getAmbientLight() and camera:getAmbientLight() or ambientLight
 		directionLight = camera:getDirectionLight() and camera:getDirectionLight() or directionLight
+
 	end
 	
 	if colorWeight < 1.0 then

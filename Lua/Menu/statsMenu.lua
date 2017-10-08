@@ -263,7 +263,7 @@ function update()
 	end
 	if money ~= getBillboardStr("gold") then
 		money = getBillboardStr("gold")
-		moneyLabel:setText(numberToSmalString(math.max(0,money)))
+		moneyLabel:setText(numberToSmalString(math.max(0,tonumber(money))))
 		
 		toolTips[toolTipsIndexGold].text =	Text("Total gold earned:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedTotal").."</font>"..
 								"\nGold from kills:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromKills").."</font>"..

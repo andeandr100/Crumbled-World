@@ -48,8 +48,12 @@ function towerBuiltSteamStats(script)
 end
 
 function uppgradeWallTowerTab(tab)
-	local building = Core.getScriptOfNetworkName(tab[1]):getParentNode()
-	upgradeFromTowerToTower(building, tab[2], tab[3], tab[4], tab[5], tab[6], nil, true)
+--	print("debugData: "..tostring(tab))
+	local towerScript = Core.getScriptOfNetworkName(tab[1])
+	if towerScript then
+		local building = towerScript:getParentNode()
+		upgradeFromTowerToTower(building, tab[2], tab[3], tab[4], tab[5], tab[6], nil, true)
+	end
 end
 function upgradeFromTowerToTower(buildingToUpgrade, buildCost, scriptName, newLocalBuildngMatrix, networkName, isOwner, playerId, disableRotatorScript)
 	--buildingToUpgrade = SceneNode()
