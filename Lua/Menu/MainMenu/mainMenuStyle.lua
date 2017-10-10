@@ -32,7 +32,7 @@ function MainMenuStyle.addTopMenuButton(panel, scale, text)
 end
 
 function MainMenuStyle.createMenuButton(size, scale, text)
-	local button = Button(PanelSize(size, scale), text, ButtonStyle.RADIENT)
+	local button = Button((scale and PanelSize(size, scale) or PanelSize(size)), text, ButtonStyle.RADIENT)
 	button:setTextColor(Vec3(0.7))
 	button:setTextHoverColor(Vec3(0.92))
 	button:setTextDownColor(Vec3(1))

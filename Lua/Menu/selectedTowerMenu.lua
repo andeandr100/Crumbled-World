@@ -745,7 +745,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				
 				if buttoninfo.cost ~= nil and buttoninfo.costLabel and tonumber(buttoninfo.cost.value) > 0 then
 					local text = Text(tostring(buttoninfo.cost.value))
-					buttoninfo.costLabel:setPanelSize(PanelSize(Vec2(-1),Vec2((text:getTextScale().x/4*3)+0.5,1)))
+					buttoninfo.costLabel:setPanelSize(PanelSize(Vec2(-1),Vec2(2,1)))
 					buttoninfo.costLabel:setText( text )
 					--update tag
 					buttoninfo.button:setTag(name..";"..tostring(buttoninfo.cost and buttoninfo.cost.value or 0)..";"..tostring(buttoninfo.level.level))
@@ -868,7 +868,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				
 				costPanel = Panel(PanelSize(Vec2(-1)))
 				local text = Text( buttoninfo.cost~=nil and tostring(buttoninfo.cost.value) or "" )
-				costLabel = Label(PanelSize(Vec2(-1),Vec2((text:getTextScale().x/4*3)+0.5,1)), text, Vec4(1))
+				costLabel = Label(PanelSize(Vec2(-1),Vec2(2,1)), text, Vec4(1))
 				costLabel:setTextHeight(-0.75)
 				requireLabel = Label(PanelSize(Vec2(-1)), "Lvl2", Vec4(0.8,0.2,0.2,1))
 				requireLabel:setTextHeight(-0.75)

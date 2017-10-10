@@ -193,24 +193,45 @@ function create()
 			--button layou require us to take only the half x text scale
 			local scale = Vec2(maxXScale / 2 + 0.5, 1)
 			--0.17/5 magic number from before language support was added
-			mainPanel:setPanelSize(PanelSize(Vec2(math.max(0.17/5 * scale.x,0.03),-1)))
-			mainPanel:getPanelSize():setFitChildren(false, true)
+					
+			local tmpLabel = Label(PanelSize(Vec2(-1)),"-")
+			tmpLabel:setTextHeight(0.035)
 			
-			continueButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("continue")))
-			optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("options")))
-			tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("tutorial"))) or nil
-			launchWavesButton = mapInfo.getGameMode()=="training" and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("launch waves"))) or nil
-			RestartWaveButton = (not Core.isInMultiplayer() and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="survival") or mapInfo.getGameMode()=="training") and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("revert wave"))) or nil
-			RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("restart"))) or nil
+			
+			local textList = {"continue", "options", "tutorial", "quit to desktop"}
+			
+			local buttonSize = Vec2(-1,0.07)	
+			
+			continueButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("continue")))
+			optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("options")))
+			tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("tutorial"))) or nil
+			launchWavesButton = mapInfo.getGameMode()=="training" and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("launch waves"))) or nil
+			RestartWaveButton = (not Core.isInMultiplayer() and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="survival") or mapInfo.getGameMode()=="training") and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("revert wave"))) or nil
+			RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("restart"))) or nil
 			quitToMenuButton = nil
 			quitToEditorButton = nil
-			if Core.isInEditor() then
-				quitToEditorButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("quit to map editor")))
-			else
-				quitToMenuButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("quit to menu")))
+			
+			if mapInfo.getGameMode()=="training" then
+				textList[#textList + 1] = "launch waves"
 			end
 			
-			local quitToDesktopButton = mainPanel:add( MainMenuStyle.createMenuButton( Vec2(-1,1), scale, language:getText("quit to desktop")))
+			if Core.isInEditor() then
+				quitToEditorButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("quit to map editor")))
+				textList[#textList + 1] = "quit to map editor"
+			else
+				quitToMenuButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("quit to menu")))
+				textList[#textList + 1] = "quit to menu"
+			end
+			
+			local maxSize = 16
+			for i=1, #textList do
+				tmpLabel:setText(language:getText(textList[i]))
+				maxSize = math.max(maxSize, tmpLabel:getTextSizeInPixel().x)
+			end
+			mainPanel:setPanelSize(PanelSize(Vec2((maxSize * 1.05)/Core.getRenderResolution().x,-1)))
+			mainPanel:getPanelSize():setFitChildren(false, true)
+			
+			local quitToDesktopButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("quit to desktop")))
 			
 			continueButton:addEventCallbackExecute(toggleVisible)
 			textPanels[2] = continueButton
