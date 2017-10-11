@@ -1,78 +1,49 @@
 require("Game/particleEffect.lua")
 --this = SceneNode()
-local restartWaveListener = Listener("RestartWave")
 local waveData = {}
+local statsBilboard = Core.getBillboard("stats")
 
 function updateDead()
 	return false
 end
 function cleanUpCrystal()
-	this:setLocalPosition(localPos)
-	this:setVisible(true)
-	
-	--destroy model
 	if model then
-		model:destroyTree()
-		model = nil
+		--destroy model
+		if model then
+			model:destroyTree()
+			model = nil
+		end
+		
+		--pEffect node
+		if destroyNode then
+			destroyNode:destroyTree()
+		end
+		
+		--physic node
+		for i=1, #rigidBodies do
+			rigidBodies[i]:destroyTree()
+		end
 	end
-	
-	--pEffect node
-	if destroyNode then
-		destroyNode:destroyTree()
-	end
-	
-	--physic node
-	for i=1, #rigidBodies do
-		rigidBodies[i]:destroyTree()
-	end
+end
+function restoreCrystal()
+	this:setLocalPosition(localPos)
+	this:getChildNode(0):setVisible(true)
 end
 function restartMap()
 	cleanUpCrystal()
-	
-	spiritCount = 20
-	for i=1, spiritCount do
-		spirits[spiritCount].effect:setVisible(true)
-	end
-	
 	update = updateDead
 	particleNode:destroyTree()
 	pLight:destroyTree()
 	this:loadLuaScript(this:getCurrentScript():getFileName());
 end
-function restartWave(param)
-	local waveNum = tonumber(param)-1
-
-	if waveData[waveNum] then
-		spiritCount = waveData[waveNum].waveSpiritCount
-		for i=1, spiritCount do
-			spirits[i].effect:setVisible(true)
-		end
-	end
-	cleanUpCrystal()
-end
-function handleWaveChanged(param)
-	local name
-	local waveCount
-	name,waveCount = string.match(param, "(.*);(.*)")
-	--
-	waveData[tonumber(waveCount)] = {
-		waveSpiritCount = spiritCount
-	}
-end
 
 function create()
 	--comUnit
-	comUnit = Core.getComUnit()
-	comUnit:setCanReceiveBroadcast(true)
-	comUnitTable = {}
-	comUnitTable["npcReachedEnd"] = handleNpcReachedEnd
-	comUnitTable["waveChanged"] = handleWaveChanged
 	rigidBodies = {}
 	model = nil
 	
 	restartListener = Listener("Restart")
 	restartListener:registerEvent("restart", restartMap)
-	restartWaveListener:registerEvent("restartWave", restartWave)
 	
 	--crystal
 	timer = 0.0
@@ -95,73 +66,82 @@ function create()
 		particleNode:addChild(spirit.effect)
 		spirit.effect:activate(Vec3())
 	end
-	--electric
-	electric = {size=0}
 	explosion = {size=0}
 
 	return true
 end
 function update()
-	if spiritCount>0 then
-		while comUnit:hasMessage() do
-			local msg = comUnit:popMessage()
-			if comUnitTable[msg.message]~=nil then
-				comUnitTable[msg.message](msg.parameter,msg.fromIndex)
+	if statsBilboard then
+		local count = statsBilboard:getInt("life")
+		--manage if spirit count have changed
+		if count~=spiritCount then
+			if spiritCount==0 and count>0 then
+				--restore the crystal
+				cleanUpCrystal()
+				restoreCrystal()
+			elseif count==0 and spiritCount>0 then
+				--destroy crystal
+				destroyCrystal()
+			end
+			if count<spiritCount then
+				--we lost a spirit
+				spiritLost()
+			end
+			spiritCount = count
+			--set visability on spirits
+			for i=1, 20 do
+				spirits[i].effect:setVisible(i<=spiritCount)
 			end
 		end
-		
-		for i=1, spiritCount do
-			local spirit = spirits[i]
-			spirit.time1 = spirit.time1 + Core.getDeltaTime()*spirit.timeMul1
-			spirit.time2 = spirit.time2 + Core.getDeltaTime()*spirit.timeMul2
-			spirit.mat1:rotate(spirit.axis,spirit.time1)
-			spirit.mat2:rotate(spirit.mat1:getUpVec(),spirit.time2)
-			spirit.effect:setLocalPosition(spirit.mat2*spirit.posVec+Vec3(0.0,1.05,0.0))
+		--update spirits and crystal
+		if spiritCount>0 then
+			--spirits
+			for i=1, spiritCount do
+				local spirit = spirits[i]
+				spirit.time1 = spirit.time1 + Core.getDeltaTime()*spirit.timeMul1
+				spirit.time2 = spirit.time2 + Core.getDeltaTime()*spirit.timeMul2
+				spirit.mat1:rotate(spirit.axis,spirit.time1)
+				spirit.mat2:rotate(spirit.mat1:getUpVec(),spirit.time2)
+				spirit.effect:setLocalPosition(spirit.mat2*spirit.posVec+Vec3(0.0,1.05,0.0))
+			end
+			--crystal
+			timer = timer + (Core.getDeltaTime()*0.75)
+			this:setLocalPosition(Vec3(0,0.25+0.1*math.sin(timer),0)+localPos)
 		end
-	
-
-		--crystal
-		timer = timer + (Core.getDeltaTime()*0.75)
-		this:setLocalPosition(Vec3(0,0.25+0.1*math.sin(timer),0)+localPos)
-	elseif not model then
-		destroyCrystal()
+	else
+		statsBilboard = Core.getBillboard("stats")
 	end
 	return true
 end
 function destroyCrystal()
-	--particle effect
-	destroyNode = SceneNode()
-	destroyNode:setLocalPosition(localPos)
-	this:getParent():addChild(destroyNode)
- 	effect = ParticleSystem(ParticleEffect.endCrystalExplosion)
-	destroyNode:addChild(effect)
-	effect:activate(Vec3(0,0.75,0))
-	--physic
-	model=Core.getModel("end_crystal_cracked.mym")
-	this:getParent():addChild(model)
-	model:setLocalMatrix(this:getLocalMatrix())
-	model:setVisible(false)
-	
-	for i=1, 24 do
-		local atVec = model:getMesh("crystal"..i):getLocalPosition()-Vec3(0.0,0.3,0.0)
-		atVec = Vec3(atVec.x*6,atVec.y*4,atVec.z*6)
-		rigidBodies[#rigidBodies+1] = RigidBody(this:findNodeByType(NodeId.island),model:getMesh("crystal"..i),atVec)
+	if not model then
+		--particle effect
+		destroyNode = SceneNode()
+		destroyNode:setLocalPosition(localPos)
+		this:getParent():addChild(destroyNode)
+	 	effect = ParticleSystem(ParticleEffect.endCrystalExplosion)
+		destroyNode:addChild(effect)
+		effect:activate(Vec3(0,0.75,0))
+		--physic
+		model=Core.getModel("end_crystal_cracked.mym")
+		this:getParent():addChild(model)
+		model:setLocalMatrix(this:getLocalMatrix())
+		model:setVisible(false)
+		
+		for i=1, 24 do
+			local atVec = model:getMesh("crystal"..i):getLocalPosition()-Vec3(0.0,0.3,0.0)
+			atVec = Vec3(atVec.x*6,atVec.y*4,atVec.z*6)
+			rigidBodies[#rigidBodies+1] = RigidBody(this:findNodeByType(NodeId.island),model:getMesh("crystal"..i),atVec)
+		end
+		this:getChildNode(0):setVisible(false)
+		--this:setVisible(false)
 	end
-	this:setVisible(false)
 end
-function handleNpcReachedEnd(param)
-	local x,y,z = string.match(param, "(.*);(.*);(.*)")
-	local gPos = Vec3(tonumber(x),tonumber(y),tonumber(z))
+function spiritLost()
 	if spiritCount>0 then
 		doSpiritExplosion(spirits[spiritCount].effect:getLocalPosition())
 		--
-		local lPos = this:getGlobalMatrix():inverseM()*gPos
-		doLightning(Vec3(0.0,0.7-0.2,0.0),lPos-Vec3(0,0.25,0))
-		doLightning(Vec3(0.0,0.7,0.0),lPos)
-		doLightning(Vec3(0.0,0.7+0.2,0.0),lPos+Vec3(0,0.25,0))
-		--
 		spirits[spiritCount].effect:setVisible(false)
-		spiritCount = spiritCount - 1
 	end
 end
 function doSpiritExplosion(pos)
@@ -175,24 +155,4 @@ function doSpiritExplosion(pos)
 	explosion[explosion.size] = ParticleSystem(ParticleEffect.endCrystalSpiritExplosion)
 	this:addChild(explosion[explosion.size])
 	explosion[explosion.size]:activate(pos)
-end
-function doLightning(startPos,endPos)
-	for i=1, electric.size do
-		if electric[i]:getTimer()<0.0 then
-			doLightningOnIndex(startPos,endPos,i)
-			return
-		end
-	end
-	doLightningOnIndex(startPos,endPos,addLightningEffect())
-end
-function addLightningEffect()
-	electric.size = electric.size + 1
-	electric[electric.size] = ParticleEffectElectricFlash("LightningRed_D.tga")
-	this:addChild(electric[electric.size])
-	return electric.size
-end
-function doLightningOnIndex(startPos,endPos,index)
-	if (endPos-startPos):length()<3.0 then
-		electric[index]:setLine(startPos,endPos,0.25)
-	end
 end

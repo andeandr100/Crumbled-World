@@ -1112,10 +1112,7 @@ function EventBase.new()
 		--
 		--
 		--
-		print("spawnListPopulated = "..tostring(spawnListPopulated))
-		print("currentState = "..tostring(currentState))
 		if spawnListPopulated and currentState ~= EVENT_END_MENU then
-			print("updating()")
 			--handle the event restart wave
 			if keyBindRevertWave:getPressed() then
 				self.doRestartWave()
