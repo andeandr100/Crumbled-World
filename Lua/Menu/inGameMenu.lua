@@ -24,6 +24,7 @@ local RestartWaveButton
 local RestartButton
 local quitToMenuButton
 local quitToEditorButton
+local textList = {"continue", "options", "tutorial", "quit to desktop"}
 
 function destroy()
 	if form then
@@ -86,18 +87,23 @@ function languageChanged()
 		textPanels[i]:setText(language:getText(textPanels[i]:getTag()))
 	end
 	
-	local maxXScale = math.max( ( Core.isInEditor() and language:getText("quit to map editor"):getTextScale().x or language:getText("quit to menu"):getTextScale().x), language:getText("quit to desktop"):getTextScale().x )
-	--button layou require us to take only the half x text scale
-	local scale = Vec2(maxXScale / 2 + 0.5, 1)
 	--0.17/5 magic number from before language support was added
 	if mainPanel then
-		mainPanel:setPanelSize(PanelSize(Vec2(math.max(0.17/5 * scale.x,0.03),-1)))
+		local tmpLabel = Label(PanelSize(Vec2(-1)),"-")
+		tmpLabel:setTextHeight(0.035)
+		local maxSize = 16
+		for i=1, #textList do
+			tmpLabel:setText(language:getText(textList[i]))
+			maxSize = math.max(maxSize, tmpLabel:getTextSizeInPixel().x)
+		end
+		mainPanel:setPanelSize(PanelSize(Vec2((maxSize * 1.05)/Core.getRenderResolution().x,-1)))
 		mainPanel:getPanelSize():setFitChildren(false, true)
+		
 	end
 	
 	
 	for i=2, #textPanels do
-		textPanels[i]:setPanelSize(PanelSize(Vec2(-1,1),scale))
+		textPanels[i]:setPanelSize(PanelSize(Vec2(-1,0.07)))
 	end
 end
 
@@ -194,11 +200,10 @@ function create()
 			local scale = Vec2(maxXScale / 2 + 0.5, 1)
 			--0.17/5 magic number from before language support was added
 					
-			local tmpLabel = Label(PanelSize(Vec2(-1)),"-")
-			tmpLabel:setTextHeight(0.035)
 			
 			
-			local textList = {"continue", "options", "tutorial", "quit to desktop"}
+			
+			
 			
 			local buttonSize = Vec2(-1,0.07)	
 			
@@ -223,6 +228,9 @@ function create()
 				textList[#textList + 1] = "quit to menu"
 			end
 			
+			
+			local tmpLabel = Label(PanelSize(Vec2(-1)),"-")
+			tmpLabel:setTextHeight(0.035)
 			local maxSize = 16
 			for i=1, #textList do
 				tmpLabel:setText(language:getText(textList[i]))
