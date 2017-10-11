@@ -13,20 +13,26 @@ end
 function restartMap()
 	restartListener:pushEvent("restart")
 end
+function restartWave()
+	restartWaveListener:pushEvent("EventBaseRestartWave")
+	form:setVisible(false)
+end
 
 function victory()
 	victoryImage:setVisible(true)
+	restartWaveButton:setEnabled(false)
 	form:setVisible(true)
 	comUnit:sendTo("InGameMenu","hide","")
 end
 
 function defeated()
 	
-	if not Core.isInMultiplayer() then
-		continueButton:setText("Restart")
-	end
+--	if not Core.isInMultiplayer() then
+--		continueButton:setText("Restart")
+--	end
 	
 	defeatedImage:setVisible(true)
+	restartWaveButton:setEnabled(true)
 	form:setVisible(true)
 	comUnit:sendTo("InGameMenu","hide","")
 end
@@ -46,6 +52,7 @@ function create()
 	
 	
 	restartListener = Listener("Restart")
+	restartWaveListener = Listener("EventBaseRestartWave")
 	
 	local rootNode = this:getRootNode();
 	local camera = rootNode:findNodeByName("MainCamera");
@@ -78,41 +85,29 @@ function create()
 	run = true
 	
 	
-	continueButton = row:add( MainMenuStyle.createButton( Vec2(-0.5,-1), Vec2(5,1), language:getText("continue")))
+	--continueButton = row:add( MainMenuStyle.createButton( Vec2(-0.33,-1), Vec2(5,1), language:getText("continue")))
+	restartWaveButton = row:add( MainMenuStyle.createButton( Vec2(-0.5,-1), Vec2(5,1), language:getText("revert wave")))
 	local quitToMenuButton = row:add( MainMenuStyle.createButton( Vec2(-1,-1), Vec2(5,1), language:getText("quit to menu")))
 
 
-	continueButton:addEventCallbackExecute(returnToGame)
+	--continueButton:addEventCallbackExecute(returnToGame)
+	restartWaveButton:addEventCallbackExecute(restartWave)
 	quitToMenuButton:addEventCallbackExecute(quitToMainMenu)
 	
-	
-	--mapInfo
---	local mapInfo = MapInfo.new()
---	if mapInfo.changeToNextMap() then
---		--next map is available (only in the campaign, and not the last map)
---		selectedFile = mapInfo.getMapFileName()
---		local sead = mapInfo.getSead()
---		
---		continueButton:setText(language:getText("next map"))
---		continueButton:addEventCallbackExecute(startNextMap)
---	else
---		--return to menu (only option)
---	end
-
 	return true
 end
 
 
-function returnToGame(panel)
-	
-	if not Core.isInMultiplayer() and defeatedImage:getVisible() then
-		restartMap()
-	end
-
-	run = false
-	form:setVisible(false)
-
-end
+--function returnToGame(panel)
+--	
+--	if not Core.isInMultiplayer() and defeatedImage:getVisible() then
+--		restartMap()
+--	end
+--
+--	run = false
+--	form:setVisible(false)
+--
+--end
 
 
 function quitToMainMenu(panel)

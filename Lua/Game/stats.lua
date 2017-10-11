@@ -2,10 +2,38 @@ require("Game/mapInfo.lua")
 --this = SceneNode()
 
 local timer = 0.0
+function restartMap()
+	local mapInfo = MapInfo.new()
+	
+	waveHistory = {}
+	currentWave = mapInfo.getStartWave()
+	
+	billboard:setDouble("gold", startGold or 1000)
+	billboard:setDouble("goldGainedTotal", startGold or 1000)
+	billboard:setDouble("goldGainedFromKills", 0.0)
+	billboard:setDouble("goldGainedFromInterest", 0.0)
+	billboard:setDouble("goldGainedFromWaves", 0.0)
+	billboard:setDouble("goldGainedFromSupportTowers", 0.0)
+	billboard:setDouble("goldInsertedToTowers", 0.0)
+	billboard:setDouble("goldLostFromSelling", 0.0)
+	billboard:setDouble("defaultGold", startGold or 1000)
+	billboard:setDouble("totalDamageDone", 0.0)
+	billboard:setInt("life", 20)
+	billboard:setDouble("score", 0.0)
+	billboard:setFloat("difficult", 1.0)
+	billboard:setInt("alive enemies", 0)
+	billboard:setInt("wave", 0)
+	billboard:setInt("killedLessThan5m",0)
+	billboard:setString("timerStr","0s")
+	--
+	LOG("STATS.RESTARTMAP()\n")
+	
+end
 function restartWave(wave)
 	local d1 = waveHistory
 	local item = waveHistory[wave]
 	currentWave = wave
+	LOG("STATS.RESTARTWAVE("..tostring(wave)..")\n")
 	if not item then
 		error("the wave must be cretated, to be able to restore it")
 	else
@@ -33,6 +61,7 @@ function restartWave(wave)
 	end
 end
 function create()
+	LOG("STATS.CREATE()\n")
 	if Core.getScriptOfNetworkName("stats") then
 		return false
 	end
@@ -51,28 +80,13 @@ function create()
 	currentWave = mapInfo.getStartWave()
 	
 	
+	restartListener = Listener("Restart")
+	restartListener:registerEvent("restart", restartMap)
 	restartWaveListener = Listener("RestartWave")
 	restartWaveListener:registerEvent("restartWave", restartWave)
 	
-	billboard:setDouble("gold", 650)
-	billboard:setDouble("goldGainedTotal", billboard:getInt("gold"))
-	billboard:setDouble("goldGainedFromKills", 0.0)
-	billboard:setDouble("goldGainedFromInterest", 0.0)
-	billboard:setDouble("goldGainedFromWaves", 0.0)
-	billboard:setDouble("goldGainedFromSupportTowers", 0.0)
-	billboard:setDouble("goldInsertedToTowers", 0.0)
-	billboard:setDouble("goldLostFromSelling", 0.0)
-	billboard:setDouble("defaultGold", 650)
-	billboard:setDouble("totalDamageDone", 0.0)
-	billboard:setInt("life", 20)
-	billboard:setDouble("score", 0)
-	billboard:setFloat("difficult", 1.0)
-	billboard:setInt("alive enemies", 0)
-	billboard:setInt("wave", currentWave)
+	restartMap()
 	billboard:setInt("maxWave", 100)
-	billboard:setInt("killedLessThan5m",0)
-	billboard:setString("timerStr","0s")
-	--
 	billboard:setInt("NPCSpawnedThisWave", 0)
 	billboard:setInt("NPCSpawnsThisWave", 0)
 	billboard:setInt("totalNPCSpawned", 0)
@@ -83,6 +97,7 @@ function create()
 	comUnitTable["setLife"] = handleSetLife
 	comUnitTable["setMaxLife"] = handleSetMaxLife
 	comUnitTable["setGold"] = handleSetGold
+	comUnitTable["setStartGold"] = handleSetStartGold
 	comUnitTable["addGold"] = handleAddGold
 	comUnitTable["addGoldNoScore"] = handleAddGoldNoScore
 	comUnitTable["addGoldWaveBonus"] = handleAddGoldWaveBonus
@@ -148,6 +163,10 @@ function handleSetMaxLife(maxNumLife)
 	billboard:setInt("maxLife", tonumber(maxNumLife))
 	ScoreScale = tonumber(maxNumLife) == 1 and 20 or 1
 end
+function handleSetStartGold(amount)
+	startGold = tonumber(amount)
+	handleSetGold(amount)
+end
 function handleSetGold(amount)
 	billboard:setDouble("gold", tonumber(amount))
 	billboard:setDouble("goldGainedTotal", tonumber(amount))
@@ -169,6 +188,7 @@ end
 function handleGoldInterest(amount)
 	local interestEarned = billboard:getDouble("gold")*tonumber(amount)
 	handleAddGold( interestEarned )
+	addScoreBasedOnAddedGold( interestEarned )
 	billboard:setDouble( "goldGainedFromInterest", billboard:getDouble("goldGainedFromInterest")+interestEarned )
 end
 function handleRemoveGold(amount)
@@ -179,6 +199,9 @@ function handleSetMaxwave(inWave)
 	billboard:setInt("maxWave", inWave)
 end
 function handleSetwave(inWave)
+	if inWave==1 then
+		billboard:setDouble("score", 0)
+	end
 	billboard:setInt("wave", inWave)
 	currentWave = inWave
 	timer = inWave==1 and 0 or timer

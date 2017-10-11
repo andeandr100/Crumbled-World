@@ -621,6 +621,7 @@ function SwarmTower.new()
 	
 		upgrade.setBillboard(billboard)
 		upgrade.addDisplayStats("damage")
+		upgrade.addDisplayStats("RPS")
 		upgrade.addDisplayStats("fireDPS")
 		upgrade.addDisplayStats("burnTime")
 		upgrade.addDisplayStats("range")
@@ -649,6 +650,7 @@ function SwarmTower.new()
 										fireballSpeed = 	{ upgrade.add, 5.5},
 										fireballLifeTime = 	{ upgrade.add, 13.0},
 										fieringTime =		{ upgrade.add, 2.25},
+										RPS =				{ upgrade.add, 1.0/2.25},
 										detonationRange = 	{ upgrade.add, 0.5},
 										targeting = 		{ upgrade.add, 1},
 										model = 			{ upgrade.set, "tower_swarm_l1.mym"} }
@@ -672,6 +674,7 @@ function SwarmTower.new()
 										fireballSpeed = 	{ upgrade.add, 5.5},
 										fireballLifeTime = 	{ upgrade.add, 13.0},
 										fieringTime =		{ upgrade.add, 2.25},
+										RPS =				{ upgrade.add, 1.0/2.25},
 										detonationRange = 	{ upgrade.add, 1.0},
 										targeting = 		{ upgrade.add, 1.0},
 										model = 			{ upgrade.set, "tower_swarm_l2.mym"}}
@@ -691,6 +694,7 @@ function SwarmTower.new()
 										fireballSpeed = 	{ upgrade.add, 5.5},
 										fireballLifeTime = 	{ upgrade.add, 13.0},
 										fieringTime =		{ upgrade.add, 2.25},
+										RPS =				{ upgrade.add, 1.0/2.25},
 										detonationRange = 	{ upgrade.add, 1.5},
 										targeting = 		{ upgrade.add, 1.0},
 										model = 			{ upgrade.set, "tower_swarm_l3.mym"}}
@@ -709,7 +713,8 @@ function SwarmTower.new()
 								stats ={range =				{ upgrade.add, 0.5},
 										damage = 			{ upgrade.func, boostDamage},
 										fireDPS = 			{ upgrade.func, boostFireDamage},
-										fieringTime =		{ upgrade.mul, 0.5}}
+										fieringTime =		{ upgrade.mul, 0.5}},
+										RPS =				{ upgrade.mul, 1.0/0.5}
 							} )
 		-- RANGE
 		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,

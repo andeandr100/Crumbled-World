@@ -19,8 +19,10 @@ function EventBase.new()
 	local EVENT_CHANGE_WAVE =						5
 	local EVENT_START_SPAWN =						6 
 	local EVENT_END_GAME =							7
+	local EVENT_END_MENU =							8
 	
 	local waveRestarted
+	local previousWaveCounter = 0
 	local firstNpcOfWaveHasSpawned = false
 	
 	local mapInfo = MapInfo.new()
@@ -86,11 +88,7 @@ function EventBase.new()
 			return true
 		end
 	end
-	
-	local function endlessUpdate()
-		return true
-	end
-	
+
 	function self.spawnUnitsPattern( pattern )
 		spawnPattern = pattern
 	end
@@ -129,6 +127,8 @@ function EventBase.new()
 			--destroy the script
 			destroyInNFrames = 1
 			update = destroyEventBase
+			--
+			comUnit:sendTo("SteamStats","ReverseTimeCount",1)
 			--reload script
 			print("restartMap")
 		end
@@ -551,7 +551,8 @@ function EventBase.new()
 		
 		restartListener = Listener("Restart")
 		restartListener:registerEvent("restart", restartMap)
-		restartListener:registerEvent("EventBaseRestartWave", self.doRestartWave)
+		restartWaveListener = Listener("EventBaseRestartWave")
+		restartWaveListener:registerEvent("EventBaseRestartWave", self.doRestartWave)
 		
 		comUnitTable["NetGenerateWave"] = syncEvent
 		comUnitTable["ChangeWave"] = syncChangeWave
@@ -1081,6 +1082,7 @@ function EventBase.new()
 		if waveCount>=(STARTWAVE+1) and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="training") then
 			waveCount = math.max(STARTWAVE, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
 			comUnit:sendTo("SteamStats","ReverseTimeCount",1)
+			previousWaveCounter = previousWaveCounter + 1
 			if waveCount==STARTWAVE then
 				local restartListener = Listener("Restart")
 				restartListener:pushEvent("restart")
@@ -1089,13 +1091,13 @@ function EventBase.new()
 				clearActiveSpawn()
 				comUnit:broadCast(Vec3(),math.huge,"disappear","")
 				waveRestarted = true
-				--
-				comUnit:sendTo("stats","setBillboardDouble","RestartedWaveGameTime;"..Core.getGameTime())
+				
 				--
 				local restartWaveListener = Listener("RestartWave")
 				restartWaveListener:pushEvent("restartWave",waveCount+1)
 				print("======== DO_WAVE_RESTART_"..tostring(waveCount+1).." ========")
 			end
+			comUnit:sendTo(0,"clear","")
 		end
 	end
 	
@@ -1110,7 +1112,10 @@ function EventBase.new()
 		--
 		--
 		--
-		if spawnListPopulated then
+		print("spawnListPopulated = "..tostring(spawnListPopulated))
+		print("currentState = "..tostring(currentState))
+		if spawnListPopulated and currentState ~= EVENT_END_MENU then
+			print("updating()")
 			--handle the event restart wave
 			if keyBindRevertWave:getPressed() then
 				self.doRestartWave()
@@ -1168,7 +1173,7 @@ function EventBase.new()
 					
 					
 					if mapInfo.getGameMode()=="survival" then
-						local crystalGain = bilboardStats:getInt("score")
+						local crystalGain = waveCount/10--bilboardStats:getInt("score")
 						if crystalGain>0 then
 							comUnit:sendTo("stats","setBillboardInt","survivalBonus;"..0)
 							cData.addCrystal( crystalGain )
@@ -1176,18 +1181,25 @@ function EventBase.new()
 					end
 					
 					if highScoreBillBoard:getBool("replay") then
+						--it is a replay
 						local worker = Worker("Menu/loadingScreen.lua", true)
 						worker:start()
 						Core.quitToMainMenu()
 					else
-						local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
-						comUnit:sendTo("builder"..node:getClientId(), "sendHightScoreToTheServer","")
-						comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("goldGainedTotal"))
-						comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
-						comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("goldGainedFromInterest"))
+						--it is a real game
 						if script and bilboardStats:getInt("life")>0 then 
-							
-							--victory
+							--
+							--
+							-- victory
+							--
+							--
+							-- save score/data
+							local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
+							comUnit:sendTo("builder"..node:getClientId(), "sendHightScoreToTheServer","")
+							comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("goldGainedTotal"))
+							comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
+							comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("goldGainedFromInterest"))
+							--
 							if mapInfo.isCampaign() then
 								cData.addCrystal(mapInfo.getReward()<=1 and 1 or mapInfo.getReward())
 							end
@@ -1212,6 +1224,9 @@ function EventBase.new()
 							--Flawless game
 							if mapInfo.getLevel()>=5 then
 								comUnit:sendTo("SteamStats","MaxLifeAtEndOfMapOnInsane",bilboardStats:getInt("life"))
+							end
+							--over powered game (beat insane and not using any restarts
+							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="default" and previousWaveCounter==0 then
 							end
 							--purity
 							local minigunBuilt = bilboardStats:exist("minigunTowerBuilt")
@@ -1340,7 +1355,7 @@ function EventBase.new()
 						comUnit:sendTo("SteamStats","SaveStats","")
 					end
 				end
-				update = endlessUpdate
+				currentState = EVENT_END_MENU
 				return true
 			end
 		end
@@ -1357,6 +1372,7 @@ function EventBase.new()
 				local isAReplay = highScoreBillBoard:getBool("replay")
 				if not eventBaserunOnlyOnce and isAReplay == false then
 					eventBaserunOnlyOnce = true
+					currentState = EVENT_END_MENU
 					if this:getPlayerNode() then
 						
 						highScoreBillBoard:setBool("victory", false)
@@ -1370,7 +1386,6 @@ function EventBase.new()
 						end
 						
 					end
-					update = endlessUpdate
 					return true
 				end
 			end

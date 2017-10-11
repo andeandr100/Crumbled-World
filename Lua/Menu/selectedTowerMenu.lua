@@ -165,7 +165,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 
 		
 		towerInfo = {}
-		statsOrder =  {"damage", "dmg","RPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range"}
+		statsOrder =  {"damage", "dmg","RPS", "ERPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range"}
 		keyBindTable = {keyBindUpgradeBuilding, keyBindBoostBuilding}
 		
 		billboardStats = Core.getBillboard("stats")
@@ -445,6 +445,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			return Vec2(0.25,0.0),Vec2(0.375,0.0625), language:getText("damage")
 		elseif name=="RPS" then
 			return Vec2(0.25,0.25),Vec2(0.375,0.3125), language:getText("attack per second")
+		elseif name=="ERPS" then
+			return Vec2(0.25,0.375),Vec2(0.375,0.4375), language:getText("charges per second")
 		elseif name=="range" then
 			return Vec2(0.375,0.4375),Vec2(0.5,0.5), language:getText("target range")
 		elseif name=="fireDPS" then
@@ -1053,7 +1055,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function buildToolTipPanelForUpgradeInfo(info)
-		--statsOrder =  {"damage", "dmg","RPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range"}
+		--statsOrder =  {"damage", "dmg","RPS", "ERPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range"}
 		local panel = Panel(PanelSize(Vec2(-1)))
 		panel:setLayout(FallLayout())
 		panel:getPanelSize():setFitChildren(true, true)

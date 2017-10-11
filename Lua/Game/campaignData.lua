@@ -5,6 +5,7 @@ function CampaignData.new()
 	local self = {}
 	local PERMENANTBOUGHTUPGRADECOUNT = 1
 	local PERMENANTUPGCOST = 12
+	local STARTCRYSTALAMOUNT = 12
 	local NORMALUPGCOST = 1
 	local campaingDataConfig = Config("Campaign")			--the real data, used for the shop
 	local campaignDataTable = campaingDataConfig:getTable()	--used for ingame/shop for getting what can be upgraded and is free
@@ -31,6 +32,7 @@ function CampaignData.new()
 		{file=File("Data/Map/Campaign/Stockpile.map"),		statId="Stockpile",		statIdOld="L3",		type="Crystal",	sead=294158370,	waveCount=20},--11800		X
 		{file=File("Data/Map/Campaign/Expansion.map"), 		statId="Expansion",		statIdOld="L4",		type="Crystal",	sead=864885368,	waveCount=25},
 		{file=File("Data/Map/Campaign/Repair station.map"),	statId="RepairStation",	statIdOld="L5",		type="Cart",	sead=256546887,	waveCount=20},--12000
+		{file=File("Data/Map/Campaign/Edge world.map"),		statId="EdgeWorld",							type="Cart",	sead=352603864,	waveCount=25},
 		{file=File("Data/Map/Campaign/Bridges.map"),		statId="Bridges",		statIdOld="L6",		type="Crystal",	sead=617196048,	waveCount=20},
 		{file=File("Data/Map/Campaign/Spiral.map"),			statId="Spiral",		statIdOld="L7",		type="Crystal",	sead=109723780,	waveCount=25},--			X
 		{file=File("Data/Map/Campaign/Broken mine.map"),	statId="BrokenMine",						type="Cart",	sead=104266217,	waveCount=25},
@@ -38,6 +40,7 @@ function CampaignData.new()
 		{file=File("Data/Map/Campaign/Plaza.map"),			statId="Plaza",			statIdOld="L9",		type="Crystal",	sead=169366078,	waveCount=20},
 		{file=File("Data/Map/Campaign/Long haul.map"),		statId="LongHaul",		statIdOld="L10",	type="Cart",	sead=202469227,	waveCount=20},--			U
 		{file=File("Data/Map/Campaign/Dock.map"),			statId="Dock",			statIdOld="L11",	type="Crystal",	sead=742525885,	waveCount=25},--			X
+		{file=File("Data/Map/Campaign/Lodge.map"),			statId="Lodge",								type="Crystal",	sead=418531867,	waveCount=25},--			X
 		{file=File("Data/Map/Campaign/Crossroad.map"),		statId="Crossroad",		statIdOld="L12",	type="Crystal",	sead=365654225,	waveCount=25},--17500		X
 		{file=File("Data/Map/Campaign/Mine.map"),			statId="Mine",			statIdOld="L13",	type="Cart",	sead=464004721,	waveCount=20},--			U
 		{file=File("Data/Map/Campaign/West river.map"),		statId="West river",						type="Crystal",	sead=242072855,	waveCount=25},--			X
@@ -69,6 +72,20 @@ function CampaignData.new()
 			end
 		end
 	end
+	function self.hasMapBeenBeaten(number)
+		local map = campaingDataConfig:get("mapsFinished")
+		if number<=#files then
+			map = map:get(files[number].statId)
+			local item = map:getFirst()
+			while not map:isEnd() do
+				if item:getInt()>0 then
+					return true
+				end
+				item = map:getNext()
+			end
+		end
+		return false
+	end
 	--
 	function init()
 		--
@@ -82,6 +99,11 @@ function CampaignData.new()
 		end
 		--make sure that all upgrades for the towers are available
 		self.garanteExistenze()
+		--first map must be beaten to play any other map
+		--meaning if never beaten then the game has not been played yet
+		if self.hasMapBeenBeaten(1)==false then
+			campaingDataConfig:get("crystal"):setInt(STARTCRYSTALAMOUNT)
+		end
 		campaingDataConfig:save()
 		campaignDataTable = campaingDataConfig:getTable()
 		if isInGame then
@@ -136,20 +158,6 @@ function CampaignData.new()
 		end
 		--
 		return (num>#maps.available and 0 or maps.available[num])
-	end
-	function self.hasMapBeenBeaten(number)
-		local map = campaingDataConfig:get("mapsFinished")
-		if number<=#files then
-			map = map:get(files[number].statId)
-			local item = map:getFirst()
-			while not map:isEnd() do
-				if item:getInt()>0 then
-					return true
-				end
-				item = map:getNext()
-			end
-		end
-		return false
 	end
 	function self.getMapModeBeatenLevel(number,mode)
 		return tonumber((campaignDataTable["mapsFinished"] and campaignDataTable["mapsFinished"][files[number].statId] and campaignDataTable["mapsFinished"][files[number].statId][mode or "-"]) or 0)

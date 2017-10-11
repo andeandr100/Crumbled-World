@@ -860,6 +860,7 @@ function ElectricTower.new()
 		upgrade.addDisplayStats("range")
 		upgrade.addDisplayStats("slow")
 		upgrade.addDisplayStats("energyPool")
+		upgrade.addDisplayStats("ERPS")
 		upgrade.addBillboardStats("energyMax")
 		upgrade.addBillboardStats("equalizer")
 		
@@ -883,6 +884,7 @@ function ElectricTower.new()
 										attackCost ={ upgrade.add, 575/damagePerEnergy},
 										energyMax = { upgrade.add, (575/damagePerEnergy)*12.0},
 										energyReg =	{ upgrade.add, (575/damagePerEnergy)*5/36*1.15},--0.021/g  [1.25 is just a magic number to increase regen]
+										ERPS = 		{ upgrade.set, ((575/damagePerEnergy)*5/36*1.15) / (575/damagePerEnergy)},
 										equalizer =	{ upgrade.add, 0.0},
 										model = 	{ upgrade.set, "tower_electric_l1.mym"} }
 							} )
@@ -905,6 +907,7 @@ function ElectricTower.new()
 										attackCost ={ upgrade.add, 1370/damagePerEnergy},--71.9
 										energyMax = { upgrade.add, (1370/damagePerEnergy)*12.0},--575
 										energyReg =	{ upgrade.add, (1370/damagePerEnergy)*6.5/36*1.15},--0.021/g [1.25 is just a magic number to increase regen]
+										ERPS = 		{ upgrade.set, ((1370/damagePerEnergy)*6.5/36*1.15) / (1370/damagePerEnergy)},
 										equalizer =	{ upgrade.add, 0.0},
 										model = 	{ upgrade.set, "tower_electric_l2.mym"} }
 							},0 )
@@ -927,6 +930,7 @@ function ElectricTower.new()
 										attackCost ={ upgrade.add, 2700/damagePerEnergy},--143
 										energyMax = { upgrade.add, (2700/damagePerEnergy)*12},--953
 										energyReg =	{ upgrade.add, (2700/damagePerEnergy)*8/36*1.15},--0.022/g == energy regen per second per gold [1.25 is just a magic number to increase regen]
+										ERPS = 		{ upgrade.set, ((2700/damagePerEnergy)*8/36*1.15) / (2700/damagePerEnergy)},
 										equalizer =	{ upgrade.add, 0.0},
 										model = 	{ upgrade.set, "tower_electric_l3.mym"} }
 							},0 )
@@ -1051,6 +1055,7 @@ function ElectricTower.new()
 								value1 = 15,
 								levelRequirement = cTowerUpg.getLevelRequierment("energy",1),
 								stats ={energyReg =	{ upgrade.mul, 1.15},
+										ERPS = 		{ upgrade.mul, 1.15},
 										equalizer =	{ upgrade.add, 1.0}}
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -1060,7 +1065,8 @@ function ElectricTower.new()
 								icon = 50,
 								value1 = 30,
 								levelRequirement = cTowerUpg.getLevelRequierment("energy",2),
-								stats ={energyReg =	{ upgrade.mul, 1.30}}
+								stats ={energyReg =	{ upgrade.mul, 1.30},
+										ERPS = 		{ upgrade.mul, 1.30}}
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "energy",
@@ -1069,7 +1075,8 @@ function ElectricTower.new()
 								icon = 50,
 								value1 = 45,
 								levelRequirement = cTowerUpg.getLevelRequierment("energy",3),
-								stats ={energyReg =	{ upgrade.mul, 1.45}}
+								stats ={energyReg =	{ upgrade.mul, 1.45},
+										ERPS = 		{ upgrade.mul, 1.45}}
 							} )
 		function calcSlow() return 1.0-( (1.0-upgrade.getStats("slow"))*(1.0-upgrade.getStats("slowInc")) ) end
 		upgrade.addUpgrade( {	cost = 0,

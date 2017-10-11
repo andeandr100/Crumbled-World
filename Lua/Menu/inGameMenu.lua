@@ -68,7 +68,6 @@ end
 function restartMapCallback()
 	restartCounter = restartCounter + 1
 	comUnit:sendTo("SteamStats","RestartCount",1)
-	comUnit:sendTo("SteamAchievement","Restart","")
 	if restartCounter>=5 then
 		comUnit:sendTo("SteamAchievement","JustOneMoreTry","")
 	end

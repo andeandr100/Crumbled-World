@@ -6,43 +6,56 @@ local waveData = {}
 function updateDead()
 	return false
 end
-
-function restartMap()
+function cleanUpCrystal()
 	this:setLocalPosition(localPos)
 	this:setVisible(true)
+	
+	--destroy model
 	if model then
 		model:destroyTree()
 		model = nil
 	end
 	
-	for i=1, #rigidBodies do
-		rigidBodies[i]:destroyTree()
-	end
+	--pEffect node
 	if destroyNode then
 		destroyNode:destroyTree()
 	end
 	
-	particleNode:destroyTree()
-	pLight:destroyTree()
+	--physic node
+	for i=1, #rigidBodies do
+		rigidBodies[i]:destroyTree()
+	end
+end
+function restartMap()
+	cleanUpCrystal()
+	
+	spiritCount = 20
+	for i=1, spiritCount do
+		spirits[spiritCount].effect:setVisible(true)
+	end
 	
 	update = updateDead
+	particleNode:destroyTree()
+	pLight:destroyTree()
 	this:loadLuaScript(this:getCurrentScript():getFileName());
 end
 function restartWave(param)
-	local waveNum = tonumber(param)
+	local waveNum = tonumber(param)-1
+
 	if waveData[waveNum] then
 		spiritCount = waveData[waveNum].waveSpiritCount
 		for i=1, spiritCount do
-			spirits[spiritCount].effect:setVisible(true)
+			spirits[i].effect:setVisible(true)
 		end
 	end
+	cleanUpCrystal()
 end
 function handleWaveChanged(param)
 	local name
 	local waveCount
 	name,waveCount = string.match(param, "(.*);(.*)")
 	--
-	waveData[ tostring(tonumber(waveCount)+1) ] = {
+	waveData[tonumber(waveCount)] = {
 		waveSpiritCount = spiritCount
 	}
 end
@@ -88,9 +101,6 @@ function create()
 
 	return true
 end
-function miniUpdate()
-	return true
-end
 function update()
 	if spiritCount>0 then
 		while comUnit:hasMessage() do
@@ -113,13 +123,10 @@ function update()
 		--crystal
 		timer = timer + (Core.getDeltaTime()*0.75)
 		this:setLocalPosition(Vec3(0,0.25+0.1*math.sin(timer),0)+localPos)
-		
-		return true
-	else
+	elseif not model then
 		destroyCrystal()
-		update = miniUpdate
-		return true
 	end
+	return true
 end
 function destroyCrystal()
 	--particle effect
