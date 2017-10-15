@@ -20,6 +20,9 @@ function NpcBase.new()
 	local NETSpeedMod = 0.0
 	local mover
 	local stateOfSoul
+	--
+	statsBilboard = Core.getBillboard("stats")
+	local launcWave = -1
 	--local soulNode
 	local centerOffset
 	local comUnit
@@ -63,25 +66,26 @@ function NpcBase.new()
 		return false
 	end
 	
-	local function restartMap()
-		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
-		eventListener:pushEvent("removeSoul", npcData )
-		
-		comUnit:sendTo("SoulManager","remove","")
-		if destroyUpdate and type(destroyUpdate)=="function" then
-			update = destroyUpdate
-			print("Changed-restartMap[update = "..tostring(update).."]("..Core.getNetworkName()..")")
-		else
-			error("unable to set new update function")
-		end
-	end
+--	local function restartMap()
+--		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
+--		eventListener:pushEvent("removeSoul", npcData )
+--		
+--		comUnit:sendTo("SoulManager","remove","")
+--		if destroyUpdate and type(destroyUpdate)=="function" then
+--			update = destroyUpdate
+--			print("Changed-restartMap[update = "..tostring(update).."]("..Core.getNetworkName()..")")
+--		else
+--			error("unable to set new update function")
+--		end
+--	end
 	
 	function self.init(name,modelName,particleOffset,size,aimHeight,pspeed)
 		--
 		if Core.isInMultiplayer() then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
-		--
+		--launched on wave
+		launcWave = statsBilboard:getInt("wave")
 		--set name for the scene
 		idName = name
 		this:setSceneName("npc_"..name)
@@ -94,8 +98,8 @@ function NpcBase.new()
 		end
 		centerOffset = Vec3(0.0,aimHeight,0.0)
 		
-		restartListener = Listener("Restart")
-		restartListener:registerEvent("restart", restartMap)
+--		restartListener = Listener("Restart")
+--		restartListener:registerEvent("restart", restartMap)
 		
 		eventListener = Listener("souls")
 		
@@ -141,6 +145,12 @@ function NpcBase.new()
 		comUnitTable["Net-DistanceLeft"] = self.NETSyncMover
 		--
 		comUnitTable["notSubscribed"] = self.setSubscribed
+		
+		--if wave retart this npc should disapear
+		restartListener = Listener("Restart")
+		restartListener:registerEvent("restart", self.disappear)
+		restartListener = Listener("RestartWave")
+		restartListener:registerEvent("restartWave", self.disappear)
 			
 		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
 		eventListener:pushEvent("addSoul", npcData )
@@ -155,6 +165,10 @@ function NpcBase.new()
 		eventListener:pushEvent("addSoul", npcData )
 		
 		comUnit:sendTo("SoulManager","addSoul",{pos=mover:getCurrentPosition(), hpMax=hpMax, name=name, team=0, aimHeight = centerOffset})
+	end
+	local function endUpdate()
+		print("endScript")
+		return false
 	end
 	function self.getCurrentIslandPlayerId()
 		local islandPlayerId = 0--0 is no owner
@@ -202,6 +216,9 @@ function NpcBase.new()
 		self.setGainGoldOnDeath(false)
 		--
 		comUnit:clearMessages()
+		-- garanted destruction
+		Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),3.0,Vec3(1,0,0))
+		update = endUpdate
 	end
 	function self.NETSyncDeath(param)
 		soul.setHp(-1.0)
@@ -519,26 +536,13 @@ function NpcBase.new()
 			--
 		end
 	end
-	local function endUpdate()
-		print("endScript")
-		return false
-	end
 	function self.update()
-		local localUpdateVar1= 32;
-		if Core.getInput():getKeyDown(Key.h) then
-			abort()
-		end
-		
-		if syncConfirmedDeath==true then
-			local d1 = self
-			local d2 = syncConfirmedDeath
-			error("this should never happen!!!")
-		end
-		--DEBUG
-		if firstUpdate then
-			printf("NetName=="..Core.getNetworkName().." ->startPos=="..tostring(startPos))
-			firstUpdate = false
-		end
+--		if syncConfirmedDeath==true then
+--			local d1 = self
+--			local d2 = syncConfirmedDeath
+--			error("this should never happen!!!")
+--		end
+
 		while comUnit:hasMessage() and syncConfirmedDeath==false do
 			local msg = comUnit:popMessage()
 			if comUnitTable[msg.message]~=nil then
@@ -575,6 +579,12 @@ function NpcBase.new()
 		
 		--update npc path
 		npcPath.update()
+		
+		if launcWave ~= statsBilboard:getInt("wave") then
+			syncConfirmedDeath = true
+			useDeathAnimationOrPhysic = false
+			self.setGainGoldOnDeath(false)
+		end
 
 		if (syncConfirmedDeath or soul.getHp()<=0) then--and soul.canDie() then
 			if not soul.canDie() then
@@ -630,7 +640,9 @@ function NpcBase.new()
 						end
 					end
 				end
+				--
 				--generate the dead body
+				--
 				comUnit:broadCast(this:getGlobalPosition(),512.0,"NpcDeath","")
 				if self.createDeadBody()then
 					return true

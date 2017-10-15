@@ -268,12 +268,12 @@ function SoulManager.new()
 	-- purpose:		removes all souls from the table
 	local function clearData()
 		comUnit:clearMessages()
-		--kill all NPCs
-		for index,soul in pairs(soulTable) do
-			if soul.team==0 then
-				comUnit:sendTo(index,"disappear","")
-			end
-		end
+--		--kill all NPCs
+--		for index,soul in pairs(soulTable) do
+--			if soul.team==0 then
+--				comUnit:sendTo(index,"disappear","")
+--			end
+--		end
 		--remove them
 		soulTable = {}
 		shieldGenerators = {}

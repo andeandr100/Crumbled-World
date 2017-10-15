@@ -2,6 +2,8 @@ require("Menu/MainMenu/mainMenuStyle.lua")
 require("Game/mapInfo.lua")
 --this = SceneNode()
 
+-- function:	destroy
+-- purpose:		called on the destruction of this script
 function destroy()
 	if form then
 		form:setVisible(false)
@@ -9,22 +11,32 @@ function destroy()
 		form = nil
 	end
 end
-
+-- function:	restartMap
+-- purpose:		called when restart button is pressed (only available on losing the game)
 function restartMap()
 	restartListener:pushEvent("restart")
 end
+-- function:	restartWave
+-- purpose:		called whne restart wave is clicked (only available on losing the game)
 function restartWave()
 	restartWaveListener:pushEvent("EventBaseRestartWave")
 	form:setVisible(false)
 end
-
+-- function:	waveRetarted
+-- purpose:		called when another script has restarted a wave
+function waveRestarted()
+	form:setVisible(false)
+end
+-- function:	victory
+-- purpose:		called on victory, will show the victory screen
 function victory()
 	victoryImage:setVisible(true)
 	restartWaveButton:setEnabled(false)
 	form:setVisible(true)
 	comUnit:sendTo("InGameMenu","hide","")
 end
-
+-- function:	defeated
+-- purpose:		called on defeat, will show the defeat screen
 function defeated()
 	
 --	if not Core.isInMultiplayer() then
@@ -36,13 +48,15 @@ function defeated()
 	form:setVisible(true)
 	comUnit:sendTo("InGameMenu","hide","")
 end
-
+-- function:	startNextMap
+-- purpose:		will leave game, launch loading screen and throw you into the next map for the campaign (only available for campaign maps)
 function startNextMap()
 	local worker = Worker("Menu/loadingScreen.lua", true)
 	worker:start()
 	Core.startNextMap(selectedFile)
 end
-
+-- function:	create
+-- purpose:		initiates the script
 function create()
 	
 	comUnit = Core.getComUnit()
@@ -53,6 +67,9 @@ function create()
 	
 	restartListener = Listener("Restart")
 	restartWaveListener = Listener("EventBaseRestartWave")
+	
+	restartWaveListener = Listener("RestartWave")
+	restartWaveListener:registerEvent("restartWave", waveRestarted)
 	
 	local rootNode = this:getRootNode();
 	local camera = rootNode:findNodeByName("MainCamera");
@@ -96,27 +113,16 @@ function create()
 	
 	return true
 end
-
-
---function returnToGame(panel)
---	
---	if not Core.isInMultiplayer() and defeatedImage:getVisible() then
---		restartMap()
---	end
---
---	run = false
---	form:setVisible(false)
---
---end
-
-
+-- function:	quitToMainMenu
+-- purpose:		launches the loading screen and leaves the game
 function quitToMainMenu(panel)
 	run = false
 	local worker = Worker("Menu/loadingScreen.lua", true)
 	worker:start()
 	Core.quitToMainMenu()
 end
-
+-- function:	update
+-- purpose:		updates the script every frame
 function update()
 		
 	if form:getVisible() then
