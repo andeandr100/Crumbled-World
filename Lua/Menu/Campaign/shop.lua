@@ -90,65 +90,65 @@ function Shop.new(camera)
 		local breakLinePanel = shopPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
 		breakLinePanel:setBackground(Sprite(Vec3(0.45)))
 	end
-	local function updateShopButtonToolTip(towerName,upgName)
-		local button = textPanels[towerName][upgName]["0"].button
-		local displayLevel = math.max(1,math.min(data.getBoughtUpg(towerName,upgName,false)+1,data.getBuyablesTotal(upgName,false)))
-		local tab = towerUpgInfo[towerName][upgName]
-		local str = Text()
-		
-		local permLeft = data.getBuyablesTotal(upgName,true)-data.getBoughtUpg(towerName,upgName,true)
-		local doneLevels = upgName=="freeUpgrade" and 1 or data.getBoughtUpg(towerName,upgName,false)
-		for i=1, doneLevels do
-			if permLeft==0 and i==1 then
-				str = str + "<font color=rgb(40,255,40)>"
-				str = str + "Bought" + ":</font>\n"
-			elseif (permLeft==1 and i==1) or (permLeft==0 and i==2) then
-				if doneLevels>=1 then
-					str = str + "<font color=rgb(40,255,40)>"
-					str = str + "Buyable" + ":</font>\n"--language:getText("unlocked")
-				end
-			end
-			str = str + ("Level "..i.." = ")
-			tab =  towerUpgInfo[towerName][upgName][i]
-			if not tab then
-				str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,"")
-			elseif tab["value2"]==nil then
-				str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,tab["value1"])
-			else
-				str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,tab["value1"],tab["value2"])
-			end
-			str = str + "\n"
-		end
-		if doneLevels~=displayLevel then
-			str = str + "<font color=rgb(255,255,40)>"
-			str = str + language:getText("locked") + ":</font>\n"
-			for i=displayLevel, data.getBuyablesTotal(upgName,upgName=="freeUpgrade") do
-				str = str + ("Level "..i.." = ")
-				tab =  towerUpgInfo[towerName][upgName][i]
-				if not tab then
-					str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,"")
-				elseif tab["value2"]==nil then
-					str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,tab["value1"])
-				else
-					str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,tab["value1"],tab["value2"])
-				end
-				str = str + "\n"
-			end
-		end
-		
-		local level = data.getBoughtUpg(towerName,upgName,false)
-		if level<data.getBuyablesTotal(upgName,false) then
-			local cost = data.getBuyablesTotal(upgName,false)==1 and 3 or (level+1)
-			if data.getCrystal()>=cost then
-				str = str + "\n"
-				str = str + language:getTextWithValues("crystals to unlock(enough crystals)",tostring(cost),tostring(displayLevel))
-			else
-				str = str + "\n"
-				str = str + language:getTextWithValues("crystals to unlock(no crystals)",tostring(cost),tostring(displayLevel))
-			end
-		end
-		button:setToolTip(str)
-	end
+--	local function updateShopButtonToolTip(towerName,upgName)
+--		local button = textPanels[towerName][upgName]["0"].button
+--		local displayLevel = math.max(1,math.min(data.getBoughtUpg(towerName,upgName,false)+1,data.getBuyablesTotal(upgName,false)))
+--		local tab = towerUpgInfo[towerName][upgName]
+--		local str = Text()
+--		
+--		local permLeft = data.getBuyablesTotal(upgName,true)-data.getBoughtUpg(towerName,upgName,true)
+--		local doneLevels = upgName=="freeUpgrade" and 1 or data.getBoughtUpg(towerName,upgName,false)
+--		for i=1, doneLevels do
+--			if permLeft==0 and i==1 then
+--				str = str + "<font color=rgb(40,255,40)>"
+--				str = str + "Bought" + ":</font>\n"
+--			elseif (permLeft==1 and i==1) or (permLeft==0 and i==2) then
+--				if doneLevels>=1 then
+--					str = str + "<font color=rgb(40,255,40)>"
+--					str = str + "Buyable" + ":</font>\n"--language:getText("unlocked")
+--				end
+--			end
+--			str = str + ("Level "..i.." = ")
+--			tab =  towerUpgInfo[towerName][upgName][i]
+--			if tab and tab["value1"] and tab["value2"] then
+--				str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,tab["value1"],tab["value2"])
+--			elseif tab and tab["value1"] then
+--				str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,tab["value1"])
+--			else
+--				str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,"")
+--			end
+--			str = str + "\n"
+--		end
+--		if doneLevels~=displayLevel then
+--			str = str + "<font color=rgb(255,255,40)>"
+--			str = str + language:getText("locked") + ":</font>\n"
+--			for i=displayLevel, data.getBuyablesTotal(upgName,upgName=="freeUpgrade") do
+--				str = str + ("Level "..i.." = ")
+--				tab =  towerUpgInfo[towerName][upgName][i]
+--				if tab and tab["value1"] and tab["value2"] then
+--				str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,tab["value1"],tab["value2"])
+--			elseif tab and tab["value1"] then
+--				str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,tab["value1"])
+--			else
+--				str = str + language:getTextWithValues(towerUpgInfo[towerName][upgName].text,"")
+--			end
+--				str = str + "\n"
+--			end
+--		end
+--		
+--		local level = data.getBoughtUpg(towerName,upgName,false)
+--		if level<data.getBuyablesTotal(upgName,false) then
+--			local cost = data.getBuyablesTotal(upgName,false)==1 and 3 or (level+1)
+--			if data.getCrystal()>=cost then
+--				str = str + "\n"
+--				str = str + language:getTextWithValues("crystals to unlock(enough crystals)",tostring(cost),tostring(displayLevel))
+--			else
+--				str = str + "\n"
+--				str = str + language:getTextWithValues("crystals to unlock(no crystals)",tostring(cost),tostring(displayLevel))
+--			end
+--		end
+--		button:setToolTip(str)
+--	end
 	
 	local function isUpgradeBought(towerInfo, towerName, upgLevel)
 		return not ( ( upgLevel~=4 and towerInfo[upgLevel] and data.getBoughtUpg(towerName,towerInfo.name,false) < upgLevel) or 
@@ -188,20 +188,52 @@ function Shop.new(camera)
 		local str = Text()
 
 		local upgradeAllreadyBought = (upgradeLevel == 4 and data.getBoughtUpg(towerName,tabUppgrade.name,true) == 1) or (data.getBoughtUpg(towerName,tabUppgrade.name,false) >= upgradeLevel )
-		if upgradeAllreadyBought then
-			str = str + "<font color=rgb(40,255,40)>"
-			str = str + "Bought" + ":</font>\n"
-		else
-			str = str + "<font color=rgb(40,255,40)>"
-			str = str + "Buyable" + ":</font>\n"--language:getText("unlocked")
+		if upgradeLevel == 4 then
+			if upgradeAllreadyBought then
+				str = str + "<font color=rgb(40,255,40)>"
+				str = str + "Bought permanently unlocked level 1" + ":</font>\n"
+			else
+				str = str + "<font color=rgb(40,255,40)>"
+				str = str + "Buyable permanently unlocked level 1" + ":</font>\n"--language:getText("unlocked")
+			end
+		else	
+			if upgradeAllreadyBought then
+				str = str + "<font color=rgb(40,255,40)>"
+				str = str + "Bought" + ":</font>\n"
+			else
+				str = str + "<font color=rgb(40,255,40)>"
+				str = str + "Buyable" + ":</font>\n"--language:getText("unlocked")
+			end
 		end
-		str = str + ("Level "..upgradeLevel.." = ")
-		local subUppgradeTab =  tabUppgrade[upgradeLevel]
-		if subUppgradeTab and subUppgradeTab["value1"] and not subUppgradeTab["value2"] then
-			str = str + language:getTextWithValues(tabUppgrade.text,subUppgradeTab["value1"])
-		elseif subUppgradeTab and subUppgradeTab["value1"] and subUppgradeTab["value2"] then
+		
+		local subUppgradeTab =  tabUppgrade[upgradeLevel == 4 and 1 or upgradeLevel]
+		
+		
+		
+		
+--		print("")
+--		print("towerName: "..towerName)
+--		print("upgNameIndex: "..upgNameIndex)
+--		print("upgradeLevel: "..upgradeLevel)
+--		print("")
+--		print("tabUppgrade: "..tostring(tabUppgrade))
+--		print("tabUppgrade: "..tostring(tabUppgrade[upgradeLevel]))
+--		print("")
+--		str = str + Text( tostring(subUppgradeTab) ) + Text("\n")
+		if subUppgradeTab and subUppgradeTab["value1"] and subUppgradeTab["value2"] then
+--			str = str + Text("2 values found\n")
+--			print("Value1: "..subUppgradeTab["value1"])
+--			print("Value2: "..subUppgradeTab["value2"])
+--			print(str:toString())
 			str = str + language:getTextWithValues(tabUppgrade.text,subUppgradeTab["value1"],subUppgradeTab["value2"])
+		elseif subUppgradeTab and subUppgradeTab["value1"] then
+--			str = str + Text("1 values found\n")
+--			print("Value1: "..subUppgradeTab["value1"])
+--			print(str:toString())
+			str = str + language:getTextWithValues(tabUppgrade.text,subUppgradeTab["value1"])
 		else
+--			str = str + Text("0 values found\n")
+--			print(str:toString())
 			str = str + language:getTextWithValues(tabUppgrade.text,"")
 		end
 		str = str + "\n"
@@ -216,8 +248,10 @@ function Shop.new(camera)
 		local panel = Panel(PanelSize(Vec2(0.2)))
 		local label = Label(PanelSize(Vec2(-1)), str, Vec3(1), Alignment.TOP_LEFT)
 		label:setTextHeight(textHeight)
-		local textSize = label:getTextSizeInPixel()
+		local textSize = label:getTextSizeInPixel()+ Vec2(7,1)
 		label:setPanelSize(PanelSize(textSize,PanelSizeType.Pixel))--Vec2(Core.getScreenResolution().y * 0.004)
+--		label:setText(str)
+--		label:setPanelSizeBasedOnTextSize()
 		panel:setPanelSize(PanelSize(textSize + ( upgradeAllreadyBought == false and Vec2(0,costLabelSize.y) or Vec2() ),PanelSizeType.Pixel))
 		panel:setLayout(FallLayout())
 		panel:add(label)
