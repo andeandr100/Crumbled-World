@@ -3,9 +3,13 @@ require("Game/particleEffect.lua")
 local waveData = {}
 local statsBilboard = Core.getBillboard("stats")
 
+-- function:	updateDead
+-- purpose:		to garantee that no more updates are called
 function updateDead()
 	return false
 end
+-- function:	cleanUpCrystal
+-- purpose:		cleares up all debri when the crystal detonates
 function cleanUpCrystal()
 	if model then
 		--destroy model
@@ -25,10 +29,14 @@ function cleanUpCrystal()
 		end
 	end
 end
+-- function:	restoreCrystal
+-- purpose:		restores the crystal to default setting
 function restoreCrystal()
 	this:setLocalPosition(localPos)
 	this:getChildNode(0):setVisible(true)
 end
+-- function:	restartMap
+-- purpose:		prepare the script to manage the restart of the map
 function restartMap()
 	cleanUpCrystal()
 	update = updateDead
@@ -36,7 +44,8 @@ function restartMap()
 	pLight:destroyTree()
 	this:loadLuaScript(this:getCurrentScript():getFileName());
 end
-
+-- function:	defeated
+-- purpose:
 function create()
 	--comUnit
 	rigidBodies = {}
@@ -70,6 +79,8 @@ function create()
 
 	return true
 end
+-- function:	update
+-- purpose:		updates the script every frame
 function update()
 	if statsBilboard then
 		local count = statsBilboard:getInt("life")
@@ -113,6 +124,8 @@ function update()
 	end
 	return true
 end
+-- function:	destroyCrystal
+-- purpose:		makes a nice effect where the crystal is shattered inti several pices
 function destroyCrystal()
 	if not model then
 		--particle effect
@@ -137,6 +150,8 @@ function destroyCrystal()
 		--this:setVisible(false)
 	end
 end
+-- function:	spiritLost
+-- purpose:		detonates one spirit and hides it
 function spiritLost()
 	if spiritCount>0 then
 		doSpiritExplosion(spirits[spiritCount].effect:getLocalPosition())
@@ -144,6 +159,8 @@ function spiritLost()
 		spirits[spiritCount].effect:setVisible(false)
 	end
 end
+-- function:	doSpiritExplosion
+-- purpose:		generats the particle effect for the detonation of the spirit
 function doSpiritExplosion(pos)
 	for i=1, explosion.size do
 		if explosion[i]:isActive()==false then

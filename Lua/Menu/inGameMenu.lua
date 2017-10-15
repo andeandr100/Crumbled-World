@@ -26,6 +26,8 @@ local quitToMenuButton
 local quitToEditorButton
 local textList = {"continue", "options", "tutorial", "quit to desktop"}
 
+-- function:	getBetween
+-- purpose:
 function destroy()
 	if form then
 		form:setVisible(false)
@@ -47,6 +49,8 @@ function destroy()
 	end
 end
 
+-- function:	getBetween
+-- purpose:
 function reloadeMap()
 	--somthinge did go wrong during restart procedings
 	--quit and load this map agin.
@@ -58,6 +62,8 @@ function reloadeMap()
 	end
 	
 end
+-- function:	getBetween
+-- purpose:
 function launchWaveCallback()
 	comUnit:sendTo("EventManager","startWaves","")
 	if launchWavesButton then
@@ -65,6 +71,8 @@ function launchWaveCallback()
 		toggleVisible()
 	end
 end
+-- function:	getBetween
+-- purpose:
 function restartMapCallback()
 	restartCounter = restartCounter + 1
 	comUnit:sendTo("SteamStats","RestartCount",1)
@@ -80,7 +88,8 @@ function restartMapCallback()
 		RestartWaveButton:setEnabled(false)
 	end
 end
-
+-- function:	getBetween
+-- purpose:
 function languageChanged()
 	for i=1, #textPanels do
 		textPanels[i]:setText(language:getText(textPanels[i]:getTag()))
@@ -105,7 +114,8 @@ function languageChanged()
 		textPanels[i]:setPanelSize(PanelSize(Vec2(-1,0.07)))
 	end
 end
-
+-- function:	getBetween
+-- purpose:
 function create()
 	
 	--Protection in multiplayer environment where multiple instances of this script is loaded
@@ -300,12 +310,14 @@ function create()
 	end
 	return true
 end
-
+-- function:	getBetween
+-- purpose:
 function hideWindow()
 	form:setVisible(false)
 	optionsForm:setVisible(false)
 end
-
+-- function:	getBetween
+-- purpose:
 function menuButtonTobbleVisible(button)
 	if form:getVisible() or optionsForm:getVisible() then
 		form:setVisible(false)
@@ -315,7 +327,8 @@ function menuButtonTobbleVisible(button)
 	end
 	pauseGame( form:getVisible() or optionsForm:getVisible() )
 end
-
+-- function:	getBetween
+-- purpose:
 function toggleVisible(panel)
 	if optionsForm:getVisible() then
 		optionsForm:setVisible(false)
@@ -326,15 +339,18 @@ function toggleVisible(panel)
 	end
 	pauseGame( form:getVisible() or optionsForm:getVisible() )
 end
-
+-- function:	getBetween
+-- purpose:
 function restartWave()
 	restartListener:pushEvent("EventBaseRestartWave")
 end
-
+-- function:	getBetween
+-- purpose:
 function restartMap()
 	restartListener:pushEvent("restart")
 end
-
+-- function:	getBetween
+-- purpose:
 function showTutorialFunc()
 	local scripts = this:getAllScript()
 	for i=1, #scripts do
@@ -345,7 +361,8 @@ function showTutorialFunc()
 	Settings.setShowTutorial()
 	this:loadLuaScript("Menu/tutorial.lua")
 end
-
+-- function:	getBetween
+-- purpose:
 function quitToDesktop(panel)
 	--crystal gain for survival player if they leave
 	local bilboardStats = Core.getBillboard("stats")
@@ -360,7 +377,8 @@ function quitToDesktop(panel)
 	--
 	Core.quitMainMenu()
 end
-
+-- function:	getBetween
+-- purpose:
 function quitToMainMenu(panel)
 	--crystal gain for survival player if they leave
 	local bilboardStats = Core.getBillboard("stats")
@@ -377,19 +395,22 @@ function quitToMainMenu(panel)
 	local worker = Worker("Menu/loadingScreen.lua", true)
 	worker:start()
 end
-
+-- function:	getBetween
+-- purpose:
 function quitToMapeditor(panel)
 	--local worker = Worker("Menu/loadingScreen.lua", true)
 	--worker:start()
 	Core.quitToMapeditor()
 end
-
+-- function:	getBetween
+-- purpose:
 function toggleOptionsVisible(panel)
 	backgroundPanel:setVisible(false)
 	optionsForm:setVisible( not optionsForm:getVisible() )
 	pauseGame( form:getVisible() or optionsForm:getVisible() )
 end
-
+-- function:	getBetween
+-- purpose:
 function pauseGame(paused)
 	stateBillboard:setBool("inMenu", paused)	
 	if not Core.isInMultiplayer() and gamePaused ~= paused then
@@ -403,14 +424,16 @@ function pauseGame(paused)
 		
 	end
 end
-
+-- function:	getBetween
+-- purpose:
 function manageClientInfo(param)
 	print("manageClientInfo("..param..")")
 	if infoScreen then
 		infoScreen.updateClientInfo(param)
 	end
 end
-
+-- function:	getBetween
+-- purpose:
 function update()
 	
 	

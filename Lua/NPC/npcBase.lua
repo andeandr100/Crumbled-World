@@ -63,18 +63,18 @@ function NpcBase.new()
 		return false
 	end
 	
-	local function restartMap()
-		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
-		eventListener:pushEvent("removeSoul", npcData )
-		
-		comUnit:sendTo("SoulManager","remove","")
-		if destroyUpdate and type(destroyUpdate)=="function" then
-			update = destroyUpdate
-			print("Changed-restartMap[update = "..tostring(update).."]("..Core.getNetworkName()..")")
-		else
-			error("unable to set new update function")
-		end
-	end
+--	local function restartMap()
+--		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
+--		eventListener:pushEvent("removeSoul", npcData )
+--		
+--		comUnit:sendTo("SoulManager","remove","")
+--		if destroyUpdate and type(destroyUpdate)=="function" then
+--			update = destroyUpdate
+--			print("Changed-restartMap[update = "..tostring(update).."]("..Core.getNetworkName()..")")
+--		else
+--			error("unable to set new update function")
+--		end
+--	end
 	
 	function self.init(name,modelName,particleOffset,size,aimHeight,pspeed)
 		--
@@ -94,8 +94,8 @@ function NpcBase.new()
 		end
 		centerOffset = Vec3(0.0,aimHeight,0.0)
 		
-		restartListener = Listener("Restart")
-		restartListener:registerEvent("restart", restartMap)
+--		restartListener = Listener("Restart")
+--		restartListener:registerEvent("restart", restartMap)
 		
 		eventListener = Listener("souls")
 		
@@ -141,6 +141,12 @@ function NpcBase.new()
 		comUnitTable["Net-DistanceLeft"] = self.NETSyncMover
 		--
 		comUnitTable["notSubscribed"] = self.setSubscribed
+		
+		--if wave retart this npc should disapear
+		restartListener = Listener("Restart")
+		restartListener:registerEvent("restart", disappear)
+		restartListener = Listener("RestartWave")
+		restartListener:registerEvent("restartWave", disappear)
 			
 		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
 		eventListener:pushEvent("addSoul", npcData )
