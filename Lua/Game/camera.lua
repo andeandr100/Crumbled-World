@@ -2,7 +2,7 @@ require("Menu/settings.lua")
 --this = Camera()
 
 local ZOOM_LEVEL_MIN = 9.5
-local ZOOM_LEVEL_MAX = 40.0
+local ZOOM_LEVEL_MAX = 30.0
 --Achievements
 local start_time = 0
 
@@ -465,7 +465,7 @@ function update()
 			--Mouse wheel ticket is only updated, when not in editor mode, or in build mode, or mouse is howering over a panel with scrollbar.
 			local mousePanel = Core.getPanelWithMouseFocus()
 			if not Core.isInEditor() and not (buildingBillboard and buildingBillboard:getBool("inBuildMode") and not Core.getInput():getKeyHeld(Key.lshift)) and 
-				billboardStats:getPanel("MainPanel") == mousePanel and not (mousePanel and mousePanel:getYScrollBar()) then
+				billboardStats and billboardStats:getPanel("MainPanel") == mousePanel and not (mousePanel and mousePanel:getYScrollBar()) then
 				local ticks = Core.getInput():getMouseWheelTicks()
 				cameraLocalPos.y = math.clamp(cameraLocalPos.y - ticks * 0.4, ZOOM_LEVEL_MIN, ZOOM_LEVEL_MAX )
 			end

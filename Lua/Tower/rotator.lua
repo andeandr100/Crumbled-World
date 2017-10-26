@@ -164,7 +164,6 @@ function Rotator.new()
 	end
 	function self.isAtVerticalLimit()
 		error("Is not implemented")
-		crash = just + crash
 		return false
 	end
 	function self.getHorizontalRotation()

@@ -39,6 +39,7 @@ function NpcBase.new()
 	local retargetForHighPpriorityTarget = 0.0
 	--stats
 	local npcAge = 0.0
+	local npcIsDestroyed = false
 	--debug
 	local startPos
 	local firstUpdate
@@ -210,13 +211,16 @@ function NpcBase.new()
 		return comUnitTable
 	end
 	function self.disappear()
+		print("self.disappear() - "..LUA_INDEX)
 		soul.setHp(-1.0)
+		npcIsDestroyed = true
 		syncConfirmedDeath = true
 		useDeathAnimationOrPhysic = false
 		self.setGainGoldOnDeath(false)
 		--
+		this:destroyTree()
+		--
 		comUnit:clearMessages()
-		-- garanted destruction
 		Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),3.0,Vec3(1,0,0))
 		update = endUpdate
 	end
@@ -493,11 +497,11 @@ function NpcBase.new()
 				error("unable to set new update function")
 			end
 		else
-			--no death animation destroy the model
-			this:removeChild(model)
 			--destroy this SceneNode if we can
 			if deathManager.enableSelfDestruct then
 				this:destroyTree()
+			else
+				this:removeChild(model)
 			end
 			return false--destroy this script
 		end
@@ -548,6 +552,10 @@ function NpcBase.new()
 			if comUnitTable[msg.message]~=nil then
 				comUnitTable[msg.message](msg.parameter,msg.fromIndex)
 			end
+		end
+		--this is true when this is destroyed
+		if npcIsDestroyed then
+			return false
 		end
 		--update the movment
 		--if we need to sync up the npc position

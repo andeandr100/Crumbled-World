@@ -208,23 +208,7 @@ function Shop.new(camera)
 		
 		local subUppgradeTab =  tabUppgrade[upgradeLevel == 4 and 1 or upgradeLevel]
 		
-		
-		
-		
---		print("")
---		print("towerName: "..towerName)
---		print("upgNameIndex: "..upgNameIndex)
---		print("upgradeLevel: "..upgradeLevel)
---		print("")
---		print("tabUppgrade: "..tostring(tabUppgrade))
---		print("tabUppgrade: "..tostring(tabUppgrade[upgradeLevel]))
---		print("")
---		str = str + Text( tostring(subUppgradeTab) ) + Text("\n")
 		if subUppgradeTab and subUppgradeTab["value1"] and subUppgradeTab["value2"] then
---			str = str + Text("2 values found\n")
---			print("Value1: "..subUppgradeTab["value1"])
---			print("Value2: "..subUppgradeTab["value2"])
---			print(str:toString())
 			str = str + language:getTextWithValues(tabUppgrade.text,subUppgradeTab["value1"],subUppgradeTab["value2"])
 		elseif subUppgradeTab and subUppgradeTab["value1"] then
 --			str = str + Text("1 values found\n")

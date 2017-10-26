@@ -21,17 +21,19 @@ end
 function restartWave()
 	restartWaveListener:pushEvent("EventBaseRestartWave")
 	form:setVisible(false)
+	comUnit:sendTo("EventManager","EventBaseRestartWave","")
 end
 -- function:	waveRetarted
 -- purpose:		called when another script has restarted a wave
 function waveRestarted()
 	form:setVisible(false)
+	abort()
 end
 -- function:	victory
 -- purpose:		called on victory, will show the victory screen
 function victory()
 	victoryImage:setVisible(true)
-	restartWaveButton:setEnabled(false)
+	--restartWaveButton:setEnabled(false)
 	form:setVisible(true)
 	comUnit:sendTo("InGameMenu","hide","")
 end
@@ -44,7 +46,7 @@ function defeated()
 --	end
 	
 	defeatedImage:setVisible(true)
-	restartWaveButton:setEnabled(true)
+	--restartWaveButton:setEnabled(true)
 	form:setVisible(true)
 	comUnit:sendTo("InGameMenu","hide","")
 end
