@@ -458,7 +458,7 @@ function update()
 	end
 	--disable button if needed
 	if RestartWaveButton then
-		if statsBillboard:getInt("wave")>mapInfo.getStartWave() then
+		if statsBillboard and statsBillboard:getInt("wave")>mapInfo.getStartWave() then
 			RestartWaveButton:setEnabled(true)
 		end
 	end

@@ -17,6 +17,10 @@ local deathTimer
 
 function destroy()
 	npcBase.destroy()
+	if reaperCloud then
+		playerNode:removeChild(reaperCloud)
+		reaperCloud = nil
+	end
 end
 
 function create()
@@ -120,8 +124,6 @@ function updateDeath()
 	else
 		--nothing is left of the reaper
 		this:destroy()
-		playerNode:removeChild(reaperCloud)
-		reaperCloud = nil
 		return false
 	end
 	return true

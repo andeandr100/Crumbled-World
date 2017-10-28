@@ -7,6 +7,10 @@ local soundForceFieldHitt
 local shieldNode
 function destroy()
 	npcBase.destroy()
+	if shieldNode then
+		this:removeChild(shieldNode)
+		shieldNode = nil
+	end
 end
 function create()
 	

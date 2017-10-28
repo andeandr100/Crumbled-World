@@ -47,14 +47,17 @@ local function destroyUpdate()
 end
 
 function restartMap()
-	update = destroyUpdate
-	
-	if comUnit then
-		comUnit:setName("statsMenuDead")
-		print("Stats menu set com unit name statsMenuDead ---- restartMap")
+	--script can only be restarted once
+	if update~=destroyUpdate then
+		update = destroyUpdate
+		
+		if comUnit then
+			comUnit:setName("statsMenuDead")
+			print("Stats menu set com unit name statsMenuDead ---- restartMap")
+		end
+		
+		this:loadLuaScript(this:getCurrentScript():getFileName())
 	end
-	
-	this:loadLuaScript(this:getCurrentScript():getFileName());
 end
 function restartWave(wave)
 end

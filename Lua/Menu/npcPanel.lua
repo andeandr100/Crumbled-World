@@ -581,10 +581,12 @@ function NpcPanel.new(panel)
 	-- function:	handleWaveInfo
 	-- purpose:		callback to set base data for all waves
 	function self.handleWaveInfo(paramTable)
-		local startWave = mapInfo.getStartWave()>1 and mapInfo.getStartWave()+1 or 1
-		waves = paramTable
-		self.handleStartWave(tostring(startWave)..";0")
-		currentWaveIndex = 0
+		if not waves then
+			local startWave = mapInfo.getStartWave()>1 and mapInfo.getStartWave()+1 or 1
+			waves = paramTable
+			self.handleStartWave(tostring(startWave)..";0")
+			currentWaveIndex = 0
+		end
 	end
 	-- function:	handleSetWaveNpcIndex
 	-- purpose:		
@@ -605,6 +607,9 @@ function NpcPanel.new(panel)
 	-- function:	update
 	-- purpose:		updates the panel every frame
 	function self.update()
+		if not waves then
+			comUnit:sendTo("EventManager","resendWaveData","")
+		end
 		if frameBufferSize ~= targetPanel:getPanelContentPixelSize() then
 			frameBufferSize = targetPanel:getPanelContentPixelSize()
 			--set frame buffer size

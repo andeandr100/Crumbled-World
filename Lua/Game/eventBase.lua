@@ -22,8 +22,10 @@ function EventBase.new()
 	local EVENT_END_MENU =							8
 	
 	local waveRestarted
-	local previousWaveCounter = 0
+	local previousWaveCounter = 0			--smount of time that we has gone back in time
 	local firstNpcOfWaveHasSpawned = false
+	
+	local totalNpcSpawned = 0
 	
 	local mapInfo = MapInfo.new()
 	local STARTWAVE = mapInfo.getStartWave()
@@ -44,6 +46,7 @@ function EventBase.new()
 	local waitBase = wait
 	local state = 0
 	local numWaves = 100	--this should not be possible to reach at all
+	local waves = {}
 	local startGold = 0
 	local waveDiff = {}
 	local waveInfo = {}
@@ -71,6 +74,7 @@ function EventBase.new()
 	local currentSpawn
 	local restartListener
 	local destroyInNFrames = nil
+	local restartInWaves = nil
 	local startTime = Core.getGameTime()
 	--this:addChild(soundWind)
 	--
@@ -115,23 +119,24 @@ function EventBase.new()
 --	local function removeGold(gold)
 --		comUnit:sendTo("stats", "removeGold", tostring(gold))
 --	end
-	
-	local function restartMap()
-		if destroyInNFrames == nil then 
-			--reset the builder counter
-			--this is also done in builder.lua
-			local buildingBillboard = Core.getBillboard("buildings")
-			buildingBillboard:setBool("Ready",false);
-			--change netName
-			Core.setScriptNetworkId("EventDead")
-			--destroy the script
-			destroyInNFrames = 1
-			update = destroyEventBase
-			--
-			comUnit:sendTo("SteamStats","ReverseTimeCount",1)
-			--reload script
-			print("restartMap")
-		end
+	local function resendWaveData()
+		comUnit:sendTo("stats", "setWave", mapInfo.getStartWave())
+		comUnit:sendTo("stats", "setMaxWave", numWaves)
+		comUnit:sendTo("stats", "setTotalNPCSpawns", totalNpcSpawned)
+		assert(waves, "waves is not initiated")
+		comUnit:sendTo("statsMenu","waveInfo",waves)
+	end
+	function restartMapCalledFromTheOutSide()
+		--set to first wave
+		waveCount = STARTWAVE+1
+		--go back one wave (this will restart the map)
+		self.doRestartWave(true)
+	end
+	function doRestartMap()
+		--set to first wave
+		--waveCount = STARTWAVE+1
+		--go back one wave (this will restart the map)
+		self.doRestartWave(false)
 	end
 	
 	
@@ -550,9 +555,7 @@ function EventBase.new()
 		keyBindRevertWave = keyBinds:getKeyBind("Revert wave")
 		
 		restartListener = Listener("Restart")
-		restartListener:registerEvent("restart", restartMap)
-		restartWaveListener = Listener("EventBaseRestartWave")
-		restartWaveListener:registerEvent("EventBaseRestartWave", self.doRestartWave)
+		restartListener:registerEvent("restart", restartMapCalledFromTheOutSide)
 		
 		comUnitTable["NetGenerateWave"] = syncEvent
 		comUnitTable["ChangeWave"] = syncChangeWave
@@ -560,6 +563,8 @@ function EventBase.new()
 		comUnitTable["spawnNextGroup"] = spawnNextGroup
 		comUnitTable["removeNextDelay"] = removeNextDelay
 		comUnitTable["startWaves"] = startButtonPressed
+		comUnitTable["resendWaveData"] = resendWaveData
+		comUnitTable["EventBaseRestartWave"] = doRestartMap
 		--
 		mapFinishingLevel = pLevel
 		comUnit:setName("EventManager")
@@ -628,7 +633,7 @@ function EventBase.new()
 			local isInMultiplayer = Core.isInMultiplayer()
 			local increasedMaxDifficulty = mapInfo.getIncreasedDifficultyMax()
 			local longestWave = 0.0
-			local totalNpcSpawned = 0
+			totalNpcSpawned = 0
 			local totalGoldEarned = startGold
 			local theoreticalGold = startGold-350--start cost of wall towers
 			local theoreticalPaidHpPS = 0.0
@@ -1077,18 +1082,28 @@ function EventBase.new()
 	
 		return true
 	end
-	
-	function self.doRestartWave()
-		if waveCount>=(STARTWAVE+1) and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="training") then
+	function self.doRestartWave(restartedFromTheOutSide)
+		if waveCount>=(STARTWAVE+1) then
 			waveCount = math.max(STARTWAVE, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
 			comUnit:sendTo("SteamStats","ReverseTimeCount",1)
-			previousWaveCounter = previousWaveCounter + 1
+			previousWaveCounter = previousWaveCounter + 1		--acievment stat counter
+			clearActiveSpawn()
 			if waveCount==STARTWAVE then
-				local restartListener = Listener("Restart")
-				restartListener:pushEvent("restart")
+				--if restart was by backspace then send message to other script
+				if not restartedFromTheOutSide then
+					local restartListener = Listener("Restart")
+					restartListener:pushEvent("restart")
+				end
+				--Special case first wave
+				if mapInfo.getGameMode()~="training" then
+					currentState = EVENT_WAIT_FOR_TOWER_TO_BE_BUILT
+					local buildingBillboard = Core.getBillboard("buildings")
+					buildingBillboard:setBool("Ready",false)
+				else
+					currentState = EVENT_WAIT_FOR_START_BUTTON_BUILT
+				end
 			else
 				currentState = EVENT_CHANGE_WAVE
-				clearActiveSpawn()
 				comUnit:broadCast(Vec3(),math.huge,"disappear","")
 				waveRestarted = true
 				
@@ -1114,10 +1129,12 @@ function EventBase.new()
 		--
 		if spawnListPopulated and currentState ~= EVENT_END_MENU then
 			--handle the event restart wave
-			if keyBindRevertWave:getPressed() then
-				self.doRestartWave()
-			else
-				--spawn only units if we are not trying to restart the wave
+			if (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="training") then
+				if keyBindRevertWave:getPressed() then
+					self.doRestartWave()
+				end
+			end
+			if currentState==EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD then
 				spawnUnits()
 			end
 			if currentState == EVENT_WAIT_FOR_TOWER_TO_BE_BUILT then
