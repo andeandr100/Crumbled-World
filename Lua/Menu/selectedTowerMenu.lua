@@ -353,16 +353,25 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	
 	
 	local function handleUpgrade(cost,buyMessage,paramMessage)
+	
+		print("handleUpgrade")
+		print("COST: "..tostring(cost))
+	
 		--print("uppgrade building\n")
 		if buildingLastSelected then
-			
+			print("Building found")
 			--print("money on bank " .. billboardStats:getDouble("gold") .. "\n")
 			if cost <= billboardStats:getDouble("gold") then
-				--print("======= "..buyMessage.." =======\n")
-				--print("Lua index: " .. buildingScript:getIndex() .. " Message: " .. buyMessage .. "\n")
-				--print("comUnit:sendTo(...,"..buyMessage..")\n")
+				print("======= "..buyMessage.." =======")
+				print("Lua index: " .. buildingScript:getIndex() .. " Message: " .. buyMessage)
+				print("comUnit:sendTo(...,"..buyMessage..")")
+				print("tab="..tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=paramMessage}))
+				print("")
+				
+				local clientId = buildingLastSelected:getPlayerNode():getClientId()
+				--Core.getNetworkClient():getClientId()
 --				comUnit:sendTo("stats","removeGold",tostring(cost))
-				comUnit:sendTo("builder"..Core.getNetworkClient():getClientId(), "buildingSubUpgrade", tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=paramMessage}))
+				comUnit:sendTo("builder"..clientId, "buildingSubUpgrade", tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=paramMessage}))
 			end
 		end
 	end
@@ -423,11 +432,18 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function onExecute(button)
-	
+		print("")
+		print("TRY UPGRADE TOWER")
+		print("TAG: "..button:getTag():toString())
+		
 		--print("button:getTag()="..button:getTag().."\n")
 		if button:getTag():toString() ~= "" then
 			--upgrade1;400;2	name;cost;level
 			local subString, size = split(button:getTag():toString(), ";")
+			
+			print("SUBSTRING: "..tostring(subString))
+			print("SIZE: "..tostring(size))
+			
 			if size == 3 and tonumber(subString[2]) then
 				handleUpgrade(tonumber(subString[2]), subString[1], tonumber(subString[1]=="upgrade2" and 1 or subString[3]) )
 			else

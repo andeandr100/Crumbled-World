@@ -147,7 +147,9 @@ end
 
 function buttonPressed(button)
 	print("\nButton pressed. tag: \""..button:getTag():toString().."\"\n\n")
-	comUnit:sendTo("builder"..Core.getNetworkClient():getClientId(), "changeBuilding", button:getTag():toString())
+	--local clientId = ;
+	--if nextNode  and ( clientId == 0 or clientId == Core.getNetworkClient():getClientId() ) then
+	comUnit:sendTo("builder"..this:getPlayerNode():getClientId(), "changeBuilding", button:getTag():toString())
 end
 
 function destroy()

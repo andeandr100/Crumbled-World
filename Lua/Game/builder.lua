@@ -546,6 +546,10 @@ function upgradeWallTower(param)
 end
 
 function towerUpgradefunc(tab)
+	print("\n\ntowerUpgradefunc")
+	print("NetId: "..tab.netId)
+	print("comUnit:sendTo("..Core.getScriptOfNetworkName(tab.netId):getIndex()..", "..tab.msg..", "..(tab.param or ""))
+	print("")
 	comUnit:sendTo(Core.getScriptOfNetworkName(tab.netId):getIndex(),tab.msg,tab.param or "")
 end
 

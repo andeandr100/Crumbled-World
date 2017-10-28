@@ -59,12 +59,66 @@ end
 function restartWave(wave)
 end
 
+
+
+local function numberToSmalString(num)
+--	1				= 1			1	1
+--	11				= 11		2	2
+--	101				= 101		3	0
+--	1001			= 1001		4	1
+--	10001			= 10001		5	2
+--	100001			= 100001	6	0
+--	1000001			= 1000001	7	1
+--	10000001		= 10000K	8	2	1	2
+--	100000001		= 100000K	9	0	1	2
+--	1000000001		= 1000.1M	10	1	2	5
+--	10000000001		= 10000M	11	2	2	5
+--	100000000001	= 100000M	12	0	2	5
+--	1000000000001	= 1000.1B	13	1	3	8
+--	10000000000001	= 10000B	14	2	3	8
+--	100000000000001	= 100000B	15	0	3	8
+	numberLetterTable = numberLetterTable or {"K","M","G","T","P","E","Z","Y",size=8}--?("H" == hella)
+	local  digitCount = math.floor(math.log10(num)+1)
+	local i = math.floor((digitCount-7)/3)+1
+	if digitCount<8 then
+		return string.format("%.0f",math.floor(num))
+	elseif i<=numberLetterTable.size then
+		if num<math.pow(10,6+i*3) then
+			if i>1 and math.floor(math.log10(num)+1)%3==1 then
+				return string.format("%.1f%s",num/math.pow(10,i*3),numberLetterTable[i])
+			else
+				return string.format("%.0f%s",num/math.pow(10,i*3),numberLetterTable[i])
+			end
+		end
+		--end
+	end
+	local exp = digitCount-3
+	return string.format("%.0fe+%.0f",math.floor(num/math.pow(10,exp)),exp)
+end
+
+local function getBillboardStr(billboardName)
+	return numberToSmalString(statsBilboard:getDouble(billboardName))
+end
+
+local function updateGoldToolTip()
+	toolTips[toolTipsIndexGold].text =	Text("Total gold earned:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedTotal").."</font>"..
+							"\nGold from kills:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromKills").."</font>"..
+							"\nGold from interest:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromInterest").."</font>"..
+							"\nGold from waves:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromWaves").."</font>"..
+							"\nGold from towers:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromSupportTowers").."</font>"..
+							"\nGold spent in towers:\t<font color=rgb(255,255,40)>"..getBillboardStr("goldInsertedToTowers").."</font>"..
+							"\nGold lost from selling:\t<font color=rgb(255,40,40)>"..getBillboardStr("goldLostFromSelling").."</font>")
+	toolTips[toolTipsIndexGold].panel:setToolTip(toolTips[toolTipsIndexGold].text)
+end
+
 function languageChanged()
 	MenuButton:setText(language:getText(MenuButton:getTag()))
 	
 	for i=1, #toolTips do
 		toolTips[i].panel:setToolTip( language:getText(toolTips[i].text))
 	end
+	
+	updateGoldToolTip()
 end
 
 function create()
@@ -159,13 +213,18 @@ function create()
 			--money
 			money = statsBilboard:getInt("gold")
 			moneyLabel = createStat(Vec2(0.0, 0.0),Vec2(0.125, 0.0625), tostring(money), "money")
+
 			toolTipsIndexGold = #toolTips
+			
 			
 			--Life
 			life = statsBilboard:getInt("life")
 			lifeLabel = createStat(Vec2(0.375, 0.0),Vec2(0.5,0.0625), tostring(life), "life remaining")
 			
 			npcPanel.addTargetPanel()
+			
+			
+			updateGoldToolTip()
 		end
 		
 		comUnitTable = {}
@@ -180,43 +239,9 @@ function toggleInGameMenu(panel)
 	comUnit:sendTo("InGameMenu", "toggleMenuVisibility", "")
 end
 
-local function numberToSmalString(num)
---	1				= 1			1	1
---	11				= 11		2	2
---	101				= 101		3	0
---	1001			= 1001		4	1
---	10001			= 10001		5	2
---	100001			= 100001	6	0
---	1000001			= 1000001	7	1
---	10000001		= 10000K	8	2	1	2
---	100000001		= 100000K	9	0	1	2
---	1000000001		= 1000.1M	10	1	2	5
---	10000000001		= 10000M	11	2	2	5
---	100000000001	= 100000M	12	0	2	5
---	1000000000001	= 1000.1B	13	1	3	8
---	10000000000001	= 10000B	14	2	3	8
---	100000000000001	= 100000B	15	0	3	8
-	numberLetterTable = numberLetterTable or {"K","M","G","T","P","E","Z","Y",size=8}--?("H" == hella)
-	local  digitCount = math.floor(math.log10(num)+1)
-	local i = math.floor((digitCount-7)/3)+1
-	if digitCount<8 then
-		return string.format("%.0f",math.floor(num))
-	elseif i<=numberLetterTable.size then
-		if num<math.pow(10,6+i*3) then
-			if i>1 and math.floor(math.log10(num)+1)%3==1 then
-				return string.format("%.1f%s",num/math.pow(10,i*3),numberLetterTable[i])
-			else
-				return string.format("%.0f%s",num/math.pow(10,i*3),numberLetterTable[i])
-			end
-		end
-		--end
-	end
-	local exp = digitCount-3
-	return string.format("%.0fe+%.0f",math.floor(num/math.pow(10,exp)),exp)
-end
-local function getBillboardStr(billboardName)
-	return numberToSmalString(statsBilboard:getDouble(billboardName))
-end
+
+
+
 function update()
 	--Handle communication
 	while comUnit:hasMessage() do
@@ -264,15 +289,7 @@ function update()
 	if money ~= getBillboardStr("gold") then
 		money = getBillboardStr("gold")
 		moneyLabel:setText(numberToSmalString(math.max(0,tonumber(money))))
-		
-		toolTips[toolTipsIndexGold].text =	Text("Total gold earned:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedTotal").."</font>"..
-								"\nGold from kills:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromKills").."</font>"..
-								"\nGold from interest:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromInterest").."</font>"..
-								"\nGold from waves:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromWaves").."</font>"..
-								"\nGold from towers:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromSupportTowers").."</font>"..
-								"\nGold spent in towers:\t<font color=rgb(255,255,40)>"..getBillboardStr("goldInsertedToTowers").."</font>"..
-								"\nGold lost from selling:\t<font color=rgb(255,40,40)>"..getBillboardStr("goldLostFromSelling").."</font>")
-		toolTips[toolTipsIndexGold].panel:setToolTip(toolTips[toolTipsIndexGold].text)
+		updateGoldToolTip()
 	end
 
 	form:update();
