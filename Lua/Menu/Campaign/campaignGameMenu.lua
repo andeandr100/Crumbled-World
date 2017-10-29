@@ -360,8 +360,12 @@ function CampaignGameMenu.new(panel)
 				levelInfo.setChangedDifficultyMax(mapInfo.difficultyIncreaseMax)
 				levelInfo.setChangedDifficultyMin(mapInfo.difficultyIncreaseMin)
 				levelInfo.setWaveCount(mapInfo.waveCount)
+			else
+				error("No map information was found")
 			end
 			levelInfo.setLevel(difficutyBox.getIndex())
+			local d1 = levelInfo.getDifficulty()
+			local d2 = levelInfo.getDifficultyIncreaser()
 		end
 		--save default selection
 		menuPrevSelect:save()

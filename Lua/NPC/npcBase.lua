@@ -221,7 +221,7 @@ function NpcBase.new()
 		this:destroyTree()
 		--
 		comUnit:clearMessages()
-		Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),3.0,Vec3(1,0,0))
+		--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),3.0,Vec3(1,0,0))
 		update = endUpdate
 	end
 	function self.NETSyncDeath(param)

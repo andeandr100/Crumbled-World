@@ -157,11 +157,13 @@ function Shop.new(camera)
 	
 	
 	local function getUpgradeCost(upgradeTab, towerName, upgLevel)
+--		local cost = {1,2,3,12}
 		local hasAllreadeAnPermaUnlock = false
 		for i=1, #towerUpgInfo[towerName] do
 			hasAllreadeAnPermaUnlock = hasAllreadeAnPermaUnlock or isUpgradeBought(towerUpgInfo[towerName][i], towerName, 4)
 		end
 		return isUpgradeBought(upgradeTab, towerName, upgLevel) and 0 or ( (upgLevel == 1 and upgradeTab[2] == nil) and 3 or (upgLevel == 4 and (hasAllreadeAnPermaUnlock and 0 or 12) or upgLevel))
+--		return isUpgradeBought(upgradeTab, towerName, upgLevel) and 0 or cost[upgLevel]
 	end
 	
 	local function updateUpgradeText()
@@ -188,21 +190,31 @@ function Shop.new(camera)
 		local str = Text()
 
 		local upgradeAllreadyBought = (upgradeLevel == 4 and data.getBoughtUpg(towerName,tabUppgrade.name,true) == 1) or (data.getBoughtUpg(towerName,tabUppgrade.name,false) >= upgradeLevel )
+		local canBeBought = true
+		if upgradeLevel>1 then
+			canBeBought = (upgradeLevel == 4 and data.getBoughtUpg(towerName,tabUppgrade.name,false) >= 3) or (data.getBoughtUpg(towerName,tabUppgrade.name,false) >= (upgradeLevel-1) )
+		end
 		if upgradeLevel == 4 then
 			if upgradeAllreadyBought then
 				str = str + "<font color=rgb(40,255,40)>"
-				str = str + "Bought permanently unlocked level 1" + ":</font>\n"
-			else
+				str = str + "Bought: (permanently unlocks level 1)</font>\n"
+			elseif canBeBought then
 				str = str + "<font color=rgb(40,255,40)>"
-				str = str + "Buyable permanently unlocked level 1" + ":</font>\n"--language:getText("unlocked")
+				str = str + "Buyable: (permanently unlocks level 1)</font>\n"--language:getText("unlocked")
+			else
+				str = str + "<font color=rgb(255,40,40)>"
+				str = str + "Level 3 is not unlocked: (permanently unlocks level 1)</font>\n"--language:getText("unlocked")
 			end
 		else	
 			if upgradeAllreadyBought then
 				str = str + "<font color=rgb(40,255,40)>"
-				str = str + "Bought" + ":</font>\n"
-			else
+				str = str + "Bought:</font>\n"
+			elseif canBeBought then
 				str = str + "<font color=rgb(40,255,40)>"
-				str = str + "Buyable" + ":</font>\n"--language:getText("unlocked")
+				str = str + "Buyable:</font>\n"--language:getText("unlocked")
+			else
+				str = str + "<font color=rgb(255,40,40)>"
+				str = str + "Level " + tostring(upgradeLevel-1) + " is not unlocked:</font>\n"--language:getText("unlocked")
 			end
 		end
 		
@@ -228,6 +240,7 @@ function Shop.new(camera)
 		local costLabel = Label(PanelSize(Vec2(-1), Vec2(3,1)), Text(tostring(cost)), canAffordToPay and Vec3(0,1,0) or Vec3(1,0,0), Alignment.TOP_RIGHT )
 		costLabel:setTextHeight(textHeight)
 		local costLabelSize = costLabel:getTextSizeInPixel()
+		costLabelSize = costLabelSize + Vec2(2,0)
 		
 		local panel = Panel(PanelSize(Vec2(0.2)))
 		local label = Label(PanelSize(Vec2(-1)), str, Vec3(1), Alignment.TOP_LEFT)

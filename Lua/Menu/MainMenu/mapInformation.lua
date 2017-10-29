@@ -9,30 +9,30 @@ function MapInformation.init()
 	MapInformation.mapConfig = Config("mapsInfo")
 	MapInformation.mapTables = MapInformation.mapConfig:get("data"):getTable()
 	
---	if MapInformation.worker == nil then	
---		MapInformation.worker = Worker("Menu/MainMenu/loadCustomGameInfo.lua")
---		MapInformation.worker:addCallbackUpdated(MapInformation.mapInfoLoaded)
---		MapInformation.worker:start()
---	end
+	if MapInformation.worker == nil then	
+		MapInformation.worker = Worker("Menu/MainMenu/loadCustomGameInfo.lua")
+		MapInformation.worker:addCallbackUpdated(MapInformation.mapInfoLoaded)
+		MapInformation.worker:start()
+	end
 end
 
 function MapInformation.setMapInfoLoadedFunction( aFunction )
 	MapInformation.functionMapInfoChanged = aFunction
 end
 
---function MapInformation.mapInfoLoaded()
---	local mapConfig = MapInformation.mapConfig:get("data")
---	if mapConfig then
---		MapInformation.mapTables = mapConfig:getTable()
---	
---		if MapInformation.functionMapInfoChanged then
---			MapInformation.functionMapInfoChanged()
---		end 
---	else
---		
---	end
---	
---end
+function MapInformation.mapInfoLoaded()
+	local mapConfig = MapInformation.mapConfig:get("data")
+	if mapConfig then
+		MapInformation.mapTables = mapConfig:getTable()
+	
+		if MapInformation.functionMapInfoChanged then
+			MapInformation.functionMapInfoChanged()
+		end 
+	else
+		
+	end
+	
+end
 
 function MapInformation.loadMapInfo(filePath)
 	
@@ -117,7 +117,7 @@ function MapInformation.getMapInfoFromFileName(fileName, filePath)
 	end
 --	print("nil\n")
 	
-	--print("Table: "..tostring(MapInformation.mapTables).."\n")
+--	print("fileName: "..tostring(fileName).."\nTable: "..tostring(MapInformation.mapTables).."\n")
 	
 	return nil
 end

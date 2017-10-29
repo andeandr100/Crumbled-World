@@ -100,7 +100,7 @@ function updateSelectedTowerToBuild()
 				comUnitTable[msg.message](msg.parameter)
 			end
 		else
-			print("comUnit:hasMessage() == "..tostring(msg).."\n")
+			--print("comUnit:hasMessage() == "..tostring(msg).."\n")
 --			num = tonumber(msg.parameter)
 --			if num and num > 0 and num <= #buildings then
 --				currentTowerIndex = num
