@@ -38,15 +38,15 @@ function clearWavesAfter(wave)
 end
 function storeWaveChangeStats( wave )
 	--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-	if not waveTable[wave] then
-		waveTable[wave] = {
-			index = index,
-			moveBackTime = moveBackTime,
-			currentSpeed = currentSpeed,
-			offset = offset,
-			mat = this:getLocalMatrix()
-		}
-	end
+	
+	waveTable[wave] = {
+		index = index,
+		moveBackTime = moveBackTime,
+		currentSpeed = currentSpeed,
+		offset = offset,
+		mat = this:getLocalMatrix()
+	}
+	
 end
 function restoreWaveChangeStats( wave )
 	if wave>0 then
