@@ -174,7 +174,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function ignoreNpc()
-		local clientId = currentNode:getPlayerNode():getClientId();
+		local clientId = currentNode and currentNode:getPlayerNode():getClientId() or -1;
 		if currentIndex and ( clientId == 0 or clientId == Core.getNetworkClient():getClientId() ) then
 			print("ignoreNpc()")
 
@@ -189,7 +189,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function highPriorityTarget()
-		local clientId = currentNode:getPlayerNode():getClientId();
+		local clientId = currentNode and currentNode:getPlayerNode():getClientId() or -1;
 		if currentIndex and ( clientId == 0 or clientId == Core.getNetworkClient():getClientId() ) then
 			print("highPriorityTarget()")
 			comUnit:sendTo("builder"..clientId,"addPrioEvent",tabToStrMinimal( {netName=currentNetName,event=1} ))
@@ -275,7 +275,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		if Core.getInput():getMouseDown(MouseKey.left) and isMouseInMainPanel() then
 			if keyBindIgnoreTarget:getHeld() then
 				
-				local clientId = nextNode:getPlayerNode():getClientId();
+				local clientId = nextNode and nextNode:getPlayerNode():getClientId() or -1;
 				if nextNode  and ( clientId == 0 or clientId == Core.getNetworkClient():getClientId() ) then
 					comUnit:sendTo("builder"..clientId,"addPrioEvent",tabToStrMinimal( {netName=netName,event=0} ))
 					comUnit:sendTo(nextIndex,"addState",tostring(state.highPriority)..";0")
@@ -287,7 +287,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				end
 			elseif keyBindHighPrioritet:getHeld() then
 				
-				local clientId = nextNode:getPlayerNode():getClientId();
+				local clientId = nextNode and nextNode:getPlayerNode():getClientId() or -1;
 				if nextNode  and ( clientId == 0 or clientId == Core.getNetworkClient():getClientId() ) then
 					comUnit:sendTo("builder"..clientId,"addPrioEvent",tabToStrMinimal( {netName=netName,event=1} ))
 					comUnit:sendTo(nextIndex,"addState",tostring(state.ignore)..";0")
