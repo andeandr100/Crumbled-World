@@ -194,8 +194,6 @@ function CampaignGameMenu.new(panel)
 					levelInfo.setLevel(difficutyBox.getIndex())
 					--changing default selected map
 					menuPrevSelect:get("campaign"):get("selectedMap"):setString(filePath)
-				else
-					error("No map information was found")
 				end
 				
 				iconImage:setTexture(texture)
