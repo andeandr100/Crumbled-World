@@ -21,6 +21,8 @@ function EventBase.new()
 	local EVENT_END_GAME =							7
 	local EVENT_END_MENU =							8
 	
+	local currentState = 0
+	
 	local waveRestarted
 	local previousWaveCounter = 0			--smount of time that we has gone back in time
 	local firstNpcOfWaveHasSpawned = false
@@ -81,6 +83,13 @@ function EventBase.new()
 	--
 	local totalSpawned = 0
 	local spawnedThisWave = 0
+	
+	local function sendNetworkSyncSafe(msg,param)
+		local tab = Core.getNetworkClient():getConnected()
+		for index=1, Core.getNetworkClient():getConnectedPlayerCount() do
+			comUnit:sendNetworkSyncSafeTo("Event"..tostring(tab[index].clientId),msg,param)
+		end
+	end
 	
 	local function destroyEventBase()
 		if destroyInNFrames <= 0 then
@@ -453,9 +462,7 @@ function EventBase.new()
 	local function syncChangeWave(param)
 		local waveNum = tonumber(param)
 		while waveNum>waveCount do
-			while stateList[currentState]~=EVENT_CHANGE_WAVE do
-				currentState = currentState + 1
-			end
+			currentState = EVENT_CHANGE_WAVE
 			self.update()
 		end
 	end
@@ -524,10 +531,6 @@ function EventBase.new()
 			abort()
 		end
 	end
-	local function addState(stateId)
-		numState = numState + 1
-		stateList[numState] = stateId
-	end
 	--used by event_world0.lua, the purpose is to force a group to spawn
 	function self.addGroupToSpawn(wave,position,group)
 		fixedGroupToSpawn[wave] = fixedGroupToSpawn[wave] or {}
@@ -580,7 +583,8 @@ function EventBase.new()
 		setLife(pLives)
 		setMaxLife(pLives)
 		local tab = {startGold=pstartGold,WaveFinishedBonus=pWaveFinishedBonus,lives=pLives,level=pLevel}
-		comUnit:sendNetworkSyncSafe("NetInitData",tabToStrMinimal(tab))
+		--comUnit:sendNetworkSyncSafe("NetInitData",tabToStrMinimal(tab))
+		sendNetworkSyncSafe("NetInitData",tabToStrMinimal(tab))
 		--
 		--	SteamStat id
 		--
@@ -623,7 +627,9 @@ function EventBase.new()
 			multiplayerGenerateData.difficultIncreaser = difficultIncreaser
 			multiplayerGenerateData.startSpawnWindow = startSpawnWindow
 			multiplayerGenerateData.globalSeed = seed
-			comUnit:sendNetworkSyncSafe("NetGenerateWave",tabToStrMinimal(multiplayerGenerateData))
+			
+			--comUnit:sendNetworkSyncSafe("NetGenerateWave",tabToStrMinimal(multiplayerGenerateData))
+			sendNetworkSyncSafe("NetGenerateWave",tabToStrMinimal(multiplayerGenerateData))
 		end
 		
 		if seed then
@@ -1058,8 +1064,6 @@ function EventBase.new()
 			
 			spawnListPopulated = true
 			currentState = 1
-			numState = 0
-			stateList = {}
 			
 			--average first
 			--stats.setValueComplete({"average","init"},1)
@@ -1138,10 +1142,8 @@ function EventBase.new()
 				spawnUnits()
 			end
 			if currentState == EVENT_WAIT_FOR_TOWER_TO_BE_BUILT then
-				if isPlayerReady() then
+				if isPlayerReady() and (Core.isInMultiplayer()==false or Core.getNetworkClient():isAdmin())  then
 					currentState = EVENT_CHANGE_WAVE
-					comUnit:sendTo("SteamStats",mapStatId.."LaunchedCount",1.0)
-					steamStatMinPlayedTime = Core.getTime()
 				end
 			elseif currentState == EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD then
 				if #currentWaves==0 and (not isAnyEnemiesAlive()) then
@@ -1150,6 +1152,9 @@ function EventBase.new()
 				end
 			elseif currentState == EVENT_CHANGE_WAVE then
 				if changeWave() then
+					comUnit:sendTo("SteamStats",mapStatId.."LaunchedCount",1.0)
+					steamStatMinPlayedTime = Core.getTime()
+					--
 					local timeDiff = (Core.getTime()-steamStatMinPlayedTime)/60.0
 					if timeDiff>0.0 and timeDiff<10.0 then
 						comUnit:sendTo("SteamStats",mapStatId.."MinPlayed",timeDiff)
@@ -1158,7 +1163,8 @@ function EventBase.new()
 					comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("goldGainedTotal"))
 					comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("goldGainedFromInterest"))
 					comUnit:sendTo("SteamStats","MaxGoldGainedFromSupportSingeGame",bilboardStats:getInt("goldGainedFromSupportTowers"))
-					comUnit:sendNetworkSyncSafe("ChangeWave",tostring(waveCount))
+					--comUnit:sendNetworkSyncSafe("ChangeWave",tostring(waveCount))
+					sendNetworkSyncSafe("ChangeWave",tostring(waveCount))
 					comUnit:sendTo("SteamStats","SaveStats","")
 					firstNpcOfWaveHasSpawned = false
 					currentState = EVENT_START_SPAWN

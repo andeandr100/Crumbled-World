@@ -61,12 +61,12 @@ function MapInfo.new()
 		billboard:setBool("isCart",isCart)
 	end
 	function self.setChangedDifficultyMax(amount)
-		amount = amount==nil and 0 or amount
+		amount = amount or 0
 		increasedDifficultyMax = amount
 		self.setLevel(billboard:getDouble("level"))
 	end
 	function self.setChangedDifficultyMin(amount)
-		amount = amount==nil and 0 or amount
+		amount = amount or 0
 		increasedDifficultyMin = amount
 		self.setLevel(billboard:getDouble("level"))
 	end

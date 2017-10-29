@@ -581,7 +581,7 @@ function NpcPanel.new(panel)
 	-- function:	handleWaveInfo
 	-- purpose:		callback to set base data for all waves
 	function self.handleWaveInfo(paramTable)
-		if not waves then
+		if not waves and #paramTable>1 then
 			local startWave = mapInfo.getStartWave()>1 and mapInfo.getStartWave()+1 or 1
 			waves = paramTable
 			self.handleStartWave(tostring(startWave)..";0")
