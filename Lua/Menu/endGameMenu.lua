@@ -27,7 +27,6 @@ end
 -- purpose:		called when another script has restarted a wave
 function waveRestarted()
 	form:setVisible(false)
-	abort()
 end
 -- function:	victory
 -- purpose:		called on victory, will show the victory screen
