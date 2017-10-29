@@ -76,7 +76,7 @@ function OptionsMenu.updateButton(button, textId )
 	labeltmp:setTextHeight(Core.getScreenResolution().y * 0.021)
 	
 --	button:setPanelSize(PanelSize(Vec2(-1),Vec2(math.max(text:getTextScale().x/2 + 1,1), 1)))
-	button:setPanelSize(PanelSize(Vec2(labeltmp:getTextSizeInPixel().x + Core.getScreenResolution().y * 0.02, -1),PanelSizeType.Pixel))
+	button:setPanelSize(PanelSize(Vec2(-1), Vec2( (labeltmp:getTextSizeInPixel().x + Core.getScreenResolution().y * 0.02) / labeltmp:getTextSizeInPixel().y, 1)))
 	
 	button:setTextColor(Vec3(0.7))
 	button:setTextHoverColor(Vec3(0.92))

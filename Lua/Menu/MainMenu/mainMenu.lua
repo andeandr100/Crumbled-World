@@ -44,8 +44,9 @@ function languageChanged()
 		labeltmp:setTextHeight(Core.getScreenResolution().y * 0.027)
 		print("Text: "..buttons[i].text:toString())
 		print("Length: "..labeltmp:getTextSizeInPixel().x)
+		local scale = Vec2( (labeltmp:getTextSizeInPixel().x + Core.getScreenResolution().y * 0.02) / labeltmp:getTextSizeInPixel().y, 1 )
 		buttons[i].button:setText(buttons[i].text)
-		buttons[i].button:setPanelSize(PanelSize(Vec2(labeltmp:getTextSizeInPixel().x + addExtraLength, -1),PanelSizeType.Pixel))
+		buttons[i].button:setPanelSize(PanelSize(Vec2(-1), scale))
 	end
 
 	OptionsMenu.languageChanged()
