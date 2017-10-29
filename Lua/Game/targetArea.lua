@@ -84,7 +84,7 @@ function TargetArea.new()
 		curentShader = targetAreaLineShader
 		setDefaultData( towerMatrix:getPosition(), 1.5)
 		mesh:setUniform(curentShader, "LineStart", towerMatrix:getPosition())
-		mesh:setUniform(curentShader, "LineEnd", towerMatrix * Vec3(0,0,length))		
+		mesh:setUniform(curentShader, "LineEnd", towerMatrix * Vec3(0,0,length-0.5))		
 	end
 	
 	local function createCone(towerMatrix, range, angle)
