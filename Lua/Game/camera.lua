@@ -4,7 +4,7 @@ require("Menu/settings.lua")
 local ZOOM_LEVEL_MIN = 9.5
 local ZOOM_LEVEL_MAX = 30.0
 --Achievements
-local start_time = 0
+
 
 local music = {}
 
@@ -12,7 +12,7 @@ function restore(data)
 	
 end
 
-local gameSpeed = 1.0
+
 function create()
 	
 	--Protection in multiplayer environment where multiple instances of this script is loaded
@@ -21,7 +21,7 @@ function create()
 		return false
 	end
 	
-	start_time = Core.getGameTime()
+	
 	if this:getNodeType() == NodeId.camera then
 		setRestoreData(true)
 		
@@ -36,7 +36,6 @@ function create()
 		
 		keyBinds = Core.getBillboard("keyBind");
 		
-		keyBindSpeed = keyBinds:getKeyBind("Speed")
 		keyBindForward = keyBinds:getKeyBind("Forward")
 		keyBindBackward = keyBinds:getKeyBind("Backward")
 		keyBindLeft = keyBinds:getKeyBind("Left")
@@ -116,9 +115,6 @@ function create()
 		cameraOveride = Listener("cameraOveride")
 		cameraOveride:registerEvent("Pause", pauseCamera)
 		cameraOveride:registerEvent("Resume", resumeCamera)
-		
-		restartListener = Listener("Restart")
-		restartListener:registerEvent("restart", restartMap)
 
 	else
 
@@ -147,21 +143,6 @@ function create()
 	return true
 end
 
-function restartMap()
-	gameSpeed = 1.0
-	updateGameSpeed()
-end
-
-function updateGameSpeed()
-	start_time = Core.getGameTime()
-	if Core.isInMultiplayer() then
-		Core.getNetworkClient():writeSafe("CMD-GameSpeed:"..gameSpeed)
-		local comUnit = Core.getComUnit()
-		comUnit:sendTo("stats","setBillboardInt","speed;"..tostring(gameSpeed))
-	else
-		Core.setTimeSpeed(gameSpeed)
-	end
-end
 
 function pauseCamera()
 	updatePosition = false
@@ -349,16 +330,7 @@ function update()
 		end
 	end
 	
-	if keyBindSpeed:getPressed() then
-		gameSpeed = gameSpeed<=1.5 and 3.0 or 1.0
-		updateGameSpeed()
-	end
-	--Achievements
-	if gameSpeed==3.0 and Core.getGameTime()-start_time>300.0 and Core.isInMultiplayer()==false then
-		start_time = Core.getGameTime()
-		local comUnit = Core.getComUnit()
-		comUnit:sendTo("SteamAchievement","Speed","")
-	end
+	
 	
 
 	if cameraMode == 1 then

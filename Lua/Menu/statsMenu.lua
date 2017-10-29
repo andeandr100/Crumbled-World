@@ -6,14 +6,10 @@ require("Menu/npcPanel.lua")
 local toolTips = {}
 local gameMode = ""
 local toolTipsIndexGold = 0
+local gameSpeed = 1.0
+local start_time = 0
 
-function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
-	
-	local panel = topPanelRight:add(Panel(PanelSize(Vec2(1,-1), Vec2(4,1))))
-	
-	local image = panel:add(Image(PanelSize(Vec2(1,-1),Vec2(1, 1)), Text("icon_table.tga")));
-	image:setUvCoord(minUvCoord,maxUvCoor);
-	image:setCanHandleInput(false)
+function createLabel( panel, startValue)
 	
 	local label = panel:add(Label(PanelSize(Vec2(1,-1),Vec2(3,1)),Text(startValue)));
 	label:setTextColor(Vec3(1));
@@ -23,6 +19,43 @@ function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
 	label:setBorder(Border(BorderSize(Vec4(0.001)), Vec4(0,0,0,1)));
 	label:setMargin(BorderSize(Vec4(0.001)));
 	label:setCanHandleInput(false)
+
+	return label
+end
+
+function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
+	
+	local panel = topPanelRight:add(Panel(PanelSize(Vec2(1,-1), Vec2(4,1))))
+	
+	local image = panel:add(Image(PanelSize(Vec2(1,-1),Vec2(1, 1)), Text("icon_table.tga")));
+	image:setUvCoord(minUvCoord,maxUvCoor);
+	image:setCanHandleInput(false)
+	
+	local label = createLabel( panel, startValue )
+	
+	panel:setToolTip(language:getText(toolTipText))
+	
+	toolTips[#toolTips + 1] = {panel=panel, text=toolTipText}
+	
+	return label
+end
+
+function createSpeedButton(minUvCoord, maxUvCoor, startValue, toolTipText, func)
+	
+	local panel = topPanelRight:add(Panel(PanelSize(Vec2(1,-1), Vec2(4,1))))
+	
+	local icon = Core.getTexture("icon_table.tga")
+	customButton = panel:add(Button(PanelSize(Vec2(1,-1),Vec2(1, 1)), ButtonStyle.SIMPLE, icon, Vec2(0.375,0.25), Vec2(0.50, 0.3125)))
+	customButton:addEventCallbackExecute(func)
+	customButton:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
+	customButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
+	customButton:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
+	customButton:setEdgeColor(Vec4(0), Vec4(0))
+	customButton:setEdgeHoverColor(Vec4(0), Vec4(0))
+	customButton:setEdgeDownColor(Vec4(0), Vec4(0))
+	customButton:setToolTip(language:getText(toolTipText))
+	
+	local label = createLabel( panel, startValue )
 	
 	panel:setToolTip(language:getText(toolTipText))
 	
@@ -46,7 +79,22 @@ local function destroyUpdate()
 	return false	 
 end
 
+function updateGameSpeed()
+	start_time = Core.getGameTime()
+	if Core.isInMultiplayer() then
+		Core.getNetworkClient():writeSafe("CMD-GameSpeed:"..gameSpeed)
+		comUnit = Core.getComUnit()
+		comUnit:sendTo("stats","setBillboardInt","speed;"..tostring(gameSpeed))
+	else
+		Core.setTimeSpeed(gameSpeed)
+	end
+end
+
 function restartMap()
+	
+	gameSpeed = 1.0
+	updateGameSpeed()
+	
 	--script can only be restarted once
 	if update~=destroyUpdate then
 		update = destroyUpdate
@@ -60,6 +108,7 @@ function restartMap()
 	end
 end
 function restartWave(wave)
+	
 end
 
 
@@ -104,24 +153,70 @@ local function getBillboardStr(billboardName)
 end
 
 local function updateGoldToolTip()
-	toolTips[toolTipsIndexGold].text =	Text("Total gold earned:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedTotal").."</font>"..
-							"\nGold from kills:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromKills").."</font>"..
-							"\nGold from interest:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromInterest").."</font>"..
-							"\nGold from waves:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromWaves").."</font>"..
-							"\nGold from towers:\t<font color=rgb(40,255,40)>"..getBillboardStr("goldGainedFromSupportTowers").."</font>"..
-							"\nGold spent in towers:\t<font color=rgb(255,255,40)>"..getBillboardStr("goldInsertedToTowers").."</font>"..
-							"\nGold lost from selling:\t<font color=rgb(255,40,40)>"..getBillboardStr("goldLostFromSelling").."</font>")
-	toolTips[toolTipsIndexGold].panel:setToolTip(toolTips[toolTipsIndexGold].text)
+
+	
+	local goldTextList = {	{"Total gold earned", "goldGainedTotal", color="40,255,40" }, 
+							{"Gold from kills", "goldGainedFromKills", color="40,255,40" }, 
+							{"Gold from interest", "goldGainedFromInterest", color="40,255,40" }, 
+							{"Gold from waves", "goldGainedFromWaves", color="40,255,40" }, 
+							{"Gold from towers", "goldGainedFromSupportTowers", color="40,255,40" }, 
+							{"Gold spent in towers", "goldInsertedToTowers", color="255,255,40" }, 
+							{"Gold lost from selling", "goldLostFromSelling", color="255,40,40"}
+						}
+	local toolPanel = Panel(PanelSize(Vec2(1)))
+	toolPanel:setLayout(FlowLayout())
+	local textPanel = toolPanel:add(Panel(PanelSize(Vec2(-1))))
+	local goldPanel = toolPanel:add(Panel(PanelSize(Vec2(-1))))
+	textPanel:setLayout(FallLayout())
+	goldPanel:setLayout(FallLayout())
+	local textSize = Vec2()
+	local goldSize = Vec2()
+	for i=1, #goldTextList do
+
+		local textLabel = textPanel:add(Label( PanelSize(Vec2(1)), Text(goldTextList[i][1]..":") ))
+		textLabel:setTextHeight(Core.getScreenResolution().y * 0.0125)
+		textLabel:setTextColor(Vec3(1))
+		local pixelSize = textLabel:getTextSizeInPixel() + Vec2(4,2)
+		textSize.x = math.max(textSize.x, pixelSize.x)
+
+		
+		local goldLabel = goldPanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..goldTextList[i].color..")>"..getBillboardStr(goldTextList[i][2]).."</font>") ))
+		goldLabel:setTextHeight(Core.getScreenResolution().y * 0.0125)
+		local goldPixelSize = goldLabel:getTextSizeInPixel() + Vec2(4,2)
+		goldSize.x = math.max(goldSize.x, goldPixelSize.x)
+		
+		
+		--set panelSize
+		local rowHeight = math.max( goldPixelSize.y, pixelSize.y )
+		textSize.y = textSize.y + rowHeight
+		goldSize.y = goldSize.y + rowHeight
+		textLabel:setPanelSize(PanelSize(Vec2(pixelSize.x, rowHeight),PanelSizeType.Pixel))
+		goldLabel:setPanelSize(PanelSize(Vec2(goldPixelSize.x, rowHeight),PanelSizeType.Pixel))
+	end
+	
+	textPanel:setPanelSize(PanelSize(textSize,PanelSizeType.Pixel))
+	goldPanel:setPanelSize(PanelSize(goldSize,PanelSizeType.Pixel))
+	toolPanel:setPanelSize(PanelSize(Vec2(textSize.x+goldSize.x,math.max(textSize.y,goldSize.y)),PanelSizeType.Pixel))
+
+	toolTips[toolTipsIndexGold].text = nil
+	toolTips[toolTipsIndexGold].panel:setToolTip(toolPanel)
 end
 
 function languageChanged()
 	MenuButton:setText(language:getText(MenuButton:getTag()))
 	
 	for i=1, #toolTips do
-		toolTips[i].panel:setToolTip( language:getText(toolTips[i].text))
+		if toolTips[i].text then
+			toolTips[i].panel:setToolTip( language:getText(toolTips[i].text))
+		end
 	end
 	
 	updateGoldToolTip()
+end
+
+function toogleSpeed()
+	gameSpeed = gameSpeed<=1.5 and 3.0 or 1.0
+	updateGameSpeed()
 end
 
 function create()
@@ -133,6 +228,7 @@ function create()
 	
 	local mapInfo = MapInfo.new()
 	gameMode = mapInfo.getGameMode()
+	start_time = Core.getGameTime()
 	
 	if this:getNodeType() == NodeId.playerNode then
 		local menuNode = this:getRootNode():addChild(SceneNode())
@@ -155,6 +251,9 @@ function create()
 		comUnit:setName("statsMenu")
 		print("Stats menu set com unit name statsMenu")
 		
+		
+		keyBinds = Core.getBillboard("keyBind");
+		keyBindSpeed = keyBinds:getKeyBind("Speed")
 		
 		
 		settingsListener = Listener("Settings")
@@ -197,8 +296,9 @@ function create()
 			maxWave = statsBilboard:getInt("maxWave")
 			waveLabel = createStat(Vec2(0.0,0.1885),Vec2(0.083984,0.231445), tostring(wave).."/"..maxWave, "current wave")
 			--Game speed
-			time = Core.getTimeSpeed()
-			timeLabel = createStat(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed")
+			time = Core.getTimeSpeed()			
+			timeLabel = createSpeedButton(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed", toogleSpeed)
+--			timeLabel = createStat(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed")
 --			--Score
 --			to be used When implemented
 			if gameMode~="rush" then
@@ -226,7 +326,7 @@ function create()
 			
 			npcPanel.addTargetPanel()
 			
-			
+
 			updateGoldToolTip()
 		end
 		
@@ -272,6 +372,17 @@ function update()
 			scoreLabel:setText(timerStr)
 		end
 	end
+	
+	
+	if keyBindSpeed:getPressed() then
+		toogleSpeed()
+	end
+	--Achievements
+	if gameSpeed==3.0 and Core.getGameTime()-start_time>300.0 and Core.isInMultiplayer()==false then
+		start_time = Core.getGameTime()
+		comUnit:sendTo("SteamAchievement","Speed","")
+	end
+	
 --	if numEnemies ~= statsBilboard:getInt("alive enemies") then
 --		numEnemies = statsBilboard:getInt("alive enemies")
 --		numEnemiesLabel:setText(tostring(numEnemies))

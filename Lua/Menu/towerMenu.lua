@@ -193,7 +193,7 @@ function create()
 	print("TOWERMENU:::Create()\n")
 	if this:getNodeType() == NodeId.playerNode then
 		
-		local menuNode = this:getRootNode():addChild(SceneNode())
+		local menuNode = this:addChild(SceneNode())
 		--camera = Camera()
 		menuNode:setSceneName("Tower menu")
 	
