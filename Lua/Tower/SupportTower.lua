@@ -59,6 +59,8 @@ function SwarmTower.new()
 	--other
 	local lastRestored = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
+	--lastGlobalPosition used for crash safty when tower nodes is destroyed before script is
+	local lastGlobalPosition = Vec3()
 	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
@@ -514,13 +516,15 @@ function SwarmTower.new()
 		if xpManager then
 			xpManager.update()
 		end
+		lastGlobalPosition = this:getGlobalPosition()
 		
 		--weaken aura
 		if weakenPer then
 			weakenUpdateTimer = weakenUpdateTimer - Core.getDeltaTime()
 			if weakenUpdateTimer<0.0 then
 				weakenUpdateTimer = 0.25
-				comUnit:broadCast(this:getGlobalPosition(),TOWERRANGE,"markOfDeath",{per=weakenPer,timer=weakenTimer,type="area"})
+				
+				comUnit:broadCast(lastGlobalPosition,TOWERRANGE,"markOfDeath",{per=weakenPer,timer=weakenTimer,type="area"})
 			end
 		end
 		--gold gain aura
@@ -528,7 +532,8 @@ function SwarmTower.new()
 			goldUpdateTimer = goldUpdateTimer - Core.getDeltaTime()
 			if goldUpdateTimer<0.0 then
 				goldUpdateTimer = 0.1
-				comUnit:broadCast(this:getGlobalPosition(),TOWERRANGE,"markOfGold",{goldGain=goldGainAmount,timer=0.15,type="area"})
+				
+				comUnit:broadCast(lastGlobalPosition,TOWERRANGE,"markOfGold",{goldGain=goldGainAmount,timer=0.15,type="area"})
 			end
 		end
 		
@@ -802,8 +807,8 @@ function SwarmTower.new()
 	end
 	init()
 	function self.destroy()
-		comUnit:broadCast(this:getGlobalPosition(),TOWERRANGE*2.0,"supportRange",0)
-		comUnit:broadCast(this:getGlobalPosition(),TOWERRANGE*2.0,"supportDamage",0)
+		comUnit:broadCast(lastGlobalPosition,TOWERRANGE*2.0,"supportRange",0)
+		comUnit:broadCast(lastGlobalPosition,TOWERRANGE*2.0,"supportDamage",0)
 	end
 	--
 	return self
