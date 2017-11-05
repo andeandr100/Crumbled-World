@@ -1095,16 +1095,6 @@ function ElectricTower.new()
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		billboard:setString("targetMods","attackClosestToExit;attackPriorityTarget;attackHighDensity;attackWeakestTarget;attackStrongestTarget")
 		billboard:setInt("currentTargetMode",1)
-		
-		--upgrade
-		--boost
-		--slow (5,10,15%)
-		--IncDamage (15,30,45%)
-		--masterAim
-		--chargeRate (15%,30%,45%)
-		--xxxxx
-		--target jumping(1,2,3)
-		--towerJumping (Charges other tower in range, that is bellow 10%,20%,30%) [charge equalizes tower] 130*0.5==65%
 	
 		initModel()
 	

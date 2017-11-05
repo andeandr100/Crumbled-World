@@ -243,6 +243,8 @@ function SwarmTower.new()
 			weakenPer = upgrade.getValue("weaken")
 			weakenTimer = upgrade.getValue("weakenTimer")
 			weakenUpdateTimer = 0.0
+		else
+			weakenPer = nil
 		end
 		range = upgrade.getValue("range")
 		--manage support upgrades
@@ -484,6 +486,8 @@ function SwarmTower.new()
 			setCurrentInfo()
 			--
 			goldGainAmount = upgrade.getValue("supportGold")
+		else
+			goldGainAmount = 0
 		end
 		--Acievement
 		if upgrade.getLevel("gold")==3 then

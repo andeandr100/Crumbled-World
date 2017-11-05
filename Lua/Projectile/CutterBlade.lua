@@ -134,6 +134,16 @@ function CutterBlade.new()
 			pointLight:setRange(0.2)
 			pointLight:pushRangeChange(2.5,0.2)
 			pointLight:setVisible(true)
+		else
+			if sparkCenter then
+				sparkCenter[1]:deactivate()
+				sparkCenter[2]:deactivate()
+				sparkCenter[3]:deactivate()
+				sparkCenter[4]:deactivate()
+			end
+			if pointLight then
+				pointLight:setVisible(false)
+			end
 		end
 		--thePosition.y = 0.0
 		node:setLocalPosition(thePosition)
