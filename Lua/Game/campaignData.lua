@@ -101,7 +101,7 @@ function CampaignData.new()
 		self.garanteExistenze()
 		--first map must be beaten to play any other map
 		--meaning if never beaten then the game has not been played yet
-		if self.hasMapBeenBeaten(1)==false then
+		if self.hasMapBeenBeaten(1)==false and campaingDataConfig:exist("crystal") == false then
 			campaingDataConfig:get("crystal"):setInt(STARTCRYSTALAMOUNT)
 		end
 		campaingDataConfig:save()
