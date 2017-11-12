@@ -122,12 +122,7 @@ function EventBase.new()
 			comUnit:sendTo("stats", "setGold", tostring(gold))
 		end
 	end
---	local function addGold(gold)
---		comUnit:sendTo("stats", "addGold", tostring(gold))
---	end
---	local function removeGold(gold)
---		comUnit:sendTo("stats", "removeGold", tostring(gold))
---	end
+	
 	local function resendWaveData()
 		comUnit:sendTo("stats", "setWave", mapInfo.getStartWave())
 		comUnit:sendTo("stats", "setMaxWave", numWaves)
@@ -620,6 +615,7 @@ function EventBase.new()
 		setGold(startGold)
 	end
 	function self.generateWaves(pNumWaves,difficultBase,difficultIncreaser,startSpawnWindow,seed)
+		--pNumWaves = 2
 		local multiplayerGenerateData = {}
 		if Core.getNetworkClient():isAdmin() then
 			multiplayerGenerateData.numWaves = pNumWaves
@@ -637,13 +633,14 @@ function EventBase.new()
 			npcPathOffset = Random(seed)
 			numWaves = pNumWaves
 			local isInMultiplayer = Core.isInMultiplayer()
-			local increasedMaxDifficulty = mapInfo.getIncreasedDifficultyMax()
+			local addPerLevel = mapInfo.getAddPerLevel()
 			local longestWave = 0.0
 			totalNpcSpawned = 0
 			local totalGoldEarned = startGold
 			local theoreticalGold = startGold-350--start cost of wall towers
 			local theoreticalPaidHpPS = 0.0
 			local theoreticalGoldPaid = 0.0
+			local theoreticalMinimumScore = 0.0
 			local defaultGoldEarned = totalGoldEarned
 			local timerAddBetweenWaves = 5+math.max(0.0,5*(1.0-difficultBase))
 			local npcDelayAfterFirstTowerBuilt = 15.0							--delay for first wave
@@ -902,7 +899,7 @@ function EventBase.new()
 				
 				--statistics
 				--print("=== WAVE["..i.."]("..spawnHealthPerSecond*unitBypassMultiplyer..")\n")
-				local towerExtreDamageForRouting = increasedMaxDifficulty>=0.0 and (1.0+(increasedMaxDifficulty/2.5)) or 1.0
+				local towerExtreDamageForRouting = 1.0+(addPerLevel/2.5)
 				local dpsPG = (1.0+(i*(0.30/30))*(1.0+math.min(0.30,0.30*(i/15))))*towerExtreDamageForRouting
 				local toPay = ((spawnHealthPerSecond*unitBypassMultiplyer)-(theoreticalGoldPaid*dpsPG))/dpsPG
 				--
@@ -981,9 +978,11 @@ function EventBase.new()
 						waveNpcGold = waveNpcGold + calculateGoldValue(groupUnit.npc,hpMultiplyer)
 						--
 						waveGoldEarned = waveGoldEarned + (theoreticalGold*interestOnKill)
-						theoreticalGold = theoreticalGold*(1.0+interestOnKill)
 						--
-						theoreticalGold = theoreticalGold + calculateGoldValue(groupUnit.npc,hpMultiplyer)--statistics
+						theoreticalGold = (theoreticalGold*(1.0+interestOnKill)) + calculateGoldValue(groupUnit.npc,hpMultiplyer)--statistics
+						
+						--score += 400[estimated gold available]*interestOnKill*2[interest is valued 2x in score]*2[life/10==2, or on mincart map it is default 2]+goldEarnedFromKillingNPC
+						theoreticalMinimumScore = theoreticalMinimumScore + (400.0*interestOnKill*2.0*2.0) + (calculateGoldValue(groupUnit.npc,hpMultiplyer)*2.0)
 						--
 						--add unit to wave info
 						if waveDetailsInfo[groupUnit.npc] then
@@ -1014,6 +1013,7 @@ function EventBase.new()
 				--
 				--add gold earned this wave
 				theoreticalGold = theoreticalGold + calculateGoldForWave(i)
+				theoreticalMinimumScore = theoreticalMinimumScore + calculateGoldForWave(i)
 				--remove gold for building costs
 				local COSTPERWAVE = i>numWaves*0.5 and 1.3 or 0.7
 				local waveCost = (waveNpcGold*COSTPERWAVE) + (i>numWaves*0.5 and (theoreticalGold*(1/(numWaves*0.175)))+100 or 0)
@@ -1049,6 +1049,8 @@ function EventBase.new()
 --			print("=== theoreticalGold(Earned)="..(theoreticalGold+theoreticalGoldPaid))
 --			print("=== interest="..(theoreticalGold+theoreticalGoldPaid-totalGoldEarned))
 --			print("=== playTime=="..hours.."h "..minutes.."m")
+--			print("=== theoreticalMinimumScore(NORMAL) = "..(theoreticalMinimumScore+10000))
+--			print("=== theoreticalMinimumScore(MINECART) = "..theoreticalMinimumScore+500)
 --			abort()
 			--
 			comUnit:sendTo("stats", "setTotalNPCSpawns", totalNpcSpawned)

@@ -112,7 +112,7 @@ function CutterBlade.new()
 		targetSelector.setPosition(thePosition+(atVec*(length*0.5)))
 		targetSelector.setRange(length*0.55)
 		
-		if billboard:getFloat("electricBlade")>0 then
+		if billboard:getInt("electricBlade")>0 then
 			if not sparkCenter then
 				sparkCenter = {}
 				for i=1, 4, 1 do
@@ -127,7 +127,7 @@ function CutterBlade.new()
 				model:addChild(pointLight)
 			end
 			for i=1, 4, 1 do
-				sparkCenter[i]:setScale( 0.10+(0.05*billboard:getFloat("electricBlade")) )
+				sparkCenter[i]:setScale( 0.10+(0.05*billboard:getInt("electricBlade")) )
 				sparkCenter[i]:activate(Vec3())
 			end
 			pointLight:clear()

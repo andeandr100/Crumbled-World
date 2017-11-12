@@ -19,7 +19,7 @@ function CampaignGameMenu.new(panel)
 	local windowShop
 	local mapLabel
 	local iconImage
-	local difficutyBox
+--	local difficutyBox
 	local firstMapButton
 	local gameModeBox
 	local mainPanel
@@ -39,7 +39,7 @@ function CampaignGameMenu.new(panel)
 			labels[i]:setText(language:getText(labels[i]:getTag()))
 		end
 		gameModeBox.updateLanguage()
-		difficutyBox.updateLanguage()
+--		difficutyBox.updateLanguage()
 	end
 
 	local function setDefaultButtonColor(button)
@@ -102,17 +102,26 @@ function CampaignGameMenu.new(panel)
 	
 	local function updateIcons()
 		for i=1, #files do
-			if campaignData.isMapAvailable(i)>0 then
-				if campaignData.hasMapModeLevelBeenBeaten(i,levelInfo.getGameMode(),levelInfo.getLevel()) then
-					campaignList[i].icon:setUvCoord(Vec2(0.625,0.0),Vec2(0.75,0.0625))--this map with game mode and difficulty has been beaten
-				elseif campaignData.hasMapBeenBeaten(i) then
-					campaignList[i].icon:setUvCoord(Vec2(0.0,0.25),Vec2(0.125,0.3125))--this map has been beaten (on any game mode / difficulty)
-				else
-					campaignList[i].icon:setUvCoord(Vec2(0.0,0.0),Vec2(0.0,0.0))--no icon
-				end
-			else
-				campaignList[i].icon:setUvCoord(Vec2(0.5,0.0),Vec2(0.625,0.0625))--locked icon
+			if i%4==0 then
+				campaignList[i].icon:setUvCoord(Vec2(0.0,0.75),Vec2(0.25,0.8125))
+			elseif i%4==1 then
+				campaignList[i].icon:setUvCoord(Vec2(0.0,0.5625),Vec2(0.25,0.625))
+			elseif i%4==2 then
+				campaignList[i].icon:setUvCoord(Vec2(0.0,0.625),Vec2(0.25,0.6875))
+			elseif i%4==3 then
+				campaignList[i].icon:setUvCoord(Vec2(0.0,0.6875),Vec2(0.25,0.75))
 			end
+--			if campaignData.isMapAvailable(i)>0 then
+--				if campaignData.hasMapModeLevelBeenBeaten(i,levelInfo.getGameMode(),levelInfo.getLevel()) then
+--					campaignList[i].icon:setUvCoord(Vec2(0.625,0.0),Vec2(0.75,0.0625))--this map with game mode and difficulty has been beaten
+--				elseif campaignData.hasMapBeenBeaten(i) then
+--					campaignList[i].icon:setUvCoord(Vec2(0.0,0.25),Vec2(0.125,0.3125))--this map has been beaten (on any game mode / difficulty)
+--				else
+--					campaignList[i].icon:setUvCoord(Vec2(0.0,0.0),Vec2(0.0,0.0))--no icon
+--				end
+--			else
+--				campaignList[i].icon:setUvCoord(Vec2(0.5,0.0),Vec2(0.625,0.0625))--locked icon
+--			end
 		end
 		if gameModeBox then
 			if gameModeBox.getIndexText()=="survival" then
@@ -126,27 +135,27 @@ function CampaignGameMenu.new(panel)
 			end
 		end
 	end
-	local function changeDifficulty(tag, index)
-		if difficutyBox.isEnabled()==true then
-			levelInfo.setLevel(index)
-			--
-			menuPrevSelect:get("campaign"):get("selectedDifficulty"):setInt(index)
-			--
-			updateIcons()
-			updateRewardInfo()
-			--
-			difficutyBox.setIndex(index)
-			updateHighScorePanel()
-		end
-	end
-	local function fillDificulty(levels,currentLevel)
-		diffNames = {"easy", "normal", "hard", "extreme", "insane"}
-		for i=#diffNames+1, levels do
-			diffNames[#diffNames + 1] = language:getText("impossible") + " " + tostring(i-5)
-		end
-		difficutyBox.setItems(diffNames)
-		difficutyBox.setIndex(currentLevel)
-	end
+--	local function changeDifficulty(tag, index)
+--		if difficutyBox.isEnabled()==true then
+--			levelInfo.setLevel(1)
+--			--
+--			menuPrevSelect:get("campaign"):get("selectedDifficulty"):setInt(index)
+--			--
+--			updateIcons()
+--			updateRewardInfo()
+--			--
+--			difficutyBox.setIndex(index)
+--			updateHighScorePanel()
+--		end
+--	end
+--	local function fillDificulty(levels,currentLevel)
+--		diffNames = {"easy", "normal", "hard", "extreme", "insane"}
+--		for i=#diffNames+1, levels do
+--			diffNames[#diffNames + 1] = language:getText("impossible") + " " + tostring(i-5)
+--		end
+--		difficutyBox.setItems(diffNames)
+--		difficutyBox.setIndex(currentLevel)
+--	end
 	local function getMapIndex(filePath)
 		for i=1, #files do	
 			local file = files[i].file
@@ -156,20 +165,20 @@ function CampaignGameMenu.new(panel)
 		end
 		return 0
 	end
-	local function fillDificulty()
-		local levels = math.max(5,campaignData.getMapModeBeatenLevel(levelInfo.getMapNumber(),levelInfo.getGameMode())+1)
-		local currentLevel = math.min(levels,levelInfo.getLevel())
-		levelInfo.setLevel(currentLevel)--the difficulty may have been lowered
-		--reset list to default
-		diffNames = {"easy", "normal", "hard", "extreme", "insane"}
-		--insert the new dynamic levels
-		for i=#diffNames+1, levels do
-			diffNames[#diffNames + 1] = language:getText("imposible") + " " + tostring(i-5)
-		end
-		--add it to the controller
-		difficutyBox.setItems(diffNames)
-		difficutyBox.setIndex(currentLevel)
-	end
+--	local function fillDificulty()
+--		local levels = math.max(5,campaignData.getMapModeBeatenLevel(levelInfo.getMapNumber(),levelInfo.getGameMode())+1)
+--		local currentLevel = math.min(levels,levelInfo.getLevel())
+--		levelInfo.setLevel(1)--the difficulty may have been lowered
+--		--reset list to default
+--		diffNames = {"easy", "normal", "hard", "extreme", "insane"}
+--		--insert the new dynamic levels
+--		for i=#diffNames+1, levels do
+--			diffNames[#diffNames + 1] = language:getText("imposible") + " " + tostring(i-5)
+--		end
+--		--add it to the controller
+--		difficutyBox.setItems(diffNames)
+--		difficutyBox.setIndex(currentLevel)
+--	end
 	local function changeMapTo(filePath)
 		local mNum = getMapIndex(filePath)
 		if mNum>=1 then
@@ -188,10 +197,10 @@ function CampaignGameMenu.new(panel)
 				local texture = Core.getTexture(imageName and imageName or "noImage")
 				if mapInfo then
 					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
-					levelInfo.setChangedDifficultyMax(mapInfo.difficultyIncreaseMax)
-					levelInfo.setChangedDifficultyMin(mapInfo.difficultyIncreaseMin)
+					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
+					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 					levelInfo.setWaveCount(mapInfo.waveCount)
-					levelInfo.setLevel(difficutyBox.getIndex())
+					levelInfo.setLevel(1)
 					--changing default selected map
 					menuPrevSelect:get("campaign"):get("selectedMap"):setString(filePath)
 				end
@@ -204,7 +213,7 @@ function CampaignGameMenu.new(panel)
 				local d1 = files
 				selectedButton = files[mNum].button
 				setSelectedButtonColor(files[mNum].button)
-				fillDificulty()
+--				fillDificulty()
 				updateHighScorePanel()
 			else
 				--error or not available
@@ -276,7 +285,7 @@ function CampaignGameMenu.new(panel)
 				button:setInnerDownColor(Vec4(1,1,1,0.2), Vec4(1,1,1,0.3), Vec4(1,1,1,0.2))	
 	
 				--icon
-				local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") )
+				local icon = Image(PanelSize(Vec2(-1), Vec2(2,1)), Text("icon_table.tga") )
 				button:add(icon)
 				
 				button:setLayout(FlowLayout(Alignment.TOP_LEFT))
@@ -327,14 +336,14 @@ function CampaignGameMenu.new(panel)
 		gameModeBox.setIndex(index)
 		--
 		menuPrevSelect:get("campaign"):get("selectedGameMode"):setInt(index)
-		if gameModes[index]=="survival" or gameModes[index]=="rush" then
-			changeDifficulty("",2)
-			difficutyBox.setEnabled(false)
-		else
-			difficutyBox.setEnabled(true)
-		end
-		--
-		fillDificulty()
+--		if gameModes[index]=="survival" or gameModes[index]=="rush" then
+--			changeDifficulty("",2)
+--			difficutyBox.setEnabled(false)
+--		else
+--			difficutyBox.setEnabled(true)
+--		end
+--		--
+--		fillDificulty()
 		--
 		updateIcons()
 		updateRewardInfo()
@@ -357,13 +366,13 @@ function CampaignGameMenu.new(panel)
 				levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
 			end
 			if mapInfo then
-				levelInfo.setChangedDifficultyMax(mapInfo.difficultyIncreaseMax)
-				levelInfo.setChangedDifficultyMin(mapInfo.difficultyIncreaseMin)
+				levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
+				levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 				levelInfo.setWaveCount(mapInfo.waveCount)
 			else
 				error("No map information was found")
 			end
-			levelInfo.setLevel(difficutyBox.getIndex())
+			levelInfo.setLevel(1)
 			local d1 = levelInfo.getDifficulty()
 			local d2 = levelInfo.getDifficultyIncreaser()
 		end
@@ -390,15 +399,15 @@ function CampaignGameMenu.new(panel)
 		
 		mapLabel = infoPanel:add(Label(PanelSize(Vec2(-1, 0.03)), "The island world", Vec3(0.7), Alignment.MIDDLE_CENTER))
 		
-		--
-		--	Difficulties
-		--
-		local rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		labels[1] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("difficulty"), Vec3(0.7)))
-		labels[1]:setTag("difficulty")
-		local optionsNames = {"easy", "normal", "hard", "extreme", "insane"}
-		local difficultLevel = 2
-		difficutyBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), optionsNames, "difficulty", optionsNames[difficultLevel], changeDifficulty )
+--		--
+--		--	Difficulties
+--		--
+--		local rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
+--		labels[1] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("difficulty"), Vec3(0.7)))
+--		labels[1]:setTag("difficulty")
+--		local optionsNames = {"easy", "normal", "hard", "extreme", "insane"}
+--		local difficultLevel = 2
+--		difficutyBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), optionsNames, "difficulty", optionsNames[difficultLevel], changeDifficulty )
 		--
 		--	Game modes
 		--
@@ -528,8 +537,8 @@ function CampaignGameMenu.new(panel)
 			if files[index].available then
 				changeMapTo(menuPrevSelect:get("campaign"):get("selectedMap"):getString())
 				--
-				local diffIndex = menuPrevSelect:get("campaign"):get("selectedDifficulty"):getInt()
-				changeDifficulty("",diffIndex)
+--				local diffIndex = menuPrevSelect:get("campaign"):get("selectedDifficulty"):getInt()
+--				changeDifficulty("",diffIndex)
 				--
 				local selIndex = menuPrevSelect:get("campaign"):get("selectedGameMode"):getInt()
 				changeGameMode("", selIndex)
@@ -539,7 +548,7 @@ function CampaignGameMenu.new(panel)
 		end
 		if setDefault then
 			changeMapTo(files[1].file:getPath())
-			changeDifficulty("",2)
+--			changeDifficulty("",2)
 			changeGameMode("", 1)
 		end
 	

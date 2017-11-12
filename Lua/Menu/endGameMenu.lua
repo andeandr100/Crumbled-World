@@ -76,7 +76,7 @@ function create()
 	local camera = rootNode:findNodeByName("MainCamera");
 
 	local camera = ConvertToCamera(camera);
-	form = Form( camera, PanelSize(Vec2(0.3,-1)), Alignment.MIDDLE_CENTER);
+	form = Form( camera, PanelSize(Vec2(0.5,-1)), Alignment.MIDDLE_CENTER);
 	form:setName("EndGameMenu form")
 	form:getPanelSize():setFitChildren(false, true);
 	form:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))));
@@ -84,16 +84,23 @@ function create()
 	form:setVisible(false)
 	form:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
 	form:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
-	
-	
+	--
+	--	Top image
+	--
 	victoryImage = form:add(Image(PanelSize(Vec2(-1,1), Vec2(3,1)), "victory"))
 	victoryImage:setVisible(false)
 	
 	defeatedImage = form:add(Image(PanelSize(Vec2(-1,1), Vec2(3,1)), "defeated"))
 	defeatedImage:setVisible(false)
-	
+	--
+	--	Section with all stats
+	--
 	MainMenuStyle.createBreakLine(form)
 	
+	--
+	--	Bottom section with button options
+	--
+	MainMenuStyle.createBreakLine(form)
 	
 	local row = form:add(Panel(PanelSize(Vec2(-0.9,1),Vec2(10.1,1))))
 	row:setLayout(FlowLayout(PanelSize(Vec2(0.001,0))))

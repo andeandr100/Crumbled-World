@@ -615,6 +615,7 @@ function BladeTower.new()
 		if (type(param)=="string" and param=="") then
 			comUnit:sendNetworkSyncSafe("upgrade5","1")
 		end
+		billboard:setInt("electricBlade",upgrade.getLevel("electricBlade"))
 		if upgrade.getLevel("electricBlade")==0 then
 			if sparkCenter1 then
 				sparkCenter1:deactivate()
@@ -628,7 +629,6 @@ function BladeTower.new()
 			myStats.disqualified = true
 			model:getMesh("electric"):setVisible(true)
 			upgradeElectricScale = 0.20 + (upgrade.getLevel("electricBlade")*0.05)
-			billboard:setFloat("electricBlade",upgrade.getLevel("electricBlade"))
 			if sparkCenter1==nil then
 				--electric balls
 				sparkCenter1 = ParticleSystem(ParticleEffect.SparkSpirit)

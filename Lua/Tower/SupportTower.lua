@@ -30,7 +30,7 @@ function SwarmTower.new()
 	local weakenTimer
 	local weakenUpdateTimer
 	--Gold
-	local goldGainAmount
+	local goldGainAmount = 0
 	local goldUpdateTimer
 	--XP
 	local xpManager = XpSystem.new(upgrade)
@@ -432,7 +432,6 @@ function SwarmTower.new()
 			end
 		else
 			model:getMesh("weaken"):setVisible(true)
-			setCurrentInfo()
 			--loop all effects and create them
 			if not weakeningArea then
 				for i=1, 4 do
@@ -466,6 +465,7 @@ function SwarmTower.new()
 				comUnit:sendTo("SteamAchievement","UpgradeSupportMarkOfDeath","")
 			end
 		end
+		setCurrentInfo()
 	end
 	-- function:	Upgrades the towers gold upgrade.
 	-- callback:	Is called when the tower has been upgraded
@@ -532,7 +532,7 @@ function SwarmTower.new()
 			end
 		end
 		--gold gain aura
-		if goldGainAmount then
+		if goldGainAmount>0 then
 			goldUpdateTimer = goldUpdateTimer - Core.getDeltaTime()
 			if goldUpdateTimer<0.0 then
 				goldUpdateTimer = 0.1

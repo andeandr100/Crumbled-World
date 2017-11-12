@@ -220,8 +220,16 @@ function LanguagePanel.createLanguageOptions(panel)
 	addLanguageRow("money")
 	addLanguageRow("life remaining")
 	addLanguageRow("score")
-			
 	
+	--stats menu
+	addLanguageRow("Total gold earned")
+	addLanguageRow("From kills")
+	addLanguageRow("From interest")
+	addLanguageRow("From waves")
+	addLanguageRow("From towers")
+	addLanguageRow("Spent in towers")
+	addLanguageRow("Lost from selling")
+	addLanguageRow("Gold left")
 	
 	--map informatio
 	addSpace()

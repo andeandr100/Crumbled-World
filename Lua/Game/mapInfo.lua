@@ -8,8 +8,9 @@ function MapInfo.new()
 	local FIRSTTIMEGAMEMODEVICTORYBONUS = 1
 	local BASEBONUS = 1
 	local billboard = false
-	local increasedDifficultyMax = 0.0
-	local increasedDifficultyMin = 0.0
+	local actualLevel = 1
+	local addPerLevel = 0.0
+	local difficultyBase = 0.0
 
 	function self.setLevel(level,notSave)
 		--1 = 0.70
@@ -32,13 +33,13 @@ function MapInfo.new()
 		actualLevel = level
 		--balance difficulty to map
 		--increasedDifficultyMin
-		local addPerLevel = (increasedDifficultyMax-increasedDifficultyMin)/4.0
-		level = (level+increasedDifficultyMin)+(addPerLevel*(level-1))
+		--local addPerLevel = (increasedDifficultyMax-increasedDifficultyMin)/4.0
+		--level = (level+increasedDifficultyMin)+(addPerLevel*(level-1))
+		level = (level+difficultyBase)+(addPerLevel*(level-1))
 		--
-		print("setLevel == "..actualLevel..") == "..level.."\n")
-		billboard:setDouble("level",actualLevel)
-		billboard:setDouble("difficulty",0.75+((level-1)*0.055))			--start difficulty
-		billboard:setDouble("difficultIncreaser",1.0160+(level*0.00275))	--how fast the difficulty should accelerate
+		billboard:setInt("level",actualLevel)
+		billboard:setDouble("difficulty",0.75+(level*0.055))			--start difficulty
+		billboard:setDouble("difficultIncreaser",1.0160+((level+1)*0.00275))	--how fast the difficulty should accelerate
 		billboard:setInt("SpawnWindow",math.floor(2+(actualLevel*0.55)))	--how many different npc group can be spawned
 		--
 		if billboard:exist("isCart")==false then
@@ -60,15 +61,15 @@ function MapInfo.new()
 		print("setIsCartMap("..tostring(isCart)..")\n")
 		billboard:setBool("isCart",isCart)
 	end
-	function self.setChangedDifficultyMax(amount)
+	function self.setAddPerLevel(amount)
 		amount = amount or 0
-		increasedDifficultyMax = amount
-		self.setLevel(billboard:getDouble("level"))
+		addPerLevel = amount
+		self.setLevel(billboard:getInt("level"))
 	end
-	function self.setChangedDifficultyMin(amount)
+	function self.setDifficultyBase(amount)
 		amount = amount or 0
-		increasedDifficultyMin = amount
-		self.setLevel(billboard:getDouble("level"))
+		difficultyBase = amount
+		self.setLevel(billboard:getInt("level"))
 	end
 	function self.setIsCampaign(mode)
 		billboard:setBool("isCampaign",mode)
@@ -102,11 +103,11 @@ function MapInfo.new()
 		billboard:setInt("sead",tonumber(num))
 	end
 	--
-	function self.getIncreasedDifficultyMax()
-		return increasedDifficultyMax
+	function self.getAddPerLevel()
+		return addPerLevel
 	end
 	function self.getLevel()
-		return billboard:getDouble("level")
+		return billboard:getInt("level")
 	end
 	function self.getDifficulty()
 		return billboard:getDouble("difficulty")
@@ -151,8 +152,8 @@ function MapInfo.new()
 					local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
 					if mapInfo then
 						self.setIsCartMap(mapInfo.gameMode=="Cart")
-						self.setChangedDifficultyMax(mapInfo.difficultyIncreaseMax)
-						self.setChangedDifficultyMin(mapInfo.difficultyIncreaseMin)
+						self.setAddPerLevel(mapInfo.difficultyIncreaseMax)
+						self.setDifficultyBase(mapInfo.difficultyBase)
 						self.setWaveCount(mapInfo.waveCount)
 						--
 						ret = true
