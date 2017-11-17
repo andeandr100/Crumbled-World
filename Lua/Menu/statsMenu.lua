@@ -155,13 +155,13 @@ end
 local function updateGoldToolTip()
 
 	
-	local goldTextList = {	{"Total gold earned", "goldGainedTotal", color="40,255,40" }, 
-							{"Gold from kills", "goldGainedFromKills", color="40,255,40" }, 
-							{"Gold from interest", "goldGainedFromInterest", color="40,255,40" }, 
-							{"Gold from waves", "goldGainedFromWaves", color="40,255,40" }, 
-							{"Gold from towers", "goldGainedFromSupportTowers", color="40,255,40" }, 
-							{"Gold spent in towers", "goldInsertedToTowers", color="255,255,40" }, 
-							{"Gold lost from selling", "goldLostFromSelling", color="255,40,40"}
+	local goldTextList = {	{text=language:getText("Total gold earned"),	billName="goldGainedTotal", color="40,255,40" }, 
+							{text=language:getText("From kills"), 			billName="goldGainedFromKills", color="40,255,40" }, 
+							{text=language:getText("From interest"), 		billName="goldGainedFromInterest", color="40,255,40" }, 
+							{text=language:getText("From waves"), 			billName="goldGainedFromWaves", color="40,255,40" }, 
+							{text=language:getText("From towers"), 			billName="goldGainedFromSupportTowers", color="40,255,40" }, 
+							{text=language:getText("Spent in towers"), 		billName="goldInsertedToTowers", color="255,255,40" }, 
+							{text=language:getText("Lost from selling"),	billName="goldLostFromSelling", color="255,40,40"}
 						}
 	local toolPanel = Panel(PanelSize(Vec2(1)))
 	toolPanel:setLayout(FlowLayout())
@@ -173,14 +173,14 @@ local function updateGoldToolTip()
 	local goldSize = Vec2()
 	for i=1, #goldTextList do
 
-		local textLabel = textPanel:add(Label( PanelSize(Vec2(1)), Text(goldTextList[i][1]..":") ))
+		local textLabel = textPanel:add(Label( PanelSize(Vec2(1)), Text(goldTextList[i].text) ))
 		textLabel:setTextHeight(Core.getScreenResolution().y * 0.0125)
 		textLabel:setTextColor(Vec3(1))
 		local pixelSize = textLabel:getTextSizeInPixel() + Vec2(4,2)
 		textSize.x = math.max(textSize.x, pixelSize.x)
 
 		
-		local goldLabel = goldPanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..goldTextList[i].color..")>"..getBillboardStr(goldTextList[i][2]).."</font>") ))
+		local goldLabel = goldPanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..goldTextList[i].color..")>"..getBillboardStr(goldTextList[i].billName).."</font>") ))
 		goldLabel:setTextHeight(Core.getScreenResolution().y * 0.0125)
 		local goldPixelSize = goldLabel:getTextSizeInPixel() + Vec2(4,2)
 		goldSize.x = math.max(goldSize.x, goldPixelSize.x)

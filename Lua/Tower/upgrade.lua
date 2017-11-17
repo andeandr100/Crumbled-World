@@ -223,7 +223,7 @@ function Upgrade.new()
 			return		
 		end
 		
-		if not (name=="upgrade" or name=="boost" or name=="calculate") and freeSubUpgradesCount>0 then
+		if not (name=="upgrade" or name=="boost" or name=="calculate" or upgradesAvailable[name][1].hidden) and freeSubUpgradesCount>0 then
 			subUpgradeCount = subUpgradeCount - ((name=="upgrade" or name=="boost" or name=="calculate" or name=="range" or name=="gold" or name=="supportRange" or name=="supportDamage" or name=="smartTargeting") and 0 or 1)
 			freeSubUpgradesCount = math.max(0,freeSubUpgradesCount - 1)
 		else

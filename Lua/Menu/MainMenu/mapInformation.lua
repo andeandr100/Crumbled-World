@@ -74,7 +74,7 @@ function MapInformation.loadMapInfo(filePath)
 		local info = totable( mapInfo:getContent() )
 		local mapTable = {}
 		mapTable.mapSize = info.mapSize
-		mapTable.difficultyIncreaseMin = info.difficultyIncreaseMin
+		mapTable.difficultyBase = info.difficultyIncreaseMin
 		mapTable.difficultyIncreaseMax = info.difficultyIncreaseMax
 		mapTable.gameMode = info.gameMode
 		mapTable.players = info.players and info.players or 1

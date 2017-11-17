@@ -143,7 +143,7 @@ function update()
 					mapTable.icon = imageName
 					mapTable.hash = file:getHash()
 					mapTable.path = file:getPath()
-					mapTable.difficultyIncreaseMin = info.difficultyMin
+					mapTable.difficultyBase = info.difficultyMin
 					mapTable.difficultyIncreaseMax = info.difficultyMax
 					mapTable.waveCount = info.waveCount
 					

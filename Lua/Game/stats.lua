@@ -25,6 +25,8 @@ function restartMap()
 	billboard:setInt("wave", 0)
 	billboard:setInt("killedLessThan5m",0)
 	billboard:setString("timerStr","0s")
+	billboard:setInt("killCount",0)
+	scoreTable = {}
 	--
 	LOG("STATS.RESTARTMAP()\n")
 	
@@ -56,6 +58,7 @@ function restartWave(wave)
 		billboard:setInt("wave", wave)--the current wave number
 		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])--achivemenet
 		billboard:setInt("towersSold", item["towersSold"])--achivemenet
+		billboard:setInt("killCount", item["killCount"])
 		timer = wave<=1 and 0 or item.timer
 		updateTimerStr()
 	end
@@ -188,8 +191,11 @@ end
 function handleGoldInterest(amount)
 	local interestEarned = billboard:getDouble("gold")*tonumber(amount)
 	handleAddGold( interestEarned )
-	addScoreBasedOnAddedGold( interestEarned )
+	addScoreBasedOnAddedGold(tonumber(interestEarned))
 	billboard:setDouble( "goldGainedFromInterest", billboard:getDouble("goldGainedFromInterest")+interestEarned )
+	local count = billboard:getInt("killCount")+1
+	billboard:setInt( "killCount", count)
+	scoreTable[count] = billboard:getInt("score")
 end
 function handleRemoveGold(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")-tonumber(amount))
@@ -226,7 +232,10 @@ function handleSetwave(inWave)
 		
 		--Achivements
 		killedLessThan5m = billboard:getDouble("killedLessThan5m"),
-		towersSold = billboard:getDouble("towersSold")
+		towersSold = billboard:getDouble("towersSold"),
+		
+		--statistics
+		killCount = billboard:getDouble("killCount")
 	}
 	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 	Core.getComUnit():sendTo("builder"..node:getClientId(), "newWave", inWave)

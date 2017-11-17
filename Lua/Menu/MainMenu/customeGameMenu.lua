@@ -143,8 +143,8 @@ function CustomeGameMenu.new(panel)
 			levelInfo.setWaveCount(mapInfo and mapInfo.waveCount or 25)
 			levelInfo.setPlayerCount(mapInfo and mapInfo.players or 1)
 			if mapInfo then
-				levelInfo.setChangedDifficultyMax(mapInfo.difficultyIncreaseMax)
-				levelInfo.setChangedDifficultyMin(mapInfo.difficultyIncreaseMin)
+				levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
+				levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 			end
 			levelInfo.setLevel(difficutyBox.getIndex())
 		end
@@ -216,8 +216,8 @@ function CustomeGameMenu.new(panel)
 				levelInfo.setIsCartMap(mapInfo and mapInfo.gameMode=="Cart" or false)
 				levelInfo.setWaveCount(mapInfo and mapInfo.waveCount or 25)
 				if mapInfo then
-					levelInfo.setChangedDifficultyMax(mapInfo.difficultyIncreaseMax)
-					levelInfo.setChangedDifficultyMin(mapInfo.difficultyIncreaseMin)
+					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
+					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 				end
 				menuPrevSelect:get("custom"):get("selectedMap"):setString(filePath)
 				

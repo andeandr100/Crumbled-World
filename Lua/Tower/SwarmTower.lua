@@ -714,7 +714,7 @@ function SwarmTower.new()
 										damage = 			{ upgrade.func, boostDamage},
 										fireDPS = 			{ upgrade.func, boostFireDamage},
 										fieringTime =		{ upgrade.mul, 0.5}},
-										RPS =				{ upgrade.mul, 1.0/0.5}
+										RPS =				{ upgrade.mul, 2.0}
 							} )
 		-- RANGE
 		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,
