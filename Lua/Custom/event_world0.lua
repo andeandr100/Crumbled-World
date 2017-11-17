@@ -2,6 +2,9 @@ require("Game/eventBase.lua")
 --this = SceneNode()
 local event = EventBase.new()
 function create()
+	
+	this:getPlayerNode():loadLuaScript("Custom/tutorial.lua")
+	
 	local mapInfo = MapInfo.new()
 	local numWaves = mapInfo.getWaveCount()
 	local goldEstimationEarnedPerWave = 500+(numWaves*5)
