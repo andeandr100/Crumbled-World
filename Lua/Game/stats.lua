@@ -6,6 +6,7 @@ function restartMap()
 	local mapInfo = MapInfo.new()
 	
 	waveHistory = {}
+	scoreHistory = {}
 	currentWave = mapInfo.getStartWave()
 	
 	billboard:setDouble("gold", startGold or 1000)
@@ -17,16 +18,42 @@ function restartMap()
 	billboard:setDouble("goldInsertedToTowers", 0.0)
 	billboard:setDouble("goldLostFromSelling", 0.0)
 	billboard:setDouble("defaultGold", startGold or 1000)
+	billboard:setDouble("interestrate",0.0020)
+	billboard:setDouble("activeInterestrate",0.0020)
+	--
 	billboard:setDouble("totalDamageDone", 0.0)
+	--
 	billboard:setInt("life", 20)
 	billboard:setDouble("score", 0.0)
 	billboard:setFloat("difficult", 1.0)
+	--
+	billboard:setInt("towersSold", 0)
+	billboard:setInt("towersBuilt", 0)
+	billboard:setInt("towersUpgraded", 0)
+	billboard:setInt("towersSubUpgraded", 0)
+	billboard:setInt("towersBoosted", 0)
+	billboard:setInt("wallTowerBuilt", 0)
+	billboard:setInt("minigunTowerBuilt", 0)
+	billboard:setInt("arrowTowerBuilt", 0)
+	billboard:setInt("ElectricTower", 0)
+	billboard:setInt("swarmTowerBuilt", 0)
+	billboard:setInt("bladeTowerBuilt", 0)
+	billboard:setInt("missileTowerBuilt", 0)
+	billboard:setInt("quakeTowerBuilt", 0)
+	billboard:setInt("supportTowerBuilt", 0)
+	--
 	billboard:setInt("alive enemies", 0)
 	billboard:setInt("wave", 0)
 	billboard:setInt("killedLessThan5m",0)
 	billboard:setString("timerStr","0s")
 	billboard:setInt("killCount",0)
-	scoreTable = {}
+	billboard:setInt("spawnCount",0)
+	statsPerKillTable = {version=1}
+	--
+	--	Localy calculated
+	--
+	billboard:setDouble("totalTowerValue",0.0)
+	--all billboard string "1","2","3",... and so on are all pregiven to npc spawns
 	--
 	LOG("STATS.RESTARTMAP()\n")
 	
@@ -57,8 +84,21 @@ function restartWave(wave)
 		billboard:setDouble("score", item["score"])--your highscore
 		billboard:setInt("wave", wave)--the current wave number
 		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])--achivemenet
-		billboard:setInt("towersSold", item["towersSold"])--achivemenet
+		billboard:setInt("towersSold", item["towersSold"])
+		billboard:setInt("towersBuilt", item["towersBuilt"])
+		billboard:setInt("towersUpgraded", item["towersUpgraded"])
+		billboard:setInt("towersSubUpgraded", item["towersSubUpgraded"])
+		billboard:setInt("wallTowerBuilt", item["wallTowerBuilt"])
+		billboard:setInt("minigunTowerBuilt", item["minigunTowerBuilt"])
+		billboard:setInt("arrowTowerBuilt", item["arrowTowerBuilt"])
+		billboard:setInt("ElectricTower", item["ElectricTower"])
+		billboard:setInt("swarmTowerBuilt", item["swarmTowerBuilt"])
+		billboard:setInt("bladeTowerBuilt", item["bladeTowerBuilt"])
+		billboard:setInt("missileTowerBuilt", item["missileTowerBuilt"])
+		billboard:setInt("quakeTowerBuilt", item["quakeTowerBuilt"])
+		billboard:setInt("supportTowerBuilt", item["supportTowerBuilt"])
 		billboard:setInt("killCount", item["killCount"])
+		billboard:setInt("spawnCount", item["spawnCount"])
 		timer = wave<=1 and 0 or item.timer
 		updateTimerStr()
 	end
@@ -92,7 +132,6 @@ function create()
 	billboard:setInt("maxWave", 100)
 	billboard:setInt("NPCSpawnedThisWave", 0)
 	billboard:setInt("NPCSpawnsThisWave", 0)
-	billboard:setInt("totalNPCSpawned", 0)
 	billboard:setInt("totalNPCSpawns", 0)
 
 	--ComUnitCallbacks
@@ -107,10 +146,30 @@ function create()
 	comUnitTable["addTotalDmg"] = handleAddTotalDamage
 	comUnitTable["goldInterest"] = handleGoldInterest
 	comUnitTable["removeGold"] = handleRemoveGold
+	comUnitTable["setInterestRateOnKill"] = handleSetInterestRateOnKill
+	--
 	comUnitTable["addTowersSold"] = handleAddTowerSold
+	comUnitTable["addTowerBuilt"] = handleAddTowerBuilt
+	comUnitTable["addTowerUpgraded"] = handleAddTowerUpgraded
+	comUnitTable["addTowerSubUpgraded"] = handleAddTowerSubUpgraded
+	comUnitTable["addTowerBoosted"] = handleAddTowerBoosted
+	comUnitTable["addWallTowerBuilt"] = handleAddWallTowerBuilt
+	comUnitTable["addMinigunTowerBuilt"] = handleAddMinigunTowerBuilt
+	comUnitTable["addArrowTowerBuilt"] = handleAddArrowTowerBuilt
+	comUnitTable["addElectricTowerBuilt"] = handleAddElectricTowerBuilt
+	comUnitTable["addSwarmTowerBuilt"] = handleAddSwarmTowerBuilt
+	comUnitTable["addBladeTowerBuilt"] = handleAddBladeTowerBuilt
+	comUnitTable["addMissileTowerBuilt"] = handleAddMissileTowerBuilt
+	comUnitTable["addQuakeTowerBuilt"] = handleAddQuakeTowerBuilt
+	comUnitTable["addSupportTowerBuilt"] = handleAddSupportTowerBuilt
+	--
+	comUnitTable["updateTowerValue"] = handleUpdateTowerValue
+	--
 	comUnitTable["npcReachedEnd"] = handleNpcReachedEnd
+	--
 	comUnitTable["setWave"] = handleSetwave
 	comUnitTable["setMaxWave"] = handleSetMaxwave
+	--
 	comUnitTable["setBillboardDouble"] = handleSetBillboardDouble
 	comUnitTable["setBillboardInt"] = handleSetBillboardInt
 	comUnitTable["addBillboardDouble"] = handleAddBillboardDouble
@@ -122,11 +181,12 @@ function create()
 	comUnitTable["setTotalHp"] = handleSetTotalHp
 	comUnitTable["removeTotalHp"] = handleRemoveTotalHp
 	--
+	comUnitTable["npcSpawnedWave"] = handleNpcSpawnedWave
 	comUnitTable["setNPCSpawnedThisWave"] = handleSetNPCSpawnedThisWave
-	comUnitTable["setTotalNPCSpawned"] = handleSetTotalNPCSpawned
 	comUnitTable["setNPCSpawnsThisWave"] = handleSetNPCSpawnsThisWave
 	comUnitTable["setTotalNPCSpawns"] = handleSetTotalNPCSpawns
-	--
+	comUnitTable["addKill"] = handleAddKill
+	comUnitTable["addSpawn"] = handleAddSpawn
 	comUnitTable["killedLessThan5m"] = handleKilledLessThan5m
 	--
 	
@@ -137,7 +197,6 @@ function create()
 	towerList = {skip=20}
 	totalDamage = 0
 	updateScoreTime = -1.0
-	ScoreScale = 1
 	
 	cfg = Config("test")
 	local var = cfg:get("setTable")
@@ -146,8 +205,8 @@ function create()
 	
 	return true
 end
-function addScoreBasedOnAddedGold(addedGold)
-	billboard:setDouble("score", billboard:getDouble("score") + addedGold * ScoreScale * (billboard:getInt("life") / 10.0) )
+function updateScore()
+	billboard:setDouble("score", billboard:getDouble("totalTowerValue") + billboard:getDouble("gold") + (billboard:getInt("life")*100) + billboard:getDouble("goldGainedFromInterest") )
 end
 	
 function handleAddTotalDamage(dmg)
@@ -161,10 +220,12 @@ function handleKilledLessThan5m()
 end
 function handleSetLife(numLife)
 	billboard:setInt("life", tonumber(numLife))
+	billboard:setDouble("activeInterestrate",billboard:getDouble("interestrate")*(billboard:getInt("life")/billboard:getInt("maxLife")))
+	updateScore()
 end
 function handleSetMaxLife(maxNumLife)
 	billboard:setInt("maxLife", tonumber(maxNumLife))
-	ScoreScale = tonumber(maxNumLife) == 1 and 20 or 1
+	billboard:setDouble("activeInterestrate",billboard:getDouble("interestrate")*(billboard:getInt("life")/billboard:getInt("maxLife")))
 end
 function handleSetStartGold(amount)
 	startGold = tonumber(amount)
@@ -174,43 +235,47 @@ function handleSetGold(amount)
 	billboard:setDouble("gold", tonumber(amount))
 	billboard:setDouble("goldGainedTotal", tonumber(amount))
 	billboard:setDouble("defaultGold", tonumber(amount))
+	updateScore()
 end
 function handleAddGold(amount)
-	addScoreBasedOnAddedGold(tonumber(amount))
 	billboard:setDouble("gold", billboard:getDouble("gold")+tonumber(amount))
 	billboard:setDouble("goldGainedTotal", billboard:getDouble("goldGainedTotal")+tonumber(amount))
+	updateScore()
 end
 function handleAddGoldNoScore(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")+tonumber(amount))
-	--there was no new goldGainedTotal. as this is just gold from sold towers
+	updateScore()
 end
 function handleAddGoldWaveBonus(amount)
 	handleAddGold(amount)
 	billboard:setDouble("goldGainedFromWaves",billboard:getDouble("goldGainedFromWaves")+tonumber(amount))
 end
-function handleGoldInterest(amount)
-	local interestEarned = billboard:getDouble("gold")*tonumber(amount)
+--player earn gold on all real kills (repar spawns and hydras>1 does not grant any gold/interest)
+function handleGoldInterest(multiplyer)
+	local interestEarned = billboard:getDouble("gold")*tonumber(multiplyer)*billboard:getDouble("activeInterestrate")
 	handleAddGold( interestEarned )
-	addScoreBasedOnAddedGold(tonumber(interestEarned))
 	billboard:setDouble( "goldGainedFromInterest", billboard:getDouble("goldGainedFromInterest")+interestEarned )
-	local count = billboard:getInt("killCount")+1
-	billboard:setInt( "killCount", count)
-	scoreTable[count] = billboard:getInt("score")
+end
+function handleSetInterestRateOnKill(interest)
+	billboard:setDouble("interestrate",tonumber(interest))
+	billboard:setDouble("activeInterestrate",billboard:getDouble("interestrate")*(billboard:getInt("life")/billboard:getInt("maxLife")))
 end
 function handleRemoveGold(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")-tonumber(amount))
 	billboard:setDouble("goldInsertedToTowers", billboard:getDouble("goldInsertedToTowers")+tonumber(amount))
+	--
+	handleUpdateTowerValue()
+	updateScore()
 end
 function handleSetMaxwave(inWave)
 	billboard:setInt("maxWave", inWave)
 end
 function handleSetwave(inWave)
-	if inWave==1 then
-		billboard:setDouble("score", 0)
-	end
 	billboard:setInt("wave", inWave)
 	currentWave = inWave
 	timer = inWave==1 and 0 or timer
+--	scoreHistory[inWave] = {}
+	statsPerKillTable[inWave] = {}
 	waveHistory[inWave] = {
 		life = billboard:getDouble("life"),
 		score = billboard:getDouble("score"),
@@ -229,13 +294,26 @@ function handleSetwave(inWave)
 		waveGold = billboard:getDouble("waveGold"),
 		totalHp = billboard:getDouble("totalHp"),
 		timer = timer,
-		
-		--Achivements
+		--
 		killedLessThan5m = billboard:getDouble("killedLessThan5m"),
-		towersSold = billboard:getDouble("towersSold"),
-		
+		towersSold = billboard:getInt("towersSold"),
+		towersBuilt = billboard:getInt("towersBuilt"),
+		towersUpgraded = billboard:getInt("towersUpgraded"),
+		towersSubUpgraded = billboard:getInt("towersSubUpgraded"),
+		towersBoosted = billboard:getInt("towersBoosted"),
+		wallTowerBuilt = billboard:getInt("wallTowerBuilt"),
+		minigunTowerBuilt = billboard:getInt("minigunTowerBuilt"),
+		arrowTowerBuilt = billboard:getInt("arrowTowerBuilt"),
+		ElectricTower = billboard:getInt("ElectricTower"),
+		swarmTowerBuilt = billboard:getInt("swarmTowerBuilt"),
+		bladeTowerBuilt = billboard:getInt("bladeTowerBuilt"),
+		missileTowerBuilt = billboard:getInt("missileTowerBuilt"),
+		quakeTowerBuilt = billboard:getInt("quakeTowerBuilt"),
+		supportTowerBuilt = billboard:getInt("supportTowerBuilt"),
+
 		--statistics
-		killCount = billboard:getDouble("killCount")
+		killCount = billboard:getDouble("killCount"),
+		spawnCount = billboard:getDouble("spawnCount")
 	}
 	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 	Core.getComUnit():sendTo("builder"..node:getClientId(), "newWave", inWave)
@@ -246,12 +324,63 @@ function handleNpcReachedEnd(param)
 	if billboard:getInt("life")<0 then
 		billboard:setInt("life",0)
 	end
+	billboard:setDouble("activeInterestrate",billboard:getDouble("interestrate")*(billboard:getInt("life")/billboard:getInt("maxLife")))
 end
 function handleAddTowerSold()
 	billboard:setInt("towersSold", billboard:getInt("towersSold")+1)
 	if billboard:getInt("towersSold")==5 then
 		Core.getComUnit():sendTo("SteamAchievement","Seller","")
 	end
+	--
+	handleUpdateTowerValue()
+	updateScore()
+end
+function handleAddTowerBuilt()
+	billboard:setInt("towersBuilt", billboard:getInt("towersBuilt")+1)
+end
+function handleAddTowerUpgraded()
+	billboard:setInt("towersUpgraded", billboard:getInt("towersUpgraded")+1)
+end
+function handleAddTowerSubUpgraded()
+	billboard:setInt("towersSubUpgraded", billboard:getInt("towersSubUpgraded")+1)
+end
+function handleAddTowerBoosted()
+	billboard:setInt("towersBoosted", billboard:getInt("towersBoosted")+1)
+end
+function handleAddWallTowerBuilt()
+	billboard:setInt("wallTowerBuilt", billboard:getInt("wallTowerBuilt")+1)
+end
+function handleAddMinigunTowerBuilt()
+	billboard:setInt("minigunTowerBuilt", billboard:getInt("minigunTowerBuilt")+1)
+	handleAddTowerBuilt()
+end
+function handleAddArrowTowerBuilt()
+	billboard:setInt("arrowTowerBuilt", billboard:getInt("arrowTowerBuilt")+1)
+	handleAddTowerBuilt()
+end
+function handleAddElectricTowerBuilt()
+	billboard:setInt("ElectricTower", billboard:getInt("ElectricTower")+1)
+	handleAddTowerBuilt()
+end
+function handleAddSwarmTowerBuilt()
+	billboard:setInt("swarmTowerBuilt", billboard:getInt("swarmTowerBuilt")+1)
+	handleAddTowerBuilt()
+end
+function handleAddBladeTowerBuilt()
+	billboard:setInt("bladeTowerBuilt", billboard:getInt("bladeTowerBuilt")+1)
+	handleAddTowerBuilt()
+end
+function handleAddMissileTowerBuilt()
+	billboard:setInt("missileTowerBuilt", billboard:getInt("missileTowerBuilt")+1)
+	handleAddTowerBuilt()
+end
+function handleAddQuakeTowerBuilt()
+	billboard:setInt("quakeTowerBuilt", billboard:getInt("quakeTowerBuilt")+1)
+	handleAddTowerBuilt()
+end
+function handleAddSupportTowerBuilt()
+	billboard:setInt("supportTowerBuilt", billboard:getInt("supportTowerBuilt")+1)
+	handleAddTowerBuilt()
 end
 function handleSetBillboardDouble(param)
 	local bName,bValue = string.match(param, "(.*);(.*)")
@@ -293,17 +422,70 @@ function handleSetBillboardString(param)
 	local bName,bValue = string.match(param, "([^;]+);([^;]+)")
 	billboard:setString(bName,bValue)
 end
+function handleNpcSpawnedWave(param)
+	local index,wave = string.match(param, "([^;]+);([^;]+)")
+	if currentWave==tonumber(wave) then
+		print("======== "..index.." spawned on wave "..wave)
+		billboard:setInt(index, tonumber(wave))
+	end
+end
 function handleSetNPCSpawnedThisWave(param)
 	billboard:setInt("NPCSpawnedThisWave", param)
-end
-function handleSetTotalNPCSpawned(param)
-	billboard:setInt("totalNPCSpawned", param)
 end
 function handleSetNPCSpawnsThisWave(param)
 	billboard:setInt("NPCSpawnsThisWave", param)
 end
 function handleSetTotalNPCSpawns(param)
 	billboard:setInt("totalNPCSpawns", param)
+end
+function handleAddKill(param,index)
+	
+	local d0 = billboard:exist(tostring(index));
+	local dt = billboard;
+	if billboard:getInt(tostring(index))==currentWave then
+		--local count = billboard:getInt("killCount")+1
+		billboard:setInt( "killCount", billboard:getInt("killCount")+1)
+		local next = #statsPerKillTable[currentWave]+1
+		statsPerKillTable[currentWave][next] = {
+			--GOLD
+			tostring(billboard:getDouble("goldGainedTotal"))..";"..
+			tostring(billboard:getDouble("goldGainedFromKills"))..";"..
+			tostring(billboard:getDouble("goldGainedFromInterest"))..";"..
+			tostring(billboard:getDouble("goldGainedFromWaves"))..";"..
+			tostring(billboard:getDouble("goldGainedFromSupportTowers"))..";"..
+			tostring(billboard:getDouble("goldInsertedToTowers"))..";"..
+			tostring(billboard:getDouble("goldLostFromSelling"))..";"..
+			--SCORE
+			tostring(billboard:getInt("score"))..";"..
+			tostring(billboard:getDouble("totalTowerValue"))..";"..
+			tostring(billboard:getInt("life"))..";"..
+			--TOWERS
+			tostring(billboard:getInt("towersBuilt"))..";"..
+			tostring(billboard:getInt("wallTowerBuilt"))..";"..
+			tostring(billboard:getInt("towersSold"))..";"..
+			tostring(billboard:getInt("towersUpgraded"))..";"..
+			tostring(billboard:getInt("towersSubUpgraded"))..";"..
+			tostring(billboard:getInt("towersBoosted"))..";"..
+			--ENEMIES
+			tostring(billboard:getDouble("spawnCount"))..";"..
+			tostring(billboard:getDouble("killCount"))..";"..
+			tostring(billboard:getDouble("totalDamageDone"))
+		}
+	--	scoreHistory[currentWave][#scoreHistory[currentWave]+1] = billboard:getInt("score")
+	--	billboard:setTable("scoreHistory",scoreHistory)		--EXPANSIVE
+		
+--		local c1 = Config("test")
+--		local item = c1:get("root")
+--		item:setTable( statsPerKillTable )
+--		c1:save()
+	--	addheader(panel,"Enemies")
+	--	local label12 = addLine(panel,14,"Spawned:")
+	--	local label13 = addLine(panel,15,"Killed:")
+	--	local label14 = addLine(panel,16,"Damage:")
+	end
+end
+function handleAddSpawn()
+	billboard:setInt("spawnCount", billboard:getInt("spawnCount")+1)
 end
 --
 function updateXpPerGold()
@@ -332,6 +514,18 @@ function handleRemoveTotalHp(param)
 	updateXpPerGold()
 end
 --
+function handleUpdateTowerValue()
+	local towers = buildNode:getBuildingList()
+	local totalValue = 0.0
+	for i=1, #towers do
+		local script = towers[i]:getScriptByName("tower")
+		local towerBillboard = script and script:getBillboard() or nil
+		if towerBillboard and towerBillboard:getBool("isNetOwner") then
+			totalValue = totalValue + towerBillboard:getDouble("value")
+		end
+	end
+	billboard:setDouble("totalTowerValue",totalValue)
+end
 function waveChanged()
 	local lastWaveDmg = 0
 	local towers = buildNode:getBuildingList()
@@ -380,7 +574,7 @@ function update()
 	while comUnit:hasMessage() do
 		local msg = comUnit:popMessage()
 		if comUnitTable[msg.message]~=nil then
-			comUnitTable[msg.message](msg.parameter)
+			comUnitTable[msg.message](msg.parameter,msg.fromIndex)
 		end
 	end
 	updateTimerStr()
@@ -391,6 +585,8 @@ function update()
 			updateScoreTime = updateScoreTime - Core.getDeltaTime()
 			if updateScoreTime <= 0.0 then
 				waveChanged()
+				handleUpdateTowerValue()
+				updateScore()
 			end
 		end
 		

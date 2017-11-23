@@ -230,6 +230,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	addLanguageRow("Spent in towers")
 	addLanguageRow("Lost from selling")
 	addLanguageRow("Gold left")
+	addLanguageRow("Interest rate")
 	
 	--map informatio
 	addSpace()

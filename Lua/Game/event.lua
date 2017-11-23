@@ -6,7 +6,7 @@ function create()
 	local numWaves = mapInfo.getWaveCount()						--how many waves must be beaten to win
 	local goldEstimationEarnedPerWave = 500+(numWaves*5)
 	local startGold = 1000										--how much gold to start with
-	local interestOnKill = 0.0020								--how much gold percentage gained on killing an npc
+	local interestOnKill = "0.0020"								--how much gold percentage gained on killing an npc
 	local goldMultiplayerOnKills = 1.0							--gold gain on killing an npc 1.0==default
 	local startLives = 20										--how many npc you can have slip by without losing
 	local seed = mapInfo.getSead()								--what seed should be used for the mapd
@@ -27,7 +27,7 @@ function create()
 	elseif mapInfo.getGameMode()=="survival" then
 		--lower the availabel gold to make the spawned npc's easier. (this will make it easier to get intrest in the available gold)
 		startGold = startGold*0.5				--(makes the spawn easier, restored after the generating of the waves)
-		interestOnKill = interestOnKill*0.5		--(makes the spawn easier, restored after the generating of the waves)
+		interestOnKill = "0.0010"		--(makes the spawn easier, restored after the generating of the waves)
 		numWaves = 100
 	elseif mapInfo.getGameMode()=="training" then
 		--nothing, so the spawns will be the same as if in normal game
@@ -35,7 +35,7 @@ function create()
 		--nothing, to leave wave unchanged
 	elseif mapInfo.getGameMode()=="leveler" then
 		startGold = 1000
-		interestOnKill = 0.0
+		interestOnKill = "0.0"
 	end
 	--
 	if Core.isInMultiplayer() then
@@ -61,7 +61,7 @@ function create()
 	--
 	if mapInfo.getGameMode()=="survival" then
 		startGold = startGold * 2.0
-		interestOnKill = interestOnKill * 2.0
+		interestOnKill = "0.0020"
 	elseif mapInfo.getGameMode()=="training" then
 		startGold = math.floor(numWaves*goldEstimationEarnedPerWave/100.00+0.5)*100.0
 		waveFinishedGold = 0

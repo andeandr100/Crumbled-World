@@ -8,39 +8,31 @@ function towerBuiltSteamStats(script)
 				comUnit:sendTo("SteamAchievement","Waller","")
 			end
 			comUnit:sendTo("SteamStats","WallTowersBuilt",1)
-			comUnit:sendTo("stats","addBillboardInt","wallTowerBuilt;1")
+			comUnit:sendTo("stats","addWallTowerBuilt","")
 		elseif script:getFileName()=="Tower/MinigunTower.lua" then
 			comUnit:sendTo("SteamStats","MinigunTowersBuilt",1)
-			comUnit:sendTo("stats","addBillboardInt","minigunTowerBuilt;1")
-			comUnit:sendTo("stats","addBillboardInt","level1;1")
+			comUnit:sendTo("stats","addMinigunTowerBuilt","")
 		elseif script:getFileName()=="Tower/ArrowTower.lua" then
 			comUnit:sendTo("SteamStats","ArrowTowersBuilt",1)
-			comUnit:sendTo("stats","addBillboardInt","arrowTowerBuilt;1")
-			comUnit:sendTo("stats","addBillboardInt","level1;1")
+			comUnit:sendTo("stats","addArrowTowerBuilt","")
 		elseif script:getFileName()=="Tower/ElectricTower.lua" then
 			comUnit:sendTo("SteamStats","ElectricTowersBuilt",1)
-			comUnit:sendTo("stats","addBillboardInt","electricTowerBuilt;1")
-			comUnit:sendTo("stats","addBillboardInt","level1;1")
+			comUnit:sendTo("stats","addElectricTowerBuilt","")
 		elseif script:getFileName()=="Tower/SwarmTower.lua" then
 			comUnit:sendTo("SteamStats","SwarmTowersBuilt",1)
-			comUnit:sendTo("stats","addBillboardInt","swarmTowerBuilt;1")
-			comUnit:sendTo("stats","addBillboardInt","level1;1")
+			comUnit:sendTo("stats","addSwarmTowerBuilt","")
 		elseif script:getFileName()=="Tower/BladeTower.lua" then
 			comUnit:sendTo("SteamStats","BladeTowersBuilt",1)
-			comUnit:sendTo("stats","addBillboardInt","bladeTowerBuilt;1")
-			comUnit:sendTo("stats","addBillboardInt","level1;1")
+			comUnit:sendTo("stats","addBladeTowerBuilt","")
 		elseif script:getFileName()=="Tower/missileTower.lua" then
 			comUnit:sendTo("SteamStats","MissileTowersBuilt",1)
-			comUnit:sendTo("stats","addBillboardInt","missileTowerBuilt;1")
-			comUnit:sendTo("stats","addBillboardInt","level1;1")
+			comUnit:sendTo("stats","addMissileTowerBuilt","")
 		elseif script:getFileName()=="Tower/quakerTower.lua" then
 			comUnit:sendTo("SteamStats","QuakeTowersBuilt",1)
-			comUnit:sendTo("stats","addBillboardInt","quakeTowerBuilt;1")
-			comUnit:sendTo("stats","addBillboardInt","level1;1")
+			comUnit:sendTo("stats","addQuakeTowerBuilt","")
 		elseif script:getFileName()=="Tower/SupportTower.lua" then
 			comUnit:sendTo("SteamStats","SupportTowersBuilt",1)
-			comUnit:sendTo("stats","addBillboardInt","supportTowerBuilt;1")
-			comUnit:sendTo("stats","addBillboardInt","level1;1")
+			comUnit:sendTo("stats","addSupportTowerBuilt","")
 		elseif DEBUG then
 			error("Tower not set for SteamStats. "..script:getFileName())
 		end
@@ -120,8 +112,9 @@ function upgradeFromTowerToTower(buildingToUpgrade, buildCost, scriptName, newLo
 				else
 					--from otherTower to wallTower (selling)
 					comUnit:sendTo("stats","addGoldNoScore",tostring( math.max( fromTowerCost - toTowerCost, 0)))
-					local buildingValueLost = fromTowerScript:getBillboard():getFloat("totalCost")-fromTowerScript:getBillboard():getFloat("value")
+					local buildingValueLost = fromTowerScript:getBillboard():getDouble("totalCost")-fromTowerScript:getBillboard():getDouble("value")
 					comUnit:sendTo("stats","addBillboardDouble","goldLostFromSelling;"..tostring(buildingValueLost))
+					comUnit:sendTo("stats","addTowersSold","")
 				end
 				comUnit:sendTo(buildingScript:getIndex(),"NetOwner","YES")
 			else

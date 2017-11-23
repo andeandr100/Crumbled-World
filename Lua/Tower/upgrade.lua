@@ -223,8 +223,15 @@ function Upgrade.new()
 			return		
 		end
 		
+		if name=="upgrade" then
+			comUnit:sendTo("stats","addTowerUpgraded","")
+		elseif name=="boost" then
+			comUnit:sendTo("stats","addTowerBoosted","")
+		elseif upgradesAvailable[name][1].hidden==false and name~="rotate" then
+			comUnit:sendTo("stats","addTowerSubUpgraded","")
+		end
 		if not (name=="upgrade" or name=="boost" or name=="calculate" or upgradesAvailable[name][1].hidden) and freeSubUpgradesCount>0 then
-			subUpgradeCount = subUpgradeCount - ((name=="upgrade" or name=="boost" or name=="calculate" or name=="range" or name=="gold" or name=="supportRange" or name=="supportDamage" or name=="smartTargeting") and 0 or 1)
+			subUpgradeCount = subUpgradeCount - ((name=="upgrade" or name=="boost" or name=="calculate" or name=="range" or name=="rotate" or name=="gold" or name=="supportRange" or name=="supportDamage" or name=="smartTargeting") and 0 or 1)
 			freeSubUpgradesCount = math.max(0,freeSubUpgradesCount - 1)
 		else
 			local lCost = (upgraded[order] and upgradesAvailable[name][upgraded[order].level+1].cost or upgradesAvailable[name][1].cost)
@@ -248,8 +255,8 @@ function Upgrade.new()
 				ignoreUpgrade = false
 			end
 		end
-		billboard:setFloat("value", totalCost*valueEfficiency)--value)
-		billboard:setFloat("totalCost",totalCost)
+		billboard:setDouble("value", totalCost*valueEfficiency)--value)
+		billboard:setDouble("totalCost",totalCost)
 		self.upgradeOnly( name, true )
 		if upgradesAvailable[name][1].duration then
 			--if upgrade is temporary
@@ -604,7 +611,7 @@ function Upgrade.new()
 					return currentStats
 				else
 					self.upgradeOnly( "upgrade", false)
-					local futureStats = type(stats[stat])=="function" and stats[stat]() or stats[stat]
+					local futureStats = type(stats[stat])=="function" and stats[stat]()	 or stats[stat]
 					self.degradeOnly( "upgrade", false)
 					if currentStats and futureStats then
 						return currentStats + (futureStats-currentStats)*interpolation
@@ -725,6 +732,7 @@ function Upgrade.new()
 		if valueEfficiency>0.75 then
 			valueEfficiency = 0.75
 			billboard:setFloat("value", totalCost*valueEfficiency)
+			comUnit:sendTo("stats","updateTowerValue","")
 		end
 	end
 	-- function:	set

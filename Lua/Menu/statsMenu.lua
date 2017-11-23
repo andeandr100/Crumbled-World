@@ -161,7 +161,8 @@ local function updateGoldToolTip()
 							{text=language:getText("From waves"), 			billName="goldGainedFromWaves", color="40,255,40" }, 
 							{text=language:getText("From towers"), 			billName="goldGainedFromSupportTowers", color="40,255,40" }, 
 							{text=language:getText("Spent in towers"), 		billName="goldInsertedToTowers", color="255,255,40" }, 
-							{text=language:getText("Lost from selling"),	billName="goldLostFromSelling", color="255,40,40"}
+							{text=language:getText("Lost from selling"),	billName="goldLostFromSelling", color="255,40,40"},
+							{text=language:getText("Iterest rate"),		billName="activeInterestrate", color="40,255,40"},
 						}
 	local toolPanel = Panel(PanelSize(Vec2(1)))
 	toolPanel:setLayout(FlowLayout())
@@ -180,7 +181,13 @@ local function updateGoldToolTip()
 		textSize.x = math.max(textSize.x, pixelSize.x)
 
 		
-		local goldLabel = goldPanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..goldTextList[i].color..")>"..getBillboardStr(goldTextList[i].billName).."</font>") ))
+		local goldLabel
+		if goldTextList[i].billName=="activeInterestrate" then
+			local out = string.format("%.2f",statsBilboard:getDouble(goldTextList[i].billName)*100.0)
+			goldLabel = goldPanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..goldTextList[i].color..")>"..out.."%</font>") ))
+		else
+			goldLabel = goldPanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..goldTextList[i].color..")>"..getBillboardStr(goldTextList[i].billName).."</font>") ))
+		end
 		goldLabel:setTextHeight(Core.getScreenResolution().y * 0.0125)
 		local goldPixelSize = goldLabel:getTextSizeInPixel() + Vec2(4,2)
 		goldSize.x = math.max(goldSize.x, goldPixelSize.x)
