@@ -7,11 +7,13 @@ local data = {}
 local menuItems = {}
 local index = 1
 local indexMax = 0
+local initEventDone = false
 local indexSpeed = 1
-local PLAYTIME = 5
+local PLAYTIME = 1.5
 local SCOREPERLIFE = 100
 local bilboardStats = Core.getBillboard("stats")
 local graph
+local input = Core.getInput()
 
 -- function:	destroy
 -- purpose:		called on the destruction of this script
@@ -125,27 +127,29 @@ local function numberToSmalString(num)
 end
 function setStatsLayout(panel)
 	addheader(panel,"Gold")
-	menuItems[1] = { label=addLine(panel,2,language:getText("Total gold earned")), key="goldGainedTotal"}
-	menuItems[2] = { label=addLine(panel,3,language:getText("From kills")), key="goldGainedFromKills"}
-	menuItems[3] = { label=addLine(panel,4,language:getText("From interest")), key="goldGainedFromInterest"}
-	menuItems[4] = { label=addLine(panel,5,language:getText("From waves")), key="goldGainedFromWaves"}
-	menuItems[5] = { label=addLine(panel,6,language:getText("From towers")), key="goldGainedFromSupportTowers"}
-	menuItems[6] = { label=addLine(panel,7,language:getText("Spent in towers")), key="goldInsertedToTowers"}
-	menuItems[7] = { label=addLine(panel,8,language:getText("Lost from selling")), key="goldLostFromSelling"}
+	menuItems[1] = { label=addLine(panel,2,language:getText("Total gold earned")), key=2}
+	menuItems[2] = { label=addLine(panel,3,"Gold available:"), key=1}
+	menuItems[3] = { label=addLine(panel,4,language:getText("From kills")), key=3}
+	menuItems[4] = { label=addLine(panel,5,language:getText("From interest")), key=4}
+	menuItems[5] = { label=addLine(panel,6,language:getText("From waves")), key=5}
+	menuItems[6] = { label=addLine(panel,7,language:getText("From towers")), key=6}
+	menuItems[7] = { label=addLine(panel,8,language:getText("Spent in towers")), key=7}
+	menuItems[8] = { label=addLine(panel,9,language:getText("Lost from selling")), key=8}
 	addheader(panel,"Score")
-	menuItems[8] = { label=addLine(panel,10,"From gold:"), key="score"}
-	menuItems[9] = { label=addLine(panel,11,"From life left:")}
+	menuItems[9] = { label=addLine(panel,9,"From gold:")}
+	menuItems[10] = { label=addLine(panel,10,"Total tower value:"), key=10}
+	menuItems[11] = { label=addLine(panel,11,"From life left:"), key=11, multiplyer=SCOREPERLIFE}
 	addheader(panel,"Towers")
-	menuItems[10] = { label=addLine(panel,10,"Built:"), key="towersBuilt"}
-	menuItems[11] = { label=addLine(panel,11,"walls:"), key="wallTowerBuilt"}
-	menuItems[12] = { label=addLine(panel,12,"sold:"), key="towersSold"}
-	menuItems[13] = { label=addLine(panel,13,"Upgrades:"), key="towersUpgraded"}
-	menuItems[14] = { label=addLine(panel,14,"Sub upgrades:"), key="towersSubUpgraded"}
-	menuItems[15] = { label=addLine(panel,15,"Boosted:"), key="towersBoosted"}
+	menuItems[12] = { label=addLine(panel,10,"Built:"), key=12}
+	menuItems[13] = { label=addLine(panel,11,"walls:"), key=13}
+	menuItems[14] = { label=addLine(panel,12,"sold:"), key=14}
+	menuItems[15] = { label=addLine(panel,13,"Upgrades:"), key=15}
+	menuItems[16] = { label=addLine(panel,14,"Sub upgrades:"), key=16}
+	menuItems[17] = { label=addLine(panel,15,"Boosted:"), key=17}
 	addheader(panel,"Enemies")
-	menuItems[16] = { label=addLine(panel,16,"Spawned:"), key="spawnCount"}
-	menuItems[17] = { label=addLine(panel,17,"Killed:"), key="killCount"}
-	menuItems[18] = { label=addLine(panel,18,"Damage:"), key="DamageTotal"}
+	menuItems[18] = { label=addLine(panel,16,"Spawned:"), key=18}
+	menuItems[19] = { label=addLine(panel,17,"Killed:"), key=19}
+	menuItems[20] = { label=addLine(panel,18,"Damage:"), key=20}
 end
 function setGraphLayout()
 	
@@ -246,23 +250,41 @@ function getKill(index)
 	local kill = math.clamp( math.floor(max*per+0.5), 1, max)
 	return data[wave][kill]
 end
+function updateAllMenuLabels()
+	for i=1, #menuItems do
+		local kill = getKill(index)
+		if menuItems[i].key then
+			menuItems[i].label:setText( tostring(math.floor( (kill[menuItems[i].key] or 0)*(menuItems[i].multiplyer or 1) )) )
+		else
+			local value = kill[1] + kill[4]
+			menuItems[i].label:setText( tostring(math.floor( value )) )
+		end
+	end
+end
+local function waveIndexHasChanged(waveIndex)
+	index = waveIndex
+	updateAllMenuLabels()
+end
 -- function:	update
 -- purpose:		updates the script every frame
 function update()
 	if form:getVisible() then
-		if index~=indexMax then
-			index = math.min(index+(indexSpeed*Core.getRealDeltaTime()),indexMax)
-			for i=1, #menuItems do
-				if menuItems[i].key then
-					local kill = getKill(index)
-					menuItems[i].label:setText( tostring(math.floor(kill[menuItems[i].key] or 0)) )
-				else
-					local life = math.floor( (index/indexMax)*bilboardStats:getInt("life") )
-					menuItems[i].label:setText( tostring( math.floor(life*SCOREPERLIFE) ) )
+		if graph.isInitiated()==false then
+			graph.resize()--the graph data can take 1-2 frames to be loaded
+		else
+			if initEventDone==false and index~=indexMax then
+				index = math.min(index+(indexSpeed*Core.getRealDeltaTime()),indexMax)
+				graph.setDisplayedIndex(index)
+				updateAllMenuLabels()
+			elseif input:getMouseHeld(MouseKey.left) and graph.isMouseInsidePanel() then
+				if initEventDone==false then
+					initEventDone = true
+					graph.setCallbackOnDisplayIndexChange(waveIndexHasChanged)
 				end
+				graph.mouseClicked()
 			end
+			form:update()
 		end
-		form:update()
 	end
 	return run
 end

@@ -186,6 +186,7 @@ function create()
 	comUnitTable["setNPCSpawnsThisWave"] = handleSetNPCSpawnsThisWave
 	comUnitTable["setTotalNPCSpawns"] = handleSetTotalNPCSpawns
 	comUnitTable["addKill"] = handleAddKill
+	comUnitTable["showScore"] = handleShowScore
 	comUnitTable["addSpawn"] = handleAddSpawn
 	comUnitTable["killedLessThan5m"] = handleKilledLessThan5m
 	--
@@ -448,31 +449,32 @@ function handleAddKill(param,index)
 		local next = #statsPerKillTable[currentWave]+1
 		statsPerKillTable[currentWave][next] = {
 			--GOLD
-			tostring(billboard:getDouble("goldGainedTotal"))..";"..
-			tostring(billboard:getDouble("goldGainedFromKills"))..";"..
-			tostring(billboard:getDouble("goldGainedFromInterest"))..";"..
-			tostring(billboard:getDouble("goldGainedFromWaves"))..";"..
-			tostring(billboard:getDouble("goldGainedFromSupportTowers"))..";"..
-			tostring(billboard:getDouble("goldInsertedToTowers"))..";"..
-			tostring(billboard:getDouble("goldLostFromSelling"))..";"..
+			billboard:getDouble("gold"),
+			billboard:getDouble("goldGainedTotal"),
+			billboard:getDouble("goldGainedFromKills"),
+			billboard:getDouble("goldGainedFromInterest"),
+			billboard:getDouble("goldGainedFromWaves"),
+			billboard:getDouble("goldGainedFromSupportTowers"),
+			billboard:getDouble("goldInsertedToTowers"),
+			billboard:getDouble("goldLostFromSelling"),
 			--SCORE
-			tostring(billboard:getInt("score"))..";"..
-			tostring(billboard:getDouble("totalTowerValue"))..";"..
-			tostring(billboard:getInt("life"))..";"..
+			billboard:getInt("score"),
+			billboard:getDouble("totalTowerValue"),
+			billboard:getInt("life"),
 			--TOWERS
-			tostring(billboard:getInt("towersBuilt"))..";"..
-			tostring(billboard:getInt("wallTowerBuilt"))..";"..
-			tostring(billboard:getInt("towersSold"))..";"..
-			tostring(billboard:getInt("towersUpgraded"))..";"..
-			tostring(billboard:getInt("towersSubUpgraded"))..";"..
-			tostring(billboard:getInt("towersBoosted"))..";"..
+			billboard:getInt("towersBuilt"),
+			billboard:getInt("wallTowerBuilt"),
+			billboard:getInt("towersSold"),
+			billboard:getInt("towersUpgraded"),
+			billboard:getInt("towersSubUpgraded"),
+			billboard:getInt("towersBoosted"),
 			--ENEMIES
-			tostring(billboard:getDouble("spawnCount"))..";"..
-			tostring(billboard:getDouble("killCount"))..";"..
-			tostring(billboard:getDouble("totalDamageDone"))
+			billboard:getDouble("spawnCount"),
+			billboard:getDouble("killCount"),
+			billboard:getInt("totalDamageDone")
 		}
 	--	scoreHistory[currentWave][#scoreHistory[currentWave]+1] = billboard:getInt("score")
-	--	billboard:setTable("scoreHistory",scoreHistory)		--EXPANSIVE
+	--	billboard:setTable("scoreHistory",statsPerKillTable)		--EXPANSIVE
 		
 --		local c1 = Config("test")
 --		local item = c1:get("root")
@@ -483,6 +485,9 @@ function handleAddKill(param,index)
 	--	local label13 = addLine(panel,15,"Killed:")
 	--	local label14 = addLine(panel,16,"Damage:")
 	end
+end
+function handleShowScore()
+	billboard:setTable("scoreHistory",statsPerKillTable)
 end
 function handleAddSpawn()
 	billboard:setInt("spawnCount", billboard:getInt("spawnCount")+1)

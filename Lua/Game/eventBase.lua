@@ -1177,6 +1177,7 @@ function EventBase.new()
 				if this:getPlayerNode() then
 					--stats
 					comUnit:sendTo("SteamAchievement","MaxWaveFinished",waveCount)
+					comUnit:sendTo("stats","showScore","")
 					--
 					local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
 					
