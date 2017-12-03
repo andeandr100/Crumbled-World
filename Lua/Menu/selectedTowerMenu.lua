@@ -781,7 +781,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				elseif  buttoninfo["name"] and buttoninfo["name"].value == "boost" then
 					buttoninfo.costLabel:setText( "Boost" )
 					buttoninfo.costLabel:setVisible(true)
-					buttoninfo.costIcon:setVisible(true)
+					buttoninfo.costIcon:setVisible(false)
 				else
 					
 					if name == "upgrade2" then
@@ -963,8 +963,9 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				
 	--			print("buttoninfo.info: \""..tostring(buttoninfo.info).."\" <-----------")
 				
-				
+			
 				if name == "upgrade1" or name ==  "upgrade2" then
+					--"upgrade2" is the boost
 					if name == "upgrade2" then
 						MainButtonPanel:add(Panel(PanelSize(Vec2(-1))))
 						MainButtonCostPanel:add(Panel(PanelSize(Vec2(-1))))
@@ -988,9 +989,11 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					end
 					
 					if name == "upgrade2" then
-						costLabel:setVisible(false)
 						costIcon:setVisible(false)
---						costPanel:setVisible(false)
+						costLabel:setVisible(true)
+						costLabel:setPanelSize(PanelSize(Vec2(-1)))
+						costLabel:setText("Boost")
+						costLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
 					else
 						button:addEventCallbackExecute(updateTowerName)
 					end
@@ -1011,19 +1014,17 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 							button:addEventCallbackExecute(updateRangeButton)
 						elseif buttoninfo["name"].value == "smartTargeting" then
 							index = 4
-						elseif buttoninfo["name"].value == "boost" then
-							costIcon:setVisible(false)
-							costLabel:setText("Boost")
-							costLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
 						else
 							buttonPanels.index = buttonPanels.index + 1
 						end
 					else
 						buttonPanels.index = buttonPanels.index + 1
 					end
-					buttonPanel[index]:add(button)
-					button:setToolTipParentpanel(costPanel)
 					
+					if buttonPanel[index] then
+						buttonPanel[index]:add(button)
+						button:setToolTipParentpanel(costPanel)
+					end
 					if costPanel then
 						buttonCostPanels[index]:add(costPanel)
 					end
