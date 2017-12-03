@@ -266,6 +266,9 @@ function NpcPanel.new(panel)
 		targetPanel = topPanelRight:add(Panel(PanelSize(Vec2(-1))))
 		--set the background texture to use the camera
 		targetPanel:setBackground(Sprite(selectedCamera:getTexture()))
+		
+		local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
+		tutorialBillboard:setPanel("npcPanel", targetPanel)
 	end
 	init()
 	-- function:	removeTimeLineIcon

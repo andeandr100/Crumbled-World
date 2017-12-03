@@ -112,6 +112,10 @@ function create()
 		settingsListener:registerEvent("Changed", settingsChanged)
 		settingsChanged()
 		
+		tutorialListener = Listener("tutorial")
+		tutorialListener:registerEvent("moveCamera", moveCamera)
+		tutorialListener:registerEvent("restoreCameraPosition", restoreCameraPosition)
+		
 		cameraOveride = Listener("cameraOveride")
 		cameraOveride:registerEvent("Pause", pauseCamera)
 		cameraOveride:registerEvent("Resume", resumeCamera)
@@ -150,7 +154,28 @@ end
 
 function resumeCamera()
 	updatePosition = true
+	
 end
+
+function moveCamera(tab)
+	local inTab = totable(tab)
+	
+	print("moveCamera")
+	
+	restoreCameraCenterPos = Vec3(cameraCenterPos)
+	retsoreCameraLocalPos = Vec3(cameraLocalPos)
+	
+	targetTime = 0
+	targetCenterPos = inTab.centerPos;
+	targetLocalPos = Vec3( cameraLocalPos.x, inTab.localYPos, cameraLocalPos.z);
+	
+	cameraMode = 3
+end
+
+function restoreCameraPosition()
+	cameraMode = 4
+end
+
 
 function settingsChanged()
 	print("\n\n\n\n")
@@ -462,7 +487,46 @@ function update()
 			camMatrix:createMatrix( -(cameraCenterPos - camMatrix:getPosition()):normalizeV(), Vec3(0,1,0))
 			
 			this:setLocalMatrix(camMatrix)
+		
 		end
+		
+		--prepare sound matrix
+		local camAtLine = Line3D( this:getGlobalPosition(), this:getAtVec(), 15 )
+		local soundLine = Line3D( Vec3(camAtLine.startPos.x, 5, camAtLine.startPos.z), Vec3(camAtLine.endPos.x, 5, camAtLine.endPos.z))
+		local distance, collpos = Collision.lineSegmentLineSegmentLength2(camAtLine, soundLine)
+		
+		local globalMatrix =this:getGlobalMatrix()
+		local camMatrix = Matrix(collpos)
+		camMatrix:createMatrix( -globalMatrix:getAtVec(), globalMatrix:getUpVec() )
+--		Core.addDebugSphere(Sphere(collpos, 0.3),0,Vec3(1,0,0))
+		--set sound matrix
+		Core.setSoundCameraMatrix(camMatrix)
+		
+		this:render()
+		return true;
+	elseif cameraMode == 3 or cameraMode == 4 then
+		local deltaTime = math.clamp( Core.getRealDeltaTime(), 0, 0.2)
+		
+		if cameraMode  == 4 then
+			targetTime = math.max( 0.0, targetTime - deltaTime )
+			if targetTime <= 0.0 then
+				cameraMode = 0 
+			end
+		else
+			targetTime = math.min( 1.0, targetTime + deltaTime )
+		end
+
+		
+		cameraCenterPos:interPolate( restoreCameraCenterPos, targetCenterPos, targetTime )
+		cameraLocalPos:interPolate( retsoreCameraLocalPos, targetLocalPos, targetTime )
+		
+		local camMatrix = Matrix(cameraCenterPos)
+		camMatrix:rotate(Vec3(0,1,0), cameraRotation)
+		
+		camMatrix:setPosition( camMatrix * cameraLocalPos )
+		camMatrix:createMatrix( -(cameraCenterPos - camMatrix:getPosition()):normalizeV(), Vec3(0,1,0))
+		
+		this:setLocalMatrix(camMatrix)
 		
 		--prepare sound matrix
 		local camAtLine = Line3D( this:getGlobalPosition(), this:getAtVec(), 15 )

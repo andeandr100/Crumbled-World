@@ -351,6 +351,7 @@ function CampaignGameMenu.new(panel)
 	end
 
 	local function startMap(button)
+		button:clearEvents()	
 		levelInfo.setIsCampaign(true)
 		levelInfo.setGameMode(gameModeBox.getIndexText())
 		local mapFile = File(selectedFile)

@@ -8,9 +8,14 @@ local buildCounter = 0
 local readyToPlay = {}
 local towerChangeState = 0
 local towerBuildInfo = {}
+local ghostTowers = {}
 local waveTime = 0
 local curentWave = -1
 local canBuildInThisWorld = false
+
+--local keyTable = {
+--			[keyTable["goldGainedTotal"]] = 32,		
+--		}
 
 --TODO
 --In multiplayer add transaction id when buying selling tower, to ensure that towers can only be built in a correct order,
@@ -55,8 +60,14 @@ function changeSelectedTower( newTower )
 	end
 	if currentTower then
 		buildingBillboard:setBool("inBuildMode", true)
+		for i=1, #buildings do
+			if newTower == buildings[i] then
+				buildingBillboard:setInt("towerIndex", i)
+			end
+		end
 	else
 		buildingBillboard:setBool("inBuildMode", false)
+		buildingBillboard:setInt("towerIndex", -1)
 	end
 end
 
@@ -326,6 +337,8 @@ function create()
 		comUnitTable["buildingSubUpgrade"] = towerUpgrade
 		comUnitTable["addDowngradeTower"] = addDowngradeTower
 		comUnitTable["DropLatestBuildingEvent"] = DropLatestBuildingEvent
+		comUnitTable["addGhostTower"] = addGhostTower
+		comUnitTable["clearGhostTower"] = clearGhostTower
 		
 
 		comUnitTable["addRebuildTower"] = addRebuildTowerEvent
@@ -390,7 +403,10 @@ function create()
 		buildingBillboard:setBool("inBuildMode", false)
 		buildingBillboard:setBool("canBuildAndSelect", true)
 		buildingBillboard:setBool("Ready", false)
-		
+		buildingBillboard:setInt("towerIndex", -1)
+		for i=1, 10 do
+			buildingBillboard:setInt("tower"..i, 0)
+		end
 		soundNode = SoundNode("towerBuild")
 		soundNode:setLocalSoundPLayLimit(7)
 		rootNode:addChild(soundNode)
@@ -477,6 +493,57 @@ function create()
 	end
 end
 
+
+function getIslandFromId(islandId)
+	local islands = this:getPlayerNode():findAllNodeByTypeTowardsLeaf(NodeId.island)
+	for i=1, #islands do
+		if islands[i]:getIslandId() == islandId then
+			return islands[i]
+		end
+	end
+	return nil
+end
+
+function clearGhostTower(param)
+	
+	for i=1, #ghostTowers do
+		ghostTowers[i].model1:destroy()
+		ghostTowers[i].model2:destroy()
+	end
+	ghostTowers = {}
+end
+
+function addGhostModel(modelName, matrix, scale, renderLevel, color, island)
+
+	local scaleMat = Matrix()
+	scaleMat:scale(scale)
+	local model = Core.getModel(modelName)
+	model:setLocalMatrix(matrix * scaleMat)
+	island:addChild(model);
+	model:getMesh("hull"):setVisible(false)
+	
+	
+	for i=1, model:getNumMesh() do
+		model:getMesh(i-1):setShader(Core.getShader("shadowTowerForward"))
+		model:getMesh(i-1):setRenderLevel(renderLevel)
+	end
+	model:setColor(color)
+	return model
+
+end
+
+function addGhostTower(param)
+	
+	local tab = totable(param)
+	
+	local island = getIslandFromId(tab.islandID)
+	
+	local model1 = addGhostModel( tab.modelName, tab.localMatrix, 0.96, 11, Vec4(Vec3(1), 0), island )
+	local model2 = addGhostModel( tab.modelName, tab.localMatrix, 0.97, 12, Vec4(Vec3(0.75), 0.5), island )
+	
+	ghostTowers[#ghostTowers + 1] = {model1=model1, model2=model2,lifespan=tab.lifespan}
+end
+
 function getTowerBoundingBoxFromMeshes( tower )
 	local meshList = currentTower:findAllNodeByTypeTowardsLeaf(NodeId.mesh)
 	for i = 1, #meshList, 1 do
@@ -549,7 +616,7 @@ function towerUpgradefunc(tab)
 	print("\n\ntowerUpgradefunc")
 	print("NetId: "..tab.netId)
 	print("comUnit:sendTo("..Core.getScriptOfNetworkName(tab.netId):getIndex()..", "..tab.msg..", "..(tab.param or ""))
-	print("")
+
 	comUnit:sendTo(Core.getScriptOfNetworkName(tab.netId):getIndex(),tab.msg,tab.param or "")
 end
 
@@ -679,13 +746,20 @@ function buildTowerNetworkCallback(tab)
 			readyToPlay[tab.playerId] = true
 		end
 		
+		local towerName = "tower"..buildingBillboard:getInt("towerIndex")
+		buildingBillboard:setInt(towerName, buildingBillboard:getInt(towerName) + 1)
+		
 		soundNode:play(1.0, false)
 		towerBuiltListener:pushEvent("built")
+		
+		
+		
 		
 		updateIsAllreadyToPlay()
 	else
 		error("failed to place building")
 	end
+	
 end
 
 function buildTowerNetworkBuild(tab)
@@ -911,6 +985,7 @@ function update()
 
 	updateSelectedTowerToBuild()
 	rotation = builderFunctions.updateBuildingRotation(rotation)
+	buildingBillboard:setInt( "buildingRotation", rotation)
 	--print( "num built tower: "..buildingBillboard:getInt("NumBuildingBuilt").."\n")
 	
 	if currentTower then
@@ -939,11 +1014,19 @@ function update()
 		
 		comUnit:sendTo(script:getIndex(),"checkRange","")
 		
+		
+		
 		local towerMatrix = this:getTargetIsland():getGlobalMatrix() * this:getLocalIslandMatrix()
 		if canBePlacedHere and keyUse and keyUse:getPressed() and buildCost <= gold then
 			building = this:TryToBuild()
 			if building then
 				local script = building:getScriptByName("tower")
+				
+				
+				if canBePlacedHere then
+					print("TowerPos: "..tostring( (island:getGlobalMatrix():inverseM() * building:getGlobalMatrix():getPosition()) ).. " island: "..island:getIslandId())
+					print("TowerMat: "..tostring( building:getLocalMatrix() ).. " island: "..island:getIslandId())
+				end
 				
 				local towerName = getNewTowerName()
 				script:setScriptNetworkId(towerName)
@@ -981,6 +1064,9 @@ function update()
 					updateIsAllreadyToPlay()
 				end
 				soundNode:play(1.0, false)
+				
+				local towerName = "tower"..buildingBillboard:getInt("towerIndex")
+				buildingBillboard:setInt(towerName, buildingBillboard:getInt(towerName) + 1)
 				
 				towerBuiltListener:pushEvent("built")
 			end
@@ -1032,7 +1118,10 @@ function update()
 						
 						readyToPlay[0] = true
 						readyToPlay[Core.getPlayerId()] = true
-						updateIsAllreadyToPlay()					
+						updateIsAllreadyToPlay()	
+						
+						local towerName = "tower"..buildingBillboard:getInt("towerIndex")
+						buildingBillboard:setInt(towerName, buildingBillboard:getInt(towerName) + 1)				
 						
 						if Core.isInMultiplayer() then
 							tab.playerId = Core.getPlayerId()

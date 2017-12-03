@@ -253,7 +253,8 @@ function create()
 	
 			local buildingBillboard = Core.getBillboard("buildings")
 			--buildingBillboard:
-
+		
+			local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
 			local numBuildings = 1
 			while buildingBillboard:exist(tostring(numBuildings)) do
 				
@@ -307,6 +308,8 @@ function create()
 				local label = button:add(Label(PanelSize(Vec2(-0.3),Vec2(0.8,1)), keyBind[numBuildings] and keyBind[numBuildings]:getKeyBindName(0) or "", MainMenuStyle.textColor, Alignment.MIDDLE_CENTER))
 				label:setCanHandleInput(false)
 				
+				
+				tutorialBillboard:setPanel("tower"..numBuildings, button)
 	
 				numBuildings = numBuildings + 1;
 			end

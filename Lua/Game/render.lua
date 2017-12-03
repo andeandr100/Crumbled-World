@@ -64,8 +64,16 @@ function render(data)
 		
 		
 		GL.depthMask(true)
+				
 		GL.enable(GL_State.CULL_FACE)
 		data:render3D(9)--Npc reaper
+		
+		--render ghost towers
+		GL.enable(GL_State.BLEND)
+		GL.blendFuncSeparate( GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.ONE, GL_Blend.ONE);
+		GL.blendEquation(GL_BlendEquation.FUNC_ADD)
+		data:render3D(11)
+		data:render3D(12)
 
 		GL.depthMask(true)
 		GL.blendEquation(GL_BlendEquation.FUNC_ADD);		

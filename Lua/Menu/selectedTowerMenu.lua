@@ -778,8 +778,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 						buttoninfo.costLabel:setVisible(true)
 						buttoninfo.costIcon:setVisible(true)
 					end
-					
-					
+				elseif  buttoninfo["name"] and buttoninfo["name"].value == "boost" then
+					buttoninfo.costLabel:setText( "Boost" )
+					buttoninfo.costLabel:setVisible(true)
+					buttoninfo.costIcon:setVisible(true)
 				else
 					
 					if name == "upgrade2" then
@@ -1009,6 +1011,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 							button:addEventCallbackExecute(updateRangeButton)
 						elseif buttoninfo["name"].value == "smartTargeting" then
 							index = 4
+						elseif buttoninfo["name"].value == "boost" then
+							costIcon:setVisible(false)
+							costLabel:setText("Boost")
+							costLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
 						else
 							buttonPanels.index = buttonPanels.index + 1
 						end

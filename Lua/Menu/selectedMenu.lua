@@ -134,7 +134,7 @@ function create()
 		selectedCamera:setShadowScale(2.0)
 		selectedCamera:setDirectionLight(Core.getDirectionalLight(this))
 		selectedCamera:setAmbientLight(Core.getAmbientLight(this))
-		selectedCamera:setRenderScript("Game/render.lua")
+		selectedCamera:setRenderScript("Camera/selectedTowerRender.lua")
 --		selectedCamera:setClearColor(Vec4(1,0,0,1))
 
 		

@@ -27,6 +27,9 @@ function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
 	
 	local panel = topPanelRight:add(Panel(PanelSize(Vec2(1,-1), Vec2(4,1))))
 	
+	local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
+	tutorialBillboard:setPanel(toolTipText, panel)
+	
 	local image = panel:add(Image(PanelSize(Vec2(1,-1),Vec2(1, 1)), Text("icon_table.tga")));
 	image:setUvCoord(minUvCoord,maxUvCoor);
 	image:setCanHandleInput(false)
@@ -43,6 +46,9 @@ end
 function createSpeedButton(minUvCoord, maxUvCoor, startValue, toolTipText, func)
 	
 	local panel = topPanelRight:add(Panel(PanelSize(Vec2(1,-1), Vec2(4,1))))
+	
+	local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
+	tutorialBillboard:setPanel("speed", panel)
 	
 	local icon = Core.getTexture("icon_table.tga")
 	customButton = panel:add(Button(PanelSize(Vec2(1,-1),Vec2(1, 1)), ButtonStyle.SIMPLE, icon, Vec2(0.375,0.25), Vec2(0.50, 0.3125)))
