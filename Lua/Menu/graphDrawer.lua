@@ -23,7 +23,6 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 	local node2DMesh = Node2DMesh()
 	local staticMesh = Node2DMesh()
 	local displayInfo = Node2DMesh()
-	local isInitiated = false
 	--
 	local panelMin = Vec2()
 	local panelMax = Vec2()
@@ -216,7 +215,7 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 	end
 	function self.setDisplayedIndex(index)
 		displaingInfoFromWaveIndex = index
-		if isInitiated then
+		if self.isDispalyed() then
 			local xx = getGridX(displaingInfoFromWaveIndex)
 			
 			if displayIndexChangeFunction then
@@ -241,14 +240,12 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 		
 		self.setDisplayedIndex(getWaveIndex(mousePos.x))
 	end
-	function self.isInitiated()
-		return data~=nil
+	function self.isDispalyed()
+		return not (x==0 or y==0)
 	end
 	function self.resize()
 		local bilboardStats = Core.getBillboard("stats")
-		if not data then
-			data = bilboardStats:getTable("scoreHistory")
-		end
+		data = bilboardStats:getTable("scoreHistory")
 		--make sure it is a real rezise
 		if data and x~=panel:getPanelContentPixelSize().x or y~=panel:getPanelContentPixelSize().y then
 			panel:getPanelGlobalMinMaxPosition(panelMin,panelMax)
@@ -274,8 +271,6 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 			panel:addRenderObject( displayInfo )
 			panel:addRenderObject( staticMesh )
 			
-			isInitiated = true
-			
 			drawLine(staticMesh, drawScoreGraph(function(index)	return getGridY(getKill(index)["score"]-(20*pScorePerLife)) end), 1, Vec4(0.85,0.85,0.85,0.1))--getKill(index)["life"]
 			drawLine(staticMesh, drawScoreGraph(function(index)	return getGridY(getKill(index)["goldGainedFromInterest"]) end), 1, Vec4(0.85,0.85,0.85,0.1))
 			addGrid(staticMesh, leftMargin, bottomMargin)
@@ -290,6 +285,7 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 		panel:addEventCallbackResized(self.resize)
 	end
 	init()
+	
 	
 	return self
 end

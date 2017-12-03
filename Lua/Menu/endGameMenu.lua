@@ -3,7 +3,7 @@ require("Menu/graphDrawer.lua")
 require("Game/mapInfo.lua")
 --this = SceneNode()
 
-local data = {}
+local data
 local menuItems = {}
 local index = 1
 local indexMax = 0
@@ -14,6 +14,7 @@ local SCOREPERLIFE = 100
 local bilboardStats = Core.getBillboard("stats")
 local graph
 local input = Core.getInput()
+local comUnitTable = {}
 
 -- function:	destroy
 -- purpose:		called on the destruction of this script
@@ -154,17 +155,8 @@ end
 function setGraphLayout()
 	
 end
--- function:	create
--- purpose:		initiates the script
-function create()
-	
-	comUnit = Core.getComUnit()
-	comUnit:setCanReceiveTargeted(false)
-	comUnit:setCanReceiveBroadcast(false)
-	
-	local c1 = Config("test")
-	local item = c1:get("root")
-	data = item:getTable()
+function initiate()
+	data = bilboardStats:getTable("scoreHistory")
 	
 	index = 1
 	indexMax = #data+0.9999					--+0.9999 because it is not real indexes 20 wave games have 20.96 indexes
@@ -208,7 +200,7 @@ function create()
 	
 	setStatsLayout(leftPanel,true)
 	--setGraphLayout(rightPanel)
-	graph = GraphDrawer.new(rightPanel, data, bilboardStats:getInt("life"), SCOREPERLIFE)
+	graph = GraphDrawer.new(rightPanel, bilboardStats:getInt("life"), SCOREPERLIFE)
 	
 	--
 	--	Bottom section with button options
@@ -231,6 +223,16 @@ function create()
 	--continueButton:addEventCallbackExecute(returnToGame)
 	restartWaveButton:addEventCallbackExecute(restartWave)
 	quitToMenuButton:addEventCallbackExecute(quitToMainMenu)
+end
+-- function:	create
+-- purpose:		initiates the script
+function create()
+	comUnit = Core.getComUnit()
+	comUnit:setCanReceiveTargeted(true)
+	comUnit:setCanReceiveBroadcast(false)
+	
+	comUnitTable["victory"] = victory
+	comUnitTable["defeated"] = defeated
 	
 	return true
 end
@@ -268,10 +270,8 @@ end
 -- function:	update
 -- purpose:		updates the script every frame
 function update()
-	if form:getVisible() then
-		if graph.isInitiated()==false then
-			graph.resize()--the graph data can take 1-2 frames to be loaded
-		else
+	if data then
+		if form:getVisible() then
 			if initEventDone==false and index~=indexMax then
 				index = math.min(index+(indexSpeed*Core.getRealDeltaTime()),indexMax)
 				graph.setDisplayedIndex(index)
@@ -284,7 +284,21 @@ function update()
 				graph.mouseClicked()
 			end
 			form:update()
+		else
+			--Handle communication
+			while comUnit:hasMessage() do
+				local msg = comUnit:popMessage()
+				if comUnitTable[msg.message]~=nil then
+					comUnitTable[msg.message](msg.parameter,msg.fromIndex)
+				end
+			end
+			if form:getVisible() then
+				comUnit:setCanReceiveTargeted(false)
+			end
 		end
+		return run
+	elseif bilboardStats:exist("scoreHistory") then
+		initiate()
 	end
-	return run
+	return true
 end

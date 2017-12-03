@@ -248,9 +248,11 @@ function Upgrade.new()
 			end
 			
 			if ignoreUpgrade == false then
-				print("# upgrade: "..name)
-				print("# cost: "..lCost)
-				comUnit:sendTo("stats","removeGold",tostring(lCost))
+				if billboard:getBool("isNetOwner") then
+					comUnit:sendTo("stats","removeGold",tostring(lCost))
+					print("# upgrade: "..name)
+					print("# cost: "..lCost)
+				end
 			else
 				ignoreUpgrade = false
 			end

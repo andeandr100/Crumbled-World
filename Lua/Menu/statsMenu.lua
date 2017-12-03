@@ -6,6 +6,7 @@ require("Menu/npcPanel.lua")
 local toolTips = {}
 local gameMode = ""
 local toolTipsIndexGold = 0
+local toolTipsIndexScore = 0
 local gameSpeed = 1.0
 local start_time = 0
 
@@ -27,8 +28,8 @@ function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
 	
 	local panel = topPanelRight:add(Panel(PanelSize(Vec2(1,-1), Vec2(4,1))))
 	
-	local image = panel:add(Image(PanelSize(Vec2(1,-1),Vec2(1, 1)), Text("icon_table.tga")));
-	image:setUvCoord(minUvCoord,maxUvCoor);
+	local image = panel:add(Image(PanelSize(Vec2(1,-1),Vec2(1, 1)), Text("icon_table.tga")))
+	image:setUvCoord(minUvCoord,maxUvCoor)
 	image:setCanHandleInput(false)
 	
 	local label = createLabel( panel, startValue )
@@ -37,7 +38,7 @@ function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
 	
 	toolTips[#toolTips + 1] = {panel=panel, text=toolTipText}
 	
-	return label
+	return label, image
 end
 
 function createSpeedButton(minUvCoord, maxUvCoor, startValue, toolTipText, func)
@@ -208,6 +209,64 @@ local function updateGoldToolTip()
 	toolTips[toolTipsIndexGold].text = nil
 	toolTips[toolTipsIndexGold].panel:setToolTip(toolPanel)
 end
+local function updateScoreToolTip()
+	local scoreTextList = {	{text="Score from total tower value",	billName="totalTowerValue", 		color="40,255,40" }, 
+							{text="Score from gold", 				billName="gold", 					color="40,255,40" }, 
+							{text="Score from interest", 			billName="goldGainedFromInterest", 	color="40,255,40" }, 
+							{text="Score from life", 				billName="life", 					color="40,255,40" }
+						}
+	if statsBilboard:getInt("scorePreviousBestGame")>=0 then
+		scoreTextList[#scoreTextList+1] = {text="Score in your best game",		billName="scorePreviousBestGame", 	color="40,255,40" }
+	end
+	local toolPanel = Panel(PanelSize(Vec2(1)))
+	toolPanel:setLayout(FlowLayout())
+	local textPanel = toolPanel:add(Panel(PanelSize(Vec2(-1))))
+	local scorePanel = toolPanel:add(Panel(PanelSize(Vec2(-1))))
+	textPanel:setLayout(FallLayout())
+	scorePanel:setLayout(FallLayout())
+	local textSize = Vec2()
+	local scoreSize = Vec2()
+	for i=1, #scoreTextList do
+
+		local textLabel = textPanel:add(Label( PanelSize(Vec2(1)), Text(scoreTextList[i].text) ))
+		textLabel:setTextHeight(Core.getScreenResolution().y * 0.0125)
+		textLabel:setTextColor(Vec3(1))
+		local pixelSize = textLabel:getTextSizeInPixel() + Vec2(4,2)
+		textSize.x = math.max(textSize.x, pixelSize.x)
+
+		
+		local scoreLabel
+		if scoreTextList[i].billName=="life" then
+			scoreLabel = scorePanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..scoreTextList[i].color..")>"..tostring(statsBilboard:getInt(scoreTextList[i].billName)*100).."%</font>") ))
+		elseif scoreTextList[i].billName=="scorePreviousBestGame" then
+			local scoreDiff = statsBilboard:getInt("score")-statsBilboard:getInt(scoreTextList[i].billName)
+			scoreLabel = scorePanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..(scoreDiff>=0 and "40,255,40" or "255,40,40")..")>"..tostring(scoreDiff).."</font>") ))
+		else
+			scoreLabel = scorePanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..scoreTextList[i].color..")>"..getBillboardStr(scoreTextList[i].billName).."</font>") ))
+		end
+		scoreLabel:setTextHeight(Core.getScreenResolution().y * 0.0125)
+		local scorePixelSize = scoreLabel:getTextSizeInPixel() + Vec2(4,2)
+		scoreSize.x = math.max(scoreSize.x, scorePixelSize.x)
+		
+		
+		--set panelSize
+		local rowHeight = math.max( scorePixelSize.y, pixelSize.y )
+		textSize.y = textSize.y + rowHeight
+		scoreSize.y = scoreSize.y + rowHeight
+		textLabel:setPanelSize(PanelSize(Vec2(pixelSize.x, rowHeight),PanelSizeType.Pixel))
+		scoreLabel:setPanelSize(PanelSize(Vec2(scorePixelSize.x, rowHeight),PanelSizeType.Pixel))
+	end
+	
+	textPanel:setPanelSize(PanelSize(textSize,PanelSizeType.Pixel))
+	scorePanel:setPanelSize(PanelSize(scoreSize,PanelSizeType.Pixel))
+	toolPanel:setPanelSize(PanelSize(Vec2(textSize.x+scoreSize.x,math.max(textSize.y,scoreSize.y)),PanelSizeType.Pixel))
+
+	toolTips[toolTipsIndexScore].text = nil
+	toolTips[toolTipsIndexScore].panel:setToolTip(toolPanel)
+	
+	--UPDATE ICON
+	updateScoreIcon()
+end
 
 function languageChanged()
 	MenuButton:setText(language:getText(MenuButton:getTag()))
@@ -219,6 +278,7 @@ function languageChanged()
 	end
 	
 	updateGoldToolTip()
+	updateScoreToolTip()
 end
 
 function toogleSpeed()
@@ -310,13 +370,15 @@ function create()
 --			to be used When implemented
 			if gameMode~="rush" then
 				score = statsBilboard:getInt("score")
-				scoreLabel = createStat(Vec2(0.125,0.0),Vec2(0.25,0.0625), tostring(score), "score")
+				scoreLabel, scoreImage = createStat(Vec2(0.125,0.0),Vec2(0.25,0.0625), tostring(score), "score")
 				scoreLabel:setToolTip(Text("Score"))
 			else
 				timerStr = "0s"
-				scoreLabel = createStat(Vec2(0.625,0.5),Vec2(0.75,0.5625), "0s", "timer")
+				scoreLabel, scoreImage = createStat(Vec2(0.625,0.5),Vec2(0.75,0.5625), "0s", "timer")
+				updateScoreIcon()
 				scoreLabel:setToolTip(Text("Timer"))
 			end
+			toolTipsIndexScore = #toolTips
 --			--Enemies
 --			numEnemies = statsBilboard:getInt("alive enemies")
 --			numEnemiesLabel = createStat(Vec2(0.25,0.0),Vec2(0.375,0.0625), tostring(numEnemies), "enemies remaining")
@@ -335,6 +397,7 @@ function create()
 			
 
 			updateGoldToolTip()
+			updateScoreToolTip()
 		end
 		
 		comUnitTable = {}
@@ -349,8 +412,16 @@ function toggleInGameMenu(panel)
 	comUnit:sendTo("InGameMenu", "toggleMenuVisibility", "")
 end
 
-
-
+function updateScoreIcon()
+	local val = statsBilboard:getInt("hasMoreScoreThanPreviousBestGame")
+	if val==-1 then
+		scoreImage:setUvCoord(Vec2(0.25,0.5625),Vec2(0.375,0.625))
+	elseif val==0 then
+		scoreImage:setUvCoord(Vec2(0.25,0.625),Vec2(0.375,0.6875))
+	elseif val==1 then
+		scoreImage:setUvCoord(Vec2(0.25,0.6875),Vec2(0.375,0.75))
+	end
+end
 
 function update()
 	--Handle communication
@@ -372,11 +443,13 @@ function update()
 		if score ~= statsBilboard:getDouble("score") then
 			score = statsBilboard:getDouble("score")
 			scoreLabel:setText(numberToSmalString(score))
+			updateScoreToolTip()
 		end
 	else
 		if timerStr ~= statsBilboard:getString("timerStr") then
 			timerStr = statsBilboard:getString("timerStr")
 			scoreLabel:setText(timerStr)
+			updateScoreToolTip()
 		end
 	end
 	
@@ -411,6 +484,7 @@ function update()
 		money = getBillboardStr("gold")
 		moneyLabel:setText(numberToSmalString(math.max(0,tonumber(money))))
 		updateGoldToolTip()
+		updateScoreToolTip()--Building towers will not change the score directly just shift it
 	end
 
 	form:update();

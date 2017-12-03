@@ -48,6 +48,8 @@ function restartMap()
 	billboard:setString("timerStr","0s")
 	billboard:setInt("killCount",0)
 	billboard:setInt("spawnCount",0)
+	billboard:setInt("hasMoreScoreThanPreviousBestGame", oldScoreTable and 0 or -2)
+	billboard:setInt("scorePreviousBestGame", oldScoreTable and 0 or -1)
 	statsPerKillTable = {version=1}
 	--
 	--	Localy calculated
@@ -62,6 +64,8 @@ function restartWave(wave)
 	local d1 = waveHistory
 	local item = waveHistory[wave]
 	currentWave = wave
+	statsPerKillTable[currentWave] = {}
+	statsPerKillTable[currentWave+1] = {}
 	LOG("STATS.RESTARTWAVE("..tostring(wave)..")\n")
 	if not item then
 		error("the wave must be cretated, to be able to restore it")
@@ -102,8 +106,11 @@ function restartWave(wave)
 		timer = wave<=1 and 0 or item.timer
 		updateTimerStr()
 	end
+	updateScore()
 end
 function create()
+	local mapInfo = MapInfo.new()
+	--
 	LOG("STATS.CREATE()\n")
 	if Core.getScriptOfNetworkName("stats") then
 		return false
@@ -116,8 +123,13 @@ function create()
 	if Core.isInMultiplayer() then
 		netSyncTimer = Core.getTime()
 	end
-	
-	local mapInfo = MapInfo.new()
+	--
+	local f1 = File("Data/Dynamic/CampaignScore/"..mapInfo.getMapName().."__"..mapInfo.getLevel().."_"..mapInfo.getGameMode()..".st")	
+	local writeToFile = true
+	if f1:exist() then
+		oldScoreTable = totable(f1:getContent())
+	end
+	--
 	
 	waveHistory = {}
 	currentWave = mapInfo.getStartWave()
@@ -186,7 +198,7 @@ function create()
 	comUnitTable["setNPCSpawnsThisWave"] = handleSetNPCSpawnsThisWave
 	comUnitTable["setTotalNPCSpawns"] = handleSetTotalNPCSpawns
 	comUnitTable["addKill"] = handleAddKill
-	comUnitTable["showScore"] = handleShowScore
+	comUnitTable["showScore"] = handleSaveScore
 	comUnitTable["addSpawn"] = handleAddSpawn
 	comUnitTable["killedLessThan5m"] = handleKilledLessThan5m
 	--
@@ -208,6 +220,7 @@ function create()
 end
 function updateScore()
 	billboard:setDouble("score", billboard:getDouble("totalTowerValue") + billboard:getDouble("gold") + (billboard:getInt("life")*100) + billboard:getDouble("goldGainedFromInterest") )
+	updateScoreIconStatus()
 end
 	
 function handleAddTotalDamage(dmg)
@@ -319,6 +332,9 @@ function handleSetwave(inWave)
 	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 	Core.getComUnit():sendTo("builder"..node:getClientId(), "newWave", inWave)
 	updateScoreTime = 0.5
+	--
+	setStatsPerKillTableOn(0)
+	updateScore()
 end
 function handleNpcReachedEnd(param)
 	billboard:setInt("life", billboard:getInt("life")-tonumber(param))
@@ -440,14 +456,17 @@ function handleSetTotalNPCSpawns(param)
 	billboard:setInt("totalNPCSpawns", param)
 end
 function handleAddKill(param,index)
-	
-	local d0 = billboard:exist(tostring(index));
-	local dt = billboard;
+	local next = 1
 	if billboard:getInt(tostring(index))==currentWave then
 		--local count = billboard:getInt("killCount")+1
 		billboard:setInt( "killCount", billboard:getInt("killCount")+1)
-		local next = #statsPerKillTable[currentWave]+1
-		statsPerKillTable[currentWave][next] = {
+		next = #statsPerKillTable[currentWave]+1
+		setStatsPerKillTableOn(next)
+	end
+end
+function setStatsPerKillTableOn(index)
+	if currentWave>=1 then
+		statsPerKillTable[currentWave][index] = {
 			--GOLD
 			billboard:getDouble("gold"),
 			billboard:getDouble("goldGainedTotal"),
@@ -473,21 +492,47 @@ function handleAddKill(param,index)
 			billboard:getDouble("killCount"),
 			billboard:getInt("totalDamageDone")
 		}
-	--	scoreHistory[currentWave][#scoreHistory[currentWave]+1] = billboard:getInt("score")
-	--	billboard:setTable("scoreHistory",statsPerKillTable)		--EXPANSIVE
-		
---		local c1 = Config("test")
---		local item = c1:get("root")
---		item:setTable( statsPerKillTable )
---		c1:save()
-	--	addheader(panel,"Enemies")
-	--	local label12 = addLine(panel,14,"Spawned:")
-	--	local label13 = addLine(panel,15,"Killed:")
-	--	local label14 = addLine(panel,16,"Damage:")
 	end
 end
-function handleShowScore()
+function updateScoreIconStatus()
+	if oldScoreTable then
+		if currentWave>0 then
+			local index = statsPerKillTable[currentWave] and #statsPerKillTable[currentWave] or 0
+			local t1 = oldScoreTable[currentWave]	--waveTable
+			local ts = t1[math.min(#t1,index)]		--killtable
+			local kScore = ts[9]					--score value
+			local set = kScore<billboard:getInt("score") and 1 or (kScore>billboard:getInt("score") and -1 or 0)
+			print("========= "..tostring(kScore).."<"..tostring(billboard:getInt("score")).." =========")
+			--  1 == we have more score now
+			--  0 == equal score
+			-- -1 == we are below in score then previous best round
+			-- -2 == no previous score listings
+			billboard:setInt("hasMoreScoreThanPreviousBestGame",  set)
+			billboard:setInt("scorePreviousBestGame", kScore)
+		else
+			billboard:setInt("hasMoreScoreThanPreviousBestGame",  0)
+		end
+	end
+end
+function handleSaveScore()
 	billboard:setTable("scoreHistory",statsPerKillTable)
+--	--
+	local mapInfo = MapInfo.new()	
+	local f1 = File("Data/Dynamic/CampaignScore/"..mapInfo.getMapName().."__"..mapInfo.getLevel().."_"..mapInfo.getGameMode()..".st")
+	local writeToFile = true
+	if f1:exist() then
+		local table = toTable(f1:getContent())
+		local lastWaveTab = table[#table]
+		local lastKillTab = lastWaveTab[#lastWaveTab]
+		local lastScore = lastKillTab[9]
+		writeToFile = lastScore<billboard:getInt("score")
+	end
+	if writeToFile then
+		if f1:createNewFile() then
+			local str = tabToStrMinimal(statsPerKillTable)
+			f1:setContent(str, str:len())
+		end
+	end
 end
 function handleAddSpawn()
 	billboard:setInt("spawnCount", billboard:getInt("spawnCount")+1)

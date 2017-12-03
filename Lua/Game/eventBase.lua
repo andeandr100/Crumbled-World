@@ -166,7 +166,8 @@ function EventBase.new()
 		if npc[currentSpawn.npc] then
 			--counter for multiplayer
 			npcCounter[currentSpawn.npc] = npcCounter[currentSpawn.npc] and npcCounter[currentSpawn.npc]+1 or 0
-			local netName = (Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-")..currentSpawn.npc..npcCounter[currentSpawn.npc]
+			--local netName = (Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-")..currentSpawn.npc..npcCounter[currentSpawn.npc]
+			local netName = currentSpawn.npc..npcCounter[currentSpawn.npc]
 			--spawn the npc
 			local node = createNpcNode(portalId)
 			local script = node:loadLuaScript( npc[currentSpawn.npc].script )
@@ -432,8 +433,6 @@ function EventBase.new()
 			--
 			comUnit:sendTo("log","println", "========= Wave "..waveCount.." =========")
 			if waveCount>0 then
-				comUnit:sendTo("log","println",waveInfo[waveCount].theoreticalGold)
-				comUnit:sendTo("log","println",bilboardStats:getInt("goldGainedTotal"))
 				if waveRestarted==false then
 					waveFinishedMoneyBonus()
 				end
@@ -610,6 +609,7 @@ function EventBase.new()
 		comUnit:sendTo("stats","setInterestRateOnKill",interestOnKill)--0.2% intereset per kill
 	end
 	function self.generateWaves(pNumWaves,difficultBase,difficultIncreaser,startSpawnWindow,seed)
+		--pNumWaves = 2
 		local multiplayerGenerateData = {}
 		if Core.getNetworkClient():isAdmin() then
 			multiplayerGenerateData.numWaves = pNumWaves
@@ -1366,7 +1366,7 @@ function EventBase.new()
 								end
 							end
 							--
-							script:callFunction("victory")
+							comUnit:sendTo(script:getIndex(),"victory","")
 						end
 						comUnit:sendTo("SteamStats","SaveStats","")
 					end
@@ -1398,7 +1398,7 @@ function EventBase.new()
 						
 						local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
 						if script then 
-							script:callFunction("defeated")
+							comUnit:sendTo(script:getIndex(),"defeated","")
 						end
 						
 					end

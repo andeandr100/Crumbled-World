@@ -247,7 +247,6 @@ function NpcBase.new()
 		end
 	end
 	function self.NETSyncMover(param)
-		abort()
 		local diff = mover:getDistanceToExit()-(param-mover:getCurrentSpeed()*Core.getNetworkClient():getPing()*2.0)
 		if math.abs(diff)>mover:getCurrentSpeed()*(0.5) then
 			--npc are out of sync with over 0.5s
