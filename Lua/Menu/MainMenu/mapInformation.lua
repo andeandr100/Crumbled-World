@@ -115,10 +115,9 @@ function MapInformation.getMapInfoFromFileName(fileName, filePath)
 			end
 		end		
 	end
---	print("nil\n")
-	
---	print("fileName: "..tostring(fileName).."\nTable: "..tostring(MapInformation.mapTables).."\n")
-	
+	if not (fileName=="Downloads" or fileName=="blackWorld") then
+		abort()
+	end
 	return nil
 end
 

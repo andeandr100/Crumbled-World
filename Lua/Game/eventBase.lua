@@ -41,7 +41,7 @@ function EventBase.new()
 	local numTowers = 0
 	local wavePoints = 0
 	local pWaveFinishedBonus = 200
-	local interestOnKill = 0.0020
+	local interestOnKill = "0.0020"
 	local goldMultiplayer = 1.0
 	local currentWaves = {}	--waves that are currently spawning
 	local wait = 15			--gives the player more time to setup the first defense
@@ -105,13 +105,6 @@ function EventBase.new()
 	function self.spawnUnitsPattern( pattern )
 		spawnPattern = pattern
 	end
-	local function setLife(life)
-		comUnit:sendTo("stats", "setLife", tostring(life))
-	end
-	local function setMaxLife(life)
-		comUnit:sendTo("stats", "setMaxLife", tostring(life))
-	end
-	
 	
 	--Gold options
 	local function setGold(gold)
@@ -126,7 +119,7 @@ function EventBase.new()
 	local function resendWaveData()
 		comUnit:sendTo("stats", "setWave", mapInfo.getStartWave())
 		comUnit:sendTo("stats", "setMaxWave", numWaves)
-		comUnit:sendTo("stats", "setTotalNPCSpawns", totalNpcSpawned)
+		--comUnit:sendTo("stats", "setTotalNPCSpawns", totalNpcSpawned)
 		assert(waves, "waves is not initiated")
 		comUnit:sendTo("statsMenu","waveInfo",waves)
 	end
@@ -173,7 +166,8 @@ function EventBase.new()
 		if npc[currentSpawn.npc] then
 			--counter for multiplayer
 			npcCounter[currentSpawn.npc] = npcCounter[currentSpawn.npc] and npcCounter[currentSpawn.npc]+1 or 0
-			local netName = (Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-")..currentSpawn.npc..npcCounter[currentSpawn.npc]
+			--local netName = (Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-")..currentSpawn.npc..npcCounter[currentSpawn.npc]
+			local netName = currentSpawn.npc..npcCounter[currentSpawn.npc]
 			--spawn the npc
 			local node = createNpcNode(portalId)
 			local script = node:loadLuaScript( npc[currentSpawn.npc].script )
@@ -186,8 +180,10 @@ function EventBase.new()
 			--
 			totalSpawned = totalSpawned + 1
 			spawnedThisWave = spawnedThisWave + 1
+			comUnit:sendTo("stats", "npcSpawnedWave", tostring(script:getIndex())..";"..tostring(waveCount))
 			comUnit:sendTo("stats", "setNPCSpawnedThisWave", spawnedThisWave)
-			comUnit:sendTo("stats", "setTotalNPCSpawned", totalSpawned)
+			--comUnit:sendTo("stats", "setTotalNPCSpawned", totalSpawned)
+			comUnit:sendTo("stats","addSpawn","")
 			--
 			firstNpcOfWaveHasSpawned = true
 		end
@@ -380,8 +376,6 @@ function EventBase.new()
 		comUnit:sendTo("stats","setBillboardInt","npc_hydra3_gold;0")
 		comUnit:sendTo("stats","setBillboardInt","npc_hydra4_gold;0")
 		comUnit:sendTo("stats","setBillboardInt","npc_hydra5_gold;0")
-		--interest rate
-		comUnit:sendTo("stats","setBillboardString","npc_interest;"..interestOnKill)--0.2% intereset per kill
 	end
 	local function countTotalSpawnsThisWave()
 		local count = 0
@@ -439,8 +433,6 @@ function EventBase.new()
 			--
 			comUnit:sendTo("log","println", "========= Wave "..waveCount.." =========")
 			if waveCount>0 then
-				comUnit:sendTo("log","println",waveInfo[waveCount].theoreticalGold)
-				comUnit:sendTo("log","println",bilboardStats:getInt("goldGainedTotal"))
 				if waveRestarted==false then
 					waveFinishedMoneyBonus()
 				end
@@ -572,11 +564,12 @@ function EventBase.new()
 		--mapp setttings for initiating the waves
 		waveFinishedBonus = pWaveFinishedBonus
 		startGold = pStartGold
-		interestOnKill = pInterestOnKill
+		interestOnKill = tostring(pInterestOnKill)
 		goldMultiplayer = pGoldMultiplayer
 		setGold(startGold)
-		setLife(pLives)
-		setMaxLife(pLives)
+		comUnit:sendTo("stats", "setLife", tostring(pLives))
+		comUnit:sendTo("stats", "setMaxLife", tostring(pLives))
+		comUnit:sendTo("stats","setInterestRateOnKill",interestOnKill)--0.2% intereset per kill
 		local tab = {startGold=pstartGold,WaveFinishedBonus=pWaveFinishedBonus,lives=pLives,level=pLevel}
 		--comUnit:sendNetworkSyncSafe("NetInitData",tabToStrMinimal(tab))
 		sendNetworkSyncSafe("NetInitData",tabToStrMinimal(tab))
@@ -610,9 +603,10 @@ function EventBase.new()
 	function self.setDefaultGold(pStartGold,pWaveFinishedBonus,pInterestOnKill,pGoldMultiplayer)
 		waveFinishedBonus = pWaveFinishedBonus
 		startGold = pStartGold
-		interestOnKill = pInterestOnKill
+		interestOnKill = tostring(pInterestOnKill)
 		goldMultiplayer = pGoldMultiplayer
 		setGold(startGold)
+		comUnit:sendTo("stats","setInterestRateOnKill",interestOnKill)--0.2% intereset per kill
 	end
 	function self.generateWaves(pNumWaves,difficultBase,difficultIncreaser,startSpawnWindow,seed)
 		--pNumWaves = 2
@@ -641,7 +635,6 @@ function EventBase.new()
 			local theoreticalPaidHpPS = 0.0
 			local theoreticalGoldPaid = 0.0
 			local theoreticalMinimumScore = 0.0
-			local defaultGoldEarned = totalGoldEarned
 			local timerAddBetweenWaves = 5+math.max(0.0,5*(1.0-difficultBase))
 			local npcDelayAfterFirstTowerBuilt = 15.0							--delay for first wave
 			local npcDelayBetweenWaves = math.clamp(8.0-((difficultBase-0.75)/0.35*5),3.0,8.0)	--delay for all other waves
@@ -840,7 +833,7 @@ function EventBase.new()
 				local difficult = (difficultIncreaser^i)+(i*(0.2/30))-math.max(0.0,(1.0-difficultBase))--((1.033+(0.0001*x))^x)
 				local unitBypassMultiplyer = 0.95 + (0.5*(i/numWaves))--this value increases the amount of hp that spawns each wave
 				local spawnHealthPerSecond = totalGoldEarned*0.7*difficult--0.7 magic number with no ties to reality anymore
-				local hpMultiplyer = ((totalGoldEarned*difficultBase) / (defaultGoldEarned+50))*difficult--this directly increases the hp on the npcs (+50 is just to flatten the curve)
+				local hpMultiplyer = ((totalGoldEarned*difficultBase) / (startGold+50))*difficult--this directly increases the hp on the npcs (+50 is just to flatten the curve)
 				--
 				local hardestGroupThatCanSpawn = startSpawnWindow + math.min( #groupCompOriginal-startSpawnWindow, math.floor(i*1.75)) + 1--hardestGroupThatCanSpawn (+1) is for bad algorithm and added dummy spawn
 				--this is the total health points that can be sent out this wave
@@ -977,12 +970,12 @@ function EventBase.new()
 						waveGoldEarned = waveGoldEarned + calculateGoldValue(groupUnit.npc,hpMultiplyer)
 						waveNpcGold = waveNpcGold + calculateGoldValue(groupUnit.npc,hpMultiplyer)
 						--
-						waveGoldEarned = waveGoldEarned + (theoreticalGold*interestOnKill)
+						waveGoldEarned = waveGoldEarned + (theoreticalGold*tonumber(interestOnKill))
 						--
-						theoreticalGold = (theoreticalGold*(1.0+interestOnKill)) + calculateGoldValue(groupUnit.npc,hpMultiplyer)--statistics
+						theoreticalGold = (theoreticalGold*(1.0+tonumber(interestOnKill))) + calculateGoldValue(groupUnit.npc,hpMultiplyer)--statistics
 						
 						--score += 400[estimated gold available]*interestOnKill*2[interest is valued 2x in score]*2[life/10==2, or on mincart map it is default 2]+goldEarnedFromKillingNPC
-						theoreticalMinimumScore = theoreticalMinimumScore + (400.0*interestOnKill*2.0*2.0) + (calculateGoldValue(groupUnit.npc,hpMultiplyer)*2.0)
+						theoreticalMinimumScore = theoreticalMinimumScore + (400.0*tonumber(interestOnKill)*2.0*2.0) + (calculateGoldValue(groupUnit.npc,hpMultiplyer)*2.0)
 						--
 						--add unit to wave info
 						if waveDetailsInfo[groupUnit.npc] then
@@ -1053,7 +1046,7 @@ function EventBase.new()
 --			print("=== theoreticalMinimumScore(MINECART) = "..theoreticalMinimumScore+500)
 --			abort()
 			--
-			comUnit:sendTo("stats", "setTotalNPCSpawns", totalNpcSpawned)
+			--comUnit:sendTo("stats", "setTotalNPCSpawns", totalNpcSpawned)
 			--1 Wait on tower to be built
 			--2 Wait on timer
 			--3 Wait on all enemies to die
@@ -1184,6 +1177,7 @@ function EventBase.new()
 				if this:getPlayerNode() then
 					--stats
 					comUnit:sendTo("SteamAchievement","MaxWaveFinished",waveCount)
+					comUnit:sendTo("stats","showScore","")
 					--
 					local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
 					
@@ -1372,7 +1366,7 @@ function EventBase.new()
 								end
 							end
 							--
-							script:callFunction("victory")
+							comUnit:sendTo(script:getIndex(),"victory","")
 						end
 						comUnit:sendTo("SteamStats","SaveStats","")
 					end
@@ -1404,7 +1398,7 @@ function EventBase.new()
 						
 						local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
 						if script then 
-							script:callFunction("defeated")
+							comUnit:sendTo(script:getIndex(),"defeated","")
 						end
 						
 					end
@@ -1418,6 +1412,10 @@ function EventBase.new()
 		--
 		--	Cheat for development
 		--
+		if Core.getInput():getKeyPressed(Key.r) then
+			local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
+			script:callFunction("victory")
+		end
 --		if DEBUG or true then
 --		 	if Core.getInput():getKeyPressed(Key.p) then
 --				comUnit:sendTo("log", "println", "cheat-addGold")

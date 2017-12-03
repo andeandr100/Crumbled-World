@@ -13,7 +13,6 @@ function NpcBase.new()
 	local model
 	local gainGoldOnDeath = true
 	local value
-	local interest
 	local lifeValueCount = "1"--npc is usually only one soul
 	local defaultState = 0
 	local speed
@@ -108,9 +107,7 @@ function NpcBase.new()
 		local billboardStats = Core.getBillboard("stats")
 		local hpMax = math.max(1.0,billboardStats:getInt("npc_"..name.."_hp"))
 		local val1 = billboardStats:getInt("npc_"..name.."_gold")
-		local val2 = billboardStats:getString("npc_interest")
 		value = tostring(val1)
-		interest = tostring(val2)--1.0020^40==(8.3% per wave)
 		--
 		speed = pspeed	
 		--
@@ -250,7 +247,6 @@ function NpcBase.new()
 		end
 	end
 	function self.NETSyncMover(param)
-		abort()
 		local diff = mover:getDistanceToExit()-(param-mover:getCurrentSpeed()*Core.getNetworkClient():getPing()*2.0)
 		if math.abs(diff)>mover:getCurrentSpeed()*(0.5) then
 			--npc are out of sync with over 0.5s
@@ -360,12 +356,16 @@ function NpcBase.new()
 			local newNpcNetworkName = Core.getNetworkName().."s"..npcSpawnCounter
 			local target = tonumber(Core.getIndexOfNetworkName(newNpcNetworkName))
 			if target==0 then			
+				comUnit:sendTo("stats","addSpawn","")
+				--
 				local npc = SceneNode()
 				this:getParent():addChild( npc )
 				local lPos = this:getParent():getGlobalMatrix():inverseM()*globalPosition
 				npc:setLocalPosition( lPos )
 				local npcScript = npc:loadLuaScript(name)
 				npcScript:setScriptNetworkId(newNpcNetworkName)
+				comUnit:sendTo("stats", "npcSpawnedWave", tostring(npcScript:getIndex())..";"..tostring(statsBilboard:getInt("wave")))
+				
 				--
 				--Force update
 				--
@@ -421,17 +421,18 @@ function NpcBase.new()
 				--there is always a 50% increased spawn rate in multiplayer
 				--0.66 = 1 / (1+0.5)
 				--with some lying for interest rate
-				comUnit:sendTo("stats","goldInterest",interest*0.67)--allways full interest
+				comUnit:sendTo("stats","goldInterest",0.67)--allways full interest
 				comUnit:sendTo("stats","addGold", (value*mul*0.67)+soul.getGoldGainAdd() )
 				comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;"..soul.getGoldGainAdd())
 			else
-				comUnit:sendTo("stats","goldInterest",interest)--allways full interest
+				comUnit:sendTo("stats","goldInterest",1.0)--allways full interest
 				--gold from the killing
 				local killValue = (value*mul)+soul.getGoldGainAdd()
 				comUnit:sendTo("stats","addGold", killValue )
 				comUnit:sendTo("stats","addBillboardDouble","goldGainedFromKills;"..tostring(killValue))
 			end
 		end
+				comUnit:sendTo("stats","addKill","")
 	end
 	--removed from soulmanager, so we can't be targeted
 	function self.deathCleanup()
