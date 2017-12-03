@@ -42,6 +42,8 @@ function create()
 		numWaves = 100
 	end
 	--
+	event.disableUnit("reaper")
+	--
 	--
 	--create event system
 	if not event.init(startGold,waveFinishedGold,interestOnKill,goldMultiplayerOnKills,startLives,level) then

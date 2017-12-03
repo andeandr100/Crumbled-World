@@ -1129,7 +1129,7 @@ function EventBase.new()
 		if spawnListPopulated and currentState ~= EVENT_END_MENU then
 			--handle the event restart wave
 			if (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="training") then
-				if keyBindRevertWave:getPressed() then
+				if keyBindRevertWave:getPressed() and (not Core.isInMultiplayer()) then
 					self.doRestartWave()
 				end
 			end
@@ -1412,10 +1412,10 @@ function EventBase.new()
 		--
 		--	Cheat for development
 		--
-		if Core.getInput():getKeyPressed(Key.r) then
-			local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
-			script:callFunction("victory")
-		end
+--		if Core.getInput():getKeyPressed(Key.r) then
+--			local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
+--			script:callFunction("victory")
+--		end
 --		if DEBUG or true then
 --		 	if Core.getInput():getKeyPressed(Key.p) then
 --				comUnit:sendTo("log", "println", "cheat-addGold")
