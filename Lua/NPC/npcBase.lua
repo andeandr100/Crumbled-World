@@ -375,8 +375,11 @@ function NpcBase.new()
 				comUnit:sendTo(npcScript:getIndex(), "setPathPoints", pathInStr)
 				--add new npc to waypoints, that have been passed
 				if Core.isInMultiplayer() then
-					local tab = {netName=newNpcNetworkName, scriptName = name, pos=lPos, islandId=this:getParent():getIslandId(), pathList=pathInStr, wayPoints=waypointReachedList}
-					comUnit:sendNetworkSyncSafeTo("Event"..(Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-"),"NetSpawnNpc",tabToStrMinimal(tab))
+					local tab = Core.getNetworkClient():getConnected()
+					local spawnTable = {netName=newNpcNetworkName, scriptName = name, pos=lPos, islandId=this:getParent():getIslandId(), pathList=pathInStr, wayPoints=waypointReachedList}
+					for index=1, Core.getNetworkClient():getConnectedPlayerCount() do
+						comUnit:sendNetworkSyncSafeTo("Event"..tostring(tab[index].clientId),"NetSpawnNpc",tabToStrMinimal(spawnTable))
+					end
 				end
 				--
 				for index,position in pairs(waypointReachedList) do
