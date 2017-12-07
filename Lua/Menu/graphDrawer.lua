@@ -1,3 +1,19 @@
+require("Game/campaignData.lua")
+require("Game/mapInfo.lua")
+local campaignData = CampaignData.new()
+local files = campaignData.getMaps()
+local mapInfo = MapInfo.new()
+local currentMapData = files[mapInfo.getMapNumber()]
+local diffPerLevelBase = math.floor( ((currentMapData.maxScore-currentMapData.minScore)*0.33)/500 )
+local diffPerLevel = diffPerLevelBase*500
+
+local scoreLimits = {
+	{score=currentMapData.minScore, 				minPos=Vec2(0.0,0.5625),	maxPos=Vec2(0.25,0.625)},
+	{score=currentMapData.maxScore-diffPerLevel,	minPos=Vec2(0.0,0.625),		maxPos=Vec2(0.25,0.6875)},
+	{score=currentMapData.maxScore,					minPos=Vec2(0.0,0.6875),	maxPos=Vec2(0.25,0.75)},
+	{score=currentMapData.maxScore+diffPerLevel,	minPos=Vec2(0.0,0.75),		maxPos=Vec2(0.25,0.8125)}
+}
+
 GraphDrawer = {}
 function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 	local self = {}
@@ -190,6 +206,17 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 		--
 		--	add text
 		--
+		
+		--
+		--	add medals
+		--
+		for k,v in pairs(scoreLimits) do
+			local yPos = getGridY(v.score)
+			local xx = leftMargin-lineMainWidth
+			drawSingleLine(node2DMesh, {Vec2(leftMargin+lineMainWidth,yPos), Vec2(x,yPos)}, 0.5, Vec4(0.75))
+		end
+		--{score=currentMapData.minScore, 				minPos=Vec2(0.0,0.5625),	maxPos=Vec2(0.25,0.625)},
+		
 	end
 	--
 	function drawScoreGraph(func)
@@ -245,7 +272,7 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 	end
 	function self.resize()
 		local bilboardStats = Core.getBillboard("stats")
-		data = bilboardStats:getTable("scoreHistory")
+		data	 = bilboardStats:getTable("scoreHistory")
 		--make sure it is a real rezise
 		if data and x~=panel:getPanelContentPixelSize().x or y~=panel:getPanelContentPixelSize().y then
 			panel:getPanelGlobalMinMaxPosition(panelMin,panelMax)

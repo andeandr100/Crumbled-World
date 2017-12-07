@@ -162,7 +162,6 @@ end
 
 local function updateGoldToolTip()
 
-	
 	local goldTextList = {	{text=language:getText("Total gold earned"),	billName="goldGainedTotal", color="40,255,40" }, 
 							{text=language:getText("From kills"), 			billName="goldGainedFromKills", color="40,255,40" }, 
 							{text=language:getText("From interest"), 		billName="goldGainedFromInterest", color="40,255,40" }, 
@@ -171,6 +170,12 @@ local function updateGoldToolTip()
 							{text=language:getText("Spent in towers"), 		billName="goldInsertedToTowers", color="255,255,40" }, 
 							{text=language:getText("Lost from selling"),	billName="goldLostFromSelling", color="255,40,40"},
 							{text=language:getText("Iterest rate"),		billName="activeInterestrate", color="40,255,40"},
+							{text="towersBuilt",		billName="towersBuilt", color="40,255,40"},
+							{text="wallTowerBuilt",		billName="wallTowerBuilt", color="40,255,40"},
+							{text="towersSold",		billName="towersSold", color="40,255,40"},
+							{text="towersUpgraded",		billName="towersUpgraded", color="40,255,40"},
+							{text="towersSubUpgraded",		billName="towersSubUpgraded", color="40,255,40"},
+							{text="towersBoosted",		billName="towersBoosted", color="40,255,40"},
 						}
 	local toolPanel = Panel(PanelSize(Vec2(1)))
 	toolPanel:setLayout(FlowLayout())

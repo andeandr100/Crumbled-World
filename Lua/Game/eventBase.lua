@@ -449,6 +449,8 @@ function EventBase.new()
 	local function syncChangeWave(param)
 		local waveNum = tonumber(param)
 		while waveNum>waveCount do
+			endGameMenuScreen = nil
+			eventBaserunOnlyOnce = nil
 			currentState = EVENT_CHANGE_WAVE
 			self.update()
 		end
@@ -634,7 +636,7 @@ function EventBase.new()
 			local theoreticalGold = startGold-350--start cost of wall towers
 			local theoreticalPaidHpPS = 0.0
 			local theoreticalGoldPaid = 0.0
-			local theoreticalMinimumScore = 0.0
+			local theoreticalMinimumScoreInterest = 0.0
 			local timerAddBetweenWaves = 5+math.max(0.0,5*(1.0-difficultBase))
 			local npcDelayAfterFirstTowerBuilt = 15.0							--delay for first wave
 			local npcDelayBetweenWaves = math.clamp(8.0-((difficultBase-0.75)/0.35*5),3.0,8.0)	--delay for all other waves
@@ -977,8 +979,8 @@ function EventBase.new()
 						--
 						theoreticalGold = (theoreticalGold*(1.0+tonumber(interestOnKill))) + calculateGoldValue(groupUnit.npc,hpMultiplyer)--statistics
 						
-						--score += 400[estimated gold available]*interestOnKill*2[interest is valued 2x in score]*2[life/10==2, or on mincart map it is default 2]+goldEarnedFromKillingNPC
-						theoreticalMinimumScore = theoreticalMinimumScore + (400.0*tonumber(interestOnKill)*2.0*2.0) + (calculateGoldValue(groupUnit.npc,hpMultiplyer)*2.0)
+						--score += 400[estimated gold available]*interestOnKill*2*2[life/10==2, or on mincart map it is default 2]+goldEarnedFromKillingNPC
+						theoreticalMinimumScoreInterest = theoreticalMinimumScoreInterest + (200.0*tonumber(interestOnKill)*2.0)
 						--
 						--add unit to wave info
 						if waveDetailsInfo[groupUnit.npc] then
@@ -1009,7 +1011,6 @@ function EventBase.new()
 				--
 				--add gold earned this wave
 				theoreticalGold = theoreticalGold + calculateGoldForWave(i)
-				theoreticalMinimumScore = theoreticalMinimumScore + calculateGoldForWave(i)
 				--remove gold for building costs
 				local COSTPERWAVE = i>numWaves*0.5 and 1.3 or 0.7
 				local waveCost = (waveNpcGold*COSTPERWAVE) + (i>numWaves*0.5 and (theoreticalGold*(1/(numWaves*0.175)))+100 or 0)
@@ -1026,7 +1027,8 @@ function EventBase.new()
 				--
 				waves[i] = waveDetails
 				waveTotalTime = waveTotalTime + nextWaveDelayTime
-				playTime = playTime + waveTotalTime + waitBase + 15.0 -- 15s time to kill last unit after it has spawned ;-)
+				playTime = playTime + waveTotalTime + waitBase + 15.0 -- 15s time to kill last unit after it has spawned ;D
+				
 				longestWave = math.max(longestWave,waveTotalTime)
 				--print("==== WAVE"..i..".time=="..waveTotalTime.."\n")
 			end
@@ -1038,6 +1040,8 @@ function EventBase.new()
 			local minutes=math.floor(playTime/60)
 			--playTime = playTime - (minutes*60)
 			--print(tostring(waves))
+--			print("=== minimalScore="..tostring(((totalGoldEarned+theoreticalMinimumScoreInterest)*0.75)+theoreticalMinimumScoreInterest+100))
+--			abort()
 --			print("=== longestWave="..longestWave.."s")
 --			print("=== totalNpcSpawned="..totalNpcSpawned)
 --			print("=== theoreticalGoldPaid="..theoreticalGoldPaid)
@@ -1090,6 +1094,8 @@ function EventBase.new()
 			comUnit:sendTo("SteamStats","ReverseTimeCount",1)
 			previousWaveCounter = previousWaveCounter + 1		--acievment stat counter
 			clearActiveSpawn()
+			endGameMenuScreen = nil
+			eventBaserunOnlyOnce = nil
 			if waveCount==STARTWAVE then
 				--if restart was by backspace then send message to other script
 				if not restartedFromTheOutSide then
@@ -1117,7 +1123,18 @@ function EventBase.new()
 			comUnit:sendTo(0,"clear","")
 		end
 	end
-	
+	function victoryDefeatProcedure()
+		comUnit:sendTo("SteamAchievement","MaxWaveFinished",waveCount)
+		comUnit:sendTo("stats","showScore","")
+		--
+		if mapInfo.getGameMode()=="survival" then
+			local crystalGain = waveCount/10--bilboardStats:getInt("score")
+			if crystalGain>0 then
+				comUnit:sendTo("stats","setBillboardInt","survivalBonus;"..0)
+				cData.addCrystal( crystalGain )
+			end
+		end
+	end
 	function self.update()
 		--Handle communication
 		while comUnit:hasMessage() do
@@ -1178,26 +1195,14 @@ function EventBase.new()
 				currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD
 			elseif currentState == EVENT_END_GAME then
 				if this:getPlayerNode() then
+					victoryDefeatProcedure()
 					--stats
-					comUnit:sendTo("SteamAchievement","MaxWaveFinished",waveCount)
-					comUnit:sendTo("stats","showScore","")
-					--
-					local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
-					
 					local highScoreBillBoard = Core.getGlobalBillboard("highScoreReplay")
 					highScoreBillBoard:setBool("victory", bilboardStats:getInt("life") > 0)
 					highScoreBillBoard:setInt("score", bilboardStats:getInt("score"))
 					highScoreBillBoard:setInt("life", bilboardStats:getInt("life"))
 					highScoreBillBoard:setDouble("gold", bilboardStats:getInt("gold"))
 					
-					
-					if mapInfo.getGameMode()=="survival" then
-						local crystalGain = waveCount/10--bilboardStats:getInt("score")
-						if crystalGain>0 then
-							comUnit:sendTo("stats","setBillboardInt","survivalBonus;"..0)
-							cData.addCrystal( crystalGain )
-						end
-					end
 					
 					if highScoreBillBoard:getBool("replay") then
 						--it is a replay
@@ -1206,7 +1211,7 @@ function EventBase.new()
 						Core.quitToMainMenu()
 					else
 						--it is a real game
-						if script and bilboardStats:getInt("life")>0 then 
+						if bilboardStats:getInt("life")>0 then 
 							--
 							--
 							-- victory
@@ -1369,7 +1374,10 @@ function EventBase.new()
 								end
 							end
 							--
-							comUnit:sendTo(script:getIndex(),"victory","")
+							if not endGameMenuScreen then
+								endGameMenuScreen = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
+								endGameMenuScreen:setName("endGameMenuVictory")
+							end
 						end
 						comUnit:sendTo("SteamStats","SaveStats","")
 					end
@@ -1386,11 +1394,12 @@ function EventBase.new()
 --		end
 		
 		if bilboardStats then
-			if bilboardStats:getInt("life") <= 0 and (Core.getGameTime()-startTime) > 1.0 then
+			if bilboardStats:getInt("life") <= 0 and waveCount>STARTWAVE and (Core.getGameTime()-startTime) > 1.0 then
 				local highScoreBillBoard = Core.getGlobalBillboard("highScoreReplay")
 				local isAReplay = highScoreBillBoard:getBool("replay")
 				if not eventBaserunOnlyOnce and isAReplay == false then
 					eventBaserunOnlyOnce = true
+					victoryDefeatProcedure()
 					currentState = EVENT_END_MENU
 					if this:getPlayerNode() then
 						
@@ -1399,11 +1408,10 @@ function EventBase.new()
 						highScoreBillBoard:setInt("life", bilboardStats:getInt("life"))
 						highScoreBillBoard:setDouble("gold", bilboardStats:getInt("gold"))
 						
-						local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
-						if script then 
-							comUnit:sendTo(script:getIndex(),"defeated","")
+						if not endGameMenuScreen then
+							endGameMenuScreen = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
+							endGameMenuScreen:setName("endGameMenuDefeat")
 						end
-						
 					end
 					return true
 				end
@@ -1415,10 +1423,11 @@ function EventBase.new()
 		--
 		--	Cheat for development
 		--
---		if Core.getInput():getKeyPressed(Key.r) then
---			local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
---			script:callFunction("victory")
---		end
+		if Core.getInput():getKeyPressed(Key.r) then
+			comUnit:sendTo("stats","showScore","")
+			local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
+			script:setName("endGameMenuVictory")
+		end
 --		if DEBUG or true then
 --		 	if Core.getInput():getKeyPressed(Key.p) then
 --				comUnit:sendTo("log", "println", "cheat-addGold")

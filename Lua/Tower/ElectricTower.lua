@@ -1084,6 +1084,7 @@ function ElectricTower.new()
 								info = "calc",
 								order = 11,
 								icon = 62,
+								hidden = true,
 								stats = {	slow =	{ upgrade.func, calcSlow} }
 							} )
 		supportManager.setUpgrade(upgrade)

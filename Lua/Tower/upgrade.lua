@@ -26,6 +26,7 @@ function Upgrade.new()
 	local diffUpgradeCount = 0 
 	local interpolation = 0.0	--when leveling mode is active
 	local comUnit = Core.getComUnit()
+	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	local bilboardStats = Core.getBillboard("stats")
 	local ignoreUpgrade = true
 	local xpSystem
@@ -223,12 +224,14 @@ function Upgrade.new()
 			return		
 		end
 		
-		if name=="upgrade" then
-			comUnit:sendTo("stats","addTowerUpgraded","")
-		elseif name=="boost" then
-			comUnit:sendTo("stats","addTowerBoosted","")
-		elseif upgradesAvailable[name][1].hidden==false and name~="rotate" then
-			comUnit:sendTo("stats","addTowerSubUpgraded","")
+		if isThisReal then
+			if name=="upgrade" and upgraded[order] then
+				comUnit:sendTo("stats","addTowerUpgraded","")
+			elseif name=="boost" then
+				comUnit:sendTo("stats","addTowerBoosted","")
+			elseif (not upgradesAvailable[name][1].hidden) and name~="rotate" and name~="upgrade" then
+				comUnit:sendTo("stats","addTowerSubUpgraded","")
+			end
 		end
 		if not (name=="upgrade" or name=="boost" or name=="calculate" or upgradesAvailable[name][1].hidden) and freeSubUpgradesCount>0 then
 			subUpgradeCount = subUpgradeCount - ((name=="upgrade" or name=="boost" or name=="calculate" or name=="range" or name=="rotate" or name=="gold" or name=="supportRange" or name=="supportDamage" or name=="smartTargeting") and 0 or 1)
