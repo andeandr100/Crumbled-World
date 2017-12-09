@@ -1,6 +1,7 @@
 require("Menu/MainMenu/mainMenuStyle.lua")
 require("Menu/graphDrawer.lua")
 require("Game/mapInfo.lua")
+require("Game/campaignData.lua")
 --this = SceneNode()
 
 local data
@@ -15,6 +16,8 @@ local bilboardStats = Core.getBillboard("stats")
 local graph
 local input = Core.getInput()
 local comUnitTable = {}
+local mapInfo = MapInfo.new()
+local isVictory
 
 -- function:	destroy
 -- purpose:		called on the destruction of this script
@@ -42,33 +45,60 @@ end
 function waveRestarted()
 	form:setVisible(false)
 end
--- function:	victory
--- purpose:		called on victory, will show the victory screen
-function victory()
-	victoryImage:setVisible(true)
-	--restartWaveButton:setEnabled(false)
-	form:setVisible(true)
-	comUnit:sendTo("InGameMenu","hide","")
+
+local function getMapIndex(filePath)
+	for i=1, #files do	
+		local file = files[i].file
+		if file:isFile() and file:getPath()==filePath then
+			return i
+		end
+	end
+	return 0
 end
--- function:	defeated
--- purpose:		called on defeat, will show the defeat screen
-function defeated()
-	
---	if not Core.isInMultiplayer() then
---		continueButton:setText("Restart")
---	end
-	
-	defeatedImage:setVisible(true)
-	--restartWaveButton:setEnabled(true)
-	form:setVisible(true)
-	comUnit:sendTo("InGameMenu","hide","")
+function isNextCampaignMapAvailable()
+	local campaignData = CampaignData.new()
+	local files = campaignData.getMaps()
+	return #files>=mapInfo.getMapNumber()+1
 end
 -- function:	startNextMap
 -- purpose:		will leave game, launch loading screen and throw you into the next map for the campaign (only available for campaign maps)
 function startNextMap()
-	local worker = Worker("Menu/loadingScreen.lua", true)
-	worker:start()
-	Core.startNextMap(selectedFile)
+	if isNextCampaignMapAvailable() then
+		local campaignData = CampaignData.new()
+		local files = campaignData.getMaps()
+		local mNum = mapInfo.getMapNumber()+1
+		local mapFile = files[mNum].file
+			
+		if mapFile:isFile() then
+			--
+			local mapInformation = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
+			if mapInformation then
+				mapInfo.setMapNumber(mNum)
+				mapInfo.setMapName(mapFile:getName())
+				mapInfo.setSead(files[mNum].sead)
+			
+				mapInfo.setIsCartMap(mapInformation.gameMode=="Cart")
+				mapInfo.setAddPerLevel(mapInformation.difficultyIncreaseMax)
+				mapInfo.setDifficultyBase(mapInformation.difficultyBase)
+				mapInfo.setWaveCount(mapInformation.waveCount)
+				mapInfo.setLevel(1)
+				--changing default selected map
+				menuPrevSelect = Config("menuPrevSelect")
+				menuPrevSelect:get("campaign"):get("selectedMap"):setString(files[mNum].file:getPath())
+				menuPrevSelect:save()
+				--
+				local worker = Worker("Menu/loadingScreen.lua", true)
+				worker:start()
+				Core.startNextMap(files[mNum].file:getPath())
+			else
+				LOG("ERROR no mapInformation")
+				buttonRow:removePanel(nextMapButton)
+			end
+		else
+			LOG("file not available")
+			buttonRow:removePanel(nextMapButton)
+		end
+	end
 end
 function addheader(panel, text)
 	local background = panel:add(Panel(PanelSize(Vec2(-1,0.025))))
@@ -177,63 +207,67 @@ function initiate()
 	form:getPanelSize():setFitChildren(false, true);
 	form:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))));
 	form:setRenderLevel(11)
-	form:setVisible(false)
+	form:setVisible(true)
 	form:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
 	form:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 	--
 	--	Top image
 	--
-	victoryImage = form:add(Image(PanelSize(Vec2(-1,0.20), Vec2(8,1)), "victory"))
-	victoryImage:setVisible(false)
-	
-	defeatedImage = form:add(Image(PanelSize(Vec2(-1,1), Vec2(8,1)), "defeated"))
-	defeatedImage:setVisible(false)
+	if Core.getCurrentLuaScript():getName()=="endGameMenuVictory" then
+		topImage = form:add(Image(PanelSize(Vec2(-1,0.20), Vec2(8,1)), "victory"))
+		isVictory = true
+	else
+		topImage = form:add(Image(PanelSize(Vec2(-1,1), Vec2(8,1)), "defeated"))
+		isVictory = false
+	end
 	--
 	--	Section with all stats
 	--
 	MainMenuStyle.createBreakLine(form)
 	
 	local baseStatsPanel = form:add(Panel(PanelSize(Vec2(-0.9,-1), Vec2(5,3.5))))
-	local leftPanel = baseStatsPanel:add(Panel(PanelSize(Vec2(-0.4,-1))))
-	rightPanel = baseStatsPanel:add(Panel(PanelSize(Vec2(-1,-1))))
-	leftPanel:setEnableYScroll()
+	statsPanel = baseStatsPanel:add(Panel(PanelSize(Vec2(-0.4,-1))))
+	graphPanel = baseStatsPanel:add(Panel(PanelSize(Vec2(-1,-1))))
+	statsPanel:setEnableYScroll()
 	
-	setStatsLayout(leftPanel,true)
-	--setGraphLayout(rightPanel)
-	graph = GraphDrawer.new(rightPanel, bilboardStats:getInt("life"), SCOREPERLIFE)
+	setStatsLayout(statsPanel,true)
+	--setGraphLayout(graphPanel)
+	graph = #data>1 and GraphDrawer.new(graphPanel, bilboardStats:getInt("life"), SCOREPERLIFE) or nil
 	
 	--
 	--	Bottom section with button options
 	--
 	MainMenuStyle.createBreakLine(form)
 	
-	local row = form:add(Panel(PanelSize(Vec2(-0.9, 1),Vec2(20,1))))
-	row:setLayout(FlowLayout(PanelSize(Vec2(0.001,0))))
+	buttonRow = form:add(Panel(PanelSize(Vec2(-0.9, 1),Vec2(20,1))))
+	buttonRow:setLayout(FlowLayout(PanelSize(Vec2(0.001,0))))
 	
 	form:add(Panel(PanelSize(Vec2(-0.9,0.002))))
 	
 	run = true
 	
-	
-	--continueButton = row:add( MainMenuStyle.createButton( Vec2(-0.33,-1), Vec2(5,1), language:getText("continue")))
-	restartWaveButton = row:add( MainMenuStyle.createButton( Vec2(-0.5,-1), Vec2(12,1), language:getText("revert wave")))
-	local quitToMenuButton = row:add( MainMenuStyle.createButton( Vec2(-1,-1), Vec2(12,1), language:getText("quit to menu")))
-
-
-	--continueButton:addEventCallbackExecute(returnToGame)
-	restartWaveButton:addEventCallbackExecute(restartWave)
+	--BUTTONS
+	if mapInfo.isCampaign() and isVictory then
+		nextMapButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-0.5,-1), Vec2(5,1), "NextMap"))
+		nextMapButton:addEventCallbackExecute(startNextMap)
+	end
+	--
+	if not isVictory then
+		restartWaveButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-0.5,-1), Vec2(12,1), language:getText("revert wave")))
+		restartWaveButton:addEventCallbackExecute(restartWave)
+	end
+	--
+	quitToMenuButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-1,-1), Vec2(12,1), language:getText("quit to menu")))
 	quitToMenuButton:addEventCallbackExecute(quitToMainMenu)
+	--
+	
 end
 -- function:	create
 -- purpose:		initiates the script
 function create()
 	comUnit = Core.getComUnit()
-	comUnit:setCanReceiveTargeted(true)
+	comUnit:setCanReceiveTargeted(false)
 	comUnit:setCanReceiveBroadcast(false)
-	
-	comUnitTable["victory"] = victory
-	comUnitTable["defeated"] = defeated
-	
 	return true
 end
 -- function:	quitToMainMenu
@@ -249,7 +283,12 @@ function getKill(index)
 	local per = math.clamp(index-wave,0.0,1.0)
 	local max = #data[wave]
 	
-	local kill = math.clamp( math.floor(max*per+0.5), 1, max)
+	local kill = math.clamp( math.floor(max*per+0.5), 0, max)
+	if data[wave][kill]==nil then
+		local d0 = #data[wave]
+		local d1 = data[wave]
+		abort()
+	end
 	return data[wave][kill]
 end
 function updateAllMenuLabels()
@@ -271,31 +310,20 @@ end
 -- purpose:		updates the script every frame
 function update()
 	if data then
-		if form:getVisible() then
-			if initEventDone==false and index~=indexMax then
-				index = math.min(index+(indexSpeed*Core.getRealDeltaTime()),indexMax)
+		if initEventDone==false and index~=indexMax then
+			index = math.min(index+(indexSpeed*Core.getRealDeltaTime()),indexMax)
+			if graph then
 				graph.setDisplayedIndex(index)
-				updateAllMenuLabels()
-			elseif input:getMouseHeld(MouseKey.left) and graph.isMouseInsidePanel() then
-				if initEventDone==false then
-					initEventDone = true
-					graph.setCallbackOnDisplayIndexChange(waveIndexHasChanged)
-				end
-				graph.mouseClicked()
 			end
-			form:update()
-		else
-			--Handle communication
-			while comUnit:hasMessage() do
-				local msg = comUnit:popMessage()
-				if comUnitTable[msg.message]~=nil then
-					comUnitTable[msg.message](msg.parameter,msg.fromIndex)
-				end
+			updateAllMenuLabels()
+		elseif graph and input:getMouseHeld(MouseKey.left) and graph.isMouseInsidePanel() then
+			if initEventDone==false then
+				initEventDone = true
+				graph.setCallbackOnDisplayIndexChange(waveIndexHasChanged)
 			end
-			if form:getVisible() then
-				comUnit:setCanReceiveTargeted(false)
-			end
+			graph.mouseClicked()
 		end
+		form:update()
 		return run
 	elseif bilboardStats:exist("scoreHistory") then
 		initiate()

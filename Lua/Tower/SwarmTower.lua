@@ -812,6 +812,7 @@ function SwarmTower.new()
 								name = "calculate",
 								info = "calc",
 								order = 11,
+								hidden = true,
 								icon = 62,
 								stats = {	burnTime =	{ upgrade.func, burnTimeCalc} }
 							} )
