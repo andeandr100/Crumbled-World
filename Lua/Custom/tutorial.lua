@@ -623,144 +623,144 @@ end
 
 function create()
 	
-	comUnit:setName("tutorialComunit")
-	comUnit:setCanReceiveTargeted(false)
-	comUnit:setCanReceiveBroadcast(true)
-	
-	
-	local camera = ConvertToCamera(this:getRootNode():findNodeByName("MainCamera"));
-	
-	form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.BOTTOM_RIGHT);
-	form:setName("tutorial form")
-	form:setRenderLevel(201)
-	form:setCanHandleInput(false)
-	form:setLayout(FlowLayout())
-
-	textNode:setTextHeight(renderSize.y * 0.025)
-	textNode:setColor(Vec3(1))
-	textNode:setSize(renderSize)
-	
-	tutorialCounter:setTextHeight(renderSize.y * 0.025)
-	tutorialCounter:setColor(Vec3(1))
-	tutorialCounter:setSize(renderSize)
-	
-	buttonState = 1
-	local buttonSize = 0.025
-	xButtonCreate( xButtonMesh, buttonSize, Vec2(renderSize.x * (0.95 + buttonSize * 0.5), renderSize.y * 0.07), Vec4(1,1,1,1) )
-	
-	
-	tutorial = {
-		index = 1,
-		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="Welcome to the tutorial"}, 
-		
-		{renderMode="quad", next=anyButtonPressed, renderData={panel="npcPanel"},arrow="renderData", textAlign="auto-down", text="Here you can se information what enemies is about to spawn.\nThis can help you plan what towers to build and uppgrade."},
-		{renderMode="quad", next=anyButtonPressed, renderData={panelMin="tower2",panelMax="tower9"},arrow="renderData",textAlign="auto-right", text="The first enemies will start spawning,\nwhen one of this towers has been built"},
-		{renderMode="quad", next=anyButtonPressed, renderData={panel="life remaining"},arrow="renderData", textAlign="auto-down", text="This is how many life you have left.\nA life is lost when the enemy reaches the end crystal."},
-		{renderMode="quad", next=anyButtonPressed, renderData={panel="money"},arrow="renderData", textAlign="auto-down", text="Towers cost gold to upgrade and build.\nFor every 1000gold here you earn 1 extra gold per kill.\nNote that this is only on enemies spawn form the portal"},
-		{renderMode="quad", next=anyButtonPressed, renderData={panel="score"},arrow="renderData", doneFunc=moveCamera, textAlign="auto-down", text="This is your score counter."},
-		{renderMode="quad", next=anyButtonPressed, initFunc=findrenderNode, renderData={name="spawn"}, arrow="renderData", sleep=1, textAlign="auto-down", text="Enemies will spawn from this portal"},
-		{renderMode="quad", next=anyButtonPressed, initFunc=findrenderNode, renderData={name="waypoint"}, arrow="renderData", textAlign="auto-up", text="they will move towards this waypoint"},
-		{renderMode="quad", next=anyButtonPressed, initFunc=findrenderNode, renderData={name="endcrystall"}, arrow="renderData", textAlign="auto-down", text="and they will go to the endcrystall.\nIf they reach this point you lose a life."},
-		{renderMode="quad", next=anyButtonPressed, doneFunc=restoreCamera, renderData={min=Vec2(0.25,0.15), max=Vec2(0.75, 0.95)}, textAlign="auto-up", text="you can always se how the enemies will run by watching the spirits movments"},
-		{renderMode="quad", next=towerSelected, towerIndex=1, renderData={panel="tower1"},arrow="renderData",textAlign="auto-right", text="Now lets get starting playing the game.\nTo start planing out where all the tower should be placed.\nStart by selecting the wall tower."},
-		{renderMode="quad", next=twoTowersBuilt, initFunc=getFirstTowerPlacment, doneFunc=clearGhostTower, renderData={name="qube"}, textAlign="auto-up", text="Now place the tower on the two marked areas"},
-		{renderMode="quad", next=fiveTowersBuilt, initFunc=getSecondTowerPlacment, doneFunc=clearGhostTower, timer=2, renderData={name="qube"}, textAlign="auto-up", text="Towers can be rotated with the mouse scroll. With this information place the remaning towers"},
-		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="Now when we have planed out where we will place towers.\nIts time to build towers that can deal damage."},
-		{renderMode="quad", next=towerSelected, towerIndex=2,arrow="renderData", renderData={panel="tower2"}, textAlign="auto-right", text="We start of with the minigun tower.\nIt's a good single target tower. Thats targets the closest enemy to the endcrystal."},
-		{renderMode="quad", next=towerBuilt, towerIndex=2, initFunc=selectTower, doneFunc=pauseGame, renderData={towerId=1,name="qube"}, textAlign="auto-top", text="Build the Minigun Tower on top of the wall Tower.\nAll towers can also be placed freely as the Wall Tower\nI have paused the game during the tutorial."},
-		{renderMode="quad", next=towerSelected, towerIndex=4,arrow="renderData", renderData={panel="tower4"}, textAlign="auto-right", text="Now select the Swarm tower.\nSwarm tower needs to have enemies in range for 13 seconds to be fully activated.\nThis make it a high damage when fully chared making it great in extended fights."},
-		{renderMode="quad", next=towerBuilt, towerIndex=4, initFunc=selectTower, renderData={towerId=2,name="qube"}, textAlign="auto-top", text="Build the Swarm Tower on top of the wall Tower."},
-		{renderMode="quad", next=deselectTower, initFunc=selectTower, doneFunc=unPauseGame, renderData={towerId=3,name="qube"}, textAlign="auto-top", text="De select the tower by pressing."},
-		{renderMode="quad", next=speedIncrease, renderData={panel="speed"},arrow="renderData", textAlign="auto-down", text="Klick on the speed to switch bettewn x1 and x3.\n and watch as the game unfold before you.\nNext part of the tutorial start when when you have lost a life."},
-		{renderMode="full", next=goBackInTime, initWait=loseOfLife, initFunc=saveWave, textAlign="center", textPos=Vec2(0.5), text="Now ouer awsome defence faild to stop all the enemies.\n don't wory we can fix the misstake. press {backspace} to replay the preivous wave."},
-		{renderMode="quad", next=anyButtonPressed, initFunc=selectTower, renderData={towerId=4,name="qube"}, textAlign="auto-top", text="We now wil upgrade the towers to handle this wave.\nKlick on the minigun tower tower"},
-		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="Press on the button to uppgrade the tower"},
-		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="now let's the game unfoled again"},
-		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="it's obvious the towers will not be able to hold of this wave\n we can temporary boost a tower do incresed damage"},
-		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="This will conclude the tutorial.\nI will leave it up to you to finish the map."}		
-	}
-	
-	
-	
-	form:addRenderObject(mesh)
-	form:addRenderObject(xButtonMesh)
-	form:addRenderObject(arrowMesh)
-	form:addRenderObject(textNode)
-	form:addRenderObject(tutorialCounter)
-	
-	
-	
-	updateTutorialRenderObject()
+--	comUnit:setName("tutorialComunit")
+--	comUnit:setCanReceiveTargeted(false)
+--	comUnit:setCanReceiveBroadcast(true)
+--	
+--	
+--	local camera = ConvertToCamera(this:getRootNode():findNodeByName("MainCamera"));
+--	
+--	form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.BOTTOM_RIGHT);
+--	form:setName("tutorial form")
+--	form:setRenderLevel(201)
+--	form:setCanHandleInput(false)
+--	form:setLayout(FlowLayout())
+--
+--	textNode:setTextHeight(renderSize.y * 0.025)
+--	textNode:setColor(Vec3(1))
+--	textNode:setSize(renderSize)
+--	
+--	tutorialCounter:setTextHeight(renderSize.y * 0.025)
+--	tutorialCounter:setColor(Vec3(1))
+--	tutorialCounter:setSize(renderSize)
+--	
+--	buttonState = 1
+--	local buttonSize = 0.025
+--	xButtonCreate( xButtonMesh, buttonSize, Vec2(renderSize.x * (0.95 + buttonSize * 0.5), renderSize.y * 0.07), Vec4(1,1,1,1) )
+--	
+--	
+--	tutorial = {
+--		index = 1,
+--		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="Welcome to the tutorial"}, 
+--		
+--		{renderMode="quad", next=anyButtonPressed, renderData={panel="npcPanel"},arrow="renderData", textAlign="auto-down", text="Here you can se information what enemies is about to spawn.\nThis can help you plan what towers to build and uppgrade."},
+--		{renderMode="quad", next=anyButtonPressed, renderData={panelMin="tower2",panelMax="tower9"},arrow="renderData",textAlign="auto-right", text="The first enemies will start spawning,\nwhen one of this towers has been built"},
+--		{renderMode="quad", next=anyButtonPressed, renderData={panel="life remaining"},arrow="renderData", textAlign="auto-down", text="This is how many life you have left.\nA life is lost when the enemy reaches the end crystal."},
+--		{renderMode="quad", next=anyButtonPressed, renderData={panel="money"},arrow="renderData", textAlign="auto-down", text="Towers cost gold to upgrade and build.\nFor every 1000gold here you earn 1 extra gold per kill.\nNote that this is only on enemies spawn form the portal"},
+--		{renderMode="quad", next=anyButtonPressed, renderData={panel="score"},arrow="renderData", doneFunc=moveCamera, textAlign="auto-down", text="This is your score counter."},
+--		{renderMode="quad", next=anyButtonPressed, initFunc=findrenderNode, renderData={name="spawn"}, arrow="renderData", sleep=1, textAlign="auto-down", text="Enemies will spawn from this portal"},
+--		{renderMode="quad", next=anyButtonPressed, initFunc=findrenderNode, renderData={name="waypoint"}, arrow="renderData", textAlign="auto-up", text="they will move towards this waypoint"},
+--		{renderMode="quad", next=anyButtonPressed, initFunc=findrenderNode, renderData={name="endcrystall"}, arrow="renderData", textAlign="auto-down", text="and they will go to the endcrystall.\nIf they reach this point you lose a life."},
+--		{renderMode="quad", next=anyButtonPressed, doneFunc=restoreCamera, renderData={min=Vec2(0.25,0.15), max=Vec2(0.75, 0.95)}, textAlign="auto-up", text="you can always se how the enemies will run by watching the spirits movments"},
+--		{renderMode="quad", next=towerSelected, towerIndex=1, renderData={panel="tower1"},arrow="renderData",textAlign="auto-right", text="Now lets get starting playing the game.\nTo start planing out where all the tower should be placed.\nStart by selecting the wall tower."},
+--		{renderMode="quad", next=twoTowersBuilt, initFunc=getFirstTowerPlacment, doneFunc=clearGhostTower, renderData={name="qube"}, textAlign="auto-up", text="Now place the tower on the two marked areas"},
+--		{renderMode="quad", next=fiveTowersBuilt, initFunc=getSecondTowerPlacment, doneFunc=clearGhostTower, timer=2, renderData={name="qube"}, textAlign="auto-up", text="Towers can be rotated with the mouse scroll. With this information place the remaning towers"},
+--		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="Now when we have planed out where we will place towers.\nIts time to build towers that can deal damage."},
+--		{renderMode="quad", next=towerSelected, towerIndex=2,arrow="renderData", renderData={panel="tower2"}, textAlign="auto-right", text="We start of with the minigun tower.\nIt's a good single target tower. Thats targets the closest enemy to the endcrystal."},
+--		{renderMode="quad", next=towerBuilt, towerIndex=2, initFunc=selectTower, doneFunc=pauseGame, renderData={towerId=1,name="qube"}, textAlign="auto-top", text="Build the Minigun Tower on top of the wall Tower.\nAll towers can also be placed freely as the Wall Tower\nI have paused the game during the tutorial."},
+--		{renderMode="quad", next=towerSelected, towerIndex=4,arrow="renderData", renderData={panel="tower4"}, textAlign="auto-right", text="Now select the Swarm tower.\nSwarm tower needs to have enemies in range for 13 seconds to be fully activated.\nThis make it a high damage when fully chared making it great in extended fights."},
+--		{renderMode="quad", next=towerBuilt, towerIndex=4, initFunc=selectTower, renderData={towerId=2,name="qube"}, textAlign="auto-top", text="Build the Swarm Tower on top of the wall Tower."},
+--		{renderMode="quad", next=deselectTower, initFunc=selectTower, doneFunc=unPauseGame, renderData={towerId=3,name="qube"}, textAlign="auto-top", text="De select the tower by pressing."},
+--		{renderMode="quad", next=speedIncrease, renderData={panel="speed"},arrow="renderData", textAlign="auto-down", text="Klick on the speed to switch bettewn x1 and x3.\n and watch as the game unfold before you.\nNext part of the tutorial start when when you have lost a life."},
+--		{renderMode="full", next=goBackInTime, initWait=loseOfLife, initFunc=saveWave, textAlign="center", textPos=Vec2(0.5), text="Now ouer awsome defence faild to stop all the enemies.\n don't wory we can fix the misstake. press {backspace} to replay the preivous wave."},
+--		{renderMode="quad", next=anyButtonPressed, initFunc=selectTower, renderData={towerId=4,name="qube"}, textAlign="auto-top", text="We now wil upgrade the towers to handle this wave.\nKlick on the minigun tower tower"},
+--		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="Press on the button to uppgrade the tower"},
+--		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="now let's the game unfoled again"},
+--		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="it's obvious the towers will not be able to hold of this wave\n we can temporary boost a tower do incresed damage"},
+--		{renderMode="full", next=anyButtonPressed, textAlign="center", textPos=Vec2(0.5), text="This will conclude the tutorial.\nI will leave it up to you to finish the map."}		
+--	}
+--	
+--	
+--	
+--	form:addRenderObject(mesh)
+--	form:addRenderObject(xButtonMesh)
+--	form:addRenderObject(arrowMesh)
+--	form:addRenderObject(textNode)
+--	form:addRenderObject(tutorialCounter)
+--	
+--	
+--	
+--	updateTutorialRenderObject()
 	
 	return true
 end
 
 function update()
 	
-	
-	local mouseOnButton = (Core.getInput():getMousePos() - buttonPosition):length() < buttonRadius
-	
-	if buttonState ~= 2 and mouseOnButton then
-		buttonState = 2
-		local buttonSize = 0.025
-		xButtonCreate( xButtonMesh, buttonSize, Vec2(renderSize.x * (0.95 + buttonSize * 0.5), renderSize.y * 0.07), buttonState == 1 and Vec4(1,1,1,1) or Vec4(0.7,0.7,0.7,1) )
-	elseif buttonState ~= 1 and not mouseOnButton then
-		buttonState = 1
-		local buttonSize = 0.025
-		xButtonCreate( xButtonMesh, buttonSize, Vec2(renderSize.x * (0.95 + buttonSize * 0.5), renderSize.y * 0.07), buttonState == 1 and Vec4(1,1,1,1) or Vec4(0.7,0.7,0.7,1) )
-	end
-	
-	if tutorial.index <= #tutorial then
-		local lesson = tutorial[tutorial.index]
-		
-		if lesson.initWait == nil or lesson.initWait() == true then
-			
-			if lesson.initWait then
-				--if we have waited for the event to start
-				--prepare the event now
-				if lesson and not lesson.sleep and lesson.initFunc then
-					lesson.initFunc()
-				end
-				
-				updateTutorialRenderObject()
-				
-				lesson.initWait = nil
-			end
-			
-			
-			
-			if lesson.next() then
-				if lesson.doneFunc then
-					lesson.doneFunc()
-				end
-				tutorial.index = tutorial.index + 1
-				lesson = tutorial[tutorial.index]
-				
-				if lesson.initWait == nil then
-					--if do not need for the event to start then init the lesson
-					if lesson and not lesson.sleep and lesson.initFunc then
-						lesson.initFunc()
-					end
-					
-					updateTutorialRenderObject()
-				end
-			elseif lesson.sleep then
-				lesson.sleep = lesson.sleep - Core.getRealDeltaTime()
-				if lesson.sleep <= 0.0 then
-					lesson.sleep = nil
-					if lesson.initFunc then
-						lesson.initFunc()
-					end
-					updateTutorialRenderObject()
-				end
-			end
-				
-		end
-		
-		
-	end
-	
-	form:update()
+--	
+--	local mouseOnButton = (Core.getInput():getMousePos() - buttonPosition):length() < buttonRadius
+--	
+--	if buttonState ~= 2 and mouseOnButton then
+--		buttonState = 2
+--		local buttonSize = 0.025
+--		xButtonCreate( xButtonMesh, buttonSize, Vec2(renderSize.x * (0.95 + buttonSize * 0.5), renderSize.y * 0.07), buttonState == 1 and Vec4(1,1,1,1) or Vec4(0.7,0.7,0.7,1) )
+--	elseif buttonState ~= 1 and not mouseOnButton then
+--		buttonState = 1
+--		local buttonSize = 0.025
+--		xButtonCreate( xButtonMesh, buttonSize, Vec2(renderSize.x * (0.95 + buttonSize * 0.5), renderSize.y * 0.07), buttonState == 1 and Vec4(1,1,1,1) or Vec4(0.7,0.7,0.7,1) )
+--	end
+--	
+--	if tutorial.index <= #tutorial then
+--		local lesson = tutorial[tutorial.index]
+--		
+--		if lesson.initWait == nil or lesson.initWait() == true then
+--			
+--			if lesson.initWait then
+--				--if we have waited for the event to start
+--				--prepare the event now
+--				if lesson and not lesson.sleep and lesson.initFunc then
+--					lesson.initFunc()
+--				end
+--				
+--				updateTutorialRenderObject()
+--				
+--				lesson.initWait = nil
+--			end
+--			
+--			
+--			
+--			if lesson.next() then
+--				if lesson.doneFunc then
+--					lesson.doneFunc()
+--				end
+--				tutorial.index = tutorial.index + 1
+--				lesson = tutorial[tutorial.index]
+--				
+--				if lesson.initWait == nil then
+--					--if do not need for the event to start then init the lesson
+--					if lesson and not lesson.sleep and lesson.initFunc then
+--						lesson.initFunc()
+--					end
+--					
+--					updateTutorialRenderObject()
+--				end
+--			elseif lesson.sleep then
+--				lesson.sleep = lesson.sleep - Core.getRealDeltaTime()
+--				if lesson.sleep <= 0.0 then
+--					lesson.sleep = nil
+--					if lesson.initFunc then
+--						lesson.initFunc()
+--					end
+--					updateTutorialRenderObject()
+--				end
+--			end
+--				
+--		end
+--		
+--		
+--	end
+--	
+--	form:update()
 	
 	return true
 	
