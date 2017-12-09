@@ -10,41 +10,38 @@ function LobbyChatPanel.new(panel, client)
 	local numMsg = 0
 	
 	local function addMessage(name, text)
-		print("3.1")
-		local scroll = chatHistoryPanel:getYScrollBar()
-		print("3.2")
 		
-		chatHistoryPanel:add(Label(PanelSize(Vec2(1,0.1),PanelSizeType.ParentPercent), Text(name ..": ") + text, Vec3(1)))
-		print("3.3")
+		local scroll = chatHistoryPanel:getYScrollBar()
+		chatHistoryPanel:add(Label(PanelSize(Vec2(1,0.1),PanelSizeType.ParentPercent), Text(name and name ..": " or "") + text, Vec3(1)))
+		
 		numMsg = numMsg + 1
 		if numMsg > 30 then
 			chatHistoryPanel:removePanel(chatHistoryPanel:getPanel(0))
 		end
-		print("3.4")
+		
 		if not scroll and chatHistoryPanel:getYScrollBar() then
 			scroll = chatHistoryPanel:getYScrollBar()
 			scroll:setScrollOffset(scroll:getMaxScrollOffset())
 		end
-		print("3.5")
+		
 	end
 	
 	function self.updateMsg(msgTag, msgData)
 		if msgTag == "Chat" then
 			local name,msg = string.match(msgData, "(.*);(.*)")
 			addMessage(name, Text(msg))
+		elseif msgTag == "systemMsg" then
+			addMessage(nil, Text(msgData))
 		end
 	end
 	
 	local function callbackExecuteText(textField)
-		print("1")
 		local aString = textField:getText():toString()
-		print("2")
-		aClient:writeSafe("Chat:"..aClient:getUserName()..";"..aString)
-		print("3")
-		addMessage(aClient:getUserName(), textField:getText())
-		print("4")
+		if aString ~= "" then
+			aClient:writeSafe("Chat:"..aClient:getUserName()..";"..aString)
+			addMessage(aClient:getUserName(), textField:getText())
+		end
 		textField:setText("")
-		print("5")
 	end
 	
 	local function init()

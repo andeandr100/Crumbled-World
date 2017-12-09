@@ -33,6 +33,7 @@ function create()
 		
 		stateBillboard = Core.getGameSessionBillboard("state")
 		
+		dataSharerBillboard = Core.getGameSessionBillboard("dataSharer")
 		
 		keyBinds = Core.getBillboard("keyBind");
 		
@@ -325,6 +326,20 @@ function countDownUpdate()
 	return true
 end
 
+function getIsMouseNotInsideChatPanel()
+	multiplayerGameChatPanel = dataSharerBillboard:getPanel("InGameChat form")
+	if multiplayerGameChatPanel then
+		local min = Vec2()
+		local max = Vec2()
+		local mousePos = Core.getInput():getMousePos()
+		multiplayerGameChatPanel:getPanelGlobalMinMaxPosition(min, max)
+		if min.x < mousePos.x and max.x > mousePos.x and min.y < mousePos.y and max.y > mousePos.y then
+			return false
+		end
+	end
+	return true
+end
+
 function update()
 	if not worldNode then
 		if backgroundSource then
@@ -461,8 +476,10 @@ function update()
 			--update camera Ypos			
 			--Mouse wheel ticket is only updated, when not in editor mode, or in build mode, or mouse is howering over a panel with scrollbar.
 			local mousePanel = Core.getPanelWithMouseFocus()
-			if not Core.isInEditor() and not (buildingBillboard and buildingBillboard:getBool("inBuildMode") and not Core.getInput():getKeyHeld(Key.lshift)) and 
-				billboardStats and billboardStats:getPanel("MainPanel") == mousePanel and not (mousePanel and mousePanel:getYScrollBar()) then
+			if not Core.isInEditor() and not (buildingBillboard and buildingBillboard:getBool("inBuildMode") and 
+					not Core.getInput():getKeyHeld(Key.lshift)) and getIsMouseNotInsideChatPanel() and 
+					billboardStats and billboardStats:getPanel("MainPanel") == mousePanel and not (mousePanel and mousePanel:getYScrollBar()) then
+						
 				local ticks = Core.getInput():getMouseWheelTicks()
 				cameraLocalPos.y = math.clamp(cameraLocalPos.y - ticks * 0.4, ZOOM_LEVEL_MIN, ZOOM_LEVEL_MAX )
 			end

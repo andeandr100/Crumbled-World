@@ -20,7 +20,7 @@ end
 
 local function addMessage(name, text)
 	
-	local label = chatHistoryPanel:add(Label(PanelSize(Vec2(1,1/15),PanelSizeType.ParentPercent), Text(name ..": ") + text, Vec3(1)))
+	local label = chatHistoryPanel:add(Label(PanelSize(Vec2(1,1/11),PanelSizeType.ParentPercent), Text(name ..": ") + text, Vec3(1)))
 	label:setCanHandleInput(false)
 	local removeLabel = chatHistoryPanel:getPanel(0)
 	chatHistoryPanel:removePanel(removeLabel)
@@ -40,49 +40,57 @@ function receiveMessage(inData)
 end
 
 function callbackExecuteText(textField)
-	if textField:getText() ~= "" then
+	if textField:getText():length() > 0 then
+		print("")
+		print("Chat text: \""..textField:getText():toString().."\"")
+		print("")
 		addMessage(client:getUserName(), textField:getText())
 		local tab = {name=client:getUserName(), msg=textField:getText():toString()}
 		comUnit:sendNetworkSyncSafe("SendChat",tabToStrMinimal(tab))
 		textField:setText("")
-	elseif Core.getTime() - visibleTime > 0.1 then
+	else
 		chatTextField:clearKeyboardOwner()
+		updateForm()
 	end
 end
 
 function updateForm()
 	local keyboardFocus = chatTextField:haskeyboardFocus()
---	print("\nupdateForm()")
---	print("isInFocus: "..tostring(keyboardFocus))
---	print("mouseFocus: "..mouseFocus)
---	print("visible: "..tostring(visible))
+
 	if keyboardFocus or mouseFocus > 0 then
+		local alpha = keyboardFocus and 1.0 or 0.27
+	
 		if not visible then
+			useAlphaMode = not keyboardFocus
 			visible = true
 			visibleTime = Core.getTime()
-			print("Show Chat")
+			
 			chatTextField:setVisible(true)
 			chatTextFieldReplacmentPanel:setVisible(false)
 			chatTextField:setBackgroundColor(Vec4(0,0,0,0.25))
-			chatHistoryPanel:setBackground(Gradient(Vec4(0,0,0,0.4), Vec4(0,0,0,0.25)))
-			chatHistoryPanel:getBorder():setBorderColor(Vec3(0.45))
-			chatHistoryPanel:setCanHandleInput(true)
+			chatHistoryPanel:setBackground(Gradient(Vec4(0,0,0,0.5) * alpha, Vec4(0,0,0,0.28) * alpha))
+			chatHistoryPanel:getBorder():setBorderColor(Vec4(Vec3(0.45), alpha))
 			if chatHistoryPanel:getYScrollBar() then
-				chatHistoryPanel:getYScrollBar():setVisible(true)
+				chatHistoryPanel:getYScrollBar():setVisible( true )
+				chatHistoryPanel:getYScrollBar():setColor(Vec4(1,1,1,alpha))
 			end
 			
 			for i=1, #textInfo do
 				textInfo[i].label:setTextColor(Vec4(1))
 			end
+		elseif ( useAlphaMode == true and keyboardFocus) or (useAlphaMode == false and mouseFocus > 0) then
+			useAlphaMode = not keyboardFocus
+			chatHistoryPanel:setBackground(Gradient(Vec4(0,0,0,0.5) * alpha, Vec4(0,0,0,0.28) * alpha))
+			chatHistoryPanel:getBorder():setBorderColor(Vec4(Vec3(0.45), alpha))
+			chatHistoryPanel:getYScrollBar():setColor(Vec4(1,1,1,alpha))
 		end
 	elseif visible and Core.getTime()-dimTimer > 0.1 then
+
 		visible = false
-		print("hide Chat")
 		chatTextField:setVisible(false)
 		chatTextFieldReplacmentPanel:setVisible(true)
 		chatHistoryPanel:setBackground(Gradient(Vec4(0), Vec4(0)))
 		chatHistoryPanel:getBorder():setBorderColor(Vec4(0))
-		chatHistoryPanel:setCanHandleInput(false)
 		if chatHistoryPanel:getYScrollBar() then
 			chatHistoryPanel:getYScrollBar():setVisible(false)
 		end
@@ -120,6 +128,7 @@ function create()
 	visible = true
 	dimTimer = 0
 	visibleTime = 0
+	useAlphaMode = false
 	
 	textInfo = {}
 	
@@ -136,44 +145,58 @@ function create()
 		
 		numMsg = 0
 		
-		form = Form( camera, PanelSize(Vec2(-1,0.35), Vec2(0.4/0.35,1)), Alignment.BOTTOM_LEFT);
+		
+		
+		form = Form( camera, PanelSize(Vec2(-1,0.29), Vec2(0.4/0.29,1)), Alignment.BOTTOM_LEFT);
 		form:setName("InGameChat form")
 		form:setLayout(FallLayout());
 		form:setPadding(BorderSize(Vec4(MainMenuStyle.borderSize * 3)));
 		form:setFormOffset(PanelSize(Vec2(0.005), Vec2(1)));
 		form:setRenderLevel(2)
+		form:setCanHandleInput(false)
 		
-		chatPanel = form:add(Panel(PanelSize(Vec2(-1,-1))))
-		chatPanel:setLayout(FallLayout(Alignment.BOTTOM_LEFT, PanelSize(Vec2(0,0.005))))
+--		chatPanel = form:add(Panel(PanelSize(Vec2(-1,-1))))
+		form:setLayout(FallLayout(Alignment.BOTTOM_LEFT, PanelSize(Vec2(0,0.005))))
 		
-		chatTextField = chatPanel:add(TextField(PanelSize(Vec2(-1,0.03))))
+		
+		Core.getGameSessionBillboard("dataSharer"):setPanel("InGameChat form",form)
+		
+		chatTextField = form:add(TextField(PanelSize(Vec2(-1,0.03))))
 		chatTextField:setBackgroundColor(Vec4(0,0,0,0.25))
 		chatTextField:setTextColor(Vec3(1.0))
-		chatTextField:addEventCallbackExecute(callbackExecuteText)
+--		chatTextField:addEventCallbackExecute(callbackExecuteText)
 		chatTextField:addEventCallbackKeyboardFocusGain(updateForm)
 		chatTextField:addEventCallbackKeyboardFocusLost(updateForm)
 		chatTextField:setWhiteList("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ _-<>[]()!#+%&=1234567890?;:$@/,.*~^|:;")
 		
-		chatTextFieldReplacmentPanel = chatPanel:add(Panel(PanelSize(Vec2(-1,0.03))))
+		
+		
+		chatTextFieldReplacmentPanel = form:add(Panel(PanelSize(Vec2(-1,0.03))))
 		chatTextFieldReplacmentPanel:setVisible(false)
 		chatTextFieldReplacmentPanel:setCanHandleInput(false)
 
-		chatHistoryPanel = chatPanel:add(Panel(PanelSize(Vec2(-1,-1))))
+		chatHistoryPanel = form:add(Panel(PanelSize(Vec2(-1,-1))))
 		chatHistoryPanel:setBackground(Gradient(Vec4(0,0,0,0.4), Vec4(0,0,0,0.25)))
 		chatHistoryPanel:setEnableYScroll()
 		chatHistoryPanel:setBorder(Border(BorderSize(Vec4(0.001)),Vec3(0.45)))
 		chatHistoryPanel:setLayout(FlowLayout(Alignment.BOTTOM_LEFT))
-
+		chatHistoryPanel:setCanHandleInput(false)
 		
-		local panelList = {form, chatPanel, chatHistoryPanel, chatTextField}
+--		local panelList = {form, chatHistoryPanel}
 		
-		for i=1, #panelList do 
-			panelList[i]:addEventCallbackMouseFocusGain(mouseFocusGain)
-			panelList[i]:addEventCallbackMouseFocusLost(mouseFocusLost)
-		end
+--		form:addEventCallbackMouseFocusGain(mouseFocusGain)
+--		form:addEventCallbackMouseFocusLost(mouseFocusLost)
+		
+--		chatTextField:addEventCallbackMouseFocusGain(mouseFocusGain)
+--		chatTextField:addEventCallbackMouseFocusLost(mouseFocusLost)
+--		for i=1, #panelList do 
+--			panelList[i]:addEventCallbackMouseFocusGain(mouseFocusGain)
+--			panelList[i]:addEventCallbackMouseFocusLost(mouseFocusLost)
+--		end
 		
 		for i=1, 30 do
-			chatHistoryPanel:add(Label(PanelSize(Vec2(1,1/15),PanelSizeType.ParentPercent), "", Vec3(1))):setCanHandleInput(false)
+			local label = chatHistoryPanel:add(Label(PanelSize(Vec2(1,1/11),PanelSizeType.ParentPercent), "", Vec3(1)))
+			label:setCanHandleInput(false)
 		end
 		
 		updateForm()
@@ -211,6 +234,21 @@ function update()
 		end
 	end	
 	
+	local min = Vec2()
+	local max = Vec2()
+	local mousePos = Core.getInput():getMousePos()
+	form:getPanelGlobalMinMaxPosition(min, max)
+	if min.x < mousePos.x and max.x > mousePos.x and min.y < mousePos.y and max.y > mousePos.y then
+		
+		chatHistoryPanel:getYScrollBar():addScrollOffset(Vec2(0,Core.getInput():getMouseWheelTicks()))
+		
+		if mouseFocus == 0 then
+			mouseFocusGain(nil)
+		end
+	elseif mouseFocus == 1 then
+		mouseFocusLost(nil)
+	end
+	
 	if not visible then
 		if Core.getTime()-dimTimer > 0.1 then
 			updateForm()
@@ -226,21 +264,7 @@ function update()
 			end	
 		end
 	else
-		
-		if (not Core.getPanelWithMouseFocus() or Core.getPanelWithMouseFocus():getForm() ~= form) and mouseFocus > 0 then
-			--Somthinge is not right here 
-			--this Chat script belive the mouse is inside the form but it's wrong
-			--fix the problem 
-			mouseFocus = 0
-			updateForm()
-		end
-		
-		if (buildingBillboard and buildingBillboard:getBool("inBuildMode")) then
-			--update chat window mouse pointer will not show the chat window
-			mouseFocus = 0
-			updateForm()
-		end
-		
+	
 		if chatTextField:haskeyboardFocus() or mouseFocus > 0 then
 			dimTimer = Core.getTime()
 		else
@@ -248,9 +272,18 @@ function update()
 		end
 	end
 	
-	if Core.getInput():getKeyDown(Key.enter) and not chatTextField:haskeyboardFocus() and Core.getPanelWithKeyboardFocus() == nil then
-		visibleTime = Core.getTime()
-		chatTextField:setKeyboardOwner()
+--	if Core.getInput():getKeyDown(Key.enter) and not chatTextField:haskeyboardFocus() and Core.getPanelWithKeyboardFocus() == nil then
+--		visibleTime = Core.getTime()
+--		chatTextField:setKeyboardOwner()
+--	end
+	
+	if Core.getInput():getKeyDown(Key.enter) then
+		if not chatTextField:haskeyboardFocus() and Core.getPanelWithKeyboardFocus() == nil then
+			visibleTime = Core.getTime()
+			chatTextField:setKeyboardOwner()
+		elseif chatTextField:haskeyboardFocus() then
+			callbackExecuteText(chatTextField)
+		end
 	end
 	
 	form:update()
