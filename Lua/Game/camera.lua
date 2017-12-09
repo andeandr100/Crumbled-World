@@ -89,8 +89,8 @@ function create()
 		
 		this:setLocalMatrix(localCameraNode:getGlobalMatrix())
 		
-		worldMin = rootNode:getGlobalBoundingBox():getMinPos()
-		worldMax = rootNode:getGlobalBoundingBox():getMaxPos()
+		worldMin = nil
+		worldMax = nil
 	
 		cameraMode = 0
 		
@@ -226,14 +226,18 @@ function getIslandMovmentSpeed()
 		--we start maxDist at 1 because we cant divide by 0
 		local data = {size = 0}
 
-		newWorldMin = islands[1]:getGlobalBoundingBox():getMinPos()
-		newWorldMax = islands[1]:getGlobalBoundingBox():getMaxPos()
-
+		newWorldMin = islands[1]:getBoundingBox():getMinPos()
+		newWorldMax = islands[1]:getBoundingBox():getMaxPos()
+		
+		
+		
+	
 		for i=1, #islands do
 
-			newWorldMin:minimize(islands[i]:getGlobalBoundingBox():getMinPos())
-			newWorldMax:maximize(islands[i]:getGlobalBoundingBox():getMaxPos())
-		
+			newWorldMin:minimize(islands[i]:getBoundingBox():getMinPos())
+			newWorldMax:maximize(islands[i]:getBoundingBox():getMaxPos())
+			
+--			Core.addDebugBox(islands[i]:getBoundingBox(), 0.1, Vec3(1))
 
 			local pos = Vec3(cameraCenterPos)
 			local dist = islands[i]:getDistanceToIsland(pos)
@@ -301,11 +305,16 @@ function getIslandMovmentSpeed()
 		end
 	end
 	
+	newWorldMin = newWorldMin + Vec3(1)
+	newWorldMax = newWorldMax - Vec3(1)
 	
-	
-	worldMin:minimize(newWorldMin)
-	worldMax:maximize(newWorldMax)
-
+	if worldMin == nil or worldMax == nil then
+		worldMin = newWorldMin
+		worldMax = newWorldMax
+	else
+		worldMin:minimize(newWorldMin)
+		worldMax:maximize(newWorldMax)
+	end
 	targetPosition = targetPosition + islandMovement
 
 	return targetIsland and Vec3() or islandMovement
@@ -492,7 +501,7 @@ function update()
 
 			--Keep camera close to the island
 			cameraCenterPos = cameraCenterPos + getIslandMovmentSpeed() * Core.getDeltaTime()
-			if not Core.isInEditor() then
+			if not Core.isInEditor() and worldMin and worldMax then
 				cameraCenterPos = Vec3( math.clamp( cameraCenterPos.x, worldMin.x, worldMax.x ), 0, math.clamp( cameraCenterPos.z, worldMin.z, worldMax.z ) )
 			end
 	--		Core.addDebugBox(Box(worldMin, worldMax),0, Vec3(1))
