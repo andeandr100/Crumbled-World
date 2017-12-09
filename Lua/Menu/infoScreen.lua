@@ -149,7 +149,7 @@ function InfoScreen.new(camera)
 			labels.totalDamage:setText(tostring( math.round(tonumber(totalDamage)/sumTotalDamage*100.0)).."%") 
 			labels.damage:setText(tostring( math.round(tonumber(averageDamage)/sumTotalAverageDamage*100.0)).."%")
 			labels.speed:setText(speed)
-			labels.ping:setText(ping)
+			labels.ping:setText(ping.."ms")
 		else
 --			local pList = players
 --			error("ClientId not used")
