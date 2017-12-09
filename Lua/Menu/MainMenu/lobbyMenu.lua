@@ -338,7 +338,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		
 		--map texture
 		iconImage = infoPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("White")))
-		iconImage:setBorder(Border( BorderSize(Vec4(0.0015), true), Vec3(0)))
+		iconImage:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 	
 		--Map name		
 		local rowPanel = addTableRow( infoPanel, "map name" )
@@ -431,7 +431,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 				end
 			end
 			if not found then
-				lobbyChatPanel.updateMsg( "Chat", "Admin;<font color=rgb(0,155,255)>"..users[i].name.." left the lobby</font>")
+				lobbyChatPanel.updateMsg( "systemMsg", "<font color=rgb(0,155,255)>"..users[i].name.." left the lobby</font>")
 				table.remove(users, i)
 			end	
 		end
@@ -452,7 +452,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 			if not found then
 				users[#users+1] = inUsers[n]
 				users[#users].ready = (isHost and users[#users].playerId == Core.getPlayerId())
-				lobbyChatPanel.updateMsg( "Chat", "Admin;<font color=rgb(0,155,255)>"..users[n].name.." joined the lobby</font>")
+				lobbyChatPanel.updateMsg( "systemMsg", "<font color=rgb(0,155,255)>"..users[n].name.." joined the lobby</font>")
 			end
 		end
 	end
@@ -664,7 +664,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		breakLinePanel:setBackground(Sprite(Vec3(0.45)))
 		
 		local mainPanel = customeGamePanel:add(Panel(PanelSize(Vec2(-0.9, -0.90))))
-		
+		mainPanel:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 		--Add map panel
 		addServersPanel(mainPanel)
 		--Add info panel (about what map is playing)
@@ -672,7 +672,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		
 		--add bottom buttons
 		local bottomPanel = customeGamePanel:add(Panel(PanelSize(Vec2(-1))))
-		bottomPanel:setLayout(FlowLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
+		bottomPanel:setLayout(FlowLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0.01))))
 		buttonStart = bottomPanel:add( MainMenuStyle.createButton( Vec2(-1,0.03), Vec2(6,1), language:getText("start")))
 		
 		buttonQuit = bottomPanel:add( MainMenuStyle.createButton( Vec2(-1,0.03), Vec2(6,1), language:getText("close")))

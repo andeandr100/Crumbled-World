@@ -358,7 +358,7 @@ function MultiplayerMenuServerList.new(panel)
 		
 		--add bottom buttons
 		local bottomPanel = customeGamePanel:add(Panel(PanelSize(Vec2(-1))))
-		bottomPanel:setLayout(FlowLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
+		bottomPanel:setLayout(FlowLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0.01))))
 		local button = bottomPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(6,1), language:getText("create server")))
 		button:addEventCallbackExecute(evenClickedCreateLobby)
 		labels[#labels+1] = button

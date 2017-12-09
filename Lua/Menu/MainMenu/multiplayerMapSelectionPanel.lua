@@ -109,7 +109,8 @@ function MultiplayerMapSelectionPanel.new(panel, inServerListPanel, inLobbyMenu)
 		
 		--Image
 		iconImage = infoPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("noImage")))
-		iconImage:setBorder(Border( BorderSize(Vec4(0.0015), true), Vec3(0)))
+		--iconImage:setBorder(Border( BorderSize(Vec4(0.0015), true), Vec3(0)))
+		iconImage:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 		
 		mapNameLabel = infoPanel:add(Label(PanelSize(Vec2(-1, 0.03)), language:getText("map name"), Vec3(0.7)))
 		labels[#labels + 1] = mapNameLabel
@@ -195,16 +196,19 @@ function MultiplayerMapSelectionPanel.new(panel, inServerListPanel, inLobbyMenu)
 		
 		local buttonPanel = bottomAreaPane:add(Panel(PanelSize(Vec2(-1,0.03))))
 		
-		local bodyPanel = bottomAreaPane:add(Panel(PanelSize(Vec2(-1, -1))))	
+		local bodyPanel = bottomAreaPane:add(Panel(PanelSize(Vec2(-1, -1))))
+		bodyPanel:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))	
 		--Add map panel
 		local mapsPanel = bodyPanel:add(Panel(PanelSize(Vec2(-0.6, -1))))
 		local mapList = MapListPanel.new(mapsPanel, customeGameChangedMap)
+		local linePanel = bodyPanel:add(Panel(PanelSize(Vec2(MainMenuStyle.borderSize,-1),PanelSizeType.WindowPercent)))
+		linePanel:setBackground(Sprite(MainMenuStyle.borderColor))
 		--Add info panel
 		addMapInfoPanel(bodyPanel)
 		
 		
 		--Add buttons
-		buttonPanel:setLayout(FlowLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
+		buttonPanel:setLayout(FlowLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0.01))))
 		startServerButton = buttonPanel:add(MainMenuStyle.createButton(Vec2(-1), Vec2(6,1), language:getText("start server")))
 		startServerButton:addEventCallbackExecute(startServer)
 		labels[#labels + 1] = startServerButton
