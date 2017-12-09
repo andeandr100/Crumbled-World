@@ -777,15 +777,14 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 						
 						buttoninfo.costLabel:setVisible(true)
 						buttoninfo.costIcon:setVisible(true)
-					end
-				elseif  buttoninfo["name"] and buttoninfo["name"].value == "boost" then
-					buttoninfo.costLabel:setText( "Boost" )
-					buttoninfo.costLabel:setVisible(true)
-					buttoninfo.costIcon:setVisible(false)
+					end	
 				else
 					
 					if name == "upgrade2" then
 						buttoninfo.button:setEnabled(buttoninfo.cost ~= nil)
+						buttoninfo.costLabel:setText( "Boost" )
+						buttoninfo.costLabel:setVisible(true)
+						buttoninfo.costIcon:setVisible(false)
 					else
 						buttoninfo.button:setEnabled(name == "sell" and buildingBillBoard:getBool("isNetOwner"))
 					end
@@ -820,6 +819,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 						buttoninfo.requireLabel:setVisible(false)
 					end
 				end
+				if name == "sell" then
+					buttoninfo.costLabel:setVisible(true)
+					buttoninfo.costLabel:setText("+"..buttoninfo.towerValue)
+				end
 				
 				if buttoninfo.isOwner ~= nil then
 					buttoninfo.button:setEnabled(false)
@@ -843,6 +846,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					elseif buttoninfo.timeLabel then
 						--we are waiting for the right wave
 						buttoninfo.timeLabel:setVisible(false)
+						--Enable the boost button to be pressed
+						buttoninfo.button:setTag(name..";"..tostring(buttoninfo.cost and buttoninfo.cost.value or 0)..(buttoninfo.level and ";"..tostring(buttoninfo.level.level) or ""))
 					end
 				end
 				
@@ -991,7 +996,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					if name == "upgrade2" then
 						costIcon:setVisible(false)
 						costLabel:setVisible(true)
-						costLabel:setPanelSize(PanelSize(Vec2(-1)))
+						costLabel:setPanelSize(PanelSize(Vec2(-0.98,-1)))
 						costLabel:setText("Boost")
 						costLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
 					else
@@ -999,9 +1004,22 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					end
 					
 				elseif name == "sell" then
-					local sellPanel = inoPanelTopRight:add(Panel(PanelSize(Vec2(-1),Vec2(3,1))))
-					sellPanel:setLayout(FlowLayout(Alignment.TOP_RIGHT))
+					--Vec2(16/5,1)
+					local sellPanel = inoPanelTopRight:add(Panel(PanelSize(Vec2(-1),Vec2(3,1.5))))
+					sellPanel:setLayout(FallLayout(Alignment.TOP_RIGHT))
+					button:setPanelSize(PanelSize(Vec2(-0.3333,-1),Vec2(1)))
+					costPanel:setPanelSize(PanelSize(Vec2(-0.3333,-1),Vec2(16/5,1)))
+					sellPanel:add(costPanel)
 					sellPanel:add(button)
+					
+					costIcon:setVisible(false)
+					
+					costLabel:setVisible(true)
+					costLabel:setTextColor(Vec3(0,1,0))
+					costLabel:setPanelSize(PanelSize(Vec2(-1,-1)))
+					costLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
+					costLabel:setText("+"..buttoninfo.towerValue)
+					
 				elseif buttoninfo.info ~= nil and buttoninfo["name"].value == "rotate" then
 					towerInfo.rangeChangePanel:add(button)
 				else
@@ -1025,7 +1043,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 						buttonPanel[index]:add(button)
 						button:setToolTipParentpanel(costPanel)
 					end
-					if costPanel then
+					if costPanel and buttonCostPanels[index] then
 						buttonCostPanels[index]:add(costPanel)
 					end
 				end
