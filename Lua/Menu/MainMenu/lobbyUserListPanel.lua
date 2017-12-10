@@ -170,23 +170,23 @@ function LobbyUserListPanel.new(panel, client)
 		
 		--when kicking or banning first send a nice message if it's ignored connnection is forcefully ended.
 		if not dropDownPanel then
-			dropDownPanel = Panel(PanelSize(Vec2(1,0.06),Vec2(3,1)))
+			dropDownPanel = Panel(PanelSize(Vec2(1,0.03),Vec2(3,1)))
 			
 			
 			kickButton = dropDownPanel:add(MainMenuStyle.createMenuButton(Vec2(-1,0.03),Vec2(), language:getText("kick")))
 			kickButton:addEventCallbackExecute(kickPlayer)
-			banButton = dropDownPanel:add(MainMenuStyle.createMenuButton(Vec2(-1,0.03),Vec2(), language:getText("ban")))
-			banButton:addEventCallbackExecute(banPlayer)
+--			banButton = dropDownPanel:add(MainMenuStyle.createMenuButton(Vec2(-1,0.03),Vec2(), language:getText("ban")))
+--			banButton:addEventCallbackExecute(banPlayer)
 			
 			labels[1] = kickButton
 			labels[1]:setTag("kick")
 			
-			labels[2] = banButton
-			labels[2]:setTag("ban")
+--			labels[2] = banButton
+--			labels[2]:setTag("ban")
 		end
 		
 		kickButton:setTag(button:getTag():toString())
-		banButton:setTag(button:getTag():toString())
+--		banButton:setTag(button:getTag():toString())
 		
 		
 		
