@@ -6,8 +6,8 @@ function create()
 	local numWaves = mapInfo.getWaveCount()						--how many waves must be beaten to win
 	local goldEstimationEarnedPerWave = 500+(numWaves*5)
 	local startGold = 1000										--how much gold to start with
+	local goldMultiplayer = 1.0
 	local interestOnKill = "0.0020"								--how much gold percentage gained on killing an npc
-	local goldMultiplayerOnKills = 1.0							--gold gain on killing an npc 1.0==default
 	local startLives = 20										--how many npc you can have slip by without losing
 	local seed = mapInfo.getSead()								--what seed should be used for the mapd
 	local startSpawnWindow = mapInfo.getSpawnWindow()			--how many group compositions that can spawn 2==[1,2,3]
@@ -44,19 +44,19 @@ function create()
 	--
 	--
 	--create event system
-	if not event.init(startGold,waveFinishedGold,interestOnKill,goldMultiplayerOnKills,startLives,level) then
+	if not event.init(startGold,waveFinishedGold,interestOnKill,startLives,level) then
 		return false
 	end
 	--
 	if not(Core.isInMultiplayer() and Core.getNetworkClient():isAdmin()==false) then
-		event.generateWaves(numWaves,difficult,difficultIncreaser,startSpawnWindow,seed)--generate the actual waves
+		event.getSpawnManager().generateWaves(numWaves,difficult,difficultIncreaser,startSpawnWindow,seed)--generate the actual waves
 	end
 	--
 	if Core.isInMultiplayer() then
 		--event.spawnUnitsPattern(SPAWN_PATTERN.Clone)
-		event.spawnUnitsPattern(SPAWN_PATTERN.Grouped)
+		event.getSpawnManager().spawnUnitsPattern(SPAWN_PATTERN.Grouped)
 	else
-		event.spawnUnitsPattern(SPAWN_PATTERN.Grouped)
+		event.getSpawnManager().spawnUnitsPattern(SPAWN_PATTERN.Grouped)
 	end
 	--
 	if mapInfo.getGameMode()=="survival" then
