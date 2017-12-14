@@ -10,18 +10,16 @@ function EventBase.new()
 	local EVENT_WAIT_FOR_TOWER_TO_BE_BUILT =		1
 	local EVENT_WAIT_FOR_START_BUTTON_BUILT =		2
 	local EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD =	3
-	local EVENT_CHANGE_WAVE =						5
-	local EVENT_START_SPAWN =						6 
-	local EVENT_END_GAME =							7
-	local EVENT_END_MENU =							8
+	local EVENT_CHANGE_WAVE =						4
+	local EVENT_START_SPAWN =						5 
+	local EVENT_END_GAME =							6
+	local EVENT_END_MENU =							7
 	
 	local currentState = 0
 	
 	local waveRestarted
 	local previousWaveCounter = 0			--smount of time that we has gone back in time
-	local firstNpcOfWaveHasSpawned = false
 	
-	local totalNpcSpawned = 0
 	
 	local mapInfo = MapInfo.new()
 	local STARTWAVE = mapInfo.getStartWave()
@@ -36,19 +34,9 @@ function EventBase.new()
 	local wavePoints = 0
 	local pWaveFinishedBonus = 200
 	local interestOnKill = "0.0020"
-	local currentWaves = {}	--waves that are currently spawning
 	local wait = 15			--gives the player more time to setup the first defense
 	local waitBase = wait
 	local state = 0
-	local numWaves = 100	--this should not be possible to reach at all
-	local waves = {}
-	local startGold = 0
-	local waveDiff = {}
-	local waveInfo = {}
-	local fixedGroupToSpawn = {}
-	local disableUnits = {}
-	local npc = {}
-	local npcCounter = {}
 	local mapFinishingLevel = 0
 	local tStats = Stats.new()
 	local mapStatId = ""
@@ -56,14 +44,10 @@ function EventBase.new()
 	local cData = CampaignData.new()
 	local soundWind = Sound("wind1",SoundType.STEREO)
 	local spawnPattern = SPAWN_PATTERN.Random
-	local npcPathOffset
 	--keybinds
 	local keyBinds = Core.getBillboard("keyBind")
 	local keyBindRevertWave
 	--
-	local pathBilboard
-	local spawns
-	local isCartMap = false
 	local currentPortalId = 1
 	local currentSpawn
 	local restartListener
@@ -73,8 +57,6 @@ function EventBase.new()
 	--this:addChild(soundWind)
 	--
 	--
-	local totalSpawned = 0
-	local spawnedThisWave = 0
 	
 	local function sendNetworkSyncSafe(msg,param)
 		local tab = Core.getNetworkClient():getConnected()
@@ -106,14 +88,6 @@ function EventBase.new()
 		else
 			comUnit:sendTo("stats", "setGold", tostring(gold))
 		end
-	end
-	
-	local function resendWaveData()
-		comUnit:sendTo("stats", "setWave", mapInfo.getStartWave())
-		comUnit:sendTo("stats", "setMaxWave", numWaves)
-		--comUnit:sendTo("stats", "setTotalNPCSpawns", totalNpcSpawned)
-		assert(waves, "waves is not initiated")
-		comUnit:sendTo("statsMenu","waveInfo",waves)
 	end
 	function restartMapCalledFromTheOutSide()
 		--set to first wave
@@ -158,36 +132,23 @@ function EventBase.new()
 		end
 	end
 	local function waveFinishedMoneyBonus()
-		--local goldIntr = 0.05	--5%
-		local bill = Core.getBillboard("stats")
-		--local intr = bill:getFloat("gold")*goldIntr
 		local waveBonus = calculateGoldForWave(waveCount)
-		comUnit:sendTo("log","println",string.format("WaveBonus(%.1f)",waveBonus))--intr,waveBonus))
-		--goldInterest forces greate player to save as much gold they can between each wavy to earn interest on stacked gold
-		--goldInterest does not increase the difficult of next comming wave. therefor it is more a skill, needed to survive hard late games
-		--comUnit:sendTo("stats", "goldInterest", tostring(goldIntr))
-		--static gold income that makes it easier to buy the more expansive upgrades and towers (no interest earned on this money)
+		comUnit:sendTo("log","println",string.format("WaveBonus(%.1f)",waveBonus))
 		comUnit:sendTo("stats", "addGoldWaveBonus", tostring(waveBonus))	--earned a static gold amount
 	end
 	local function setWaveNumber(waveNumber)
 		waveCount = waveNumber
-		if waveCount <= #waves then
+		if waveCount <= spawnManager.getWavesSize() then
 			--first the most important gold (because it needs to be registered when going back in history
+			local waveInfo = spawnManager.getWaveInfo()
 			if waveInfo[waveCount] then
 				comUnit:sendTo("stats", "setTotalHp", waveInfo[waveCount].totalHp)
 				comUnit:sendTo("stats", "addWaveGold", waveInfo[waveCount].waveGold-calculateGoldForWave(waveCount))
 			end
-			--this also pushes the info to the history table
-			comUnit:sendTo("stats", "setWave", math.min(waveCount,numWaves))
-			comUnit:sendTo("stats", "setMaxWave", numWaves)
-			
-			spawnManager.countTotalSpawnsThisWave()
-			--update all npc health levels
-			spawnManager.updateHpBillboard(waves[waveCount][1].hpMul)
 		end
 	end
 	local function changeWave()
-		if waveCount<=numWaves then
+		if waveCount+1<=spawnManager.getNumWaves() then
 			comUnit:sendTo("SteamStats","MaxWaveFinished",waveCount)
 			if waveCount==20 then
 				local towerBuilt = bilboardStats:getInt("minigunTowerBuilt") + bilboardStats:getInt("arrowTowerBuilt") + bilboardStats:getInt("swarmTowerBuilt") + bilboardStats:getInt("electricTowerBuilt") + bilboardStats:getInt("bladeTowerBuilt") + bilboardStats:getInt("quakeTowerBuilt") + bilboardStats:getInt("missileTowerBuilt")
@@ -222,6 +183,7 @@ function EventBase.new()
 	local function syncEvent(param)
 		local tab = totable(param)
 		spawnManager.generateWaves(tab.numWaves, tab.difficultBase, tab.difficultIncreaser, tab.startSpawnWindow, tab.globalSeed)
+		abort()
 	end
 	local function syncChangeWave(param)
 		local waveNum = tonumber(param)
@@ -251,7 +213,6 @@ function EventBase.new()
 		
 		comUnitTable["NetGenerateWave"] = syncEvent
 		comUnitTable["ChangeWave"] = syncChangeWave
-		comUnitTable["resendWaveData"] = resendWaveData
 		comUnitTable["EventBaseRestartWave"] = doRestartMap
 		spawnManager.init(comUnitTable, pWaveFinishedBonus)
 		--
@@ -262,13 +223,12 @@ function EventBase.new()
 	
 		--mapp setttings for initiating the waves
 		waveFinishedBonus = pWaveFinishedBonus
-		startGold = pStartGold
 		interestOnKill = tostring(pInterestOnKill)
-		setGold(startGold)
+		setGold(pStartGold)
 		comUnit:sendTo("stats", "setLife", tostring(pLives))
 		comUnit:sendTo("stats", "setMaxLife", tostring(pLives))
 		comUnit:sendTo("stats","setInterestRateOnKill",interestOnKill)--0.2% intereset per kill
-		local tab = {startGold=pstartGold,WaveFinishedBonus=pWaveFinishedBonus,lives=pLives,level=pLevel}
+		local tab = {startGold=pStartGold,WaveFinishedBonus=pWaveFinishedBonus,lives=pLives,level=pLevel}
 		--comUnit:sendNetworkSyncSafe("NetInitData",tabToStrMinimal(tab))
 		sendNetworkSyncSafe("NetInitData",tabToStrMinimal(tab))
 		--
@@ -276,7 +236,6 @@ function EventBase.new()
 		--
 		local fileName = mapInfo.getMapFileName()
 		local index1 = fileName:match(".*/()")
-		isCartMap = mapInfo.isCartMap()
 		index1 = index1 and index1 or 1
 		local index2 = fileName:match(".*%.()")
 		if index1 and index2 then
@@ -313,18 +272,17 @@ function EventBase.new()
 	end
 	function self.setDefaultGold(pStartGold,pWaveFinishedBonus,pInterestOnKill,pGoldMultiplayerOnKills)
 		waveFinishedBonus = pWaveFinishedBonus
-		startGold = pStartGold
 		spawnManager.setGoldMultiplayerOnKills(pGoldMultiplayerOnKills)
 		interestOnKill = tostring(pInterestOnKill)
-		setGold(startGold)
+		setGold(pStartGold)
 		comUnit:sendTo("stats","setInterestRateOnKill",interestOnKill)--0.2% intereset per kill
 	end
 	function self.doRestartWave(restartedFromTheOutSide)
 		if waveCount>=(STARTWAVE+1) then
-			waveCount = math.max(STARTWAVE, firstNpcOfWaveHasSpawned==true and (waveCount - 1) or (waveCount - 2) )
+			waveCount = math.max(STARTWAVE, spawnManager.isFirstNpcOfWaveSpawned() and (waveCount - 1) or (waveCount - 2) )
 			comUnit:sendTo("SteamStats","ReverseTimeCount",1)
 			previousWaveCounter = previousWaveCounter + 1		--acievment stat counter
-			spawnMager.clearActiveSpawn()
+			spawnManager.clearActiveSpawn()
 			endGameMenuScreen = nil
 			eventBaserunOnlyOnce = nil
 			if waveCount==STARTWAVE then
@@ -372,6 +330,8 @@ function EventBase.new()
 			local msg = comUnit:popMessage()
 			if comUnitTable[msg.message]~=nil then
 		 	   comUnitTable[msg.message](msg.parameter,msg.fromIndex)
+			else
+				LOG("self.update() - failed message=\""..msg.message.."\")")
 			end
 		end
 		--
@@ -385,20 +345,19 @@ function EventBase.new()
 					self.doRestartWave()
 				end
 			end
-			if currentState==EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD then
-				spawnManager.spawnUnits()
-			end
 			if currentState == EVENT_WAIT_FOR_TOWER_TO_BE_BUILT then
 				if isPlayerReady() and (Core.isInMultiplayer()==false or Core.getNetworkClient():isAdmin())  then
 					currentState = EVENT_CHANGE_WAVE
 				end
 			elseif currentState == EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD then
-				if #currentWaves==0 and (not spawnManager.isAnyEnemiesAlive()) then
+				spawnManager.spawnUnits()
+				if spawnManager.isAnythingSpawning()==false and spawnManager.isAnyEnemiesAlive()==false then
 					currentState = EVENT_CHANGE_WAVE
 					waveRestarted = false
 				end
 			elseif currentState == EVENT_CHANGE_WAVE then
 				if changeWave() then
+					spawnManager.changeWave(waveCount)
 					comUnit:sendTo("SteamStats",mapStatId.."LaunchedCount",1.0)
 					steamStatMinPlayedTime = Core.getTime()
 					--
@@ -413,7 +372,6 @@ function EventBase.new()
 					--comUnit:sendNetworkSyncSafe("ChangeWave",tostring(waveCount))
 					sendNetworkSyncSafe("ChangeWave",tostring(waveCount))
 					comUnit:sendTo("SteamStats","SaveStats","")
-					firstNpcOfWaveHasSpawned = false
 					currentState = EVENT_START_SPAWN
 				else
 					currentState = EVENT_END_GAME
@@ -455,12 +413,6 @@ function EventBase.new()
 							comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("goldGainedTotal"))
 							comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
 							comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("goldGainedFromInterest"))
-							--
-							if mapInfo.isCampaign() then
-								cData.addCrystal(mapInfo.getReward()<=1 and 1 or mapInfo.getReward())
-							end
-							--set level that was finished to allow harder difficulty level
-							cData.setLevelCompleted(mapInfo.getMapNumber(),mapFinishingLevel,mapInfo.getGameMode())
 							--
 							-- Achievements
 							--
@@ -526,7 +478,7 @@ function EventBase.new()
 							if bilboardStats:getInt("level3")==towerBuilt then
 								comUnit:sendTo("SteamAchievement","OnlyRed","")
 							end
-							if isCartMap and bilboardStats:exist("mineCartIsMoved")==false then
+							if mapInfo.isCartMap() and bilboardStats:exist("mineCartIsMoved")==false then
 								comUnit:sendTo("SteamAchievement","MineCartUntouched","")
 							end
 							--
@@ -655,11 +607,11 @@ function EventBase.new()
 		--
 		--	Cheat for development
 		--
-		if Core.getInput():getKeyPressed(Key.r) then
-			comUnit:sendTo("stats","showScore","")
-			local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
-			script:setName("endGameMenuVictory")
-		end
+--		if Core.getInput():getKeyPressed(Key.r) then
+--			comUnit:sendTo("stats","showScore","")
+--			local script = this:getPlayerNode():loadLuaScript("Menu/endGameMenu.lua")
+--			script:setName("endGameMenuVictory")
+--		end
 --		if DEBUG or true then
 --		 	if Core.getInput():getKeyPressed(Key.p) then
 --				comUnit:sendTo("log", "println", "cheat-addGold")

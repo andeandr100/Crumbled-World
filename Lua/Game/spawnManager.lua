@@ -29,7 +29,6 @@ function SpawnManager.new()
 	local numWaves = 100	--this should not be possible to reach at all
 	local waves = {}
 	local goldMultiplayerOnKills = 1.0
-	local waveDiff = {}
 	local waveInfo = {}
 	local fixedGroupToSpawn = {}
 	local disableUnits = {}
@@ -67,17 +66,35 @@ function SpawnManager.new()
 	end
 	
 	function self.setGoldMultiplayerOnKills(multiplyer)
+		assert(multiplyer>=0,"setGoldMultiplayerOnKills(multiplyer), must be a number >=0")
 		goldMultiplayerOnKills = multiplyer
 	end
-	
+	function self.isAnythingSpawning()
+		LOG("self.isAnythingSpawning() == "..tostring(#currentWaves>=1))
+		return #currentWaves>=1
+	end
 	function self.isSpawnListPopulated()
+		LOG("self.isSpawnListPopulated() == "..tostring(spawnListPopulated))
 		return spawnListPopulated
+	end
+	function self.isFirstNpcOfWaveSpawned()
+		LOG("self.isFirstNpcOfWaveSpawned() == "..tostring(firstNpcOfWaveHasSpawned))
+		return firstNpcOfWaveHasSpawned
 	end
 	
 	--NPC alive
 	function self.isAnyEnemiesAlive()
 		local bill = Core.getBillboard("SoulManager")
 		return bill and bill:getInt("npcsAlive")>0 or false
+	end
+	function self.getWavesSize()
+		return #waves
+	end
+	function self.getNumWaves()
+		return numWaves
+	end
+	function self.getWaveInfo()
+		return waveInfo
 	end
 	local function getSpawnPosition(portalId)
 		local spawnId = portalId
@@ -92,7 +109,32 @@ function SpawnManager.new()
 		npcNode:createWork()
 		return npcNode
 	end
+	function self.changeWave(pWaveCount)
+		LOG("self.changeWave("..pWaveCount..")")
+		waveCount = pWaveCount
+		self.updateHpBillboard(waves[waveCount][1].hpMul)
+		firstNpcOfWaveHasSpawned = false
+		--this also pushes the info to the history table
+		comUnit:sendTo("stats", "setWave", math.min(waveCount,numWaves))
+		comUnit:sendTo("stats", "setMaxWave", numWaves)
+		--
+		waveCount = pWaveCount
+		local count = 0
+		if waveCount <=  #waves then
+			local details = waves[waveCount]
+			--count all real npcs
+			for i=3, #details do
+				if npc[details[i].npc] then
+					count = count + 1
+				end
+			end
+		end
+		spawnedThisWave = 0
+		comUnit:sendTo("stats", "setNPCSpawnsThisWave", count)
+		comUnit:sendTo("stats", "setNPCSpawnedThisWave", 0)
+	end
 	local function spawnCurrentUnit(currentWave,portalId)
+		LOG("spawnCurrentUnit()")
 		--make sure that it is a real npc
 		if npc[currentSpawn.npc] then
 			--counter for multiplayer
@@ -130,13 +172,23 @@ function SpawnManager.new()
 		end
 		return ret
 	end
+	local function resendWaveData()
+		comUnit:sendTo("stats", "setWave", mapInfo.getStartWave())
+		comUnit:sendTo("stats", "setMaxWave", numWaves)
+		--comUnit:sendTo("stats", "setTotalNPCSpawns", totalNpcSpawned)
+		assert(waves, "waves is not initiated")
+		comUnit:sendTo("statsMenu","waveInfo",waves)
+	end
 	function self.spawnWave(reloadIcons)
+		LOG("spawnManager.spawnWave()")
 		if waves[waveCount] then
 			currentWaves[#currentWaves+1] = getCopyOfTable( waves[waveCount] )--make a copy of it, then we can go back and re use it
 			currentWaves[#currentWaves].waveUnitIndex = 2
 			currentWaves[#currentWaves].groupCounter = 1
 			currentWaves[#currentWaves].waveCount = waveCount
 			comUnit:sendTo("statsMenu","startWave",tostring(waveCount)..";"..(reloadIcons and "1" or "0") )
+		else
+			abort()
 		end
 	end
 	function self.clearActiveSpawn()
@@ -149,6 +201,7 @@ function SpawnManager.new()
 		currentWaves[#currentWaves] = nil
 	end
 	function self.spawnUnits()
+		LOG("self.spawnUnits()")
 		local i=1
 		while i<=#currentWaves do
 			local current = currentWaves[i]
@@ -208,6 +261,7 @@ function SpawnManager.new()
 		end
 	end
 	local function syncSpawnNpc(param)
+		LOG("syncSpawnNpc()")
 		local tab = totable(param)
 		local target = tonumber(Core.getIndexOfNetworkName(tab.netName))
 		if target==0 then
@@ -219,15 +273,15 @@ function SpawnManager.new()
 					break
 				end
 			end
-			local npc = SceneNode()
-			island:addChild( npc )
-			npc:setLocalPosition( tab.pos )
-			local npcScript = npc:loadLuaScript(tab.scriptName)
+			local npcNode = SceneNode()
+			island:addChild( npcNode )
+			npcNode:setLocalPosition( tab.pos )
+			local npcScript = npcNode:loadLuaScript(tab.scriptName)
 			npcScript:setScriptNetworkId(tab.netName)
 			--
 			--Force update
 			--
-			npc:update()
+			npcNode:update()
 			--path points
 			comUnit:sendTo(npcScript:getIndex(), "setPathPoints", tab.pathList)
 			--add new npc to waypoints, that have been passed
@@ -283,21 +337,6 @@ function SpawnManager.new()
 		comUnit:sendTo("stats","setBillboardInt","npc_hydra3_gold;0")
 		comUnit:sendTo("stats","setBillboardInt","npc_hydra4_gold;0")
 		comUnit:sendTo("stats","setBillboardInt","npc_hydra5_gold;0")
-	end
-	function self.countTotalSpawnsThisWave()
-		local count = 0
-		if waveCount <=  #waves then
-			local details = waves[waveCount]
-			--count all real npcs
-			for i=3, #details do
-				if npc[details[i].npc] then
-					count = count + 1
-				end
-			end
-		end
-		spawnedThisWave = 0
-		comUnit:sendTo("stats", "setNPCSpawnsThisWave", count)
-		comUnit:sendTo("stats", "setNPCSpawnedThisWave", 0)
 	end
 	local function spawnNextGroup()
 		if waveCount==0 then
@@ -378,6 +417,7 @@ function SpawnManager.new()
 		comUnitTable["spawnNextGroup"] = spawnNextGroup
 		comUnitTable["removeNextDelay"] = removeNextDelay
 		comUnitTable["startWaves"] = startButtonPressed
+		comUnitTable["resendWaveData"] = resendWaveData
 		--
 		--	SteamStat id
 		--
@@ -709,7 +749,6 @@ function SpawnManager.new()
 				--set wave info
 				waveDetails[1] = {hpMul=hpMultiplyer, info=waveDetailsInfo, waveIndex=i}
 				waveDetails[2] = {npc="none", delay=((i==1) and npcDelayAfterFirstTowerBuilt or npcDelayBetweenWaves)}
-				waveDiff[i] = hpMultiplyer
 				local waveTotalTime = 0.0
 				local waveGoldEarned = 0.0
 				local waveNpcGold = 0.0

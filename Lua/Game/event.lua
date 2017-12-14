@@ -6,7 +6,7 @@ function create()
 	local numWaves = mapInfo.getWaveCount()						--how many waves must be beaten to win
 	local goldEstimationEarnedPerWave = 500+(numWaves*5)
 	local startGold = 1000										--how much gold to start with
-	local goldMultiplayer = 1.0
+	local goldMultiplayerOnKills = 1.0
 	local interestOnKill = "0.0020"								--how much gold percentage gained on killing an npc
 	local startLives = 20										--how many npc you can have slip by without losing
 	local seed = mapInfo.getSead()								--what seed should be used for the mapd
