@@ -429,6 +429,8 @@ function CampaignGameMenu.new(panel)
 		local image = rowPanel:add(Image(PanelSize(Vec2(-1),Vec2(1)), Text("icon_table.tga")))
 		image:setUvCoord(Vec2(0.5, 0.375),Vec2(0.625, 0.4375))
 		
+		
+		
 		--
 		--	start button
 		--
@@ -465,6 +467,18 @@ function CampaignGameMenu.new(panel)
 		shopPanel:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
 		local shopButton = shopPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("shop")))
 		shopButton:addEventCallbackExecute(showShop)
+		
+
+		shopButton:setLayout(FlowLayout(Alignment.MIDDLE_RIGHT))
+		local image = shopButton:add(Image(PanelSize(Vec2(-1,-0.9),Vec2(1)), Text("icon_table.tga")))
+		image:setUvCoord(Vec2(0.5, 0.375),Vec2(0.625, 0.4375))
+--		image:setBackground(Sprite(Vec3(1)))
+		image:setCanHandleInput(false)
+		local crystalCountLabel = shopButton:add(Label(PanelSize(Vec2(-1,-0.9),Vec2(2,1)), Text(tostring(campaignData.getCrystal())), labelColor, Alignment.MIDDLE_RIGHT))
+--		crystalCountLabel:setBackground(Sprite(Vec3(0.5)))
+		crystalCountLabel:setTextColor(Vec3(0.5,1,0.5))
+		crystalCountLabel:setCanHandleInput(false)
+		
 		labels[6] = shopButton
 		labels[6]:setTag("shop")
 	end

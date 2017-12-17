@@ -84,21 +84,39 @@ function update()
 		timer = timer + Core.getRealDeltaTime()
 		if timer>1.0 then
 			timer = 0.0
-			newTable = getActiveScriptCounterTable()
-			local min = math.min(numLabels,#newTable)
-			for i=1, min do
-				if isNewOnTable(newTable[i]) then
-					labels[i]:setText("<font color=rgb(10,255,10)>"..newTable[i].."</font>")
-				else
-					labels[i]:setText(newTable[i])
-				end
+--			newTable = getActiveScriptCounterTable()
+--			local min = math.min(numLabels,#newTable)
+--			for i=1, min do
+--				if isNewOnTable(newTable[i]) then
+--					labels[i]:setText("<font color=rgb(10,255,10)>"..newTable[i].."</font>")
+--				else
+--					labels[i]:setText(newTable[i])
+--				end
+--			end
+--			if min~=numLabels then
+--				for i=min+1, numLabels do
+--					labels[i]:setText("")
+--				end
+--			end
+--			oldTable = newTable
+			
+			local groups = getGroupScriptTimeTable();
+			local count = 1
+			for i=count, math.min(numLabels, #groups) do
+				labels[i]:setText( groups[i].name..", "..groups[i].count..", "..math.round(groups[i].time*1000) )
+				count = count + 1
 			end
-			if min~=numLabels then
-				for i=min+1, numLabels do
-					labels[i]:setText("")
-				end
+			
+			labels[count]:setText("scripts:")
+			count = count + 1
+			
+			local tab = getScriptTimeTable()
+			
+			print("numLabels: "..numLabels)
+			print("tab: "..#tab)
+			for i=count, math.min(numLabels, #tab) do
+				labels[i]:setText( tab[i].name..", "..tab[i].count..", "..tab[i].time )
 			end
-			oldTable = newTable
 		end
 		--form
 		form:update()

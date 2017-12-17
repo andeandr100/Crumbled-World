@@ -435,6 +435,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		print("")
 		print("TRY UPGRADE TOWER")
 		print("TAG: "..button:getTag():toString())
+--		button:clearEvents()
 		
 		--print("button:getTag()="..button:getTag().."\n")
 		if button:getTag():toString() ~= "" then
