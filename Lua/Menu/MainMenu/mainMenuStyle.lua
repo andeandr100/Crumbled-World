@@ -49,7 +49,7 @@ function MainMenuStyle.createMenuButton(size, scale, text)
 end
 
 function MainMenuStyle.createButton(size, scale, text)
-	local button = Button(PanelSize(size, scale), text, ButtonStyle.SQUARE_LIGHT)
+	local button = Button(scale and PanelSize(size, scale) or PanelSize(size), text, ButtonStyle.SQUARE_LIGHT)
 	
 	
 	button:setEdgeColor(MainMenuStyle.borderColor)

@@ -6,8 +6,8 @@ function create()
 	local numWaves = mapInfo.getWaveCount()
 	local goldEstimationEarnedPerWave = 500+(numWaves*5)
 	local startGold = 1000
-	local interestOnKill = "0.0020"
 	local goldMultiplayerOnKills = 1.0
+	local interestOnKill = "0.0020"
 	local startLives = 20
 	local seed = mapInfo.getSead()
 	local startSpawnWindow = mapInfo.getSpawnWindow()			--how many group compositions that can spawn 2==[1,2,3]
@@ -34,19 +34,19 @@ function create()
 		startGold = 1000
 		interestOnKill = "0.0"
 	end
-	if not event.init(startGold,waveFinishedGold,interestOnKill,goldMultiplayerOnKills,startLives,level) then
+	if not event.init(startGold,waveFinishedGold,interestOnKill,startLives,level) then
 		return false
 	end
 	--
-	event.disableUnit("hydra1")
-	event.disableUnit("hydra2")
-	event.disableUnit("hydra3")
-	event.disableUnit("hydra4")
-	event.disableUnit("hydra5")
+	event.getSpawnManager().disableUnit("hydra1")
+	event.getSpawnManager().disableUnit("hydra2")
+	event.getSpawnManager().disableUnit("hydra3")
+	event.getSpawnManager().disableUnit("hydra4")
+	event.getSpawnManager().disableUnit("hydra5")
 	--
 	
 	--
-	event.generateWaves(numWaves,difficult,difficultIncreaser,startSpawnWindow,seed)
+	event.getSpawnManager().generateWaves(numWaves,difficult,difficultIncreaser,startSpawnWindow,seed)
 	
 	if mapInfo.getGameMode()=="survival" then
 		startGold = startGold * 2.0
@@ -55,13 +55,13 @@ function create()
 		startGold = 9000
 		waveFinishedGold = 0
 		interestOnKill = "0.0"
-		goldMultiplayerOnKills = 0.0
+		goldMultiplayerOnKills = 0
 	elseif mapInfo.getGameMode()=="only interest" then
 		waveFinishedGold = 0
-		goldMultiplayerOnKills = 0.0
 		startGold = 3000
+		goldMultiplayerOnKills = 0
 	elseif mapInfo.getGameMode()=="leveler" then
-		goldMultiplayerOnKills = 0.0
+		goldMultiplayerOnKills = 0
 	end
 	event.setDefaultGold(startGold,waveFinishedGold,interestOnKill,goldMultiplayerOnKills)
 	

@@ -475,7 +475,6 @@ function NpcPanel.new(panel)
 						npc.noneType = "wave splitter"
 						updateNpcIcon(npc)
 						--wave splitter
-						local d1 = spawnList
 						local sizeDelay = (height*0.5+(spawnList[indexPos].width or 0.0)+5.0)/getPixelsPerSecond()--shift for this icon
 						local turtleDelay = param>1 and getMinDelayForTurtle(waves[param-1],#waves[param-1]) or getMinDelayForTurtle(waves[param],i)
 						sizeDelay = turtleDelay>0.0 and turtleDelay or sizeDelay--turtleDelay>sizeDelay and turtleDelay or sizeDelay

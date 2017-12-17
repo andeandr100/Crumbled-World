@@ -34,6 +34,14 @@ function CampaignGameMenu.new(panel)
 	local diffNames = {}
 	local labels = {}
 	
+	local scoreLimits = {
+		{minPos=Vec2(0.25,0.75),	maxPos=Vec2(0.5,0.8125), 	color=Vec3(0.65,0.65,0.65)},
+		{minPos=Vec2(0.0,0.5625),	maxPos=Vec2(0.25,0.625), 	color=Vec3(0.86,0.63,0.38)},
+		{minPos=Vec2(0.0,0.625),	maxPos=Vec2(0.25,0.6875), 	color=Vec3(0.64,0.70,0.73)},
+		{minPos=Vec2(0.0,0.6875),	maxPos=Vec2(0.25,0.75), 	color=Vec3(0.93,0.73,0.13)},
+		{minPos=Vec2(0.0,0.75),		maxPos=Vec2(0.25,0.8125), 	color=Vec3(0.5,0.92,0.92)}
+	}
+	
 	function self.languageChanged()
 		for i=1, #labels do
 			labels[i]:setText(language:getText(labels[i]:getTag()))
@@ -102,26 +110,16 @@ function CampaignGameMenu.new(panel)
 	
 	local function updateIcons()
 		for i=1, #files do
-			if i%4==0 then
-				campaignList[i].icon:setUvCoord(Vec2(0.0,0.75),Vec2(0.25,0.8125))
-			elseif i%4==1 then
-				campaignList[i].icon:setUvCoord(Vec2(0.0,0.5625),Vec2(0.25,0.625))
-			elseif i%4==2 then
-				campaignList[i].icon:setUvCoord(Vec2(0.0,0.625),Vec2(0.25,0.6875))
-			elseif i%4==3 then
-				campaignList[i].icon:setUvCoord(Vec2(0.0,0.6875),Vec2(0.25,0.75))
+			if campaignData.isMapAvailable(i)>0 then
+				if campaignData.hasMapBeenBeaten(i) then
+					local level = math.clamp(campaignData.getMapModeBeatenLevel(i,levelInfo.getGameMode()),1,#scoreLimits)
+					campaignList[i].icon:setUvCoord(scoreLimits[level].minPos,scoreLimits[level].maxPos)
+				else
+					campaignList[i].icon:setUvCoord(Vec2(0.0,0.0),Vec2(0.0,0.0))--no icon
+				end
+			else
+				campaignList[i].icon:setUvCoord(Vec2(0.5,0.0),Vec2(0.625,0.0625))--locked icon
 			end
---			if campaignData.isMapAvailable(i)>0 then
---				if campaignData.hasMapModeLevelBeenBeaten(i,levelInfo.getGameMode(),levelInfo.getLevel()) then
---					campaignList[i].icon:setUvCoord(Vec2(0.625,0.0),Vec2(0.75,0.0625))--this map with game mode and difficulty has been beaten
---				elseif campaignData.hasMapBeenBeaten(i) then
---					campaignList[i].icon:setUvCoord(Vec2(0.0,0.25),Vec2(0.125,0.3125))--this map has been beaten (on any game mode / difficulty)
---				else
---					campaignList[i].icon:setUvCoord(Vec2(0.0,0.0),Vec2(0.0,0.0))--no icon
---				end
---			else
---				campaignList[i].icon:setUvCoord(Vec2(0.5,0.0),Vec2(0.625,0.0625))--locked icon
---			end
 		end
 		if gameModeBox then
 			if gameModeBox.getIndexText()=="survival" then

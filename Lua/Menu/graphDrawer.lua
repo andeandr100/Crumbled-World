@@ -1,21 +1,5 @@
-require("Game/campaignData.lua")
-require("Game/mapInfo.lua")
-local campaignData = CampaignData.new()
-local files = campaignData.getMaps()
-local mapInfo = MapInfo.new()
-local currentMapData = files[mapInfo.getMapNumber()]
-local diffPerLevelBase = math.floor( ((currentMapData.maxScore-currentMapData.minScore)*0.33)/500 )
-local diffPerLevel = diffPerLevelBase*500
-
-local scoreLimits = {
-	{score=currentMapData.minScore, 				minPos=Vec2(0.0,0.5625),	maxPos=Vec2(0.25,0.625)},
-	{score=currentMapData.maxScore-diffPerLevel,	minPos=Vec2(0.0,0.625),		maxPos=Vec2(0.25,0.6875)},
-	{score=currentMapData.maxScore,					minPos=Vec2(0.0,0.6875),	maxPos=Vec2(0.25,0.75)},
-	{score=currentMapData.maxScore+diffPerLevel,	minPos=Vec2(0.0,0.75),		maxPos=Vec2(0.25,0.8125)}
-}
-
 GraphDrawer = {}
-function GraphDrawer.new(pPanel, pLife, pScorePerLife)
+function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 	local self = {}
 	local panel = pPanel
 	local x = 0
@@ -25,6 +9,8 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 	local data
 	local displaingInfoFromWaveIndex = 1
 	local displayIndexChangeFunction
+	--
+	local scoreLimits = pScoreLimits
 	--
 	local leftMargin = 0
 	local bottomMargin = 0
@@ -58,14 +44,16 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 		return 1
 	end
 	local function getGridY(score)
-		return math.clamp(math.floor(y-(bottomMargin+(score*yPerScore))), 0, y-bottomMargin)
+		return math.clamp(math.floor(y-(bottomMargin+(score*yPerScore))), 0, y-bottomMargin)+textSizeY
 	end
 	local function getKill(wave)
 		local waveIndex = math.floor(wave)
+		local d1 = data
+		local d2 = data[waveIndex]
 		local per = math.clamp(wave-waveIndex,0.0,1.0)
 		local max = #data[waveIndex]
 		local kill = math.clamp( math.floor(max*per+0.5), 1, max)
-		local item = data[waveIndex][kill]
+		local item = data[waveIndex][kill] or data[waveIndex][0] or data[waveIndex-1][0]
 		return {
 			--GOLD
 			goldAvailable = item[1],
@@ -144,10 +132,10 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 			
 		end
 	end
-	local function addText(text, position, textSizeY)
+	local function addText(text, position, textSizeY, textColor)
 		local textNode = TextNode()
 		panel:addRenderObject(textNode)
-		textNode:setColor(Vec3(1))
+		textNode:setColor(textColor or Vec3(1))
 		textNode:setSize(Vec2(128,textSizeY+4))
 		textNode:setTextHeight(textSizeY)
 		textNode:setText(text)
@@ -164,9 +152,9 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 		--	add min lines
 		--
 		--Y line (left, goes all the way down)
-		drawLine(node2DMesh, {Vec2(leftMargin,0),Vec2(leftMargin,y-bottomMargin+lineMainWidth)}, lineMainWidth, Vec4(0.45))
+		drawLine(node2DMesh, {Vec2(leftMargin,textSizeY),Vec2(leftMargin,(y+textSizeY)-bottomMargin+lineMainWidth)}, lineMainWidth, Vec4(0.45))
 		--X line (bottom, starts to the right of the Y line)
-		drawLine(node2DMesh, {Vec2(leftMargin+lineMainWidth,y-(bottomMargin)), Vec2(x,y-(bottomMargin))}, lineMainWidth, Vec4(0.45))
+		drawLine(node2DMesh, {Vec2(leftMargin+lineMainWidth,getGridY(0)), Vec2(x-lineMainWidth,getGridY(0))}, lineMainWidth, Vec4(0.45))
 		
 		--
 		--	add left score
@@ -176,14 +164,18 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 			local xx = leftMargin-lineMainWidth
 			if score%YMainSplitSize==0 then
 				--main lines
-				drawSingleLine(node2DMesh, {Vec2(xx,yPos), Vec2(xx-math.floor(leftMargin*0.5),yPos)}, lineSubWidth, Vec4(0.45), Vec4(0.55))
-				drawSingleLine(node2DMesh, {Vec2(leftMargin+lineMainWidth,yPos), Vec2(x,yPos)}, 0.5, Vec4(1,1,1,0.05), Vec4(1,1,1,0.06))
+				drawSingleLine(node2DMesh, {Vec2(xx,yPos), Vec2(xx-(textSizeY),yPos)}, lineSubWidth, Vec4(0.45), Vec4(0.55))
+				drawSingleLine(node2DMesh, {Vec2(leftMargin+lineMainWidth,yPos), Vec2(x,yPos)}, 0.5, Vec4(1,1,1,0.1), Vec4(1,1,1,0.1))
 				--text
 				addText(tostring(score/1000).."K", Vec2(leftMargin+4,yPos-(textSizeY+4)), textSizeY)
 			else
 				--sub lines
-				drawSingleLine(node2DMesh, {Vec2(xx,yPos), Vec2(xx-math.floor(leftMargin*0.4),yPos)}, lineSubWidth, Vec4(0.45), Vec4(0.55))
+				drawSingleLine(node2DMesh, {Vec2(xx,yPos), Vec2(xx-(textSizeY*0.66),yPos)}, lineSubWidth, Vec4(0.45), Vec4(0.55))
 				drawSingleLine(node2DMesh, {Vec2(leftMargin+lineMainWidth,yPos), Vec2(x,yPos)}, 0.5, Vec4(1,1,1,0.02), Vec4(1,1,1,0.03))
+				--text
+				if topYValue==score then
+					addText(tostring(score/1000).."K", Vec2(leftMargin+4,yPos-(textSizeY+4)), textSizeY)
+				end
 			end
 		end
 		--
@@ -191,15 +183,15 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 		--
 		for wave=1, topXValue, XSubSplitSize do
 			local xPos = getGridX(wave)
-			local yy = y-bottomMargin+lineMainWidth
+			local yy = (y+textSizeY)-bottomMargin+lineMainWidth
 			if wave%XMainSplitSize==0 or wave==1 then
 				--main lines
-				drawSingleLine(node2DMesh, {Vec2(xPos,yy), Vec2(xPos,yy+(textSizeY*0.5))	}, lineSubWidth, Vec4(0.45), Vec4(0.55))
-				drawSingleLine(node2DMesh, {Vec2(xPos,0), Vec2(xPos,y-bottomMargin-lineMainWidth)}, lineSubWidth, Vec4(1,1,1,0.06), Vec4(1,1,1,0.05))
+				drawSingleLine(node2DMesh, {Vec2(xPos,yy), Vec2(xPos,yy+(textSizeY))	}, lineSubWidth, Vec4(0.45), Vec4(0.55))
+				drawSingleLine(node2DMesh, {Vec2(xPos,textSizeY), Vec2(xPos,(y+textSizeY)-bottomMargin-lineMainWidth)}, lineSubWidth, Vec4(1,1,1,0.06), Vec4(1,1,1,0.05))
 			else
 				--sub lines
-				drawSingleLine(node2DMesh, {Vec2(xPos,yy), Vec2(xPos,yy+(textSizeY*0.4))}, lineSubWidth, Vec4(0.45), Vec4(0.55))	
-				drawSingleLine(node2DMesh, {Vec2(xPos,0), Vec2(xPos,y-bottomMargin-lineMainWidth)}, lineSubWidth, Vec4(1,1,1,0.03), Vec4(1,1,1,0.02))
+				drawSingleLine(node2DMesh, {Vec2(xPos,yy), Vec2(xPos,yy+(textSizeY*0.66))}, lineSubWidth, Vec4(0.45), Vec4(0.55))	
+				drawSingleLine(node2DMesh, {Vec2(xPos,textSizeY), Vec2(xPos,(y+textSizeY)-bottomMargin-lineMainWidth)}, lineSubWidth, Vec4(1,1,1,0.03), Vec4(1,1,1,0.02))
 			end
 		end
 		
@@ -211,11 +203,29 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 		--	add medals
 		--
 		for k,v in pairs(scoreLimits) do
-			local yPos = getGridY(v.score)
-			local xx = leftMargin-lineMainWidth
-			drawSingleLine(node2DMesh, {Vec2(leftMargin+lineMainWidth,yPos), Vec2(x,yPos)}, 0.5, Vec4(0.75))
+			if v.score>1 then
+				local yPos = getGridY(v.score)
+				local xx = leftMargin-lineMainWidth
+				drawSingleLine(node2DMesh, {Vec2(leftMargin+lineMainWidth,yPos), Vec2(x-lineMainWidth,yPos)}, 0.5, Vec4(v.color,0.25), Vec4(v.color,0.75))
+				--text
+				local textScore = ""
+				if v.score%1000==0 then
+					textScore = tostring(v.score/1000).."K"
+				else
+					textScore = string.format("%.1fK",v.score/1000.0)
+				end
+				local textX = xx+((x-xx)*0.1)
+				addText(textScore, Vec2(textX,yPos-(textSizeY+4)), textSizeY, v.color)
+				--icon
+				local icon = Sprite(Core.getTexture("icon_table.tga"))
+				local iconPos = Vec2(textSizeY*4, textSizeY*2)
+				panel:addRenderObject(icon)
+				icon:setRenderLevel(2)
+				icon:setUvCoord(v.minPos,v.maxPos)
+				icon:setSize(iconPos)
+				icon:setPosition(Vec2(x, yPos)-iconPos)
+			end
 		end
-		--{score=currentMapData.minScore, 				minPos=Vec2(0.0,0.5625),	maxPos=Vec2(0.25,0.625)},
 		
 	end
 	--
@@ -254,7 +264,7 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 			node2DMesh:compile()
 			
 			displayInfo:clearMesh()
-			drawSingleLine(displayInfo, {Vec2(xx,0), Vec2(xx,y-bottomMargin+lineMainWidth)}, 0.5, Vec4(0.85), Vec4(0.85))
+			drawSingleLine(displayInfo, {Vec2(xx,textSizeY), Vec2(xx,(y+textSizeY)-bottomMargin+lineMainWidth)}, 0.5, Vec4(0.85), Vec4(0.85))
 			displayInfo:compile()
 		end
 	end
@@ -272,17 +282,22 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 	end
 	function self.resize()
 		local bilboardStats = Core.getBillboard("stats")
-		data	 = bilboardStats:getTable("scoreHistory")
+		data = bilboardStats:getTable("scoreHistory")
+		local d1 = data
 		--make sure it is a real rezise
-		if data and x~=panel:getPanelContentPixelSize().x or y~=panel:getPanelContentPixelSize().y then
-			panel:getPanelGlobalMinMaxPosition(panelMin,panelMax)
-			local maxScore = getKill(#data+0.9999).score
-			topYValue = math.floor( (maxScore*1.1)/5000 +0.5)*5000
-			topXValue = #data
-			--get new size
+		if data and x~=panel:getPanelContentPixelSize().x or y~=panel:getPanelContentPixelSize().y-textSizeY then
+			--
 			textSizeY = math.floor(Core.getScreenResolution().y*0.012)
 			x = panel:getPanelContentPixelSize().x
-			y = panel:getPanelContentPixelSize().y
+			y = panel:getPanelContentPixelSize().y - textSizeY
+			--
+			local iconPercentageRequirement = 1.01 + ((textSizeY*4)/y)
+			--
+			panel:getPanelGlobalMinMaxPosition(panelMin,panelMax)
+			local maxScore = math.max(getKill(#data+0.9999).score, scoreLimits[#scoreLimits].score)*iconPercentageRequirement
+			topYValue = math.floor( (maxScore )/5000 + 1)*5000
+			topXValue = #data
+			--get new size
 			lineMainWidth = 2
 			lineSubWidth = 1
 			leftMargin = math.floor(textSizeY*2.0)
@@ -300,7 +315,7 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife)
 			
 			drawLine(staticMesh, drawScoreGraph(function(index)	return getGridY(getKill(index)["score"]-(20*pScorePerLife)) end), 1, Vec4(0.85,0.85,0.85,0.1))--getKill(index)["life"]
 			drawLine(staticMesh, drawScoreGraph(function(index)	return getGridY(getKill(index)["goldGainedFromInterest"]) end), 1, Vec4(0.85,0.85,0.85,0.1))
-			addGrid(staticMesh, leftMargin, bottomMargin)
+			addGrid(staticMesh)
 			
 			staticMesh:compile()
 			

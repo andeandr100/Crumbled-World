@@ -48,7 +48,7 @@ function MapInfo.new()
 	end
 	function self.getReward()
 		local cData = CampaignData.new()
-		local reward = BASEBONUS+math.max(1,math.floor( (self.getLevel()*self.getWaveCount()+0.01)/25 ))
+		local reward = BASEBONUS
 		if cData.hasMapBeenBeaten(self.getMapNumber())==false then
 			reward = reward + FIRSTTIMEVICTORYBONUS
 		end
