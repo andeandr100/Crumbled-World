@@ -28,7 +28,15 @@ function create()
 	settingsListener:registerEvent("Changed", settingsChanged)
 	settingsChanged()
 	
-	lifeBarCound = 0
+	lifeBarCount = 0
+	
+	normalList = {}
+	positionList = {}
+	
+	for i=1, 120 do
+		normalList[i] = Vec3(0)
+		positionList[i] = Vec4( 0, -1, 0, 0 )
+	end
 
 	return true
 end
@@ -44,17 +52,18 @@ function update()
 	if nodeMesh:getVisible() and targetSelector.disableRealityCheck() then
 		targetSelector.selectAllInRange()
 		local soulList = targetSelector.getAllSouls()
-		
+		soulList.count = #soulList
 		--remove all souls that  do not have 100% life
 		local i=1
-		while i<=#soulList do
+		while i<=soulList.count do
 			local soul = soulList[i]
 			local ignore = targetSelector.isTargetInState(soul.index, state.ignore)
 			local highPrio = targetSelector.isTargetInState(soul.index, state.highPriority)
 			if soul.hp==soul.hpMax and ignore == false and highPrio == false then
 				if showOnlyDamagedNpcs then
-					soulList[i] = soulList[#soulList]
-					soulList[#soulList] = nil
+					soulList[i] = soulList[soulList.count]
+					soulList[soulList.count] = nil
+					soulList.count = soulList.count - 1
 					i = i - 1
 				end
 			else
@@ -66,28 +75,25 @@ function update()
 		
 		
 		--display all the souls on the map
-		local souls = #soulList
-		if lifeBarCound ~= souls or souls > 0 then
-			lifeBarCound = souls
+		local souls = soulList.count
+		local indexList = {}
+		if lifeBarCount ~= souls or souls > 0 then
+			lifeBarCount = souls
 			nodeMesh:clearMesh()
+			local positionOffset = Vec3(0,1.1,0)
 			for i=1, souls do
 				local soul = soulList[i]
-				nodeMesh:addPosition(Vec4( soul.position + Vec3(0,1.1,0),soul.hp/soul.hpMax))
-				if soul.ignore then
-					--is in state ignore (ignore state overrides highPriority)
-					nodeMesh:addNormal(Vec3(1.0,0.0,showDamageValue))
-				elseif soul.highPrio then
-					--is in state highPriority
-					nodeMesh:addNormal(Vec3(0.0,1.0,showDamageValue))
-				else
-					nodeMesh:addNormal(Vec3(0,0,showDamageValue))
-				end
-				nodeMesh:addIndex(i-1)
+				positionList[i] = Vec4( soul.position + positionOffset,soul.hp/soul.hpMax)
+				normalList[i] = Vec3(soul.ignore and 1.0 or 0.0,soul.highPrio and 1.0 or 0.0,showDamageValue)
+				indexList[i] = i - 1
 			end
-			for i=souls+1, 120 do
-				nodeMesh:addNormal(Vec3(0))
-				nodeMesh:addPosition(Vec4( Vec3(0,-1,0),0.0))
-			end
+
+
+			nodeMesh:setPositionsVec4(positionList)
+			nodeMesh:setNormals(normalList)
+			nodeMesh:setIndices(indexList)
+			
+			
 			nodeMesh:compile()
 			nodeMesh:setBoundingSphere(Sphere(camera:getGlobalPosition(), 5.0))
 		end

@@ -102,20 +102,22 @@ function update()
 			
 			local groups = getGroupScriptTimeTable();
 			local count = 1
-			for i=count, math.min(numLabels, #groups) do
-				labels[i]:setText( groups[i].name..", "..groups[i].count..", "..math.round(groups[i].time*1000) )
+			for i=count, #groups do
+				labels[i]:setText( groups[i].name..", "..groups[i].count..", "..(math.round(groups[i].time*10000)/10).."ms" )
 				count = count + 1
 			end
-			
+			count = count + 1
+			print("groups: "..tostring(groups))
 			labels[count]:setText("scripts:")
 			count = count + 1
 			
 			local tab = getScriptTimeTable()
+			print("scripts: "..tostring(tab))
 			
 			print("numLabels: "..numLabels)
 			print("tab: "..#tab)
 			for i=count, math.min(numLabels, #tab) do
-				labels[i]:setText( tab[i].name..", "..tab[i].count..", "..tab[i].time )
+				labels[i]:setText( tab[i-count+1].name..", "..tab[i-count+1].count..", "..(math.round(tab[i-count+1].time*10000)/10).."ms" )
 			end
 		end
 		--form
