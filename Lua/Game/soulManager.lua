@@ -78,7 +78,7 @@ function SoulManager.new()
 						for y=minY, maxY do
 							billboard:setString("souls"..x.."/"..y,"")
 							soulTableStr[x] = soulTableStr[x] or {}
-							soulTableStr[x][y] = soulTableStr[x][y] or ""
+							soulTableStr[x][y] = soulTableStr[x][y] or {}
 --							if debug then
 --								debug.zoneColors[x] = debug.zoneColors[x] or {}
 --								debug.zoneColors[x][y] = debug.zoneColors[x][y] or math.randomVec3()
@@ -94,7 +94,7 @@ function SoulManager.new()
 						for y=minY, maxY do
 							billboard:setString("souls"..x.."/"..y,"")
 							soulTableStr[x] = soulTableStr[x] or {}
-							soulTableStr[x][y] = soulTableStr[x][y] or ""
+							soulTableStr[x][y] = soulTableStr[x][y] or {}
 --							if debug then
 --								debug.zoneColors[x] = debug.zoneColors[x] or {}
 --								debug.zoneColors[x][y] = debug.zoneColors[x][y] or math.randomVec3()
@@ -112,7 +112,7 @@ function SoulManager.new()
 						for x=minX, maxX do
 							billboard:setString("souls"..x.."/"..y,"")
 							soulTableStr[x] = soulTableStr[x] or {}
-							soulTableStr[x][y] = soulTableStr[x][y] or ""
+							soulTableStr[x][y] = soulTableStr[x][y] or {}
 --							if debug then
 --								debug.zoneColors[x] = debug.zoneColors[x] or {}
 --								debug.zoneColors[x][y] = debug.zoneColors[x][y] or math.randomVec3()
@@ -128,7 +128,7 @@ function SoulManager.new()
 						for x=minX, maxX do
 							billboard:setString("souls"..x.."/"..y,"")
 							soulTableStr[x] = soulTableStr[x] or {}
-							soulTableStr[x][y] = soulTableStr[x][y] or ""
+							soulTableStr[x][y] = soulTableStr[x][y] or {}
 --							if debug then
 --								debug.zoneColors[x] = debug.zoneColors[x] or {}
 --								debug.zoneColors[x][y] = debug.zoneColors[x][y] or math.randomVec3()
@@ -150,7 +150,7 @@ function SoulManager.new()
 		--clear local soulTable
 		for x=minX, maxX do
 			for y=minY, maxY do
-				soulTableStr[x][y] = ""
+				soulTableStr[x][y] = {}
 			end
 		end
 		--rebuild local soulTable
@@ -167,17 +167,11 @@ function SoulManager.new()
 --					Core.addDebugLine(sPos, sPos+Vec3(0,2.0,0), 0.05, debug.zoneColors[x][y] or Vec3(1))
 --				end
 				--DEBUG END
-				if soulTableStr[x][y]:len()==0 then
-					soulTableStr[x][y] = string.format("%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%d,%d,%d,%s",index,
+				local grid = soulTableStr[x][y]
+				grid[#grid+1] = {index,
 					soul.position.x,soul.position.y,soul.position.z,
 					soul.velocity.x,soul.velocity.y,soul.velocity.z,
-					soul.distanceToExit,soul.hp,soul.hpMax,soul.team,soul.state,soul.name)
-				else
-					soulTableStr[x][y] = string.format("%s|%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%d,%d,%d,%s",soulTableStr[x][y],index,
-					soul.position.x,soul.position.y,soul.position.z,
-					soul.velocity.x,soul.velocity.y,soul.velocity.z,
-					soul.distanceToExit,soul.hp,soul.hpMax,soul.team,soul.state,soul.name)
-				end
+					soul.distanceToExit,soul.hp,soul.hpMax,soul.team,soul.state,soul.name}
 				count = count + 1
 			end
 		end
@@ -185,7 +179,11 @@ function SoulManager.new()
 		billboard:setInt("npcsAlive",count)
 		for x=minX, maxX do
 			for y=minY, maxY do
-				billboard:setString("souls"..x.."/"..y,soulTableStr[x][y])
+				if soulTableStr[x][y] then
+					billboard:setString("souls"..x.."/"..y,tabToStrMinimal(soulTableStr[x][y]))
+				else
+					billboard:setString("souls"..x.."/"..y,"{}")
+				end
 			end
 		end
 	end
@@ -346,6 +344,7 @@ function create()
 	if ( node == nil and this:getSceneName() ~= "soulManager" ) or ( node and node:getClientId() ~= 0 ) then
 		return false
 	end
+	--Core.setUpdateHz(60)
 	
 	if this:getNodeType() == NodeId.playerNode then
 		local menuNode = this:getRootNode():addChild(SceneNode())

@@ -2,7 +2,6 @@ require("Tower/upgrade.lua")
 require("NPC/state.lua")
 require("Tower/xpSystem.lua")
 require("Tower/supportManager.lua")
-require("stats.lua")
 require("Projectile/projectileManager.lua")
 require("Projectile/SwarmBall.lua")
 require("Game/campaignTowerUpg.lua")
@@ -16,11 +15,9 @@ function SwarmTower.new()
 	local piston = {}
 	local targetHistory = {0,0,0,0, 0,0,0,0}
 	local targetHistoryToken = 1
-	local myStats = {}
-	local myStatsTimer = 0
+	local dmgDone = 0
 	local waveCount = 0
 	local projectiles = projectileManager.new()
-	local tStats = Stats.new()
 	local cData = CampaignData.new()
 	local upgrade = Upgrade.new()
 	local supportManager = SupportManager.new()
@@ -125,28 +122,12 @@ function SwarmTower.new()
 		restoreWaveChangeStats( tonumber(param) )
 		projectiles.clear()
 	end
-	
-	local function myStatsReset()
-		if myStats.dmgDone then
-			billboard:setDouble("DamagePreviousWave",myStats.dmgDone)
-			comUnit:sendTo("stats", "addTotalDmg", myStats.dmgDone )
-		end
-		myStats = {	activeTimer=0.0,	
-					dmgDone=0,
-					inoverHeatTimer=0.0,
-					hitts=0,
-					projectileLaunched=0,
-					disqualified=false}
-		myStatsTimer = Core.getGameTime()
-	end
-	local function swarmBallHitt(param)
-		myStats.hitts = myStats.hitts + 1
-	end
+
 	local function damageDealt(param)
 		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		myStats.dmgDone = myStats.dmgDone + addDmg
-		billboard:setDouble("DamageCurrentWave",myStats.dmgDone)
-		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+myStats.dmgDone)
+		dmgDone = dmgDone + addDmg
+		billboard:setDouble("DamageCurrentWave",dmgDone)
+		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+dmgDone)
 		if xpManager then
 			xpManager.addXp(addDmg)
 			local interpolation  = xpManager.getLevelPercentDoneToNextLevel()
@@ -161,23 +142,8 @@ function SwarmTower.new()
 		--update and save stats only if we did not just restore this wave
 		if tonumber(waveCount)>=lastRestored then
 			if not xpManager then
-				--
-				if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>0 then
-					myStats.disqualified=nil
-					myStats.DPS =myStats.dmgDone/myStats.activeTimer
-					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-					myStats.hittsPerProjectile = myStats.hitts / myStats.projectileLaunched
-					--myStats.hitts=nil
-					local key = "burnDamage"..upgrade.getLevel("burnDamage").."_fuel"..upgrade.getLevel("fuel").."_range"..upgrade.getLevel("range")
-					tStats.addValue({mapName,"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-					if myStats.activeTimer>1.0 then
-						for variable, value in pairs(myStats) do
-							tStats.setValue({mapName,"wave"..name,"swarmTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
-						end
-					end
-				end
-				myStatsReset()
+				billboard:setDouble("DamagePreviousWave", dmgDone)
+				comUnit:sendTo("stats", "addTotalDmg", dmgDone )
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -193,9 +159,6 @@ function SwarmTower.new()
 	local function setCurrentInfo()
 		if xpManager then
 			xpManager.updateXpToNextLevel()
-		end
-		if myStats.activeTimer and myStats.activeTimer>0.0001 then
-			myStats.disqualified = true
 		end
 		currentAttackCountOnTarget = 0
 	
@@ -299,8 +262,6 @@ function SwarmTower.new()
 					reloadTimeLeft = 0.0
 				end
 				reloadTimeLeft = reloadTimeLeft + upgrade.getValue("fieringTime")
-				--debug
-				myStats.projectileLaunched = myStats.projectileLaunched + 1
 			end
 		end
 	end
@@ -500,7 +461,6 @@ function SwarmTower.new()
 		if xpManager then
 			xpManager.update()
 		end
-		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
 		
 		local bLevel = upgrade.getLevel("boost")
 		fireCenter:setScale(1.0+(bLevel*0.4))
@@ -515,12 +475,6 @@ function SwarmTower.new()
 			visibleState = state			
 			Core.setUpdateHz( (state == 2) and 60.0 or (state == 1 and 30 or 10) )
 		end
-		
-		--debug
-		if targetSelector.getTargetIfAvailable()>0 then
-			myStats.activeTimer = myStats.activeTimer + Core.getDeltaTime()
-		end
-		--
 		
 		--update pushPiston()
 		for index = 1, 4, 1 do
@@ -540,7 +494,8 @@ function SwarmTower.new()
 				end
 			end
 		end
-		--piston[index]:setLocalPosition( pistonAtVec[index]*((0.7)+(per*(-0.16))) )
+		--
+		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
 		if reloadTimeLeft<0.0 and updateTarget() and billboard:getBool("isNetOwner") then
 			attack()--can now attack
 			upgrade.setUsed()--set value changed
@@ -604,7 +559,6 @@ function SwarmTower.new()
 		billboard:setInt("level", 1)
 	
 		--ComUnitCallbacks
-		comUnitTable["swarmBallHitt"] = swarmBallHitt
 		comUnitTable["dmgDealt"] = damageDealt
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["upgrade1"] = self.handleUpgrade
@@ -833,8 +787,6 @@ function SwarmTower.new()
 	
 		initModel()
 		setCurrentInfo()
-	
-		myStatsReset()
 		
 		cTowerUpg.addUpg("range",self.handleUpgradeRange)
 		cTowerUpg.addUpg("burnDamage",self.handleUpgradeBurnDamage)

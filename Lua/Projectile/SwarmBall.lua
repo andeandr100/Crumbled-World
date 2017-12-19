@@ -285,7 +285,6 @@ function SwarmBall.new()
 						if targetSelector.isTargetNamed(targetIndex,"electroSpirit")==false then
 							hittExplosion:activate(position,velocity)--activate hitt indication
 						end
-						--comUnit:sendTo(ownerIndex, "swarmBallHitt", "hitt")
 						comUnit:sendTo(targetIndex,"attackFire",tostring(damage))
 						comUnit:sendTo(targetIndex,"attackFireDPS",{DPS=fireDPS,time=burnTime,type="fire"})
 						--circumference of half a circle

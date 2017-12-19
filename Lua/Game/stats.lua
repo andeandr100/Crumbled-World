@@ -496,7 +496,7 @@ function setStatsPerKillTableOn(index)
 end
 function updateScoreIconStatus()
 	if oldScoreTable then
-		if currentWave>0 and oldScoreTable[currentWave] then
+		if currentWave>0 and oldScoreTable[currentWave] and oldScoreTable[currentWave][1] then
 			local index = statsPerKillTable[currentWave] and #statsPerKillTable[currentWave] or 0
 			local t1 = oldScoreTable[currentWave]	--waveTable
 			local ts = t1[math.min(#t1,index)]		--killtable
@@ -516,21 +516,22 @@ function updateScoreIconStatus()
 end
 function handleSaveScore()
 	billboard:setTable("scoreHistory",statsPerKillTable)
-	--
-	local mapInfo = MapInfo.new()	
-	local f1 = File("Data/Dynamic/CampaignScore/"..mapInfo.getMapName().."__"..mapInfo.getLevel().."_"..mapInfo.getGameMode()..".st")
-	local writeToFile = true
-	if f1:exist() then
-		local table = totable(f1:getContent())
-		local lastWaveTab = table[#table]
-		local lastKillTab = lastWaveTab[#lastWaveTab]
-		local lastScore = lastKillTab[9]
-		writeToFile = lastScore<billboard:getInt("score")
-	end
-	if writeToFile then
-		if f1:createNewFile() then
-			local str = tabToStrMinimal(statsPerKillTable)
-			f1:setContent(str, str:len())
+	if billboard:getInt("life")>0 then
+		local mapInfo = MapInfo.new()	
+		local f1 = File("Data/Dynamic/CampaignScore/"..mapInfo.getMapName().."__"..mapInfo.getLevel().."_"..mapInfo.getGameMode()..".st")
+		local writeToFile = true
+		if f1:exist() then
+			local table = totable(f1:getContent())
+			local lastWaveTab = table[#table]
+			local lastKillTab = lastWaveTab[#lastWaveTab]
+			local lastScore = lastKillTab[9]
+			writeToFile = lastScore<billboard:getInt("score")
+		end
+		if writeToFile then
+			if f1:createNewFile() then
+				local str = tabToStrMinimal(statsPerKillTable)
+				f1:setContent(str, str:len())
+			end
 		end
 	end
 	--

@@ -27,10 +27,10 @@ function CampaignData.new()
 	local isInGame = Core.getBillboard("SoulManager")
 	
 	local files = { 
-		{file=File("Data/Map/Campaign/Beginning.map"), 		statId="Begining",		statIdOld="L1",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=258187458,	waveCount=10},
-		{file=File("Data/Map/Campaign/Intrusion.map"), 		statId="Intrusion",		statIdOld="L2",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=334652485,	waveCount=15},
-		{file=File("Data/Map/Campaign/Stockpile.map"),		statId="Stockpile",		statIdOld="L3",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=294158370,	waveCount=20},
-		{file=File("Data/Map/Campaign/Expansion.map"), 		statId="Expansion",		statIdOld="L4",		minScore=11500,	maxScore=26000,	type="Crystal",	sead=864885368,	waveCount=25},--11665 / 25880
+		{file=File("Data/Map/Campaign/Beginning.map"), 		statId="Begining",		statIdOld="L1",		minScore=00000,	maxScore=12000,	type="Crystal",	sead=258187458,	waveCount=10},--? / 11378
+		{file=File("Data/Map/Campaign/Intrusion.map"), 		statId="Intrusion",		statIdOld="L2",		minScore=00000,	maxScore=18000,	type="Crystal",	sead=334652485,	waveCount=15},--? / 17029
+		{file=File("Data/Map/Campaign/Stockpile.map"),		statId="Stockpile",		statIdOld="L3",		minScore=00000,	maxScore=21000,	type="Crystal",	sead=294158370,	waveCount=20},--? / 20281
+		{file=File("Data/Map/Campaign/Expansion.map"), 		statId="Expansion",		statIdOld="L4",		minScore=11000,	maxScore=29000,	type="Crystal",	sead=864885368,	waveCount=25},--11665 / 28860
 		{file=File("Data/Map/Campaign/Repair station.map"),	statId="RepairStation",	statIdOld="L5",		minScore=00000,	maxScore=50000,	type="Cart",	sead=256546887,	waveCount=25},
 		{file=File("Data/Map/Campaign/Edge world.map"),		statId="EdgeWorld",							minScore=00000,	maxScore=50000,	type="Cart",	sead=352603864,	waveCount=25},
 		{file=File("Data/Map/Campaign/Bridges.map"),		statId="Bridges",		statIdOld="L6",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=617196048,	waveCount=25},
