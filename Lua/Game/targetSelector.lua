@@ -105,20 +105,24 @@ function TargetSelector.new(pteam)
 			--soulManagerBillboard = soulManagerBillboard or Core.getBillboard("SoulManager")
 			soulTable = {}
 			for i=1, #soulTableNamesToUse do
-				local input = soulManagerBillboard:getString(soulTableNamesToUse[i])
-				for str in string.gmatch(input, "([^|]+)") do
-					local index,x1,y1,z1,x2,y2,z2,dist,hp,hpmax,team,state,name = string.match(str, "([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)")
-					soulTable[tonumber(index)] = {
-						position=Vec3(tonumber(x1),tonumber(y1),tonumber(z1)),
-						velocity=Vec3(tonumber(x2),tonumber(y2),tonumber(z2)),
-						distanceToExit=tonumber(dist),
-						hp=tonumber(hp),
-						hpMax=tonumber(hpmax),
-						team=tonumber(team),
-						state=tonumber(state),
-						name=name,
-						index=tonumber(index)
-					}
+				local tabString = soulManagerBillboard:getString(soulTableNamesToUse[i])
+				if string.len(tabString)>2 then
+					local input = totable(tabString)
+					for i=1, #input do
+						--local index,x1,y1,z1,x2,y2,z2,dist,hp,hpmax,team,state,name = string.match(str, "([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)")
+						assert(input[i][13] and not input[i][14],"something wrong")
+						soulTable[input[i][1]] = {
+							position=Vec3(input[i][2],input[i][3],input[i][4]),
+							velocity=Vec3(input[i][5],input[i][6],input[i][7]),
+							distanceToExit=input[i][8],
+							hp=input[i][9],
+							hpMax=input[i][10],
+							team=input[i][11],
+							state=input[i][12],
+							name=input[i][13],
+							index=input[i][1]
+						}
+					end
 				end
 			end
 		end

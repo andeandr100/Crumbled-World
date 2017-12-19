@@ -337,7 +337,6 @@ function EventBase.new()
 		--
 		--
 		--
-		print("currentState == "..currentState)
 		if spawnManager.isSpawnListPopulated() and currentState ~= EVENT_END_MENU then
 			--handle the event restart wave
 			if (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="training") then
