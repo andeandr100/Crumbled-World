@@ -1,7 +1,6 @@
 require("Tower/upgrade.lua")
 require("Tower/xpSystem.lua")
 require("Tower/supportManager.lua")
-require("stats.lua")
 require("Projectile/projectileManager.lua")
 require("Projectile/CutterBlade.lua")
 require("Projectile/Spear.lua")
@@ -14,12 +13,12 @@ require("Game/mapInfo.lua")
 BladeTower = {}
 function BladeTower.new()
 	local self = {}
-	local myStats = {}
-	local myStatsTimer = 0
+	local dmgDone = 0
 	local waveCount = 0
-	local projectiles = projectileManager.new()
+	local activeTeam = 1
+	local targetSelector = TargetSelector.new(activeTeam)
+	local projectiles = projectileManager.new(targetSelector)
 	local deathManager = DeathManager.new()
-	local tStats = Stats.new()
 	local cData = CampaignData.new()
 	local upgrade = Upgrade.new()
 	local supportManager = SupportManager.new()
@@ -68,8 +67,6 @@ function BladeTower.new()
 	--other
 	local staticNodes--used for range tests
 	local towerBuiltListener
-	local activeTeam = 1
-	local targetSelector = TargetSelector.new(activeTeam)
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	local lastRestored = -1
@@ -141,25 +138,12 @@ function BladeTower.new()
 		end
 	end
 	
-	local function myStatsReset()
-		if myStats.dmgDone then
-			billboard:setDouble("DamagePreviousWave",myStats.dmgDone)
-			comUnit:sendTo("stats", "addTotalDmg", myStats.dmgDone )
-		end
-		myStats = {	activeTimer=0.0,
-					hitts=0,
-					attacks=0,
-					dmgDone=0,
-					bladeBlocked=0,
-					disqualified=false}
-		myStatsTimer = Core.getGameTime()
-	end
+
 	local function damageDealt(param)
 		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		myStats.hitts = myStats.hitts + 1
-		myStats.dmgDone = myStats.dmgDone + addDmg
-		billboard:setDouble("DamageCurrentWave",myStats.dmgDone)
-		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+myStats.dmgDone)
+		dmgDone = dmgDone + addDmg
+		billboard:setDouble("DamageCurrentWave",dmgDone)
+		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+dmgDone)
 		if xpManager then
 			xpManager.addXp(addDmg)
 			local interpolation  = xpManager.getLevelPercentDoneToNextLevel()
@@ -171,6 +155,7 @@ function BladeTower.new()
 		projectiles.clear()
 		supportManager.restartWave()
 		restoreWaveChangeStats( tonumber(param) )
+		dmgDone = 0
 	end
 	local function waveChanged(param)
 		local name
@@ -179,21 +164,8 @@ function BladeTower.new()
 		--update and save stats only if we did not just restore this wave
 		if tonumber(waveCount)>=lastRestored then
 			if not xpManager then
-				--
-				if myStats.disqualified==false and upgrade.getLevel("boost")==0  and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
-					myStats.disqualified = nil
-					myStats.DPS = myStats.dmgDone/myStats.activeTimer
-					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-					local key = "attackSpeed"..upgrade.getLevel("attackSpeed").."_masterBlade"..upgrade.getLevel("masterBlade").."_electricBlade"..upgrade.getLevel("electricBlade")
-					myStats.hittsPerBlade = myStats.hitts/myStats.attacks
-					myStats.hitts = nil
-					tStats.addValue({mapName,"wave"..name,"bladeTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-					for variable, value in pairs(myStats) do
-						tStats.setValue({mapName,"wave"..name,"bladeTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
-					end
-				end
-				myStatsReset()
+				billboard:setDouble("DamagePreviousWave",dmgDone)
+				comUnit:sendTo("stats", "addTotalDmg", dmgDone )
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -202,12 +174,12 @@ function BladeTower.new()
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
 		end
+		dmgDone = 0
 	end
 	local function bladeBlocked(param)
 		local x1,y1,z1,x2,y2,z2 = string.match(param, "(.*);(.*);(.*);(.*);(.*);(.*)")
 		billboard:setVec3("bladeBlockedPos", Vec3(tonumber(x1),tonumber(y1),tonumber(z1)) )
 		billboard:setVec3("bladeBlockedDir", Vec3(tonumber(x2),tonumber(y2),tonumber(z2)) )
-		myStats.bladeBlocked = myStats.bladeBlocked + 1
 	end
 	local function orderItemByVal(itemA,itemB)
 		return itemA<itemB
@@ -270,9 +242,6 @@ function BladeTower.new()
 	local function setCurrentInfo()
 		if xpManager then
 			xpManager.updateXpToNextLevel()
-		end
-		if myStats.activeTimer and myStats.activeTimer>0.0001 then
-			myStats.disqualified = true
 		end
 	
 		--xpToLevel		= 1000.0*(1.5^level);
@@ -435,8 +404,6 @@ function BladeTower.new()
 		end
 		--add reloadTime directly as we start the count down when the arm is moving into dropping the blade
 		reloadTimeLeft = reloadTimeLeft + (1.0/upgrade.getValue("RPS"))
-		--debug
-		myStats.attacks = myStats.attacks + 1
 	end
 	function self.handleUpgrade(param)
 		if tonumber(param)>upgrade.getLevel("upgrade") then
@@ -626,7 +593,6 @@ function BladeTower.new()
 				electricPointLight2:setVisible(false)
 			end
 		else
-			myStats.disqualified = true
 			model:getMesh("electric"):setVisible(true)
 			upgradeElectricScale = 0.20 + (upgrade.getLevel("electricBlade")*0.05)
 			if sparkCenter1==nil then
@@ -711,16 +677,7 @@ function BladeTower.new()
 		end
 	
 		reloadTimeLeft = reloadTimeLeft - deltaTime
-		--
-		--debug start
-		--
-		local anyInRange = targetSelector.selectAllInCapsule(attackLine,1.5)
-		if anyInRange then
-			myStats.activeTimer = myStats.activeTimer + deltaTime
---			Core.addDebugLine(attackLine,0.1,Vec3(0,1,0))
---		else
---			Core.addDebugLine(attackLine,0.1,Vec3(1,0,0))
-		end
+
 --		print("anyInRange["..tostring(status==STATUS_WAITING).."] == "..tostring(anyInRange) )
 --		print("reloadTimeLeft == "..tostring(reloadTimeLeft) )
 		--
@@ -728,7 +685,7 @@ function BladeTower.new()
 		--
 		if reloadTimeLeft<0.0 then
 			--we can fire at any time
-			if status==STATUS_WAITING and anyInRange then
+			if status==STATUS_WAITING and targetSelector.selectAllInCapsule(attackLine,1.5) then
 				--start the attack
 				status = STATUS_MOVING_ARM_INTO_ATTACK_POSITION
 				--manage reload timer
@@ -850,6 +807,9 @@ function BladeTower.new()
 		billboard:setVec3("bladeBlockedPos",Vec3(0,-1000000,0))
 		billboard:setVec3("bladeBlockedDir",Vec3(0,-1000000,0))
 		billboard:setInt("level", 1)
+		--
+		billboard:setDouble("DamageCurrentWave",0)
+		billboard:setDouble("DamagePreviousWave",0)
 		
 		--ComUnitCallbacks
 		comUnitTable["dmgDealt"] = damageDealt
@@ -1076,9 +1036,7 @@ function BladeTower.new()
 		billboard:setString("targetMods","")
 	
 		self.handleUpgrade(1)
-	
-		myStatsReset()
-	
+		
 		--soulManager
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})
 		targetSelector.setPosition(this:getGlobalPosition())

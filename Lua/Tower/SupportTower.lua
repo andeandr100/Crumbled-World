@@ -1,7 +1,6 @@
 require("Tower/upgrade.lua")
 require("NPC/state.lua")
 require("Tower/xpSystem.lua")
-require("stats.lua")
 require("Projectile/projectileManager.lua")
 require("Projectile/SwarmBall.lua")
 require("Game/campaignTowerUpg.lua")
@@ -15,10 +14,9 @@ function SwarmTower.new()
 	local TOWERRANGEMAX = 3.0
 	--
 	local self = {}
-	local myStats = {}
-	local myStatsTimer = 0
 	local waveCount = 0
-	local tStats = Stats.new()
+	local dmgDoneMarkOfDeath = 0
+	local goldEarned = 0
 	local cData = CampaignData.new()
 	local upgrade = Upgrade.new()
 	local cTowerUpg = CampaignTowerUpg.new("Tower/SupportTower.lua",upgrade)
@@ -133,42 +131,8 @@ function SwarmTower.new()
 	local function restartWave(param)
 		restoreWaveChangeStats( tonumber(param) )
 		sendSupporUpgrade()
-	end
-	
-	-- function:	myStatsReset
-	-- purpose:		resets the stats collected for the tower during the previous wave
-	local function myStatsReset()
-		if myStats.dmgDone then
-			billboard:setDouble("DamagePreviousWave",myStats.dmgDone)
-			billboard:setDouble("DamagePreviousWavePassive",myStats.dmgDoneMarkOfDeath or 0.0)
-			billboard:setDouble("goldEarnedPreviousWave",myStats.goldEarned)
-			billboard:setDouble("goldEarned",billboard:getDouble("goldEarned")+myStats.goldEarned)
-			comUnit:sendTo("stats", "addTotalDmg", myStats.dmgDone+(myStats.dmgDoneMarkOfDeath or 0.0) )
-		end
-		myStats = {	activeTimer=0.0,	
-					dmgDone=0,
-					dmgDoneMarkOfDeath=0,
-					goldEarned = 0,
-					inoverHeatTimer=0.0,
-					hitts=0,
-					projectileLaunched=0,
-					disqualified=false}
-		myStatsTimer = Core.getGameTime()
-	end
-	-- function:	damageDealt
-	-- purpose:		called when the tower have done some damage
-	-- param:		the amount of damage dealt
-	local function damageDealt(param)
-		abort()
-		myStats.dmgDone = myStats.dmgDone + tonumber(param)
-		billboard:setDouble("DamageCurrentWave",myStats.dmgDone)
-		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+myStats.dmgDone+(myStats.dmgDoneMarkOfDeath or 0.0))
-		if xpManager then
-			xpManager.addXp(tonumber(param))
-			local interpolation  = xpManager.getLevelPercentDoneToNextLevel()
-			upgrade.setInterpolation(interpolation)
-			upgrade.fixBillboardAndStats()
-		end
+		goldEarned = 0
+		dmgDoneMarkOfDeath = 0
 	end
 	-- function:	waveChanged
 	-- purpose:		called on wavechange. updates the towers stats
@@ -179,23 +143,11 @@ function SwarmTower.new()
 		--update and save stats only if we did not just restore this wave
 		if tonumber(waveCount)>=lastRestored then
 			if not xpManager then
-				--
-				if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>0 then
-					myStats.disqualified=nil
-					myStats.DPS =myStats.dmgDone/myStats.activeTimer
-					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-					myStats.hittsPerProjectile = myStats.hitts / myStats.projectileLaunched
-					--myStats.hitts=nil
-					local key = "damage"..upgrade.getLevel("damage").."_range"..upgrade.getLevel("range").."_weaken"..upgrade.getLevel("weaken").."_gold"..upgrade.getLevel("gold")
-					tStats.addValue({mapName,"wave"..name,"supportTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-					if myStats.activeTimer>1.0 then
-						for variable, value in pairs(myStats) do
-							tStats.setValue({mapName,"wave"..name,"supportTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
-						end
-					end
-				end
-				myStatsReset()
+				billboard:setDouble("DamagePreviousWave",0)
+				billboard:setDouble("DamagePreviousWavePassive",dmgDoneMarkOfDeath)
+				billboard:setDouble("goldEarnedPreviousWave",goldEarned)
+				billboard:setDouble("goldEarned",billboard:getDouble("goldEarned")+goldEarned)
+				comUnit:sendTo("stats", "addTotalDmg", dmgDoneMarkOfDeath )
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -206,24 +158,27 @@ function SwarmTower.new()
 		end
 		--tell every tower how it realy is
 		sendSupporUpgrade()
+		--
+		goldEarned = 0
+		dmgDoneMarkOfDeath = 0
 	end
 	-- function:	dmgDealtMarkOfDeath
 	-- purpose:		called when a unit has taken increased damage because of weaken
 	-- param:		the amount of damage increased
 	local function dmgDealtMarkOfDeath(param)
-		myStats.dmgDoneMarkOfDeath = myStats.dmgDoneMarkOfDeath + tonumber(param)
+		dmgDoneMarkOfDeath = dmgDoneMarkOfDeath + tonumber(param)
 		if xpManager then
 			xpManager.addXp(tonumber(param))
 		end
-		billboard:setDouble("DamageCurrentWavePassive",myStats.dmgDoneMarkOfDeath or 0.0)
+		billboard:setDouble("DamageCurrentWavePassive",dmgDoneMarkOfDeath)
 	end
 	-- function:	handleGoldStats
 	-- purpose:		called when a unit has died with the effect active
 	local function handleGoldStats(param)
 		local goldGained = tonumber(param)
-		myStats.goldEarned = myStats.goldEarned + goldGained
+		goldEarned = goldEarned + goldGained
 		totalGoaldEarned = totalGoaldEarned + goldGained
-		billboard:setDouble("goldEarnedCurrentWave",myStats.goldEarned)
+		billboard:setDouble("goldEarnedCurrentWave",goldEarned)
 		comUnit:sendTo("SteamStats","MaxGoldEarnedFromSingleSupportTower",totalGoaldEarned)
 		comUnit:sendTo("stats","addBillboardDouble","goldGainedFromSupportTowers;"..tostring(goldGained))
 	end
@@ -234,10 +189,7 @@ function SwarmTower.new()
 		if xpManager then
 			xpManager.updateXpToNextLevel()
 		end
-		if myStats.activeTimer and myStats.activeTimer>0.0001 then
-			myStats.disqualified = true
-		end
-		--
+
 		meshRange = upgrade.getLevel("range")==0 and nil or model:getMesh( "range"..upgrade.getLevel("range") )
 		if upgrade.getLevel("weaken")>0 then
 			weakenPer = upgrade.getValue("weaken")
@@ -609,6 +561,10 @@ function SwarmTower.new()
 		billboard:setString("FileName", "Tower/SupportTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
+		--
+		billboard:setDouble("DamagePreviousWave",0)
+		billboard:setDouble("DamagePreviousWavePassive",0)
+		billboard:setDouble("goldEarnedPreviousWave",0)
 	
 		--ComUnitCallbacks
 		comUnitTable["dmgDealt"] = damageDealt
@@ -796,8 +752,6 @@ function SwarmTower.new()
 	
 		initModel()
 		setCurrentInfo()
-	
-		myStatsReset()
 		
 		cTowerUpg.addUpg("range",self.handleUpgradeRange)
 		cTowerUpg.addUpg("damage",self.handleUpgradeDamage)

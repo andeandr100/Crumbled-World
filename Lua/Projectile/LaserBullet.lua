@@ -4,7 +4,7 @@ require("Game/targetSelector.lua")
 --Predeclaration for the inteligence
 
 LaserBullet = {name="LaserBullet"}
-function LaserBullet.new()
+function LaserBullet.new(pTargetSelector)
 	local self = {}
 	
 	local speed = 25.0
@@ -20,8 +20,7 @@ function LaserBullet.new()
 	local playerNode = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 	local comUnit = Core.getComUnit()
 	local billboard = Core.getBillboard()
-	local activeTeam = 1
-	local targetSelector = TargetSelector.new(activeTeam)
+	local targetSelector = pTargetSelector
 	
 	local particleEffectBullet = ParticleSystem( ParticleEffect.LaserBullet )
 	local particleEffectBullet2 = ParticleSystem( ParticleEffect.LaserBulletShine )

@@ -38,7 +38,6 @@ function EventBase.new()
 	local waitBase = wait
 	local state = 0
 	local mapFinishingLevel = 0
-	local tStats = Stats.new()
 	local mapStatId = ""
 	local steamStatMinPlayedTime = 0.0
 	local cData = CampaignData.new()
@@ -376,9 +375,6 @@ function EventBase.new()
 					currentState = EVENT_END_GAME
 				end
 			elseif currentState == EVENT_START_SPAWN then
-				--save the average of all waves played
-				tStats.save()
-				
 				--diff
 				spawnManager.spawnWave(waveRestarted)
 				currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD

@@ -1,4 +1,3 @@
-require("stats.lua")
 require("Game/mapInfo.lua")
 require("Game/campaignData.lua")
 --this = SceneNode()
@@ -34,7 +33,6 @@ function SpawnManager.new()
 	local disableUnits = {}
 	local npc = {}
 	local npcCounter = {}
-	local tStats = Stats.new()
 	local mapStatId = ""
 	local steamStatMinPlayedTime = 0.0
 	local cData = CampaignData.new()

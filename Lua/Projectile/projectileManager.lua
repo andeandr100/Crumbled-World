@@ -1,7 +1,7 @@
 projectileManager = {}
-function projectileManager.new()
+function projectileManager.new(pTargetSelector)
 	local self = {}
-	
+	local targetSelector = pTargetSelector
 	local notInUse = {}		--projectiles is stored here for fast reuse to a lower cost then creating a new projectile
 	local inUse = {size=0}	--projectiles that are in transit to there destinations
 	
@@ -14,7 +14,7 @@ function projectileManager.new()
 		local notUsed = notInUse[name]
 		--make sure that there use atleast one item left in the list
 		if notUsed.size==0 then
-			notUsed[1] = projectile.new()
+			notUsed[1] = projectile.new(targetSelector)
 			notUsed[1].projectileName = name
 			notUsed.size=1
 		end

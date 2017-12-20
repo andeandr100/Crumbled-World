@@ -3,7 +3,6 @@ require("Tower/upgrade.lua")
 require("Tower/xpSystem.lua")
 require("Tower/supportManager.lua")
 require("NPC/state.lua")
-require("stats.lua")
 require("Projectile/projectileManager.lua")
 require("Projectile/Arrow.lua")
 require("Projectile/ArrowMortar.lua")
@@ -14,11 +13,12 @@ require("Game/mapInfo.lua")
 ArrowTower = {}
 function ArrowTower.new()
 	local self = {}
-	local myStats = {}
-	local myStatsTimer = 0
 	local waveCount = 0
-	local projectiles = projectileManager.new()
-	local tStats = Stats.new()
+	local dmgDone = 0
+	local dmgDoneMarkOfDeath = 0
+	local activeTeam = 1
+	local targetSelector = TargetSelector.new(activeTeam)
+	local projectiles = projectileManager.new(targetSelector)
 	local cData = CampaignData.new()
 	local upgrade = Upgrade.new()
 	local supportManager = SupportManager.new()
@@ -57,8 +57,6 @@ function ArrowTower.new()
 	--Events
 	--Other
 	local syncTimer = 0.0
-	local activeTeam = 1
-	local targetSelector = TargetSelector.new(activeTeam)
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this	
 	local lastRestored = -1
@@ -137,34 +135,18 @@ function ArrowTower.new()
 		end
 	end
 	--
-	local function myStatsReset()
-		if myStats.dmgDone then
-			billboard:setDouble("DamagePreviousWave",myStats.dmgDone)
-			billboard:setDouble("DamagePreviousWavePassive",myStats.dmgDoneMarkOfDeath or 0.0)
-			billboard:setDouble("DamageTotal",billboard:getDouble("DamageTotal")+myStats.dmgDone)
-			comUnit:sendTo("stats", "addTotalDmg", myStats.dmgDone+(myStats.dmgDoneMarkOfDeath or 0.0) )
-		end
-		myStats = {	activeTimer=0.0,
-					hitts=0,
-					attacks=0,	
-					dmgDone=0,
-					dmgDoneMarkOfDeath=0,
-					dmgLost=0,
-					retargeted=0,
-					disqualified=false}
-		myStatsTimer = Core.getGameTime()
-	end
 	local function restartWave(param)
 		projectiles.clear()
 		supportManager.restartWave()
 		restoreWaveChangeStats( tonumber(param) )
+		dmgDone = 0
+		dmgDoneMarkOfDeath = 0
 	end
 	local function damageDealt(param)
 		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		myStats.hitts = myStats.hitts + 1
-		myStats.dmgDone = myStats.dmgDone + addDmg
-		billboard:setDouble("DamageCurrentWave",myStats.dmgDone)
-		billboard:setDouble("DamageCurrentWavePassive",myStats.dmgDoneMarkOfDeath or 0.0)
+		dmgDone = dmgDone + addDmg
+		billboard:setDouble("DamageCurrentWave",dmgDone)
+		billboard:setDouble("DamageCurrentWavePassive",dmgDoneMarkOfDeath or 0.0)
 		if xpManager then
 			xpManager.addXp(addDmg)
 			local interpolation  = xpManager.getLevelPercentDoneToNextLevel()
@@ -176,13 +158,7 @@ function ArrowTower.new()
 		if xpManager then
 			xpManager.addXp(tonumber(param))
 		end
-		myStats.dmgDoneMarkOfDeath = myStats.dmgDoneMarkOfDeath + tonumber(param)
-	end
-	local function damageLost(param)
-		myStats.dmgLost = myStats.dmgLost + tonumber(param)
-	end
-	local function retargeted(param)
-		myStats.retargeted = myStats.retargeted + 1
+		dmgDoneMarkOfDeath = dmgDoneMarkOfDeath + tonumber(param)
 	end
 	local function waveChanged(param)
 		local name
@@ -191,36 +167,10 @@ function ArrowTower.new()
 		--update and save stats only if we did not just restore this wave
 		if tonumber(waveCount)>=lastRestored then
 			if not xpManager then
-				--
-				if myStats.disqualified==false and upgrade.getLevel("boost")==0  and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0  then
-					myStats.disqualified=nil
-					myStats.DPS = myStats.dmgDone/myStats.activeTimer
-					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-					if upgrade.getLevel("markOfDeath")>0 then
-						myStats.DPSTmod = (myStats.dmgDone+myStats.dmgDoneMarkOfDeath)/myStats.activeTimer
-						myStats.DPSpGTmod = (myStats.dmgDone+myStats.dmgDoneMarkOfDeath)/upgrade.getTotalCost()
-						myStats.DPGTmod = (myStats.dmgDone+myStats.dmgDoneMarkOfDeath)/upgrade.getTotalCost()
-					end
-					--damage lost
-					if myStats.attacks>myStats.hitts then
-						if upgrade.getLevel("hardArrow")>0 then
-							myStats.dmgLost = myStats.dmgLost + ((upgrade.getValue("damage"))*(myStats.attacks-myStats.hitts))
-						else
-							myStats.dmgLost = myStats.dmgLost + (upgrade.getValue("damage")*(myStats.attacks-myStats.hitts))
-						end
-					end
-					myStats.dmgLostPer = myStats.dmgLost/(myStats.dmgDone+myStats.dmgLost)
-					myStats.DPSpGWithDamageLostInc = (myStats.DPS+(myStats.dmgLost/myStats.activeTimer))/upgrade.getTotalCost()
-					myStats.dmgLost = nil
-					--
-					local key = "range"..upgrade.getLevel("range").."_hardArrow"..upgrade.getLevel("hardArrow").."_markOfDeath"..upgrade.getLevel("markOfDeath")
-					tStats.addValue({mapName,"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-					for variable, value in pairs(myStats) do
-						tStats.setValue({mapName,"wave"..name,"arrowTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
-					end
-				end
-				myStatsReset()
+				billboard:setDouble("DamagePreviousWave",dmgDone)
+				billboard:setDouble("DamagePreviousWavePassive",dmgDoneMarkOfDeath)
+				billboard:setDouble("DamageTotal",billboard:getDouble("DamageTotal")+dmgDone)
+				comUnit:sendTo("stats", "addTotalDmg", dmgDone+dmgDoneMarkOfDeath )
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -229,6 +179,8 @@ function ArrowTower.new()
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
 		end
+		dmgDone = 0
+		dmgDoneMarkOfDeath = 0
 	end
 	
 	local function resetModel()
@@ -271,9 +223,6 @@ function ArrowTower.new()
 	local function setCurrentInfo()
 		if xpManager then
 			xpManager.updateXpToNextLevel()
-		end
-		if myStats.activeTimer and myStats.activeTimer>0.0001 then
-			myStats.disqualified = true
 		end
 		--xpToLevel	   = 1000.0*(1.5^level)
 		--range	 	  = upgrade.getValue("range")--info[upgradeLevel]["range"]*(1.025^level)*upgradeScopeRangeMultiplayer
@@ -506,8 +455,6 @@ function ArrowTower.new()
 				reloadTimeLeft = reloadTimeLeft + (1.0/upgrade.getValue("RPS"))--if we was supposed to fire this frame just add reload timer
 			end
 		
-			myStats.attacks = myStats.attacks + 1
-		
 			local projectile = "Arrow"
 			if upgrade.getLevel("boost")>0 then
 				projectiles.launch(ArrowMortar,{})
@@ -683,9 +630,6 @@ function ArrowTower.new()
 		updateTarget()
 		if targetSelector.getTargetIfAvailable()>0 then
 			updateSync()
-			--debug
-			myStats.activeTimer = myStats.activeTimer + Core.getDeltaTime()
-			--debug
 			local targetAt = targetSelector.getTargetPosition()-crossbowMesh:getGlobalPosition()
 			--rotate pipe toward the target
 			rotator.setFrameDataTargetAndUpdate(targetAt,pipeAt)
@@ -785,6 +729,10 @@ function ArrowTower.new()
 		billboard:setString("FileName", "Tower/ArrowTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
+		--
+		billboard:setDouble("DamagePreviousWave",0)
+		billboard:setDouble("DamagePreviousWavePassive",0)
+		billboard:setDouble("DamageTotal",0)
 	
 		--ComUnitCallbacks
 		comUnitTable["dmgDealt"] = damageDealt
@@ -997,8 +945,6 @@ function ArrowTower.new()
 	
 		setCurrentInfo()
 		resetModel()
-	
-		myStatsReset()
 	
 		local pipeAt = -crossbowMesh:getGlobalMatrix():getUpVec():normalizeV()
 		local angleLimit = upgrade.getValue("targetAngle")

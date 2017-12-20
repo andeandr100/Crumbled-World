@@ -81,7 +81,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			counter = counter - 1
 			--print("num souls "..counter)
 			
-			if currentIndex == data.id then
+			if currentIndex == data.id and healtBar then
 				healtBar:setValue(0)
 				healtBar:setText("0/"..(hpMax or 0))	
 				deadTimer = 7

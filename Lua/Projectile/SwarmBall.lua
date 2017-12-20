@@ -2,16 +2,15 @@ require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
 --this = SceneNode()
 SwarmBall = {name="SwarmBall"}
-function SwarmBall.new()
+function SwarmBall.new(pTargetSelector)
 	local self = {}
 	
+	local targetSelector = pTargetSelector
 	local calculatedFutherPosition = Vec3()
 	local timeLeft = 0.0
 	local speed = 6.0
 	local comUnit = Core.getComUnit()
 	local billboard = Core.getBillboard()
-	local activeTeam = 1
-	local targetSelector = TargetSelector.new(activeTeam)
 	
 	local node = SceneNode()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
@@ -45,6 +44,7 @@ function SwarmBall.new()
 	--stages of life in projectile
 	local LIFE_STAGE_TARGET_MIDPOINT = 1
 	local LIFE_STAGE_TARGET_ALIVE = 2
+	local LIFE_STAGE_LIMBO = 3
 	local LIFE_STAGE_PREPPING_TO_DIE = 4
 	local lifeStage = 0
 	
@@ -156,10 +156,10 @@ function SwarmBall.new()
 		targetIndex = tonumber(Core.getIndexOfNetworkName(table.targetName))
 		--position = table.s1--we always use the position to minimaze difference between start points
 		if targetIndex>0 then
-			if table.lifeStage==1 then
+			if table.lifeStage==LIFE_STAGE_TARGET_MIDPOINT then
 				local length = basicLengthEstimation(position)
 				PlotPathToMidPoint(length+3.0,position)
-			elseif table.lifeStage==2 then
+			elseif table.lifeStage==LIFE_STAGE_TARGET_ALIVE then
 				local length = 3.14*3.0*0.5
 				length = length + (length/speed*targetSelector.getTargetVelocity(targetIndex):length()) + 1.0
 				PlotPathToAbove(length)
@@ -171,9 +171,9 @@ function SwarmBall.new()
 			position = table.s1
 			local moveList = math.bezierCurve3D(table.s1, table.sd, table.ed, table.e1, table.dLevel)
 			pathList:setList( moveList )
-			if table.lifeStage==1 then
+			if table.lifeStage==LIFE_STAGE_TARGET_MIDPOINT then
 				lifeStage = LIFE_STAGE_TARGET_MIDPOINT
-			elseif table.lifeStage==2 then
+			elseif table.lifeStage==LIFE_STAGE_TARGET_ALIVE then
 				lifeStage = LIFE_STAGE_TARGET_MIDPOINT
 			else
 				lifeStage = LIFE_STAGE_TARGET_ALIVE
@@ -214,7 +214,7 @@ function SwarmBall.new()
 		if billboard:getBool("isNetOwner") then
 			syncTable.projectileNetName = thisProjectileNetName
 			syncTable.targetName = Core.getNetworkNameOf(targetIndex)
-			syncTable.lifeStage = 1
+			syncTable.lifeStage = LIFE_STAGE_TARGET_MIDPOINT
 			local d1 = syncTable
 			comUnit:sendNetworkSyncSafe("NetBall",tabToStrMinimal(syncTable))
 		end
@@ -267,8 +267,8 @@ function SwarmBall.new()
 				--we are out of range from the tower, try to find a new target
 				targetIndex = 0
 			end
-			manageIfTargetIsNotAvailable()
 			if pathList:willReachEnd() then
+				manageIfTargetIsNotAvailable()
 				if targetIndex>0 then
 					if lifeStage==LIFE_STAGE_TARGET_MIDPOINT then
 						local length = basicLengthEstimation(position)
@@ -277,7 +277,7 @@ function SwarmBall.new()
 						if billboard:getBool("isNetOwner") then
 							syncTable.projectileNetName = thisProjectileNetName
 							syncTable.targetName = Core.getNetworkNameOf(targetIndex)
-							syncTable.lifeStage = 3
+							syncTable.lifeStage = LIFE_STAGE_LIMBO
 							comUnit:sendNetworkSyncSafe("NetBall",tabToStrMinimal(syncTable))
 						end
 					else
@@ -296,7 +296,7 @@ function SwarmBall.new()
 						if billboard:getBool("isNetOwner") then
 							syncTable.projectileNetName = thisProjectileNetName
 							syncTable.targetName = Core.getNetworkNameOf(targetIndex)
-							syncTable.lifeStage = 2
+							syncTable.lifeStage = LIFE_STAGE_TARGET_ALIVE
 							comUnit:sendNetworkSyncSafe("NetBall",tabToStrMinimal(syncTable))
 						end
 						--

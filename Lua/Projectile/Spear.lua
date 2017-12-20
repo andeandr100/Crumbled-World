@@ -5,7 +5,7 @@ require("Game/targetSelector.lua")
 --this = SceneNode()
 
 Spear = {name="Spear"}
-function Spear.new()
+function Spear.new(pTargetSelector)
 	local self = {}
 	local attacked = {}
 	local sparkCenter
@@ -39,8 +39,7 @@ function Spear.new()
 	spear:setUniform(spear:getShader(), "heat", 0.0)
 
 	--targetingSystem
-	local activeTeam = 1
-	local targetSelector = TargetSelector.new(activeTeam)
+	local targetSelector = pTargetSelector
 	targetSelector.setPosition(this:getGlobalPosition())
 	targetSelector.setRange(range)
 

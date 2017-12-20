@@ -1,7 +1,6 @@
 require("Tower/upgrade.lua")
 require("Tower/xpSystem.lua")
 require("Tower/supportManager.lua")
-require("stats.lua")
 require("Projectile/projectileManager.lua")
 require("Projectile/missile.lua")
 require("Game/campaignTowerUpg.lua")
@@ -21,11 +20,10 @@ function MissileTower.new()
 	local targetHistoryCount = 0
 	
 	local waveCount = 0
-	local myStats = {}
-	local myStatsTimer = 0.0
-	local myStatDamageTimer = 0.0
-	local projectiles = projectileManager.new()
-	local tStats = Stats.new()
+	local dmgDone = 0
+	local activeTeam = 1
+	local targetSelector = TargetSelector.new(activeTeam)
+	local projectiles = projectileManager.new(targetSelector)
 	local cData = CampaignData.new()
 	local upgrade = Upgrade.new()
 	local supportManager = SupportManager.new()
@@ -49,8 +47,6 @@ function MissileTower.new()
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	--local soulManager
 	--local targetingSystem
-	local activeTeam = 1
-	local targetSelector = TargetSelector.new(activeTeam)
 	--stats
 	local mapName = MapInfo.new().getMapName()
 	
@@ -211,9 +207,6 @@ function MissileTower.new()
 		if xpManager then
 			xpManager.updateXpToNextLevel()
 		end
-		if myStats.activeTimer and myStats.activeTimer>0.01 then
-			myStats.disqualified = true
-		end
 		missilesAvailable = 0
 		for i = 1, 2+level, 1 do
 			missile[i] = missile[i] or {}
@@ -238,6 +231,7 @@ function MissileTower.new()
 		projectiles.clear()
 		supportManager.restartWave()
 		restoreWaveChangeStats( tonumber(param) )
+		dmgDone = 0
 	end
 	local function doMeshUpgradeForLevel(name,meshName)
 		model:getMesh(meshName..upgrade.getLevel(name)):setVisible(true)
@@ -409,29 +403,11 @@ function MissileTower.new()
 	function self.destroy()
 		projectiles.destroy()
 	end
-	local function myStatsReset()
-		if myStats.dmgDone then
-			billboard:setDouble("DamagePreviousWave",myStats.dmgDone)
-			comUnit:sendTo("stats", "addTotalDmg", myStats.dmgDone )
-		end
-		myStats = {	activeTimer=0.0,	
-					dmgDone=0.01,
-					unitsHitt=0,
-					uniqueHitts=0,
-					missileLaunched=0,
-					disqualified=false}
-		myStatsTimer = Core.getGameTime()
-	end
 	local function damageDealt(param)
 		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		if Core.getGameTime()-myStatDamageTimer<0.25 then
-			myStatDamageTimer = Core.getGameTime()
-			myStats.uniqueHitts = myStats.uniqueHitts + 1
-		end
-		myStats.dmgDone = myStats.dmgDone + addDmg
-		myStats.unitsHitt = myStats.unitsHitt + 1
-		billboard:setDouble("DamageCurrentWave",myStats.dmgDone)
-		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+myStats.dmgDone)
+		dmgDone = dmgDone + addDmg
+		billboard:setDouble("DamageCurrentWave",dmgDone)
+		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+dmgDone)
 		if xpManager then
 			xpManager.addXp(addDmg)
 			local interpolation  = xpManager.getLevelPercentDoneToNextLevel()
@@ -446,19 +422,8 @@ function MissileTower.new()
 		--update and save stats only if we did not just restore this wave
 		if tonumber(waveCount)>=lastRestored then
 			if not xpManager then
-				--
-				if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
-					myStats.disqualified=nil
-					myStats.DPS = myStats.dmgDone/myStats.activeTimer
-					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-					local key = "blaster"..upgrade.getLevel("Blaster").."_fuel"..upgrade.getLevel("fuel").."_shieldSmasher"..upgrade.getLevel("shieldSmasher").."_range"..upgrade.getLevel("range")
-					tStats.addValue({mapName,"wave"..name,"missileTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-					for variable, value in pairs(myStats) do
-						tStats.setValue({mapName,"wave"..name,"missileTower_l"..level,key,variable},value)
-					end
-				end
-				myStatsReset()
+				billboard:setDouble("DamagePreviousWave",dmgDone)
+				comUnit:sendTo("stats", "addTotalDmg", dmgDone )
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -467,6 +432,7 @@ function MissileTower.new()
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
 		end
+		dmgDone = 0
 	end
 	function self.SetTargetMode(param)
 		targetMode = math.clamp(tonumber(param),1,6)
@@ -583,14 +549,12 @@ function MissileTower.new()
 					missilesAvailable = missilesAvailable - 1
 				end
 			end
-			myStats.missileLaunched = myStats.missileLaunched + 1
 		end
 	end
 	--
 	function self.update()
 		comUnit:setPos(this:getGlobalPosition())
 		if upgrade.update() then
-			myStats.disqualified = true
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
 			--if the tower was upgraded while boosted, then the boost should be available
@@ -608,15 +572,6 @@ function MissileTower.new()
 			xpManager.update()
 		end
 		reloadMissiles()
-		--
-		--debug
-		--
-		if targetSelector.isAnyInRange() then
-			myStats.activeTimer = myStats.activeTimer + Core.getDeltaTime()
-		end
-		--
-		--debug
-		--
 		if missilesAvailable>0 and reloadTimeLeft<0 and updateTarget() then
 			attack()
 			upgrade.setUsed()--set value changed
@@ -693,7 +648,9 @@ function MissileTower.new()
 		billboard:setString("FileName", "Tower/missileTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
-		
+		--
+		billboard:setDouble("DamageCurrentWave",0)
+		billboard:setDouble("DamagePreviousWave",0)
 		
 		--upgrade
 		upgrade.addUpgrade( {	cost = 200,
@@ -923,7 +880,6 @@ function MissileTower.new()
 		initModel()
 		setCurrentInfo()
 		
-		myStatsReset()
 		cTowerUpg.addUpg("range",self.handleRange)
 		cTowerUpg.addUpg("Blaster",self.handleBlaster)
 		cTowerUpg.addUpg("fuel",self.handleFuel)

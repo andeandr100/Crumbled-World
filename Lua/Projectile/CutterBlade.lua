@@ -5,7 +5,7 @@ require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
 --this = SceneNode()
 CutterBlade = {name="CutterBlade"}
-function CutterBlade.new()
+function CutterBlade.new(pTargetSelector)
 	local self = {}
 	local sparkCenter
 	local pointLight
@@ -44,8 +44,7 @@ function CutterBlade.new()
 	blade:setUniform(blade:getShader(), "heat", 0.0)
 
 	--targetingSystem
-	local activeTeam = 1
-	local targetSelector = TargetSelector.new(activeTeam)
+	local targetSelector = pTargetSelector
 
 	local function attack(target,startPos)
 		--ParticleEffectElectricFlash("Lightning_D.tga")

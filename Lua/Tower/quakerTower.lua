@@ -2,7 +2,6 @@ require("Tower/upgrade.lua")
 require("Tower/xpSystem.lua")
 require("Tower/supportManager.lua")
 require("NPC/state.lua")
-require("stats.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
 require("Game/particleEffect.lua")
@@ -13,9 +12,8 @@ QuakeTower = {}
 function QuakeTower.new()
 	local self = {}
 	--stats
-	local tStats = Stats.new()
 	local waveCount = 1
-	local myStats = {}
+	local dmgDone = 0
 	--States
 	local DROPPING = 1		--dropping the log to attack the enemy close by
 	local RELOADING = 2		--pulling up the log
@@ -129,38 +127,23 @@ function QuakeTower.new()
 	local function restartWave(param)
 		supportManager.restartWave()
 		restoreWaveChangeStats( tonumber(param) )
+		dmgDone = 0
 	end
 	
 	--
 	--	XP / stats
 	--
-	local function myStatsReset()
-		if myStats.dmgDone then
-			billboard:setDouble("DamagePreviousWave",myStats.dmgDone)
-			comUnit:sendTo("stats", "addTotalDmg", myStats.dmgDone )
-		end
-		myStats = {	activeTimer=0.0,
-					hitts=0,
-					attacks=0,	
-					dmgDone=0.01,
-					disqualified=false}
-		myStatsTimer = Core.getGameTime()
-	end
 	local function damageDealt(param)
 		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		myStats.hitts = myStats.hitts + 1
-		myStats.dmgDone = myStats.dmgDone + addDmg
-		billboard:setDouble("DamageCurrentWave",myStats.dmgDone)
-		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+myStats.dmgDone)
+		dmgDone = dmgDone + addDmg
+		billboard:setDouble("DamageCurrentWave",dmgDone)
+		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+dmgDone)
 		if xpManager then
 			xpManager.addXp(addDmg)
 			local interpolation  = xpManager.getLevelPercentDoneToNextLevel()
 			upgrade.setInterpolation(interpolation)
 			upgrade.fixBillboardAndStats()
 		end
-	end
-	local function damageLost(param)
-		myStats.dmgLost = myStats.dmgLost + tonumber(param)
 	end
 	local function waveChanged(param)
 		local name
@@ -169,21 +152,9 @@ function QuakeTower.new()
 		--update and save stats only if we did not just restore this wave
 		if tonumber(waveCount)>=lastRestored then
 			if not xpManager then
-				--
-				if myStats.disqualified==false and upgrade.getLevel("boost")==0  and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
-					myStats.disqualified = nil
-					myStats.DPS = myStats.dmgDone/myStats.activeTimer
-					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-					myStats.hittsPerAttack = myStats.hitts/myStats.attacks
-					--
-					local key = "fireCrit"..upgrade.getLevel("fireCrit").."_fireStrike"..upgrade.getLevel("fireStrike").."_electricStrike"..upgrade.getLevel("electricStrike")
-					tStats.addValue({mapName,"wave"..name,"quakeTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-					for variable, value in pairs(myStats) do
-						tStats.setValue({mapName,"wave"..name,"quakeTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
-					end
-				end
-				myStatsReset()
+				billboard:setDouble("DamagePreviousWave",dmgDone)
+				comUnit:sendTo("stats", "addTotalDmg", dmgDone )
+				dmgDone = 0
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -200,10 +171,6 @@ function QuakeTower.new()
 		if xpManager then
 			xpManager.updateXpToNextLevel()
 		end
-		if myStats.activeTimer and myStats.activeTimer>0.0001 then
-			myStats.disqualified = true
-		end
-		
 		if towerState~=DROPPING then
 			towerState = READY
 			reloadTimeLeft = 0.0
@@ -472,9 +439,6 @@ function QuakeTower.new()
 		end
 	end
 	local function attack()
-		--stats
-		myStats.attacks = myStats.attacks + 1
-		--
 		local damageDone = 0
 		targetSelector.setRange(upgrade.getValue("range"))
 		targetSelector.selectAllInRange()
@@ -595,10 +559,6 @@ function QuakeTower.new()
 		if xpManager then
 			xpManager.update()
 		end
-		--stats
-		if DEBUG and targetSelector.selectAllInRange() and targetSelector.isAnyInRange() then
-			myStats.activeTimer = myStats.activeTimer + Core.getDeltaTime()--debug
-		end
 		--Tower spesefic stuff
 		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
 		if towerState==HOLD_READY then
@@ -704,8 +664,6 @@ function QuakeTower.new()
 		if particleEffectUpgradeAvailable then
 			this:addChild(particleEffectUpgradeAvailable)
 		end
-		--
-		myStatsReset()
 	
 		--ComUnit
 		comUnit:setCanReceiveTargeted(true)
@@ -722,6 +680,9 @@ function QuakeTower.new()
 		billboard:setString("FileName", "Tower/quakerTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
+		--
+		billboard:setDouble("DamageCurrentWave",0)
+		billboard:setDouble("DamagePreviousWave",0)
 	
 		--ComUnitCallbacks
 		comUnitTable["dmgDealt"] = damageDealt

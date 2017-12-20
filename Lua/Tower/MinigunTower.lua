@@ -5,7 +5,6 @@ require("Tower/supportManager.lua")
 require("NPC/state.lua")
 require("Projectile/LaserBullet.lua")
 require("Projectile/projectileManager.lua")
-require("stats.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
@@ -14,12 +13,12 @@ require("Game/mapInfo.lua")
 MinigunTower = {}
 function MinigunTower.new()
 	local self = {}
-	local projectiles = projectileManager.new()
-	local myStats = {	}
-	local myStatsTimer = 0
+	local activeTeam = 1
+	local targetSelector = TargetSelector.new(activeTeam)
+	local projectiles = projectileManager.new(targetSelector)
+	local dmgDone = 0
 	local waveCount = 0
 	local smartTargetingRetargetTime = 0.0
-	local tStats = Stats.new()
 	local supportManager = SupportManager.new()
 	--Upgrade
 	local upgrade = Upgrade.new()
@@ -73,8 +72,6 @@ function MinigunTower.new()
 	local machinegunActiveTimeWithoutOverheat = 0.0
 	--other
 	local syncTargetTimer = 0.0
-	local activeTeam = 1
-	local targetSelector = TargetSelector.new(activeTeam)
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	local lastRestored = -1
@@ -158,19 +155,6 @@ function MinigunTower.new()
 			end
 		end
 	end
-	
-	local function myStatsReset()
-		if myStats.dmgDone then
-			billboard:setDouble("DamagePreviousWave",myStats.dmgDone)
-			billboard:setDouble("DamagePreviousWavePassive",0.0)
-			comUnit:sendTo("stats", "addTotalDmg", myStats.dmgDone )
-		end
-		myStats = {	activeTimer=0.0,	
-					dmgDone=0,
-					inoverHeatTimer=0.0,
-					disqualified=false}
-		myStatsTimer = Core.getGameTime()
-	end
 	local function setRotatorSpeed(multiplyer)
 		local pi=math.pi
 		rotator.setSpeedHorizontalMaxMinAcc(pi*1.45*multiplyer,pi*0.275*multiplyer,pi*1.30*multiplyer)
@@ -194,19 +178,14 @@ function MinigunTower.new()
 		overheatAdd = (1.0/upgrade.getValue("overheat")/upgrade.getValue("RPS") + (overheatDec*reloadTime))
 	end
 	function restartWave(param)
-		myStats.disqualified = true
-		myStatsReset()
-		--
 		projectiles.clear()
 		supportManager.restartWave()
 		restoreWaveChangeStats( tonumber(param) )
+		dmgDone = 0
 	end
 	local function setCurrentInfo()
 		if xpManager then
 			xpManager.updateXpToNextLevel()
-		end
-		if myStats.activeTimer and myStats.activeTimer>0.01 then
-			myStats.disqualified = true
 		end
 		
 		updateStats()
@@ -232,9 +211,9 @@ function MinigunTower.new()
 	end
 	local function damageDealt(param)
 		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		myStats.dmgDone = myStats.dmgDone + addDmg
-		billboard:setDouble("DamageCurrentWave",myStats.dmgDone)
-		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+myStats.dmgDone)
+		dmgDone = dmgDone + addDmg
+		billboard:setDouble("DamageCurrentWave",dmgDone)
+		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+dmgDone)
 		if xpManager then
 			xpManager.addXp(addDmg)
 			updateStats()
@@ -248,21 +227,9 @@ function MinigunTower.new()
 		if tonumber(waveCount)>=lastRestored then
 			if not xpManager then
 				--
-				if myStats.disqualified==false and upgrade.getLevel("boost")==0 and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
-					myStats.disqualified=nil
-					myStats.cost = upgrade.getTotalCost()
-					myStats.DPS = myStats.dmgDone/myStats.activeTimer
-					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-					if upgrade.getLevel("overCharge")==0 then myStats.inoverHeatTimer=nil end
-					local key = "range"..upgrade.getLevel("range").."_overCharge"..upgrade.getLevel("overCharge").."_fireCrit"..upgrade.getLevel("fireCrit")
-					tStats.addValue({mapName,"wave"..name,"minigunTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-					table.sort( myStats, cmp_multitype )
-					for variable, value in pairs(myStats) do
-						tStats.setValue({mapName,"wave"..name,"minigunTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
-					end
-				end
-				myStatsReset()
+				billboard:setDouble("DamagePreviousWave",dmgDone)
+				billboard:setDouble("DamagePreviousWavePassive",0.0)
+				comUnit:sendTo("stats", "addTotalDmg", dmgDone )
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -271,6 +238,7 @@ function MinigunTower.new()
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
 		end
+		dmgDone = 0
 	end
 	local function initModel()
 		for index =1, upgrade.getLevel("upgrade"), 1 do
@@ -795,6 +763,9 @@ function MinigunTower.new()
 		billboard:setString("FileName", "Tower/MinigunTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
+		--
+		billboard:setDouble("DamagePreviousWave",0)
+		billboard:setDouble("DamagePreviousWavePassive",0)
 	
 		-- UPGRADES
 		billboard:setDouble("rangePerUpgrade",0.75)
@@ -994,12 +965,6 @@ function MinigunTower.new()
 		cTowerUpg.addUpg("fireCrit",self.upgradeGreaseBullet)
 		cTowerUpg.fixAllPermBoughtUpgrades()--fix the permanant upgrades from the shop
 		
-		myStatsReset()
-		
---		if upgrade.getFreeSubUpgradeCounts()>0 then
---			abort()
---		end
-		
 		return true
 	end
 	init()
@@ -1018,7 +983,6 @@ function MinigunTower.new()
 	end
 	function self.update()	
 		if upgrade.update() then
-			myStats.disqualified = true
 			pipeRotateTimer = 0.0
 			initModel()
 			setCurrentInfo()
@@ -1114,9 +1078,6 @@ function MinigunTower.new()
 		end
 		--if we are not fiering the pipe will cooldown
 		if upgrade.getLevel("overCharge")>0 then
-			--debug stats
-			if overheated then myStats.inoverHeatTimer = myStats.inoverHeatTimer + Core.getDeltaTime() end
-			--debug stats
 			local mat = model:getMesh( "engine" ):getGlobalMatrix()
 			if upgrade.getLevel("upgrade")==3 then
 				particleEffectSmoke[0]:setEmitterPos( (this:getGlobalMatrix():inverseM()*(mat:getPosition() + (mat:getAtVec()*0.18) - (mat:getUpVec()*0.95) + (mat:getRightVec()*0.16))) )
@@ -1173,16 +1134,7 @@ function MinigunTower.new()
 		--projectiles
 		--
 		projectiles.update()
-		--
-		--debug stats
-		--
-		if targetSelector.isTargetAvailable() then
-			if not overheated then myStats.activeTimer = myStats.activeTimer + Core.getDeltaTime() end
-		end
-		--
-		--debug stats
-		--
-	
+		
 		--model:render()
 		return true
 	end

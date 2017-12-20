@@ -2,7 +2,7 @@ require("Game/targetSelector.lua")
 --this = SceneNode()
 
 Arrow = {name="Arrow"}
-function Arrow.new()
+function Arrow.new(pTargetSelector)
 	local self = {}
 	local targetIndex = 0
 	local startPos = Vec3()
@@ -18,7 +18,7 @@ function Arrow.new()
 	local comUnit = Core.getComUnit()
 	local billboard = Core.getBillboard()
 	local activeTeam = 1
-	local targetSelector = TargetSelector.new(activeTeam)
+	local targetSelector = pTargetSelector
 	--scenNode
 	local node = SceneNode()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)

@@ -12,12 +12,15 @@ require("Game/mapInfo.lua")
 SwarmTower = {}
 function SwarmTower.new()
 	local self = {}
+	--targetSelector
+	local activeTeam = 1
+	local targetSelector = TargetSelector.new(activeTeam)
 	local piston = {}
 	local targetHistory = {0,0,0,0, 0,0,0,0}
 	local targetHistoryToken = 1
 	local dmgDone = 0
 	local waveCount = 0
-	local projectiles = projectileManager.new()
+	local projectiles = projectileManager.new(targetSelector)
 	local cData = CampaignData.new()
 	local upgrade = Upgrade.new()
 	local supportManager = SupportManager.new()
@@ -43,9 +46,6 @@ function SwarmTower.new()
 	--Events
 	restartListener = Listener("Restart")
 	--sound
-	--targetSelector
-	local activeTeam = 1
-	local targetSelector = TargetSelector.new(activeTeam)
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	--stats
@@ -121,6 +121,7 @@ function SwarmTower.new()
 		supportManager.restartWave()
 		restoreWaveChangeStats( tonumber(param) )
 		projectiles.clear()
+		dmgDone = 0
 	end
 
 	local function damageDealt(param)
@@ -152,6 +153,7 @@ function SwarmTower.new()
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
 		end
+		dmgDone = 0
 	end
 	local function updateStats()
 		targetSelector.setRange(upgrade.getValue("range"))
@@ -281,43 +283,45 @@ function SwarmTower.new()
 		end
 	end
 	local function updateTarget()
-		targetSelector.selectAllInRange()
-		targetSelector.filterOutState(state.ignore)
-		targetSelector.scoreState(state.markOfDeath,5)
-		if targetMode==1 then
-			--target high prioriy
-			targetSelector.scoreHP(20)
-			targetSelector.scoreName("reaper",30)
-			targetSelector.scoreName("skeleton_cf",25)
-			targetSelector.scoreName("skeleton_cb",25)
-			targetSelector.scoreName("dino",20)
-			targetSelector.scoreState(state.burning,-10)
-			targetSelector.scoreSelectedTargets( targetHistory, -10 )
-		elseif targetMode==2 then
-			--attackClosestToExit
-			targetSelector.scoreClosestToExit(30)
-			targetSelector.scoreState(state.burning,-10)
-			targetSelector.scoreSelectedTargets( targetHistory, -5 )
-			targetSelector.scoreHP(10)
-		elseif targetMode==3 then
-			--target weakest unit
-			targetSelector.scoreHP(-25)
-			targetSelector.scoreClosestToExit(15)
-			targetSelector.scoreState(state.burning,-5)
-			targetSelector.scoreSelectedTargets( targetHistory, -5 )
-		elseif targetMode==4 then
-			--attackStrongestTarget
-			targetSelector.scoreHP(30)
-			targetSelector.scoreClosestToExit(20)
-			targetSelector.scoreState(state.burning,-5)
-			targetSelector.scoreSelectedTargets( targetHistory, -5 )
-		end
-		
-		targetSelector.scoreName("fireSpirit",-1000)
-		targetSelector.scoreState(state.highPriority,30)
-		targetSelector.selectTargetAfterMaxScore(-500)
+		if targetSelector.selectAllInRange() then
+			targetSelector.filterOutState(state.ignore)
+			targetSelector.scoreState(state.markOfDeath,5)
+			if targetMode==1 then
+				--target high prioriy
+				targetSelector.scoreHP(20)
+				targetSelector.scoreName("reaper",30)
+				targetSelector.scoreName("skeleton_cf",25)
+				targetSelector.scoreName("skeleton_cb",25)
+				targetSelector.scoreName("dino",20)
+				targetSelector.scoreState(state.burning,-10)
+				targetSelector.scoreSelectedTargets( targetHistory, -10 )
+			elseif targetMode==2 then
+				--attackClosestToExit
+				targetSelector.scoreClosestToExit(30)
+				targetSelector.scoreState(state.burning,-10)
+				targetSelector.scoreSelectedTargets( targetHistory, -5 )
+				targetSelector.scoreHP(10)
+			elseif targetMode==3 then
+				--target weakest unit
+				targetSelector.scoreHP(-25)
+				targetSelector.scoreClosestToExit(15)
+				targetSelector.scoreState(state.burning,-5)
+				targetSelector.scoreSelectedTargets( targetHistory, -5 )
+			elseif targetMode==4 then
+				--attackStrongestTarget
+				targetSelector.scoreHP(30)
+				targetSelector.scoreClosestToExit(20)
+				targetSelector.scoreState(state.burning,-5)
+				targetSelector.scoreSelectedTargets( targetHistory, -5 )
+			end
 			
-		return targetSelector.isTargetAvailable()
+			targetSelector.scoreName("fireSpirit",-1000)
+			targetSelector.scoreState(state.highPriority,30)
+			targetSelector.selectTargetAfterMaxScore(-500)
+				
+			return targetSelector.isTargetAvailable()
+		end
+		return false
 	end
 	local function doMeshUpgradeForLevel(name,meshName)
 		model:getMesh(meshName..upgrade.getLevel(name)):setVisible(true)

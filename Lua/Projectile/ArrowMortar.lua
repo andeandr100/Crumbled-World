@@ -3,7 +3,7 @@ require("Game/targetSelector.lua")
 --this = SceneNode()
 
 ArrowMortar = {name="ArrowMortar"}
-function ArrowMortar.new()
+function ArrowMortar.new(pTargetSelector)
 	local self = {}
 	local movment = 0.0
 	local targetIndex = 0
@@ -23,8 +23,7 @@ function ArrowMortar.new()
 	local hittStrength = 1
 	local comUnit = Core.getComUnit()
 	local billboard = Core.getBillboard()
-	local activeTeam = 1
-	local targetSelector = TargetSelector.new(activeTeam)
+	local targetSelector = pTargetSelector
 		
 	--scenNode
 	local node = SceneNode()

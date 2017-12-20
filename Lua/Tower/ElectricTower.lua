@@ -2,7 +2,6 @@ require("Tower/upgrade.lua")
 require("Tower/xpSystem.lua")
 require("Tower/supportManager.lua")
 require("NPC/state.lua")
-require("stats.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
@@ -12,10 +11,8 @@ ElectricTower = {}
 function ElectricTower.new()
 	local MAXTHEORETICALENERGYTRANSFERRANGE = (4+2.25)*1.3+0.75
 	local self = {}
-	local myStats = {}
-	local myStatsTimer = 0
 	local waveCount = 0
-	local tStats = Stats.new()
+	local dmgDone = 0
 	local cData = CampaignData.new()
 	local upgrade = Upgrade.new()
 	local supportManager = SupportManager.new()
@@ -142,6 +139,7 @@ function ElectricTower.new()
 	local function restartWave(param)
 		supportManager.restartWave()
 		restoreWaveChangeStats( tonumber(param) )
+		dmgDone = 0
 	end
 	
 	local function doLightning(targetPosition,sphere)
@@ -225,14 +223,6 @@ function ElectricTower.new()
 		--stats
 		energySent = energySent + willSend
 		comUnit:sendTo("SteamStats","ElectricTowerMaxEnergySent",energySent)
-		print("========== energySent == "..energySent)
-		--	
-		--debug
-		--
-		myStats.transferedEnergy = myStats.transferedEnergy or 0
-		myStats.transferedEnergyLost = myStats.transferedEnergyLost or 0
-		myStats.transferedEnergy = myStats.transferedEnergy + willSend
-		myStats.transferedEnergyLost = myStats.transferedEnergyLost
 	end
 	local function updateAskForEnergy()
 		--we wait for 2 frames so all offer can be heard at the same time
@@ -284,11 +274,6 @@ function ElectricTower.new()
 			LinkAchievement = true
 			comUnit:sendTo("SteamAchievement","Link","")
 		end
-		--
-		--debug
-		--
-		myStats.recivedEnergy = myStats.recivedEnergy or 0
-		myStats.recivedEnergy = myStats.recivedEnergy + tonumber(parameter)
 	end
 	local function updateStats()
 		slow =			upgrade.getValue("slow")
@@ -305,9 +290,6 @@ function ElectricTower.new()
 	local function setCurrentInfo()
 		if xpManager then
 			xpManager.updateXpToNextLevel()
-		end
-		if myStats.activeTimer and myStats.activeTimer>0.0001 then
-			myStats.disqualified = true
 		end
 
 		--dmg =			   upgrade.getValue("damage")--info[upgradeLevel]["dmg"]*(1.02^level);
@@ -488,34 +470,17 @@ function ElectricTower.new()
 		end
 		setCurrentInfo()
 	end
-	local function myStatsReset()
-		if myStats.dmgDone then
-			billboard:setDouble("DamagePreviousWave",myStats.dmgDone)
-			comUnit:sendTo("stats", "addTotalDmg", myStats.dmgDone )
-		end
-		myStats = {	activeTimer=0.0,
-					hitts=0,
-					attacks=0,	
-					dmgDone=0.01,
-					dmgLost=0.01,
-					disqualified=false}
-		myStatsTimer = Core.getGameTime()
-	end
 	local function damageDealt(param)
 		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		myStats.hitts = myStats.hitts + 1
-		myStats.dmgDone = myStats.dmgDone + addDmg
-		billboard:setDouble("DamageCurrentWave",myStats.dmgDone)
-		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+myStats.dmgDone)
+		dmgDone = dmgDone + addDmg
+		billboard:setDouble("DamageCurrentWave",dmgDone)
+		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+dmgDone)
 		if xpManager then
 			xpManager.addXp(addDmg)
 			local interpolation  = xpManager.getLevelPercentDoneToNextLevel()
 			upgrade.setInterpolation(interpolation)
 			upgrade.fixBillboardAndStats()
 		end
-	end
-	local function damageLost(param)
-		myStats.dmgLost = myStats.dmgLost + tonumber(param)
 	end
 	local function waveChanged(param)
 		local name
@@ -524,25 +489,8 @@ function ElectricTower.new()
 		--update and save stats only if we did not just restore this wave
 		if tonumber(waveCount)>=lastRestored then
 			if not xpManager then
-				--
-				if myStats.disqualified==false and upgrade.getLevel("boost")==0  and Core.getGameTime()-myStatsTimer>0.25 and myStats.activeTimer>1.0 then
-					myStats.disqualified = nil
-					myStats.DPS = myStats.dmgDone/myStats.activeTimer
-					myStats.DPSpG = myStats.DPS/upgrade.getTotalCost()
-					myStats.DPG = myStats.dmgDone/upgrade.getTotalCost()
-					--damage lost
-					myStats.dmgLostPer = myStats.dmgLost/(myStats.dmgDone+myStats.dmgLost)
-					myStats.DPSpGWithDamageLostInc = (myStats.DPS+(myStats.dmgLost/myStats.activeTimer))/upgrade.getTotalCost()
-					myStats.dmgLost = nil
-					myStats.dmgLost = nil
-					--
-					local key = "ampedSlow"..upgrade.getLevel("ampedSlow").."_energy"..upgrade.getLevel("energy").."_energyPool"..upgrade.getLevel("energyPool").."_range"..upgrade.getLevel("range")
-					tStats.addValue({mapName,"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,"sampleSize"},1)
-					for variable, value in pairs(myStats) do
-						tStats.setValue({mapName,"wave"..name,"electricTower_l"..upgrade.getLevel("upgrade"),key,variable},value)
-					end
-				end
-				myStatsReset()
+				billboard:setDouble("DamagePreviousWave",dmgDone)
+				comUnit:sendTo("stats", "addTotalDmg", dmgDone )
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -551,6 +499,7 @@ function ElectricTower.new()
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
 		end
+		dmgDone = 0
 	end
 	local function NetSyncTarget(param)
 		local target = tonumber(Core.getIndexOfNetworkName(param))
@@ -641,7 +590,6 @@ function ElectricTower.new()
 					else
 						comUnit:broadCast(targetPosition,slowRange,"slow",{per=slow,time=SlowDuration,type="electric"})
 					end
-					myStats.attacks = myStats.attacks + 1
 				end
 			else
 				--forcefield hitt
@@ -662,8 +610,6 @@ function ElectricTower.new()
 					local futurePosition = targetPosition
 					local hitTime = "1.25"
 					comUnit:sendTo(shieldIndex,"addForceFieldEffect",tostring(oldPosition.x)..";"..oldPosition.y..";"..oldPosition.z..";"..futurePosition.x..";"..futurePosition.y..";"..futurePosition.z..";"..hitTime)
-					--
-					myStats.attacks = myStats.attacks + 1
 				end
 			end
 		end
@@ -738,9 +684,6 @@ function ElectricTower.new()
 		end
 		--ask fo energy
 		lastEnergyRequest = lastEnergyRequest + Core.getDeltaTime()
-		if targetSelector.isAnyInRange() then
-			myStats.activeTimer = myStats.activeTimer + Core.getDeltaTime()--debug
-		end
 		if energy<energyMax*0.95 and lastEnergyRequest>(targetSelector.isAnyInRange() and 0.4 or 1.0) then--can ask 1/s or 2/s if there is any enemies in range
 			lastEnergyRequest = 0.0
 			if targetSelector.isAnyInRange() then
@@ -830,6 +773,9 @@ function ElectricTower.new()
 		billboard:setVec3("GlobalPosition",this:getGlobalPosition())
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
+		--
+		billboard:setDouble("DamagePreviousWave",0)
+		billboard:setDouble("DamageCurrentWave",0)
 	
 		--ComUnitCallbacks
 		comUnitTable["dmgDealt"] = damageDealt
@@ -1128,7 +1074,6 @@ function ElectricTower.new()
 		targetSelector.setRange(1.0)
 		
 		setCurrentInfo()
-		myStatsReset()
 		cTowerUpg.addUpg("range",self.handleUpgradeRange)
 		cTowerUpg.addUpg("ampedSlow",self.handleUpgradeSlow)
 		cTowerUpg.addUpg("energyPool",self.handleUpgradeEnergyPool)
