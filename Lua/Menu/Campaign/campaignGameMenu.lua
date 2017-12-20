@@ -386,6 +386,9 @@ function CampaignGameMenu.new(panel)
 		windowShop.setVisible(true)
 		form:setVisible(false)
 	end
+	local function updateCrystalButton()
+		crystalCountLabel:setText( Text(tostring(campaignData.getCrystal())) )
+	end
 	local function addMapInfoPanel(panel)
 		local infoPanel = panel:add(Panel(PanelSize(Vec2(-1, -1))))
 	--	infoPanel:getPanelSize():setFitChildren(false, true)
@@ -472,13 +475,14 @@ function CampaignGameMenu.new(panel)
 		image:setUvCoord(Vec2(0.5, 0.375),Vec2(0.625, 0.4375))
 --		image:setBackground(Sprite(Vec3(1)))
 		image:setCanHandleInput(false)
-		local crystalCountLabel = shopButton:add(Label(PanelSize(Vec2(-1,-0.9),Vec2(2,1)), Text(tostring(campaignData.getCrystal())), labelColor, Alignment.MIDDLE_RIGHT))
---		crystalCountLabel:setBackground(Sprite(Vec3(0.5)))
+		crystalCountLabel = shopButton:add(Label(PanelSize(Vec2(-1,-0.9),Vec2(2,1)), Text(tostring(campaignData.getCrystal())), labelColor, Alignment.MIDDLE_RIGHT))
 		crystalCountLabel:setTextColor(Vec3(0.5,1,0.5))
 		crystalCountLabel:setCanHandleInput(false)
 		
 		labels[6] = shopButton
 		labels[6]:setTag("shop")
+		
+		
 	end
 	local function mapInfoLoaded()
 		local mapFolder = Core.getDataFolder("Map")
@@ -498,7 +502,7 @@ function CampaignGameMenu.new(panel)
 	local function init()
 		local camera = this:getRootNode():findNodeByName("MainCamera")
 		if camera then
-			windowShop = Shop.new(camera)
+			windowShop = Shop.new(camera, updateCrystalButton)
 			windowShop.setParentForm(form)
 		end
 		--CampaignGameMenu.mapTable = {}

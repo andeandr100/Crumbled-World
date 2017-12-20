@@ -6,7 +6,7 @@ require("Game/campaignData.lua")
 
 --this = SceneNode()
 Shop = {}
-function Shop.new(camera)
+function Shop.new(camera, updateCrystalButton)
 	--mainAreaPanel = Panel()
 	local self = {}
 	--camera = Camera()
@@ -15,6 +15,7 @@ function Shop.new(camera)
 	local shopPanel = nil
 	local crystalCountLabel = nil
 	local buyPanel = nil
+	local updateCrystalCallback = updateCrystalButton
 	
 	local data = ShopFunction.data
 	local language = Language() 
@@ -108,7 +109,10 @@ function Shop.new(camera)
 			comUnit:sendTo("SteamAchievement","Shop100","")
 		end
 		print("data.getTotalBuyablesBought() == "..data.getTotalBuyablesBought())
-
+		
+		if updateCrystalCallback then
+			updateCrystalCallback()
+		end
 	end
 
 	--
@@ -188,9 +192,10 @@ function Shop.new(camera)
 			
 		end
 		
-		button:setToolTip( ShopFunction.getShopToolTip(towerName, upgIndex, upgLevel) )
+		local isPreviousUpgradeInCart = upgLevel ~= 1 and (buyPanel and buyPanel.isUpgradeInCart(upgIndex, towerName, upgLevel-1))
+		button:setToolTip( ShopFunction.getShopToolTip(towerName, upgIndex, upgLevel, isPreviousUpgradeInCart, ShopFunction.data.getCrystal() - (buyPanel and buyPanel.getCost() or 0 )) )
 		
-		if (not isUpgBought) and (upgLevel==1 or (ShopFunction.isUpgradeBought(towerInfo, towerName, upgLevel-1)) or (buyPanel and buyPanel.isUpgradeInCart(upgIndex, towerName, upgLevel-1)) ) and data.getCrystal() >= ShopFunction.getUpgradeCost(towerInfo, towerName, upgLevel) then
+		if (not isUpgBought) and (upgLevel==1 or (ShopFunction.isUpgradeBought(towerInfo, towerName, upgLevel-1)) or isPreviousUpgradeInCart ) and data.getCrystal() >= ShopFunction.getUpgradeCost(towerInfo, towerName, upgLevel) then
 			--not bought
 			local tab = {towerName=towerName, towerInfo=towerInfo, upgLevel=upgLevel, upgIndex=upgIndex}
 			button:setTag(tabToStrMinimal(tab))

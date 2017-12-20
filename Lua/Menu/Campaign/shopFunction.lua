@@ -69,14 +69,14 @@ function ShopFunction.getCostForUpgrade(towerName,upgNameIndex, upgradeLevel)
 	return ShopFunction.getUpgradeCost(ShopFunction.towerUpgInfo[towerName][upgNameIndex], towerName, upgradeLevel)
 end
 	
-function ShopFunction.getShopToolTip(towerName,upgNameIndex, upgradeLevel)
+function ShopFunction.getShopToolTip(towerName,upgNameIndex, upgradeLevel, isPreviousUpgradeInCart, crystalLeft)
 
 	local tabUppgrade = ShopFunction.towerUpgInfo[towerName][upgNameIndex]
 	local str = Text()
 
 	local upgradeAllreadyBought = (upgradeLevel == 4 and ShopFunction.data.getBoughtUpg(towerName,tabUppgrade.name,true) == 1) or (ShopFunction.data.getBoughtUpg(towerName,tabUppgrade.name,false) >= upgradeLevel )
 	local canBeBought = true
-	if upgradeLevel>1 then
+	if upgradeLevel>1 and not isPreviousUpgradeInCart then
 		canBeBought = (upgradeLevel == 4 and ShopFunction.data.getBoughtUpg(towerName,tabUppgrade.name,false) >= 3) or (ShopFunction.data.getBoughtUpg(towerName,tabUppgrade.name,false) >= (upgradeLevel-1) )
 	end
 	if upgradeLevel == 4 then
@@ -120,7 +120,7 @@ function ShopFunction.getShopToolTip(towerName,upgNameIndex, upgradeLevel)
 	str = str + "\n"
 
 	local cost = ShopFunction.getUpgradeCost(ShopFunction.towerUpgInfo[towerName][upgNameIndex], towerName, upgradeLevel)--(upgradeLevel==4) and 12 or upgradeLevel
-	local canAffordToPay = ShopFunction.data.getCrystal()>=cost
+	local canAffordToPay = crystalLeft>=cost
 	local textHeight = Core.getScreenResolution().y * 0.0125
 	local costLabel = Label(PanelSize(Vec2(-1), Vec2(3,1)), Text(tostring(cost)), canAffordToPay and Vec3(0,1,0) or Vec3(1,0,0), Alignment.TOP_RIGHT )
 	costLabel:setTextHeight(textHeight)

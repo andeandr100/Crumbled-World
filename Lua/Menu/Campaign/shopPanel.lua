@@ -176,6 +176,10 @@ function ShopPanel.new(shopPanel)
 		return false
 	end
 	
+	function self.getCost()
+		return cost
+	end
+	
 	function self.addItem(button)
 		
 		local upgTab = totable(button:getTag():toString())
@@ -191,16 +195,22 @@ function ShopPanel.new(shopPanel)
 			return false
 		end
 		
-		countItems = countItems + 1
-		local tab = item8Panels[countItems]
+		
+		local tab = item8Panels[countItems + 1]
+		local upgCost = ShopFunction.getCostForUpgrade(upgTab.towerName, upgTab.upgIndex, upgTab.upgLevel)
 		print("item8Panels: "..tostring(item8Panels))
 		print("tab: "..tostring(tab))
 		print("upgTab: "..tostring(upgTab))
+		
+		if (cost + upgCost) > ShopFunction.data.getCrystal() then
+			return false
+		end
 		
 		if countItems == 1 then
 			setBuyPanelEnable(true)
 		end
 		
+		countItems = countItems + 1
 		local aButton, rootPanel = ShopFunction.createIconButton( tab.panel, upgTab.towerInfo.iconIndex, upgTab.upgLevel, true )
 		
 		
@@ -216,12 +226,12 @@ function ShopPanel.new(shopPanel)
 		aButton:addEventCallbackMouseFocusLost(hidePanel)
 		aButton:addEventCallbackExecute(removeItemByButton)
 		
-		aButton:setToolTip( ShopFunction.getShopToolTip(upgTab.towerName, upgTab.upgIndex, upgTab.upgLevel) )
+		aButton:setToolTip( ShopFunction.getShopToolTip(upgTab.towerName, upgTab.upgIndex, upgTab.upgLevel, true, 999) )
 		
 		tab.button = aButton
 		tab.xIcon = xIcon
 		tab.rootPanel = rootPanel
-		tab.cost = ShopFunction.getCostForUpgrade(upgTab.towerName, upgTab.upgIndex, upgTab.upgLevel)
+		tab.cost = upgCost
 		tab.upgTab = upgTab
 		tab.id = button:getPanelId()
 		
