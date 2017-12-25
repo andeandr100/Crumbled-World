@@ -6,7 +6,7 @@ require("Menu/settings.lua")
 
 GamePanel = {}
 GamePanel.labels = {}
-GamePanel.labelsText =  { "game", "island smoke", "floating stones", "health bar", "death animation", "corpse timer", "tower menu", "player", "name"}
+GamePanel.labelsText =  { "game", "health bar", "death animation", "corpse timer", "tower menu", "player", "name", "3", "4"}
 GamePanel.optionsBoxes = {}
 
 function GamePanel.create(mainPanel)
@@ -70,34 +70,28 @@ function GamePanel.createGameOptions(panel)
 	
 	labels[1] = OptionsMenuStyle.addOptionsHeader( panel, "Game" )
 		
-	rowPanel, labels[2] = OptionsMenuStyle.addRow(panel, "Island smoke")
-	conf = Settings.islandSmoke
-	GamePanel.optionsBoxes[1] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
 	
-	rowPanel, labels[3] = OptionsMenuStyle.addRow(panel, "Floating stones")
-	conf = Settings.floatingStones
-	GamePanel.optionsBoxes[2] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
 	
-	rowPanel, labels[4] = OptionsMenuStyle.addRow(panel, "Health bar")
+	rowPanel, labels[2] = OptionsMenuStyle.addRow(panel, "Health bar")
 	conf = Settings.healthBar
+	GamePanel.optionsBoxes[1] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
+	
+	rowPanel, labels[3] = OptionsMenuStyle.addRow(panel, "Death animation")
+	conf = Settings.DeathAnimation
+	GamePanel.optionsBoxes[2] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
+
+	rowPanel, labels[4] = OptionsMenuStyle.addRow(panel, "corpse timer")
+	conf = Settings.corpseTimer
 	GamePanel.optionsBoxes[3] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
 	
-	rowPanel, labels[5] = OptionsMenuStyle.addRow(panel, "Death animation")
-	conf = Settings.DeathAnimation
-	GamePanel.optionsBoxes[4] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
-
-	rowPanel, labels[6] = OptionsMenuStyle.addRow(panel, "corpse timer")
-	conf = Settings.corpseTimer
-	GamePanel.optionsBoxes[5] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
-	
-	rowPanel, labels[7] = OptionsMenuStyle.addRow(panel, "tower menu")
+	rowPanel, labels[5] = OptionsMenuStyle.addRow(panel, "tower menu")
 	conf = Settings.towerMenu
-	GamePanel.optionsBoxes[6] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
+	GamePanel.optionsBoxes[4] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
 	
 	--userName
-	labels[8] = OptionsMenuStyle.addOptionsHeader( panel, "Player" )
+	labels[6] = OptionsMenuStyle.addOptionsHeader( panel, "Player" )
 	
-	rowPanel, labels[9] = OptionsMenuStyle.addRow(panel, "Name")
+	rowPanel, labels[7] = OptionsMenuStyle.addRow(panel, "Name")
 	local textField = rowPanel:add(MainMenuStyle.createTextField(Vec2(-0.45,-1), Vec2(),Settings.multiplayerName.getSettings()))
 	textField:addEventCallbackChanged(GamePanel.changedSettingsString)
 	textField:addEventCallbackExecute(GamePanel.updateClientName)
