@@ -650,12 +650,18 @@ function update()
 		
 		if Core.getTime()-netSyncTimer>0.5 then
 			
-			local kills = 0
-			local speed = billboard:exist("speed") and billboard:getInt("speed") or 1
-			local str = Core.getNetworkClient():getUserName()..";"..Core.getNetworkClient():getClientId()..";"..billboard:getInt("gold")..";"..math.round(totalDamage)..";"..speed..";"..math.floor(Core.getNetworkClient():getPing()*1000)..";"..averageDamage..";"..kills
-			
-			comUnit:sendNetworkSyncSafeTo("InGameMenu","NETclientInfo",str)
-			comUnit:sendTo("InGameMenu","NETclientInfo",str)
+			local dataTab = { name = Core.getNetworkClient():getUserName(),
+							clientId = Core.getNetworkClient():getClientId(),
+							gold = billboard:getInt("gold"),
+							totalDamage = math.round(totalDamage),
+							averageDamage = math.round(averageDamage),
+							speed = billboard:exist("speed") and billboard:getInt("speed") or 1,		
+							ping = math.floor(Core.getNetworkClient():getPing()*1000),
+							kills = math.round(billboard:getDouble("killCount"))
+						}
+			local tabstr = tabToStrMinimal(dataTab)
+			comUnit:sendNetworkSyncSafeTo("InGameMenu","NETclientInfo",tabstr)
+			comUnit:sendTo("InGameMenu","NETclientInfo",tabstr)
 			netSyncTimer = Core.getTime()
 		end
 	end
