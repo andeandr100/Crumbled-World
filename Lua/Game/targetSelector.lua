@@ -29,6 +29,8 @@ function TargetSelector.new(pteam)
 	--
 	--
 	--
+	-- function:	updateTablesToUse
+	-- purpose:		updates table(updateTablesToUse) with all areas that can be used,(areas that are reachable from position with range and angles)
 	function updateTablesToUse(forceUpdate)
 		soulManagerBillboard = soulManagerBillboard or Core.getBillboard("SoulManager")
 		if soulManagerBillboard then
@@ -60,33 +62,43 @@ function TargetSelector.new(pteam)
 			end
 		end
 	end
+	-- function:	setPosition
+	-- purpose:		sets the placement of the targetSelecter
 	function self.setPosition(pos)
 		--assert(pos, "When TargetSelector.setPosition(pos), pos must be a Vec3()")
 		position = pos
 		updateTablesToUse(FORCEUPDATE)
 	end
+	-- function:	setAngleLimits
+	-- purpose:		limits the target angle. [used by arrowTower]
 	function self.setAngleLimits(pipeAt,angleLimit)
 		defaultPipeAt = pipeAt
 		defaultAngleLimit = angleLimit
 	end
+	-- function:	setRange
+	-- purpose:		set the raduius where we can attack
 	function self.setRange(pRange)
 		range = pRange
 		updateTablesToUse(FORCEUPDATE)
 	end
-	function self.disableRealityCheck()
-		if isThisReal then
-			return true
-		end
-		soulManagerBillboard = Core.getBillboard("SoulManager")
-		if soulManagerBillboard then
-			isThisReal = true
-			return true
-		end
-		return false
-	end
+	-- function:	disableRealityCheck
+	-- purpose:		
+--	function self.disableRealityCheck()
+--		if isThisReal then
+--			return true
+--		end
+--		soulManagerBillboard = Core.getBillboard("SoulManager")
+--		if soulManagerBillboard then
+--			isThisReal = true
+--			return true
+--		end
+--		return false
+--	end
 	--
 	--
 	--
+	-- function:	toBits
+	-- purpose:		returns a table like 9 = {1,0,0,1} where [1]=1 [2]=2 [3]=4 [4]=8
 	local function toBits(num)
 		local t={}
 		while num>0 do
@@ -99,6 +111,8 @@ function TargetSelector.new(pteam)
 		end
 		return t
 	end
+	-- function:	updateSoulsTable
+	-- purpose:		updates all npcs that can be targeted and lists them in table(soulTable) wich uses area keys
 	local function updateSoulsTable()
 		if isThisReal and Core.getFrameNumber()~=soulTableLastUpdatedFrame then
 			soulTableLastUpdatedFrame = Core.getFrameNumber()
@@ -121,6 +135,8 @@ function TargetSelector.new(pteam)
 			end
 		end
 	end
+	-- function:	updateShieldGenTable
+	-- purpose:		lists all shile carring units (turtle). max 3
 	local function updateShieldGenTable()
 		if isThisReal and Core.getGameTime()-shieldGenTableLastUpdated>1.0 then
 			shieldGenTableLastUpdatedFrame = Core.getGameTime()
@@ -135,6 +151,8 @@ function TargetSelector.new(pteam)
 	--
 	--	getters
 	--
+	-- function:	isInRange
+	-- purpose:		returns true if target or selected if no target is given, is in range
 	local function isInRange(target)
 		if self.isTargetAlive(target) then
 			local effectiveRange = range + (self.isTargetInStateAShieldGenerator(target) and SHIELD_RANGE or 0.0)
@@ -150,6 +168,8 @@ function TargetSelector.new(pteam)
 		end
 		return false
 	end
+	-- function:	isAnyInRange
+	-- purpose:		returns true if any enemy is in range
 	function self.isAnyInRange()
 		for index,soul in pairs(soulTable) do
 			if isInRange(index) then
@@ -158,6 +178,8 @@ function TargetSelector.new(pteam)
 		end
 		return false
 	end
+	-- function:	isAnyInCapsule
+	-- purpose:		returns true if any enemy is inside the capsule
 	function self.isAnyInCapsule(line,lineRange)
 		--get all souls on the map
 		updateSoulsTable()
@@ -170,6 +192,8 @@ function TargetSelector.new(pteam)
 		return false
 	end
 	--
+	-- function:	getIndexOfShieldCovering
+	-- purpose:		returns one shiled that covers that area or returns 0 if no shield covers it
 	function self.getIndexOfShieldCovering(globalPosition)
 		updateShieldGenTable()
 		--
@@ -180,25 +204,37 @@ function TargetSelector.new(pteam)
 		end
 		return 0
 	end
+	-- function:	isTargetAlive
+	-- purpose:		returns true if target npc is alive
 	function self.isTargetAlive(target)
 		local soulBillboard = Core.getBillboard(target or currentTarget)
 		return soulBillboard and soulBillboard:getBool("isAlive")
 	end
+	-- function:	isTargetInStateAShieldGenerator
+	-- purpose:		returns true if target is a turtle
 	function self.isTargetInStateAShieldGenerator(target)
 		local soul = soulTable[target or currentTarget]
 		return soul and toBits(soul.state)[binaryNumPos[state.shieldGenerator]]==1
 	end
+	-- function:	isTargetInState
+	-- purpose:		returns true if target is i state
 	function self.isTargetInState(target, state)
 		local soul = soulTable[target or currentTarget]
 		return soul and toBits(soul.state)[binaryNumPos[state]]==1
 	end
+	-- function:	isTargetNamed
+	-- purpose:		returns true if target is named name
 	function self.isTargetNamed(name)
 		local soul = soulTable[currentTarget]
 		return (soul and soul.name==name)
 	end
+	-- function:	isTargetAvailable
+	-- purpose:		retruns true if current target is in range
 	function self.isTargetAvailable()
 		return (currentTarget>0 and soulTable[currentTarget] and isInRange(currentTarget))--hp has nothing to do with if the npc can be targeted
 	end
+	-- function:	getTargetPosition
+	-- purpose:		returns the current position of the target if alive
 	function self.getTargetPosition(target)
 		local soulBillboard = Core.getBillboard(target or currentTarget)
 		local retPos = Vec3()
@@ -210,6 +246,8 @@ function TargetSelector.new(pteam)
 		end
 		return retPos
 	end
+	-- function:	getTargetVelocity
+	-- purpose:		returns the current valocity of the target if alive
 	function self.getTargetVelocity(target)
 		local retVec = Vec3()
 		local soulBillboard = Core.getBillboard(target or currentTarget)
@@ -221,6 +259,8 @@ function TargetSelector.new(pteam)
 		end
 		return retVec
 	end
+	-- function:	getFuturePos
+	-- purpose:		returns the future position of a target x time from now if alive
 	function self.getFuturePos(target,time)
 		local retPos = Vec3()
 		local soulBillboard = Core.getBillboard(target or currentTarget)
@@ -232,6 +272,8 @@ function TargetSelector.new(pteam)
 		end
 		return retPos
 	end
+	-- function:	getTargetHP
+	-- purpose:		returns the current hp od the target
 	function self.getTargetHP(target)
 		local hp = -1.0
 		local soulBillboard = Core.getBillboard(target or currentTarget)
@@ -240,9 +282,13 @@ function TargetSelector.new(pteam)
 		end
 		return hp
 	end
+	-- function:	getTarget
+	-- purpose:		returns the currently active target(currentTarget)
 	function self.getTarget()
 		return currentTarget
 	end
+	-- function:	getTargetIfAvailable
+	-- purpose:		returns the currently active target if available
 	function self.getTargetIfAvailable()
 		if self.isTargetAvailable() then
 			return currentTarget
@@ -253,6 +299,8 @@ function TargetSelector.new(pteam)
 	--
 	--	Selecter functions
 	--
+	-- function:	selectAllInRange
+	-- purpose:		seleact all enemies in range
 	function self.selectAllInRange()
 		local ret = false
 		--
@@ -274,6 +322,8 @@ function TargetSelector.new(pteam)
 		end
 		return ret
 	end
+	-- function:	selectAllInCapsule
+	-- purpose:		selects all enemies in capsule
 	function self.selectAllInCapsule(line,lineRange)
 		local ret = false
 		--
@@ -295,6 +345,8 @@ function TargetSelector.new(pteam)
 		end
 		return ret
 	end
+	-- function:	selectTargetAfterMaxScore
+	-- purpose:		selects  the target with max score, with a minimum of minimumScore
 	function self.selectTargetAfterMaxScore(minimumScore)
 		local maxScore
 		currentTarget = 0
@@ -306,6 +358,8 @@ function TargetSelector.new(pteam)
 		end
 		return currentTarget
 	end
+	-- function:	selectTargetAfterMaxScorePer
+	-- purpose:		selects the target with minimum score of minimumScore and is places places closed in percentage on the table
 	function self.selectTargetAfterMaxScorePer(minimumScore,percentage)
 		currentTarget = 0
 		local tab = {}
@@ -334,6 +388,8 @@ function TargetSelector.new(pteam)
 		currentTarget = tab[a2].index
 		return currentTarget
 	end
+	-- function:	selectTargetCountAfterMaxScore
+	-- purpose:
 	function self.selectTargetCountAfterMaxScore(minimumScore,count)
 		currentTarget = 0
 		local tab = {}
@@ -367,9 +423,13 @@ function TargetSelector.new(pteam)
 		end
 		return ret
 	end
+	-- function:	getAllTargets
+	-- purpose:		returns all targets index and score
 	function self.getAllTargets()
 		return targetTable
 	end
+	-- function:	getAllSouls
+	-- purpose:		returns souls of all targets
 	function self.getAllSouls()
 		local tab = {}
 		for index,score in pairs(targetTable) do
@@ -380,21 +440,29 @@ function TargetSelector.new(pteam)
 		end
 		return tab
 	end
+	-- function:	getAllTargetCount
+	-- purpose:		returns the number of targets
 	function self.getAllTargetCount()
 		return targetTableCount
 	end
+	-- function:	setTarget
+	-- purpose:		manualy set what target to target
 	function self.setTarget(target)
 		currentTarget = target
 		if not self.isTargetAvailable() then
 			currentTarget = 0
 		end
 	end
+	-- function:	deselect
+	-- purpose:		manually deselect selected target
 	function self.deselect()
 		currentTarget = 0
 	end
 	--
 	--	filters
 	--
+	-- function:	filterSphere
+	-- purpose:		filter all targets in sphere
 	function self.filterSphere(sphere,filterAwayTargetsInSphere)
 		for index,score in pairs(targetTable) do
 			local soul = soulTable[index]
@@ -413,6 +481,8 @@ function TargetSelector.new(pteam)
 			end
 		end
 	end
+	-- function:	filterOutState
+	-- purpose:		filter out all targets in state
 	function self.filterOutState(state)
 		for index,score in pairs(targetTable) do
 			if toBits(soulTable[index].state)[binaryNumPos[state]]==1 then
@@ -423,7 +493,8 @@ function TargetSelector.new(pteam)
 	--
 	--	Score functions
 	--
-	--add score to all souls in table 
+	-- function:	scoreSelectedTargets
+	-- purpose:		add score to all souls in table 
 	function self.scoreSelectedTargets(table,addScore)
 		local scoredTable = {}
 		for i,index in pairs(table) do
@@ -433,7 +504,8 @@ function TargetSelector.new(pteam)
 			end
 		end
 	end
-	--score all souls by how much HP they have
+	-- function:	scoreHP
+	-- purpose:		score all souls by how much HP they have
 	function self.scoreHP(amount)
 		local maxHP = 1.0
 		for index,score in pairs(targetTable) do
@@ -443,7 +515,8 @@ function TargetSelector.new(pteam)
 			targetTable[index] = score + (soulTable[index].hp/maxHP)*amount
 		end
 	end
-	--add score based on how close they are to the exit 1*amount if litterly on the end and 0*amount if the furthest unit
+	-- function:	scoreClosestToExit
+	-- purpose:		add score based on how close they are to the exit 1*amount if litterly on the end and 0*amount if the furthest unit
 	function self.scoreClosestToExit(amount)
 		local maxDist = 0.0
 		for index,score in pairs(targetTable) do
@@ -453,7 +526,8 @@ function TargetSelector.new(pteam)
 			targetTable[index] = score + (1.0-(soulTable[index].distanceToExit/maxDist))*amount
 		end
 	end
-	--add score to unit if name match
+	-- function:	scoreName
+	-- purpose:		add score to unit if name match
 	function self.scoreName(name,addScore)
 		for index,score in pairs(targetTable) do
 			if soulTable[index].name==name then
@@ -461,7 +535,8 @@ function TargetSelector.new(pteam)
 			end
 		end
 	end
-	--add score if state matches
+	-- function:	scoreState
+	-- purpose:		add score if state matches
 	function self.scoreState(inState,addScore)
 		for index,score in pairs(targetTable) do
 			if toBits(soulTable[index].state)[binaryNumPos[inState]]==1 then
@@ -469,7 +544,8 @@ function TargetSelector.new(pteam)
 			end
 		end
 	end
-	--
+	-- function:	scoreClosest
+	-- purpose:		add score to targets depending on how far awway they are
 	function self.scoreClosest(amount)
 		local maxDist = 0.0
 		for index,score in pairs(targetTable) do
@@ -479,6 +555,8 @@ function TargetSelector.new(pteam)
 			targetTable[index] = score + (1.0-(soulTable[index].position-position):length()/maxDist)*amount
 		end
 	end
+	-- function:	scoreDensity
+	-- purpose:		adds score based on density
 	function self.scoreDensity(amount)
 		local max = 0.0
 		local npcCount = {}
@@ -492,12 +570,15 @@ function TargetSelector.new(pteam)
 			targetTable[index] = score + (npcCount[index]/max*amount)
 		end
 	end
-	function self.scoreRandom(maxScoreToAdd)
-		for index,score in pairs(targetTable) do
-			targetTable[index] = score + math.randomFloat(0.0,maxScoreToAdd)
-		end
-	end
-	--add score depending on distant to line
+	-- function:	expand
+	-- purpose:
+--	function self.scoreRandom(maxScoreToAdd)
+--		for index,score in pairs(targetTable) do
+--			targetTable[index] = score + math.randomFloat(0.0,maxScoreToAdd)
+--		end
+--	end
+	-- function:	scoreClosestToVector
+	-- purpose:		adds score depending on distant to line
 	function self.scoreClosestToVector(atVector,amount)
 		local maxDist = 0.0
 		for index,score in pairs(targetTable) do
@@ -512,6 +593,8 @@ function TargetSelector.new(pteam)
 	--
 	--
 	--
+	-- function:	expand
+	-- purpose:
 	local function init()
 		team = pteam
 	end
