@@ -627,7 +627,6 @@ function ArrowTower.new()
 		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
 		local pipeAt = -crossbowMesh:getGlobalMatrix():getUpVec():normalizeV()
 		--find new target if target is unavailable
-		updateTarget()
 		if targetSelector.getTargetIfAvailable()>0 then
 			updateSync()
 			local targetAt = targetSelector.getTargetPosition()-crossbowMesh:getGlobalPosition()
@@ -647,6 +646,7 @@ function ArrowTower.new()
 				end
 			end
 		else
+			updateTarget()
 			--if no target, update pipe to make it look alive
 			rotator.setFrameDataAndUpdate(pipeAt)
 			rotaterMesh:rotate(Vec3(0.0,0.0,1.0), rotator.getHorizontalRotation())

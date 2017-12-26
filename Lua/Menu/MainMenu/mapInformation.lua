@@ -115,9 +115,9 @@ function MapInformation.getMapInfoFromFileName(fileName, filePath)
 			end
 		end		
 	end
-	if not (fileName=="Downloads" or fileName=="blackWorld") then
-		abort()
-	end
+--	if not (fileName=="Downloads" or fileName=="blackWorld" or fileName=="Campaign") then
+--		abort()
+--	end
 	return nil
 end
 

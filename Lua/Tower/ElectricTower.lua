@@ -133,6 +133,9 @@ function ElectricTower.new()
 				energy = tab.energy
 				self.SetTargetMode(tab.currentTargetMode)
 				boostedOnLevel = tab.boostedOnLevel
+				
+				--
+				print("restoreWaveChangeStats() energy="..tostring(energy))
 			end
 		end
 	end
@@ -218,6 +221,7 @@ function ElectricTower.new()
 		local canOffer = canOfferEnergy()
 		local willSend = canOffer>neededEnergy and neededEnergy or canOffer
 		comUnit:sendTo(fromIndex,"sendEnergyTo",tostring(willSend))
+		print("sendEnergyTo() "..tostring(energy-willSend).." = "..tostring(energy).." - "..tostring(willSend))
 		energy = energy - willSend
 		doLightning(parameter.pos+Vec3(0.0,2.75,0.0))
 		--stats
@@ -257,6 +261,9 @@ function ElectricTower.new()
 		energyOffers[energyOffers.size] = {offer=parameter,from=fromIndex}
 	end
 	local function recivingEnergy(parameter, fromIndex)
+		local pos = this:getGlobalPosition() + (math.randomVec3()*0.5)
+		Core.addDebugLine(pos,pos+Vec3(0,4,0), 3.0, Vec3(0,0,1))
+		print("recivingEnergy() "..tostring(energy + tonumber(parameter)).." = "..tostring(energy).." + "..tostring(tonumber(parameter)))
 		energy = energy + tonumber(parameter)
 		--print("["..LUA_INDEX.."]recivedEnergy(energy="..energy..")="..parameter.."\n")
 		local energyMax = upgrade.getValue("energyMax")
@@ -265,6 +272,7 @@ function ElectricTower.new()
 			if diff>2 then--ops we got to much energy send it back. no fancy show, it was pure unluck
 				comUnit:sendTo(fromIndex,"sendEnergyTo",tostring(diff))
 			end
+			print("recivingEnergy() energy = energyMax("..tostring(energyMax)..")")
 			energy = energyMax
 		end
 		--
@@ -276,10 +284,14 @@ function ElectricTower.new()
 		end
 	end
 	local function updateStats()
+		local pos = this:getGlobalPosition() + (math.randomVec3()*0.5)
+		Core.addDebugLine(pos,pos+Vec3(0,4,0), 3.0, Vec3(1,1,0))
+		--
 		slow =			upgrade.getValue("slow")
 		slowRange = 	upgrade.getValue("slowRange")
 		SlowDuration =	upgrade.getValue("slowTimer")
 		energy =			upgrade.getValue("energyMax")--info[upgradeLevel]["energyMax"]
+		print("updateStats() energy = energyMax("..tostring(upgrade.getValue("energyMax"))..")")
 		energyReg =		 	upgrade.getValue("energyReg")--info[upgradeLevel]["energyMax"]/info[upgradeLevel][chargeTime]
 		AttackEnergyCost =	upgrade.getValue("attackCost")
 		oneDamageCost =		upgrade.getValue("attackCost")/upgrade.getValue("damage")
@@ -578,10 +590,12 @@ function ElectricTower.new()
 				if doLightning(targetPosition) then
 					local hp = targetSelector.getTargetHP(target)
 					local totalKillCost = math.max(minAttackCost,hp*oneDamageCost)
-					if totalKillCost<AttackEnergyCost then				
+					if totalKillCost<AttackEnergyCost then
+						print("attack() "..tostring(energy - totalKillCost).." = "..tostring(energy).." - "..tostring(totalKillCost))
 						energy = energy - totalKillCost
 						comUnit:sendTo(target,"attackElectric",tostring(totalKillCost/oneDamageCost+(hp*1.015)))--+regen for dino with 50% extra
 					else
+						print("attack() "..tostring(energy - AttackEnergyCost).." = "..tostring(energy).." - "..tostring(AttackEnergyCost))
 						energy = energy - AttackEnergyCost
 						comUnit:sendTo(target,"attackElectric",tostring(upgrade.getValue("damage")))
 					end
@@ -599,9 +613,11 @@ function ElectricTower.new()
 					local hp = targetSelector.getTargetHP(shieldIndex)--shieldIndex was target
 					local totalKillCost = math.max(minAttackCost,hp*oneDamageCost)
 					if totalKillCost<AttackEnergyCost then				
+						print("attack() "..tostring(energy - totalKillCost).." = "..tostring(energy).." - "..tostring(totalKillCost))
 						energy = energy - totalKillCost
 						comUnit:sendTo(shieldIndex,"attack",tostring(totalKillCost/oneDamageCost))
 					else
+						print("attack() "..tostring(energy - AttackEnergyCost).." = "..tostring(energy).." - "..tostring(AttackEnergyCost))
 						energy = energy - AttackEnergyCost
 						comUnit:sendTo(shieldIndex,"attack",tostring(upgrade.getValue("damage")))
 					end
@@ -617,6 +633,11 @@ function ElectricTower.new()
 	end
 	local function updateEnergy()
 		local regenMul = targetSelector.isAnyInRange() and 1.0 or 1.5
+		if upgrade.getValue("energyMax")>=energy + (energyReg*Core.getDeltaTime()*regenMul) then
+			print("updateEnergy() energy = "..tostring(energy).." + "..tostring(energyReg*Core.getDeltaTime()*regenMul))
+		else
+			print("updateEnergy() energy = energyMax("..tostring(upgrade.getValue("energyMax"))..")")
+		end
 		energy = math.min(upgrade.getValue("energyMax"),energy + (energyReg*Core.getDeltaTime()*regenMul))
 		billboard:setFloat("energy", energy )
 	end
@@ -673,9 +694,9 @@ function ElectricTower.new()
 		--update the energy asking
 		updateAskForEnergy()
 		--if we can attack the enemy
-		updateTarget()
 		updateSync()
 		if energy>AttackEnergyCost and reloadTimeLeft<0.0 then
+			updateTarget()
 			if targetSelector.getTargetIfAvailable()>0 then
 				local targetAt = targetSelector.getTargetPosition(targetSelector.getTarget())-ring[1]:getGlobalPosition()
 				attack()
@@ -716,8 +737,6 @@ function ElectricTower.new()
 				ring[3]:rotate(Vec3(0,0,1), rotationThisFrame*(math.randomFloat()*0.5+0.5))
 			end
 		end
-	
-		--model:render()
 		return true
 	end
 	--

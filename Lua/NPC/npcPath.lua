@@ -148,8 +148,7 @@ function NpcPath.new()
 			
 			
 		else
-			abort()
-			print("No path bilboard was found")
+			error("No path bilboard was found")
 		end
 	end
 	

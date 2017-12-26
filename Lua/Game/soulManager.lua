@@ -51,22 +51,22 @@ function SoulManager.new()
 	end
 	
 	-- function:	updateShieldGenTable
-	-- purpose:		Updates the global list of all enemies that are shield generators (turtle)
+	-- purpose:		Updates the global list of all enemies that are shield generators (turtles)
 	local function updateShieldGenTable()
-		local str = ""
-		local count = 0
+		local tab = {}
 		for index,isSet in pairs(shieldGenerators) do
 			local soul = soulTable[index]
 			if soul then
-				if count==0 then
-					str = string.format("%d,%.2f,%.2f,%.2f",index,soul.position.x,soul.position.y,soul.position.z)
-				else
-					str = string.format("%s|%d,%.2f,%.2f,%.2f",str,index,soul.position.x,soul.position.y,soul.position.z)
-				end
-				count = count + 1
+				tab[#tab+1] = index
+--				if count==0 then
+--					str = string.format("%d,%.2f,%.2f,%.2f",index,soul.position.x,soul.position.y,soul.position.z)
+--				else
+--					str = string.format("%s|%d,%.2f,%.2f,%.2f",str,index,soul.position.x,soul.position.y,soul.position.z)
+--				end
+--				count = count + 1
 			end
 		end
-		billboard:setString("shieldGenerators",str)
+		billboard:setTable("shieldGenerators",tab)
 	end
 	-- function:	expand
 	-- purpose:		Expands the area where enemies can exist
@@ -76,7 +76,7 @@ function SoulManager.new()
 				if toAmount<minX then
 					for x=minX-1, toAmount, -1 do
 						for y=minY, maxY do
-							billboard:setString("souls"..x.."/"..y,"")
+							billboard:setTable("souls"..x.."/"..y,{})
 							soulTableStr[x] = soulTableStr[x] or {}
 							soulTableStr[x][y] = soulTableStr[x][y] or {}
 --							if debug then
@@ -92,7 +92,7 @@ function SoulManager.new()
 				if toAmount>maxX then
 					for x=maxX, toAmount, 1 do
 						for y=minY, maxY do
-							billboard:setString("souls"..x.."/"..y,"")
+							billboard:setTable("souls"..x.."/"..y,{})
 							soulTableStr[x] = soulTableStr[x] or {}
 							soulTableStr[x][y] = soulTableStr[x][y] or {}
 --							if debug then
@@ -110,7 +110,7 @@ function SoulManager.new()
 				if toAmount<minY then
 					for y=minY-1, toAmount, -1 do
 						for x=minX, maxX do
-							billboard:setString("souls"..x.."/"..y,"")
+							billboard:setTable("souls"..x.."/"..y,{})
 							soulTableStr[x] = soulTableStr[x] or {}
 							soulTableStr[x][y] = soulTableStr[x][y] or {}
 --							if debug then
@@ -126,7 +126,7 @@ function SoulManager.new()
 				if toAmount>maxY then
 					for y=maxY, toAmount, 1 do
 						for x=minX, maxX do
-							billboard:setString("souls"..x.."/"..y,"")
+							billboard:setTable("souls"..x.."/"..y,{})
 							soulTableStr[x] = soulTableStr[x] or {}
 							soulTableStr[x][y] = soulTableStr[x][y] or {}
 --							if debug then
@@ -170,7 +170,6 @@ function SoulManager.new()
 				local grid = soulTableStr[x][y]
 				grid[#grid+1] = {index,
 					soul.position.x,soul.position.y,soul.position.z,
-					soul.velocity.x,soul.velocity.y,soul.velocity.z,
 					soul.distanceToExit,soul.hp,soul.hpMax,soul.team,soul.state,soul.name}
 				count = count + 1
 			end
@@ -180,9 +179,9 @@ function SoulManager.new()
 		for x=minX, maxX do
 			for y=minY, maxY do
 				if soulTableStr[x][y] then
-					billboard:setString("souls"..x.."/"..y,tabToStrMinimal(soulTableStr[x][y]))
+					billboard:setTable("souls"..x.."/"..y,soulTableStr[x][y])
 				else
-					billboard:setString("souls"..x.."/"..y,"{}")
+					billboard:setTable("souls"..x.."/"..y,{})
 				end
 			end
 		end
@@ -192,7 +191,6 @@ function SoulManager.new()
 	-- purpose:		Adds a soul to the table to be updated in the future
 	function self.addSoul(param, fromIndex)
 		soulTable[fromIndex] = {position=param.pos,
-								velocity=Vec3(),
 								distanceToExit=256.0,
 								hp=param.hpMax,
 								hpMax=param.hpMax,
@@ -212,7 +210,6 @@ function SoulManager.new()
 				local mover = billboard:getNodeMover("nodeMover")
 				if mover then
 					soul.position = mover:getCurrentPosition()+soul.aimHeight
-					soul.velocity = mover:getCurrentVelocity()
 					soul.distanceToExit = mover:getDistanceToExit()
 				else
 					--something is wrong kill that npc
@@ -284,14 +281,14 @@ function SoulManager.new()
 			soulTableStr[x] = {}
 			for y=minY, maxY do--for y=-16, 16 do
 				soulTableStr[x][y] = ""
-				billboard:setString("souls"..x.."/"..y,"")
+				billboard:setTable("souls"..x.."/"..y,{})
 --				if debug then
 --					debug.zoneColors[x] = debug.zoneColors[x] or {}
 --					debug.zoneColors[x][y] = math.randomVec3()
 --				end
 			end
 		end
-		billboard:setString("shieldGenerators","")
+		billboard:setTable("shieldGenerators",{})
 		billboard:setVec2("min",Vec2(minX,minY))
 		billboard:setVec2("max",Vec2(maxX,maxY))
 	

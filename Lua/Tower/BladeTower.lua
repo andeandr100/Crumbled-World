@@ -521,7 +521,7 @@ function BladeTower.new()
 		end
 		if upgrade.getLevel("masterBlade")>0 then
 			local percentage = upgrade.getLevel("masterBlade")/3.0
-			billboard:setInt("masterBladeHeat",percentage)
+			billboard:setFloat("masterBladeHeat",percentage)
 			if upgrade.getLevel("boost")==0 then
 				model:getMesh("showBlade"):setVisible(true)
 			else

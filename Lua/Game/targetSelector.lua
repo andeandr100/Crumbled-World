@@ -17,7 +17,7 @@ function TargetSelector.new(pteam)
 	---
 	local soulTableLastUpdatedFrame = 0
 	local soulTable = {}
-	local shieldGenTableLastUpdatedFrame = 0
+	local shieldGenTableLastUpdated = 0
 	local shieldGenTable = {}
 	--
 	local targetTable = {}
@@ -105,36 +105,30 @@ function TargetSelector.new(pteam)
 			--soulManagerBillboard = soulManagerBillboard or Core.getBillboard("SoulManager")
 			soulTable = {}
 			for i=1, #soulTableNamesToUse do
-				local tabString = soulManagerBillboard:getString(soulTableNamesToUse[i])
-				if string.len(tabString)>2 then
-					local input = totable(tabString)
-					for i=1, #input do
-						--local index,x1,y1,z1,x2,y2,z2,dist,hp,hpmax,team,state,name = string.match(str, "([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)")
-						assert(input[i][13] and not input[i][14],"something wrong")
-						soulTable[input[i][1]] = {
-							position=Vec3(input[i][2],input[i][3],input[i][4]),
-							velocity=Vec3(input[i][5],input[i][6],input[i][7]),
-							distanceToExit=input[i][8],
-							hp=input[i][9],
-							hpMax=input[i][10],
-							team=input[i][11],
-							state=input[i][12],
-							name=input[i][13],
-							index=input[i][1]
-						}
-					end
+				local input = soulManagerBillboard:getTable(soulTableNamesToUse[i])
+				for i=1, #input do
+					soulTable[input[i][1]] = {
+						position=Vec3(input[i][2],input[i][3],input[i][4]),
+						distanceToExit=input[i][5],
+						hp=input[i][6],
+						hpMax=input[i][7],
+						team=input[i][8],
+						state=input[i][9],
+						name=input[i][10],
+						index=input[i][1]
+					}
 				end
 			end
 		end
 	end
 	local function updateShieldGenTable()
-		if isThisReal and Core.getFrameNumber()~=shieldGenTableLastUpdatedFrame then
-			shieldGenTableLastUpdatedFrame = Core.getFrameNumber()
-			local input = soulManagerBillboard:getString("shieldGenerators")
+		if isThisReal and Core.getGameTime()-shieldGenTableLastUpdated>1.0 then
+			shieldGenTableLastUpdatedFrame = Core.getGameTime()
+			local input = soulManagerBillboard:getTable("shieldGenerators")
 			shieldGenTable = {}
-			for str in string.gmatch(input, "([^|]+)") do
-				local index,x1,y1,z1 = string.match(str, "([^,]+),([^,]+),([^,]+),([^,]+)")
-				shieldGenTable[tonumber(index)] = Vec3(tonumber(x1),tonumber(y1),tonumber(z1))
+			for i=1, #input do
+				local target = input[i]
+				shieldGenTable[target] = self.getTargetPosition(target)
 			end
 		end
 	end
@@ -142,13 +136,12 @@ function TargetSelector.new(pteam)
 	--	getters
 	--
 	local function isInRange(target)
-		updateSoulsTable()
-		local soul = soulTable[target]
-		if soul then
-			local effectiveRange = range  + (self.isTargetInState(target,state.shieldGenerator) and SHIELD_RANGE or 0.0)
-			local inRange = (soulTable[target] and (soulTable[target].position-position):length()<=effectiveRange)
+		if self.isTargetAlive(target) then
+			local effectiveRange = range + (self.isTargetInStateAShieldGenerator(target) and SHIELD_RANGE or 0.0)
+			local pos = self.getTargetPosition(target)
+			local inRange = (soulTable[target] and (pos-position):length()<=effectiveRange)
 			if inRange and defaultAngleLimit<math.pi then
-				local diff = soul.position-position
+				local diff = pos-position
 				local targetAt = Vec2(diff.x,diff.z)
 				local angle = Vec2(defaultPipeAt.x,defaultPipeAt.z):angle(targetAt)
 				return defaultAngleLimit>angle
@@ -170,7 +163,7 @@ function TargetSelector.new(pteam)
 		updateSoulsTable()
 		--
 		for index,soul in pairs(soulTable) do
-			if soul.team~=team and Collision.lineSegmentPointLength2(line,soul.position)<(lineRange+(self.isTargetInState(index,state.shieldGenerator) and SHIELD_RANGE or 0.0)) then
+			if soul.team~=team and Collision.lineSegmentPointLength2(line,soul.position)<(lineRange+(self.isTargetInStateAShieldGenerator(index) and SHIELD_RANGE or 0.0)) then
 				return true
 			end
 		end
@@ -179,71 +172,73 @@ function TargetSelector.new(pteam)
 	--
 	function self.getIndexOfShieldCovering(globalPosition)
 		updateShieldGenTable()
-		updateSoulsTable()
 		--
 		for index,position in pairs(shieldGenTable) do
-			--Core.addDebugLine(globalPosition,position,0.05,Vec3(1,0,0))
-			if (globalPosition-position):length()<=SHIELD_RANGE then
+			if (globalPosition-self.getTargetPosition(index)):length()<=SHIELD_RANGE then
 				return index
 			end
 		end
 		return 0
 	end
---	function self.debug()
---		print("isThisReal = "..tostring(isThisReal))
---		print("range = "..tostring(range))
---		print("position = "..tostring(position))
---		print("soulTableNamesToUse == "..tostring(soulTableNamesToUse))
---		print("soulTable == "..tostring(soulTable))
---		abort()
---	end
 	function self.isTargetAlive(target)
-		updateSoulsTable()
-		local soul = soulTable[target]
-		return target>0 and soul~=nil
+		local soulBillboard = Core.getBillboard(target or currentTarget)
+		return soulBillboard and soulBillboard:getBool("isAlive")
 	end
-	function self.isTargetInState(target,inState)
-		--print("self.isTargetInState("..target..", "..inState..")")
-		updateSoulsTable()
-		local targetIndex = inState and  target or currentTarget
-		local tstate = inState or target
-		local soul = soulTable[targetIndex]
-		local ret = (soul and toBits(soul.state)[binaryNumPos[tstate]]==1)
-		return (soul and toBits(soul.state)[binaryNumPos[tstate]]==1)
+	function self.isTargetInStateAShieldGenerator(target)
+		local soul = soulTable[target or currentTarget]
+		return soul and toBits(soul.state)[binaryNumPos[state.shieldGenerator]]==1
+	end
+	function self.isTargetInState(target, state)
+		local soul = soulTable[target or currentTarget]
+		return soul and toBits(soul.state)[binaryNumPos[state]]==1
 	end
 	function self.isTargetNamed(name)
-		updateSoulsTable()
 		local soul = soulTable[currentTarget]
 		return (soul and soul.name==name)
 	end
 	function self.isTargetAvailable()
-		updateSoulsTable()
 		return (currentTarget>0 and soulTable[currentTarget] and isInRange(currentTarget))--hp has nothing to do with if the npc can be targeted
 	end
 	function self.getTargetPosition(target)
-		updateSoulsTable()
-		local soul = soulTable[target or currentTarget]
-		return soul and soul.position or Vec3()
+		local soulBillboard = Core.getBillboard(target or currentTarget)
+		local retPos = Vec3()
+		if soulBillboard then
+			local mover = soulBillboard:getNodeMover("nodeMover")
+			if mover and soulBillboard:getBool("isAlive") then
+				retPos = mover:getCurrentPosition()
+			end
+		end
+		return retPos
 	end
 	function self.getTargetVelocity(target)
-		updateSoulsTable()
-		local soul = soulTable[target or currentTarget]
-		return soul and soul.velocity or Vec3()
-	end
-	function self.getFuturePos(target,time)
-		updateSoulsTable()
-		local soul = soulTable[target or currentTarget]
+		local retVec = Vec3()
 		local soulBillboard = Core.getBillboard(target or currentTarget)
 		if soulBillboard then
 			local mover = soulBillboard:getNodeMover("nodeMover")
-			return mover and mover:getFuturePosition(time) or Vec3()
+			if mover and soulBillboard:getBool("isAlive") then
+				retVec = mover:getCurrentVelocity()
+			end
 		end
-		return Vec3()
+		return retVec
+	end
+	function self.getFuturePos(target,time)
+		local retPos = Vec3()
+		local soulBillboard = Core.getBillboard(target or currentTarget)
+		if soulBillboard then
+			local mover = soulBillboard:getNodeMover("nodeMover")
+			if mover and soulBillboard:getBool("isAlive") then
+				retPos = mover:getFuturePosition(time)
+			end
+		end
+		return retPos
 	end
 	function self.getTargetHP(target)
-		updateSoulsTable()
-		local soul = soulTable[target or currentTarget]
-		return soul and soul.hp or 0.0
+		local hp = -1.0
+		local soulBillboard = Core.getBillboard(target or currentTarget)
+		if soulBillboard and soulBillboard:getBool("isAlive") then
+			hp = soulBillboard:getDouble("hp")
+		end
+		return hp
 	end
 	function self.getTarget()
 		return currentTarget
@@ -292,7 +287,7 @@ function TargetSelector.new(pteam)
 		--
 		for index,soul in pairs(soulTable) do
 			--Core.addDebugLine(soul.position, soul.position+Vec3(0,4,0), 0.05, Vec3(1))
-			if soul.team~=team and Collision.lineSegmentPointLength2(line,soul.position)<(lineRange+(self.isTargetInState(index,state.shieldGenerator) and SHIELD_RANGE or 0.0)) then
+			if soul.team~=team and Collision.lineSegmentPointLength2(line,soul.position)<(lineRange+(self.isTargetInStateAShieldGenerator(index) and SHIELD_RANGE or 0.0)) then
 				targetTable[index] = 0
 				targetTableCount = targetTableCount + 1
 				ret = true
@@ -401,7 +396,6 @@ function TargetSelector.new(pteam)
 	--	filters
 	--
 	function self.filterSphere(sphere,filterAwayTargetsInSphere)
-		updateSoulsTable()
 		for index,score in pairs(targetTable) do
 			local soul = soulTable[index]
 			if soul then
@@ -420,7 +414,6 @@ function TargetSelector.new(pteam)
 		end
 	end
 	function self.filterOutState(state)
-		updateSoulsTable()
 		for index,score in pairs(targetTable) do
 			if toBits(soulTable[index].state)[binaryNumPos[state]]==1 then
 				targetTable[index] = nil

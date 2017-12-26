@@ -20,7 +20,8 @@ function NpcBase.new()
 	local mover
 	local stateOfSoul
 	--
-	statsBilboard = Core.getBillboard("stats")
+	local billboard
+	local statsBilboard = Core.getBillboard("stats")
 	local launcWave = -1
 	--local soulNode
 	local centerOffset
@@ -120,8 +121,9 @@ function NpcBase.new()
 		comUnit = Core.getComUnit()
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(true)
-		local billboard = comUnit:getBillboard()--setCanDisplayBillboard(true)
+		billboard = comUnit:getBillboard()
 		billboard:setNodeMover("nodeMover",mover)
+		billboard:setBool("isAlive",true)
 		--ComUnitCallbacks
 		--local soul managment
 		soul.defaultStats(hpMax,mover,speed)
@@ -581,6 +583,7 @@ function NpcBase.new()
 			--fadeOut(body,deltaTime,"normal")
 		else
 			comUnit:sendTo("SoulManager","update",soul.getHp())
+			billboard:setDouble("hp",soul.getHp())
 		end
 		
 		--if is high priority target make towers close by attack you
@@ -600,9 +603,10 @@ function NpcBase.new()
 
 		if (syncConfirmedDeath or soul.getHp()<=0) then--and soul.canDie() then
 			if not soul.canDie() then
-				error("THIS SHOULD NEVER EVER OCCUR ANYMORE!!!")
+				error("THIS SHOULD NEVER EVER OCCURE ANYMORE!!!")
 			end
-			--npc is dying
+			--npc is dead
+			billboard:setBool("isAlive",false)
 			if canSyncNPC() or syncConfirmedDeath then
 				local binaryNumPos = {[1]=1,[2]=2,[4]=3,[8]=4,[16]=5,[32]=6,[64]=7,[128]=8,[256]=9,[512]=10,[1024]=11,[2048]=12}
 				self.getCurrentIslandPlayerId()
@@ -696,6 +700,7 @@ function NpcBase.new()
 		end
 		stateOfSoul = soul.update()+defaultState
 		comUnit:sendTo("SoulManager","setState",stateOfSoul)
+		billboard:setInt("stateOfSoul",stateOfSoul)
 			
 		comUnit:setPos(this:getGlobalPosition()+(centerOffset*0.75))--update the communication position (radius based attacks)
 		

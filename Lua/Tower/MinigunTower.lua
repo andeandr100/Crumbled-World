@@ -15,7 +15,7 @@ function MinigunTower.new()
 	local self = {}
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
-	local projectiles = projectileManager.new(targetSelector)
+	local projectiles = projectileManager.new()
 	local dmgDone = 0
 	local waveCount = 0
 	local smartTargetingRetargetTime = 0.0
