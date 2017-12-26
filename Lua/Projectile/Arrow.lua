@@ -2,7 +2,7 @@ require("Game/targetSelector.lua")
 --this = SceneNode()
 
 Arrow = {name="Arrow"}
-function Arrow.new(pTargetSelector)
+function Arrow.new()
 	local self = {}
 	local targetIndex = 0
 	local startPos = Vec3()
@@ -18,7 +18,8 @@ function Arrow.new(pTargetSelector)
 	local comUnit = Core.getComUnit()
 	local billboard = Core.getBillboard()
 	local activeTeam = 1
-	local targetSelector = pTargetSelector
+	local activeTeam = 1
+	local targetSelector = TargetSelector.new(activeTeam)
 	--scenNode
 	local node = SceneNode()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
@@ -27,11 +28,7 @@ function Arrow.new(pTargetSelector)
 	node:addChild(model)
 	
 	function self.init()
-		--targetingSystem
 		targetSelector.setPosition(this:getGlobalPosition())
-		targetSelector.setRange(billboard:getFloat("range")+1.0)
-		targetSelector.setAngleLimits(Vec3(),math.pi*2)
-	
 		targetSelector.setTarget(billboard:getInt("targetIndex"))
 		if targetSelector.isTargetAlive(targetSelector.getTarget())==false then
 			targetSelector.deselect()

@@ -5,7 +5,7 @@ require("Projectile/fireStorm.lua")
 --this = SceneNode()
 
 Missile = {name="Missile"}
-function Missile.new(pTargetSelector)
+function Missile.new()
 	local self = {}
 
 	--constants
@@ -35,7 +35,7 @@ function Missile.new(pTargetSelector)
 	local damageDone
 	--
 	local activeTeam = 1
-	local targetSelector = pTargetSelector
+	local targetSelector = TargetSelector.new(activeTeam)
 	--scenNode
 	local node = SceneNode()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)

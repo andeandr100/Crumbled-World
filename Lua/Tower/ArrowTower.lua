@@ -18,7 +18,7 @@ function ArrowTower.new()
 	local dmgDoneMarkOfDeath = 0
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
-	local projectiles = projectileManager.new(targetSelector)
+	local projectiles = projectileManager.new()
 	local cData = CampaignData.new()
 	local upgrade = Upgrade.new()
 	local supportManager = SupportManager.new()

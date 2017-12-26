@@ -27,6 +27,8 @@ function TargetSelector.new(pteam)
 	local defaultAngleLimit = math.pi*3
 	local soulTableNamesToUse = {}
 	--
+	local storedSettings
+	--
 	--
 	--
 	-- function:	updateTablesToUse
@@ -69,11 +71,33 @@ function TargetSelector.new(pteam)
 		position = pos
 		updateTablesToUse(FORCEUPDATE)
 	end
+	function self.storeSettings()
+		storedSettings = {
+			position = position,
+			range = range,
+			currentTarget = currentTarget,
+			defaultPipeAt = defaultPipeAt,
+			defaultAngleLimit = defaultAngleLimit
+		}
+	end
+	function self.restoreSettings()
+		if storedSettings then
+			position = storedSettings.position
+			range = storedSettings.range
+			currentTarget = storedSettings.currentTarget
+			defaultPipeAt = storedSettings.defaultPipeAt
+			defaultAngleLimit = storedSettings.defaultAngleLimit
+			storedSettings = nil
+		end
+	end
 	-- function:	setAngleLimits
 	-- purpose:		limits the target angle. [used by arrowTower]
 	function self.setAngleLimits(pipeAt,angleLimit)
 		defaultPipeAt = pipeAt
 		defaultAngleLimit = angleLimit
+	end
+	function self.getDefaultAngleLimits()
+		return defaultPipeAt,defaultAngleLimit
 	end
 	-- function:	setRange
 	-- purpose:		set the raduius where we can attack
@@ -82,18 +106,18 @@ function TargetSelector.new(pteam)
 		updateTablesToUse(FORCEUPDATE)
 	end
 	-- function:	disableRealityCheck
-	-- purpose:		
---	function self.disableRealityCheck()
---		if isThisReal then
---			return true
---		end
---		soulManagerBillboard = Core.getBillboard("SoulManager")
---		if soulManagerBillboard then
---			isThisReal = true
---			return true
---		end
---		return false
---	end
+	-- purpose:		improves performance and used by lifebar
+	function self.disableRealityCheck()
+		if isThisReal then
+			return true
+		end
+		soulManagerBillboard = Core.getBillboard("SoulManager")
+		if soulManagerBillboard then
+			isThisReal = true
+			return true
+		end
+		return false
+	end
 	--
 	--
 	--

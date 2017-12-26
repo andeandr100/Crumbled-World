@@ -3,7 +3,7 @@ require("Game/targetSelector.lua")
 --this = SceneNode()
 
 ArrowMortar = {name="ArrowMortar"}
-function ArrowMortar.new(pTargetSelector)
+function ArrowMortar.new()
 	local self = {}
 	local movment = 0.0
 	local targetIndex = 0
@@ -23,7 +23,8 @@ function ArrowMortar.new(pTargetSelector)
 	local hittStrength = 1
 	local comUnit = Core.getComUnit()
 	local billboard = Core.getBillboard()
-	local targetSelector = pTargetSelector
+	local activeTeam = 1
+	local targetSelector = TargetSelector.new(activeTeam)
 		
 	--scenNode
 	local node = SceneNode()
@@ -41,19 +42,10 @@ function ArrowMortar.new(pTargetSelector)
 	pointLight:setCutOff(0.1)
 	pointLight:setVisible(false)
 	node:addChild(pointLight)
-
-	--targetingSystem
-	targetSelector.setPosition(this:getGlobalPosition())
-	targetSelector.setRange(1.0)
 	
 	
 	function self.init()
-		--targetingSystem
 		targetSelector.setPosition(this:getGlobalPosition())
-		targetSelector.setRange(billboard:getFloat("range")+1.0)
-		targetSelector.setAngleLimits(Vec3(),math.pi*2)
-	
-		targetSelector.setTarget(billboard:getInt("targetIndex"))
 		if targetSelector.isTargetAlive(targetSelector.getTarget())==false then
 			targetSelector.deselect()
 		end
@@ -140,10 +132,12 @@ function ArrowMortar.new(pTargetSelector)
 					comUnit:sendTo(targetIndex,"attack",tostring(damage*0.75))
 					damageDone = damageDone + damage*0.75
 				end
+				targetSelector.storeSettings()
 				targetSelector.setPosition(lastLocationOnTarget)
 				targetSelector.setRange(detonationRange)
 				targetSelector.selectAllInRange()
 				local targets = targetSelector.getAllTargets()
+				targetSelector.restoreSettings()
 				comUnit:sendTo("SteamStats","ArrowMortarMaxHittCount",targetSelector.getAllTargetCount())
 				for index,score in pairs(targets) do
 					comUnit:sendTo(index,"markOfDeath",{per=weaken,timer=weakenTimer,type="area"})

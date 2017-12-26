@@ -131,6 +131,7 @@ function SwarmBall.new(pTargetSelector)
 	local function manageIfTargetIsNotAvailable()
 		if targetSelector.isTargetAlive(targetIndex)==false then
 			targetIndex = 0
+			targetSelector.storeSettings()
 			targetSelector.setPosition(calculatedFutherPosition)
 			targetSelector.setRange(range*1.5)--covers 75% in worst case scenario
 			targetSelector.selectAllInRange()
@@ -143,6 +144,7 @@ function SwarmBall.new(pTargetSelector)
 			--end
 			targetSelector.filterSphere(Sphere(towerPosition,range),false)--select only targets that is in range of the tower
 			targetIndex = targetSelector.selectTargetAfterMaxScore(-50)
+			targetSelector.restoreSettings()
 			if targetIndex==0 then
 				endLife()
 			end
@@ -203,10 +205,7 @@ function SwarmBall.new(pTargetSelector)
 		pathList:setSpeed(speed)
 		
 		node:setVisible(true)
-		
-		targetSelector.setPosition(towerPosition)
-		targetSelector.setRange(range+5.0)
-		
+			
 		local length = basicLengthEstimation(position)
 		--print("Length="..length.."\n")
 		--if length>2.0 then
