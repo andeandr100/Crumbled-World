@@ -6,7 +6,7 @@ require("Menu/settings.lua")
 
 VideoPanel = {}
 VideoPanel.labels = {}
-VideoPanel.labelsText =  { "screen", "window mode", "resolution", "render scale", "vsync", "graphic", "shadow", "shadow resolution", "ambient occlusion", "antialiasing", "glow", "dynamic lights", "model density" }
+VideoPanel.labelsText =  { "screen", "window mode", "resolution", "render scale", "vsync", "graphic", "shadow", "shadow resolution", "ambient occlusion", "antialiasing", "glow", "dynamic lights", "model density", "island smoke", "floating stones" }
 VideoPanel.optionsBoxes = {}
 
 function VideoPanel.destroy()
@@ -44,6 +44,9 @@ function VideoPanel.create(mainPanel)
 	local labels = VideoPanel.labels	
 	for i=1, #labels do
 		if labels[i] then
+			print("")
+			print("index: "..i)
+			print("value: "..VideoPanel.labelsText[i])
 			labels[i]:setText(language:getText(VideoPanel.labelsText[i]))
 		end
 	end
@@ -139,6 +142,16 @@ function VideoPanel.createGraphicOptions(panel)
 	labels[6] = OptionsMenuStyle.addOptionsHeader( panel, "Graphic" )
 	
 	local rowPanel
+	
+	rowPanel, labels[14] = OptionsMenuStyle.addRow(panel, "Island smoke")
+	conf = Settings.islandSmoke
+	GamePanel.optionsBoxes[12] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
+	
+	rowPanel, labels[15] = OptionsMenuStyle.addRow(panel, "Floating stones")
+	conf = Settings.floatingStones
+	GamePanel.optionsBoxes[13] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
+	
+	
 	
 	rowPanel, labels[7] = OptionsMenuStyle.addRow(panel, "Shadow")
 	conf = Settings.shadow

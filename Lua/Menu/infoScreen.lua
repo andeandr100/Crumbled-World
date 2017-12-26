@@ -111,13 +111,15 @@ function InfoScreen.new(camera)
 		end
 	end
 	function self.updateClientInfo(param)
-		local name,clientId,gold,totalDamage,speed,ping,averageDamage,kills = string.match(param,"(.*);(.*);(.*);(.*);(.*);(.*);(.*);(.*)")
+		
+		local dataTab = totable(param)
+		local clientId = dataTab.clientId
 		
 		--update client damage info
 		if players[tonumber(clientId)] then
 			local labels = labelTab[players[tonumber(clientId)].listPos]
-			labels.averageDamage = tonumber(averageDamage)
-			labels.totalDamageValue = tonumber(totalDamage)
+			labels.averageDamage = tonumber(dataTab.averageDamage)
+			labels.totalDamageValue = tonumber(dataTab.totalDamage)
 		end
 		
 		--get sum of total damage and sum of average damage
@@ -129,27 +131,27 @@ function InfoScreen.new(camera)
 			sumTotalDamage = sumTotalDamage + labels.totalDamageValue
 		end
 		
-		print("\n\n")
-		print("sumTotalAverageDamage: "..sumTotalAverageDamage)
-		print("sumTotalDamage: "..sumTotalDamage)
+--		print("\n\n")
+--		print("sumTotalAverageDamage: "..sumTotalAverageDamage)
+--		print("sumTotalDamage: "..sumTotalDamage)
 		
 		if players[tonumber(clientId)] then
 			players[tonumber(clientId)].lastUpdated = Core.getTime()
 			local labels = labelTab[players[tonumber(clientId)].listPos]			
 			labels.icon:setUvCoord(Vec2(0.375,0.75),Vec2(0.5,0.875))
-			labels.name:setText(name)
-			labels.gold:setText(gold)
-			labels.kills:setText(kills)
+			labels.name:setText(dataTab.name)
+			labels.gold:setText(tostring(dataTab.gold))
+			labels.kills:setText(tostring(dataTab.kills))
 			
-			print("------------------------")
-			print("totalDamage: "..totalDamage)
-			print("averageDamage: "..averageDamage)
-			print("------------------------\n")
+--			print("------------------------")
+--			print("totalDamage: "..dataTab.totalDamage)
+--			print("averageDamage: "..dataTab.averageDamage)
+--			print("------------------------\n")
 			
-			labels.totalDamage:setText(tostring( math.round(tonumber(totalDamage)/sumTotalDamage*100.0)).."%") 
-			labels.damage:setText(tostring( math.round(tonumber(averageDamage)/sumTotalAverageDamage*100.0)).."%")
-			labels.speed:setText(speed)
-			labels.ping:setText(ping.."ms")
+			labels.totalDamage:setText(tostring( math.round(tonumber(dataTab.totalDamage)/sumTotalDamage*100.0)).."%") 
+			labels.damage:setText(tostring( math.round(tonumber(dataTab.averageDamage)/sumTotalAverageDamage*100.0)).."%")
+			labels.speed:setText(tostring(dataTab.speed))
+			labels.ping:setText(tostring(dataTab.ping).."ms")
 		else
 --			local pList = players
 --			error("ClientId not used")
@@ -201,12 +203,12 @@ function InfoScreen.new(camera)
 		--
 		local totalDamagePanel = headerPanel:add(Panel(PanelSize(Vec2(weight[3], -1))))--language:getText("Total damage")
 		local icon = totalDamagePanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
-		icon:setUvCoord(Vec2(0.125,0),Vec2(0.25,0.0625))
+		icon:setUvCoord(Vec2(0.25,0.0),Vec2(0.375,0.0625))
 		icon:setToolTip(Text("Total damage"))
 		--
 		local damagePanel = headerPanel:add(Panel(PanelSize(Vec2(weight[4], -1))))--language:getText("Average damage")
 		local icon = damagePanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
-		icon:setUvCoord(Vec2(0.125,0),Vec2(0.25,0.0625))
+		icon:setUvCoord(Vec2(0.25,0.0),Vec2(0.375,0.0625))
 		icon:setToolTip(Text("Average damge per wave"))
 		--
 		local goldPanel = headerPanel:add(Panel(PanelSize(Vec2(weight[5], -1))))--language:getText("gold")
@@ -215,7 +217,7 @@ function InfoScreen.new(camera)
 		--
 		local speedPanel = headerPanel:add(Panel(PanelSize(Vec2(weight[6], -1))))
 		local icon = speedPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
-		icon:setUvCoord(Vec2(0.125,0.25),Vec2(0.25,0.3125))
+		icon:setUvCoord(Vec2(0.375,0.25),Vec2(0.5,0.3125))
 		--
 		local pingPanel = headerPanel:add(Panel(PanelSize(Vec2(weight[7], -1))))--language:getText("ping")
 		local icon = pingPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
