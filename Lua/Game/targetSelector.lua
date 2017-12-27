@@ -232,7 +232,7 @@ function TargetSelector.new(pteam)
 	-- purpose:		returns true if target npc is alive
 	function self.isTargetAlive(target)
 		local soulBillboard = Core.getBillboard(target or currentTarget)
-		return soulBillboard and soulBillboard:getBool("isAlive")
+		return soulBillboard and soulBillboard:getBool("isAlive")==true or false
 	end
 	-- function:	isTargetInStateAShieldGenerator
 	-- purpose:		returns true if target is a turtle
@@ -594,13 +594,13 @@ function TargetSelector.new(pteam)
 			targetTable[index] = score + (npcCount[index]/max*amount)
 		end
 	end
-	-- function:	expand
+	-- function:	scoreRandom
 	-- purpose:
---	function self.scoreRandom(maxScoreToAdd)
---		for index,score in pairs(targetTable) do
---			targetTable[index] = score + math.randomFloat(0.0,maxScoreToAdd)
---		end
---	end
+	function self.scoreRandom(maxScoreToAdd)
+		for index,score in pairs(targetTable) do
+			targetTable[index] = score + math.randomFloat(0.0,maxScoreToAdd)
+		end
+	end
 	-- function:	scoreClosestToVector
 	-- purpose:		adds score depending on distant to line
 	function self.scoreClosestToVector(atVector,amount)
