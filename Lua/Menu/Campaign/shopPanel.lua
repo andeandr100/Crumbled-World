@@ -206,13 +206,14 @@ function ShopPanel.new(shopPanel)
 			return false
 		end
 		
-		if countItems == 1 then
-			setBuyPanelEnable(true)
-		end
+		
 		
 		countItems = countItems + 1
 		local aButton, rootPanel = ShopFunction.createIconButton( tab.panel, upgTab.towerInfo.iconIndex, upgTab.upgLevel, true )
 		
+		if countItems == 1 then
+			setBuyPanelEnable(true)
+		end
 		
 		aButton:setTag(button:getTag())
 

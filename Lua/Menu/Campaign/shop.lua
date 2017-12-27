@@ -6,15 +6,17 @@ require("Game/campaignData.lua")
 
 --this = SceneNode()
 Shop = {}
-function Shop.new(camera, updateCrystalButton)
+function Shop.new(camera, updateCrystalButton, inPanel)
 	--mainAreaPanel = Panel()
 	local self = {}
 	--camera = Camera()
 	local form
 	local parentForm
 	local shopPanel = nil
+	local mainPanel = nil
 	local crystalCountLabel = nil
 	local buyPanel = nil
+	local backButtonCallback = nil
 	local updateCrystalCallback = updateCrystalButton
 	
 	local data = ShopFunction.data
@@ -29,16 +31,42 @@ function Shop.new(camera, updateCrystalButton)
 	
 	local textPanels = {}
 	
+	local function createBorderPanel()
+		--Options panel
+		mainPanel = inPanel:add(Panel(PanelSize(Vec2(-1))))
+--		mainPanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
+		--
+--		--Top menu button panel
+--		local aLabel = mainPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("campaign"), Vec3(0.94), Alignment.MIDDLE_CENTER))
+--		aLabel:setTag("Shop")
+--		
+--		--shop = Shop.new(mainAreaPanel)
+--		
+--		--Add BreakLine
+--		local breakLinePanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
+--		local gradient = Gradient()
+--		gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.66),Vec3(0.45)})
+--		breakLinePanel:setBackground(gradient)
+--		
+--		local sPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9, -0.95))))
+--		sPanel:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
+		mainPanel:setVisible(false)
+		
+		return mainPanel
+	end
+	
 	function self.destroy()
 		TowerImage.destroy()
 	end
 	
 	function self.setVisible(visible)
-		form:setVisible(visible)
+--		form:setVisible(visible)
+		mainPanel:setVisible(visible)
 	end
 	
 	function self.getVisible()
-		return form:getVisible()
+--		return form:getVisible()
+		return mainPanel:getVisible()
 	end
 	
 	function addTitle()
@@ -67,7 +95,7 @@ function Shop.new(camera, updateCrystalButton)
 				countExist = countExist + ( towerUpgInfo[towerName][n][upgLevel] and 1 or 0 )
 			end
 			
-			label:setText( tostring(countBought) .. " / " .. ( upgLevel==4 and "1" or tostring(countExist)) )
+			label:setText( tostring(countBought) .. "/" .. ( upgLevel==4 and "1" or tostring(countExist)) )
 		end
 	
 	end
@@ -217,11 +245,13 @@ function Shop.new(camera, updateCrystalButton)
 
 	local function  closeClicked()
 		self.setVisible( false )
-		parentForm:setVisible( true )
+		if backButtonCallback then
+			backButtonCallback()
+		end
 	end
 	
-	function self.setParentForm(pForm)
-		parentForm = pForm
+	function self.setGoBackCallback(inBackButtonCallback)
+		backButtonCallback = inBackButtonCallback
 	end
 	
 	local function init()
@@ -241,21 +271,23 @@ function Shop.new(camera, updateCrystalButton)
 		end
 		--
 		
-		form = Form(camera, PanelSize(Vec2(-1,-0.8), Vec2(1.2,1)), Alignment.MIDDLE_CENTER);
-		form:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(panelSpacingVec2)));
-		form:setRenderLevel(9)	
-		form:setVisible(false)
+		shopPanel = createBorderPanel()
 		
-		shopPanel = form:add(Panel(PanelSize(Vec2(-1))))
+--		form = Form(camera, PanelSize(Vec2(-1,-0.8), Vec2(1.2,1)), Alignment.MIDDLE_CENTER);
+--		form:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(panelSpacingVec2)));
+--		form:setRenderLevel(9)	
+--		form:setVisible(false)
+--		
+--		shopPanel = form:add(Panel(PanelSize(Vec2(-1))))
 		
 		shopPanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, Vec4(0,0,0,0.5)))
 		--shopPanel:setBackground( Sprite(Vec4(1,1,1,0.5)) )--DEBUG coloring
-		shopPanel:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)),MainMenuStyle.borderColor))
+--		shopPanel:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)),MainMenuStyle.borderColor))
 		
 		--Add the title
 		addTitle()
 		
-		local shopArea = shopPanel:add(Panel(PanelSize(Vec2(-0.875,-0.9))))
+		local shopArea = shopPanel:add(Panel(PanelSize(Vec2(-0.9,-0.86))))
 		shopArea:setLayout(GridLayout(4,2)):setPanelSpacing(PanelSize( Vec2(0.025), Vec2(1), PanelSizeType.WindowPercent ))
 		
 		for i=1, 8 do
@@ -335,7 +367,7 @@ function Shop.new(camera, updateCrystalButton)
 			textAreaPanel:setLayout(GridLayout(4,1, PanelSize(Vec2(MainMenuStyle.borderSize), Vec2(1))))
 			
 			for n=1, 4 do
-				local label = textAreaPanel:add(Label(PanelSize(Vec2(-1)), n == 4 and "0 / 1" or "0 / 4"))
+				local label = textAreaPanel:add(Label(PanelSize(Vec2(-1)), n == 4 and "0/1" or "0/4"))
 				label:setTextColor(MainMenuStyle.textColorHighLighted)
 				
 				textUpgList[#textUpgList + 1] = {}
@@ -349,7 +381,7 @@ function Shop.new(camera, updateCrystalButton)
 		updateUpgradeText()
 		
 		--bottom info
-		local bottomPanel = shopPanel:add(Panel(PanelSize(Vec2(-0.875,-0.85))))
+		local bottomPanel = shopPanel:add(Panel(PanelSize(Vec2(-0.9,-0.85))))
 		bottomPanel:setLayout(GridLayout(1,2)):setPanelSpacing(PanelSize( Vec2(0.025), Vec2(1), PanelSizeType.WindowPercent ))
 		
 		local bottomLeft = bottomPanel:add(Panel(PanelSize(Vec2(-1))))
@@ -371,7 +403,10 @@ function Shop.new(camera, updateCrystalButton)
 		local button = bottomLeft:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(5,1), language:getText("back") ))
 		button:addEventCallbackExecute( closeClicked )
 		
-		buyPanel = ShopPanel.new(bottomRight)
+		bottomRight:setLayout(FlowLayout(Alignment.MIDDLE_CENTER,PanelSize(Vec2(-1,-1))))
+		local shopPanelsPanel = bottomRight:add(Panel(PanelSize(Vec2(-1,-0.57))))
+		
+		buyPanel = ShopPanel.new(shopPanelsPanel)
 		buyPanel.setItemRemovedCallback(updateButtonFromPanelId)
 		buyPanel.setBuyItemCallback(buyUpGrade)
 		buyPanel.setItemUpdateCallback(updateButtons)
@@ -380,7 +415,7 @@ function Shop.new(camera, updateCrystalButton)
 
 	--Update the map panel
 	function self.update()
-		form:update()
+--		form:update()
 		TowerImage.update()
 	end
 		
