@@ -595,6 +595,7 @@ function TargetSelector.new(pteam)
 		end
 	end
 	-- function:	scoreRandom
+	
 	-- purpose:
 	function self.scoreRandom(maxScoreToAdd)
 		for index,score in pairs(targetTable) do

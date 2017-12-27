@@ -216,6 +216,7 @@ function NpcBase.new()
 		syncConfirmedDeath = true
 		useDeathAnimationOrPhysic = false
 		self.setGainGoldOnDeath(false)
+		billboard:setBool("isAlive",false)
 		--
 		this:destroyTree()
 		--
