@@ -27,6 +27,7 @@ function MinigunTower.new()
 	local xpManager = XpSystem.new(upgrade,"Tower/MinigunTower.lua")
 	--constants
 	local ROTATEPIPETIMEAFTERFIERING = 1.0
+	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	--sound
 	local soundLaser = nil
 	local soundAttack = nil
@@ -409,10 +410,11 @@ function MinigunTower.new()
 			end
 			targetSelector.selectTargetAfterMaxScore()
 			local newTarget = targetSelector.getTarget()
-			if billboard:getBool("isNetOwner") and previousTarget~=newTarget then
-				if newTarget>0 then
-					comUnit:sendNetworkSync("NetTarget", Core.getNetworkNameOf(newTarget))
-				end
+			if billboard:getBool("isNetOwner") and previousTarget~=newTarget and newTarget>0 then
+				comUnit:sendNetworkSync("NetTarget", Core.getNetworkNameOf(newTarget))
+			end
+			if targetSelector.getTarget()==0 then
+				reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
 			end
 		end
 	end

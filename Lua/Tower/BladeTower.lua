@@ -32,6 +32,7 @@ function BladeTower.new()
 	local STATUS_WAITING   							= 1
 	local STATUS_MOVING_ARM_INTO_ATTACK_POSITION	= 2
 	local STATUS_MOVING_TO_WAITING_AREA				= 3
+	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	local angle = 0.0
 	local anglePreviousFrame = 0.0
 	local status = STATUS_WAITING
@@ -685,18 +686,22 @@ function BladeTower.new()
 		--
 		if reloadTimeLeft<0.0 then
 			--we can fire at any time
-			if status==STATUS_WAITING and targetSelector.selectAllInCapsule(attackLine,1.5) then
-				--start the attack
-				status = STATUS_MOVING_ARM_INTO_ATTACK_POSITION
-				--manage reload timer
-				if reloadTimeLeft+deltaTime<0.0 then
-					reloadTimeLeft = 0.0--we have been waiting to start an attack
+			if status==STATUS_WAITING then
+				if targetSelector.selectAllInCapsule(attackLine,1.5) then
+					--start the attack
+					status = STATUS_MOVING_ARM_INTO_ATTACK_POSITION
+					--manage reload timer
+					if reloadTimeLeft+deltaTime<0.0 then
+						reloadTimeLeft = 0.0--we have been waiting to start an attack
+					end
+					--show blade/spear
+					blade:setVisible(upgrade.getLevel("boost")==0)
+					spear:setVisible(upgrade.getLevel("boost")==1)
+					--play sound
+					soundRelease:play(0.75,false)
+				else
+					reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
 				end
-				--show blade/spear
-				blade:setVisible(upgrade.getLevel("boost")==0)
-				spear:setVisible(upgrade.getLevel("boost")==1)
-				--play sound
-				soundRelease:play(0.75,false)
 			end
 			if status==STATUS_MOVING_ARM_INTO_ATTACK_POSITION then
 				--we are moving the arm into position to drop the blade
@@ -736,7 +741,7 @@ function BladeTower.new()
 				anglePreviousFrame = angle
 			end
 			--reload animations/particles
-			if reloadTimeLeft+deltaTime>0.0 then
+			if reloadTimeLeft+deltaTime>0.0 and status~=STATUS_WAITING then
 				local procent=reloadTimeLeft/(1.0/upgrade.getValue("RPS"))
 				--manage pistons
 				for index = 0, pistonCount-1, 1 do

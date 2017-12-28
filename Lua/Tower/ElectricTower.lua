@@ -10,6 +10,7 @@ require("Game/mapInfo.lua")
 ElectricTower = {}
 function ElectricTower.new()
 	local MAXTHEORETICALENERGYTRANSFERRANGE = (4+2.25)*1.3+0.75
+	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	local self = {}
 	local waveCount = 0
 	local dmgDone = 0
@@ -506,47 +507,48 @@ function ElectricTower.new()
 	local function updateTarget()
 		--only select new target if we own the tower or we are not told anything usefull
 		if (billboard:getBool("isNetOwner") or targetSelector.getTargetIfAvailable()==0) then
-			if not targetSelector.isTargetAvailable() then -- or rotator:isAtHorizontalLimit() then
-				if targetSelector.selectAllInRange() then
-					targetSelector.filterOutState(state.ignore)
-					if targetMode==1 then
-						--closest to exit
-						targetSelector.scoreClosestToExit(20)
-						targetSelector.scoreState(state.markOfDeath,10)
-					elseif targetMode==2 then
-						--high priority
-						targetSelector.scoreHP(10)
-						targetSelector.scoreName("dino",10)
-						targetSelector.scoreName("reaper",25)
-						targetSelector.scoreName("skeleton_cf",25)
-						targetSelector.scoreName("skeleton_cb",25)
-					elseif targetMode==3 then
-						--density
-						targetSelector.scoreClosestToExit(10)
-						targetSelector.scoreDensity(25)
-					elseif targetMode==4 then
-						--attackWeakestTarget
-						targetSelector.scoreHP(-30)
-						targetSelector.scoreClosestToExit(20)
-					elseif targetMode==5 then
-						--attackStrongestTarget
-						targetSelector.scoreHP(30)
-						targetSelector.scoreClosestToExit(20)
-						targetSelector.scoreName("reaper",20)
-						targetSelector.scoreName("skeleton_cf",20)
-						targetSelector.scoreName("skeleton_cb",20)
-					end
-					targetSelector.scoreState(state.highPriority,30)
-					targetSelector.scoreName("electroSpirit",-1000)
-					targetSelector.selectTargetAfterMaxScore(-500)
-					--sync
-					if billboard:getBool("isNetOwner") then
-						local newTarget = targetSelector.getTarget()
-						if newTarget>0 then
-							comUnit:sendNetworkSync("NetTarget", Core.getNetworkNameOf(newTarget))
-						end
+			if targetSelector.selectAllInRange() then
+				targetSelector.filterOutState(state.ignore)
+				if targetMode==1 then
+					--closest to exit
+					targetSelector.scoreClosestToExit(20)
+					targetSelector.scoreState(state.markOfDeath,10)
+				elseif targetMode==2 then
+					--high priority
+					targetSelector.scoreHP(10)
+					targetSelector.scoreName("dino",10)
+					targetSelector.scoreName("reaper",25)
+					targetSelector.scoreName("skeleton_cf",25)
+					targetSelector.scoreName("skeleton_cb",25)
+				elseif targetMode==3 then
+					--density
+					targetSelector.scoreClosestToExit(10)
+					targetSelector.scoreDensity(25)
+				elseif targetMode==4 then
+					--attackWeakestTarget
+					targetSelector.scoreHP(-30)
+					targetSelector.scoreClosestToExit(20)
+				elseif targetMode==5 then
+					--attackStrongestTarget
+					targetSelector.scoreHP(30)
+					targetSelector.scoreClosestToExit(20)
+					targetSelector.scoreName("reaper",20)
+					targetSelector.scoreName("skeleton_cf",20)
+					targetSelector.scoreName("skeleton_cb",20)
+				end
+				targetSelector.scoreState(state.highPriority,30)
+				targetSelector.scoreName("electroSpirit",-1000)
+				targetSelector.selectTargetAfterMaxScore(-500)
+				--sync
+				if billboard:getBool("isNetOwner") then
+					local newTarget = targetSelector.getTarget()
+					if newTarget>0 then
+						comUnit:sendNetworkSync("NetTarget", Core.getNetworkNameOf(newTarget))
 					end
 				end
+			end
+			if targetSelector.getTarget()==0 then
+				reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
 			end
 		end
 	end

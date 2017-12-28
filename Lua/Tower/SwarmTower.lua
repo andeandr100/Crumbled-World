@@ -12,6 +12,8 @@ require("Game/mapInfo.lua")
 SwarmTower = {}
 function SwarmTower.new()
 	local self = {}
+	--
+	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	--targetSelector
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
@@ -321,6 +323,9 @@ function SwarmTower.new()
 				
 			return targetSelector.isTargetAvailable()
 		end
+		if targetSelector.getTarget()==0 then
+			reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
+		end
 		return false
 	end
 	local function doMeshUpgradeForLevel(name,meshName)
@@ -500,7 +505,7 @@ function SwarmTower.new()
 		end
 		--
 		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
-		if reloadTimeLeft<0.0 and updateTarget() and billboard:getBool("isNetOwner") then
+		if reloadTimeLeft<0.0 and billboard:getBool("isNetOwner")and updateTarget() then
 			attack()--can now attack
 			upgrade.setUsed()--set value changed
 		end

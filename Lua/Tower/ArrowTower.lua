@@ -30,6 +30,7 @@ function ArrowTower.new()
 	--constants
 	local RECOIL_ON_ATTACK = math.pi/18.0	 	 --default kickback
 	local SCOPE_ROTATION_ON_BOOST = math.pi*30/180 --rotation to avoid ammo coger when boost is activated
+	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	--Model
 	local model
 	local rotaterMesh
@@ -489,7 +490,6 @@ function ArrowTower.new()
 	local function updateTarget()
 		--only select new target if we own the tower or we are not told anything usefull
 		if (billboard:getBool("isNetOwner") or targetSelector.getTargetIfAvailable()==0) then
-			local previousTarget = targetSelector.getTarget()
 			if targetSelector.selectAllInRange() then
 				targetSelector.filterOutState(state.ignore)
 				if targetMode==1 then
@@ -540,6 +540,9 @@ function ArrowTower.new()
 				if newTarget>0 then
 					comUnit:sendNetworkSync("NetTarget", Core.getNetworkNameOf(newTarget))
 				end
+			end
+			if targetSelector.getTarget()==0 then
+				reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
 			end
 		end
 	end

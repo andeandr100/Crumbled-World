@@ -10,6 +10,7 @@ require("Game/mapInfo.lua")
 MissileTower = {}
 function MissileTower.new()
 	local self = {}
+	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	local level = 0	--upgradedLevel
 	local missile = {}
 	local missilesAvailable = 0
@@ -443,64 +444,68 @@ function MissileTower.new()
 	end
 	local function updateTarget()
 		if targetSelector.isTargetAvailable()==false then -- or rotator:isAtHorizontalLimit() then
-			targetSelector.selectAllInRange()
-			targetSelector.filterOutState(state.ignore)
-			targetSelector.scoreState(state.highPriority,25)
-			if targetMode==1 then
-				--density
-				targetSelector.scoreDensity(30)
-				targetSelector.scoreClosestToExit(15)
-				targetSelector.scoreRandom(20)			--so we don't shoot the exakt same target with every missile
-				targetSelector.selectTargetAfterMaxScore()
-			elseif targetMode==2 then
-				--varied targeting
-				targetSelector.scoreSelectedTargets( targetHistory, -25 )
-				targetSelector.scoreClosestToExit(15)
-				if missileToFireNext==1 then
-					targetSelector.selectTargetAfterMaxScorePer(-1.0,0.9)
-				elseif missileToFireNext==2 then
-					targetSelector.selectTargetAfterMaxScorePer(-1.0,0.5)
-				elseif missileToFireNext==3 then
-					targetSelector.selectTargetAfterMaxScorePer(-1.0,0.1)
-				elseif missileToFireNext==4 then
-					targetSelector.selectTargetAfterMaxScorePer(-1.0,0.7)
-				elseif missileToFireNext==5 then
-					targetSelector.selectTargetAfterMaxScorePer(-1.0,0.3)
-				end
-				if targetSelector.isAnyInRange() and targetSelector.getTarget()==0 then
+			if targetSelector.selectAllInRange() then
+				targetSelector.filterOutState(state.ignore)
+				targetSelector.scoreState(state.highPriority,25)
+				if targetMode==1 then
+					--density
+					targetSelector.scoreDensity(30)
+					targetSelector.scoreClosestToExit(15)
+					targetSelector.scoreRandom(20)			--so we don't shoot the exakt same target with every missile
+					targetSelector.selectTargetAfterMaxScore()
+				elseif targetMode==2 then
+					--varied targeting
+					targetSelector.scoreSelectedTargets( targetHistory, -25 )
+					targetSelector.scoreClosestToExit(15)
+					if missileToFireNext==1 then
+						targetSelector.selectTargetAfterMaxScorePer(-1.0,0.9)
+					elseif missileToFireNext==2 then
+						targetSelector.selectTargetAfterMaxScorePer(-1.0,0.5)
+					elseif missileToFireNext==3 then
+						targetSelector.selectTargetAfterMaxScorePer(-1.0,0.1)
+					elseif missileToFireNext==4 then
+						targetSelector.selectTargetAfterMaxScorePer(-1.0,0.7)
+					elseif missileToFireNext==5 then
+						targetSelector.selectTargetAfterMaxScorePer(-1.0,0.3)
+					end
+					if targetSelector.isAnyInRange() and targetSelector.getTarget()==0 then
+						targetSelector.selectTargetAfterMaxScore()
+					end
+				elseif targetMode==3 then
+					--priority
+					targetSelector.scoreSelectedTargets( targetHistory, -10 )
+					targetSelector.scoreDensity(15)
+					targetSelector.scoreClosestToExit(10)
+					targetSelector.scoreName("reaper",25)
+					if upgrade.getLevel("shieldSmasher")>0 then
+						targetSelector.scoreName("turtle",40)
+					end
+					targetSelector.selectTargetAfterMaxScore()
+				elseif targetMode==4 then
+					--closest to exit
+					targetSelector.scoreDensity(20)
+					targetSelector.scoreClosestToExit(25)
+					targetSelector.scoreRandom(10)
+					targetSelector.scoreSelectedTargets( targetHistory, -10 )
+					targetSelector.selectTargetAfterMaxScore()
+				elseif targetMode==5 then
+					--attackWeakestTarget
+					targetSelector.scoreHP(-30)
+					targetSelector.scoreSelectedTargets( targetHistory, -10 )
+					targetSelector.scoreDensity(10)
+					targetSelector.scoreClosestToExit(10)
+					targetSelector.selectTargetAfterMaxScore()
+				elseif targetMode==6 then
+					--attackStrongestTarget
+					targetSelector.scoreHP(30)
+					targetSelector.scoreSelectedTargets( targetHistory, -10 )
+					targetSelector.scoreDensity(10)
+					targetSelector.scoreClosestToExit(10)
 					targetSelector.selectTargetAfterMaxScore()
 				end
-			elseif targetMode==3 then
-				--priority
-				targetSelector.scoreSelectedTargets( targetHistory, -10 )
-				targetSelector.scoreDensity(15)
-				targetSelector.scoreClosestToExit(10)
-				targetSelector.scoreName("reaper",25)
-				if upgrade.getLevel("shieldSmasher")>0 then
-					targetSelector.scoreName("turtle",40)
-				end
-				targetSelector.selectTargetAfterMaxScore()
-			elseif targetMode==4 then
-				--closest to exit
-				targetSelector.scoreDensity(20)
-				targetSelector.scoreClosestToExit(25)
-				targetSelector.scoreRandom(10)
-				targetSelector.scoreSelectedTargets( targetHistory, -10 )
-				targetSelector.selectTargetAfterMaxScore()
-			elseif targetMode==5 then
-				--attackWeakestTarget
-				targetSelector.scoreHP(-30)
-				targetSelector.scoreSelectedTargets( targetHistory, -10 )
-				targetSelector.scoreDensity(10)
-				targetSelector.scoreClosestToExit(10)
-				targetSelector.selectTargetAfterMaxScore()
-			elseif targetMode==6 then
-				--attackStrongestTarget
-				targetSelector.scoreHP(30)
-				targetSelector.scoreSelectedTargets( targetHistory, -10 )
-				targetSelector.scoreDensity(10)
-				targetSelector.scoreClosestToExit(10)
-				targetSelector.selectTargetAfterMaxScore()
+			end
+			if targetSelector.getTarget()==0 then
+				reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
 			end
 		end
 		return (targetSelector.getTarget()>0)

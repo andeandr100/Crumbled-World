@@ -11,6 +11,7 @@ require("Game/mapInfo.lua")
 QuakeTower = {}
 function QuakeTower.new()
 	local self = {}
+	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	--stats
 	local waveCount = 1
 	local dmgDone = 0
@@ -406,13 +407,27 @@ function QuakeTower.new()
 	--	targeting
 	--
 	local function isAnyOneInRange()
-		targetSelector.selectAllInRange()
-		if upgrade.getLevel("electricStrike")>0 then
-			targetSelector.scoreName("electroSpirit",-1000)
-			return targetSelector.selectTargetAfterMaxScore(-500)>=1
-		else
-			return targetSelector.isAnyInRange()
+--		targetSelector.selectAllInRange()
+--		if upgrade.getLevel("electricStrike")>0 then
+--			targetSelector.scoreName("electroSpirit",-1000)
+--			return targetSelector.selectTargetAfterMaxScore(-500)>=1
+--		else
+--			return targetSelector.isAnyInRange()
+--		end
+		if targetSelector.selectAllInRange() then
+			if upgrade.getLevel("electricStrike")>0 then
+				targetSelector.scoreName("electroSpirit",-1000)
+				if targetSelector.selectTargetAfterMaxScore(-500)>0 then
+					return true
+				end
+			else
+				return true
+			end
 		end
+		if targetSelector.getTarget()==0 then
+			reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
+		end
+		return false
 	end
 	--
 	--
@@ -591,7 +606,7 @@ function QuakeTower.new()
 					reloadTimeLeft = 1.75
 					towerState = HOLD_READY
 					hold.count = targetSelector.getAllTargetCount()
-					hold.time = 0.6
+					hold.time = 0.5
 				else
 					--attack
 					dropp()
