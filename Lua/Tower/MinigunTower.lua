@@ -261,6 +261,14 @@ function MinigunTower.new()
 			model:getMesh( "pipe2" ):setVisible(upgrade.getLevel("boost")==0)
 			pipes2Mesh = model:getMesh( "pipe2" )
 		end
+		--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
+			
+			mesh:setTexture(shader,texture,4)
+		end
 		--performance check
 		for i=0, model:getNumMesh()-1, 1 do
 			if not model:getMesh(i):getName():toString()=="tower" then
@@ -514,13 +522,8 @@ function MinigunTower.new()
 			end
 			boostedOnLevel = upgrade.getLevel("upgrade")
 			overHeatPer = 0.0
-			model:getMesh( "pipeBoost" ):setVisible(true)
-			model:getMesh( "cabels" ):setVisible(false)
-			model:getMesh( "pipe1" ):setVisible(false)
-			--particleEffectBoostBeam:setLocalPosition(Vec3(0.0,-0.4,0.17))
-			if upgrade.getLevel("upgrade")==3 then
-				model:getMesh( "pipe2" ):setVisible(false)
-			end
+			--
+			initModel()
 			setCurrentInfo()
 			--Achievement
 			comUnit:sendTo("SteamAchievement","Boost","")
@@ -530,8 +533,6 @@ function MinigunTower.new()
 			--
 			initModel()
 			setCurrentInfo()
-		else
-			return--level unchanged
 		end
 	end
 	function self.upgradeRange(param)
@@ -717,12 +718,12 @@ function MinigunTower.new()
 		model:getMesh( "pipe1" ):addChild(particleEffectGun[0])
 		model:getMesh( "pipeBoost" ):addChild(particleEffectGunLaser[0])
 		model:getMesh( "engine" ):addChild(pointLight)
+		
 		--model:getMesh( "pipe2" ):addChild(particleEffectGun[1])
 	
 		--model:addChild(particleEffectHitt)
 		model:getMesh( "pipe1" ):addChild(particleEffectTracer[0])
 		--model:getMesh( "pipe2" ):addChild(particleEffectTracer[1]
-	
 
 		--Laser
 		soundLaser = SoundNode("laser_bullet1")

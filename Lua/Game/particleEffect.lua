@@ -1126,35 +1126,35 @@ ParticleEffect = {
 		color =  {
 			color1 =  {
 				a = 0.75,
-				b = 0.10000000149011612,
-				g = 0.80000001192092896,
+				b = 0.10,
+				g = 0.80,
 				per = 0,
-				r = 1.6000000238418579,
-				size = 0.20000000298023224
+				r = 1.6,
+				size = 0.2
 			},
 			color2 =  {
-				a = 0.60000002384185791,
-				b = 0.20000000298023224,
-				g = 0.69999998807907104,
-				per = 0.10000000149011612,
-				r = 1.3999999761581421,
-				size = 0.28999999165534973
+				a = 0.6,
+				b = 0.2,
+				g = 0.7,
+				per = 0.1,
+				r = 1.4,
+				size = 0.29
 			},
 			color3 =  {
-				a = 0.44999998807907104,
-				b = 0.30000001192092896,
-				g = 0.80000001192092896,
-				per = 0.64999997615814209,
-				r = 1.2000000476837158,
-				size = 0.46000000834465027
+				a = 0.45,
+				b = 0.30,
+				g = 0.80,
+				per = 0.65,
+				r = 1.2,
+				size = 0.46
 			},
 			color4 =  {
 				a = 0,
 				b = 0.5,
-				g = 0.89999997615814209,
+				g = 0.9,
 				per = 1,
 				r = 1,
-				size = 0.40000000596046448
+				size = 0.4
 			},
 			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
 		},
@@ -1162,7 +1162,7 @@ ParticleEffect = {
 		gravity = 0,
 		lifeTime =  {
 			max = 1,
-			min = 0.44999998807907104
+			min = 0.45
 		},
 		spawn =  {
 			OffsetFromGroundPer = 0,
@@ -1174,9 +1174,9 @@ ParticleEffect = {
 				min = -1
 			},
 			spawnDuration = math.huge,
-			spawnRadius = 0.10000000149011612,
+			spawnRadius = 0.1,
 			spawnRate = 10,
-			spawnSpeed = 0.05000000074505806
+			spawnSpeed = 0.05
 		},
 		texture =  {
 			countX = 2,
@@ -1238,7 +1238,7 @@ ParticleEffect = {
 				g = 0.5,
 				per = 0,
 				r = 0.5,
-				size = 0.0099999997764825821
+				size = 0.01
 			},
 			color2 =  {
 				a = 0.25,
@@ -1246,7 +1246,7 @@ ParticleEffect = {
 				g = 0.5,
 				per = 0.25,
 				r = 0.5,
-				size = 0.40000000596046448
+				size = 0.4
 			},
 			color3 =  {
 				a = 0,
@@ -1262,7 +1262,7 @@ ParticleEffect = {
 		gravity = 0,
 		lifeTime =  {
 			max = 2.5,
-			min = 0.89999997615814209
+			min = 0.9
 		},
 		spawn =  {
 			OffsetFromGroundPer = 0.75,
@@ -1274,7 +1274,7 @@ ParticleEffect = {
 				min = 0
 			},
 			spawnDuration = math.huge,
-			spawnRadius = 0.15000000596046448,
+			spawnRadius = 0.15,
 			spawnRate = 25,
 			spawnSpeed = 0
 		},

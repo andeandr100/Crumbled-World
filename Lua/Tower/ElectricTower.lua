@@ -331,6 +331,14 @@ function ElectricTower.new()
 		model:getMesh("hull"):setVisible(false)
 		model:getMesh("space0"):setVisible(false)
 		model:getMesh("boost"):setVisible(upgrade.getLevel("boost")==1)
+		--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
+			
+			mesh:setTexture(shader,texture,4)
+		end
 		for index = 1, upgrade.getLevel("upgrade"), 1 do
 			ring[index] = model:getMesh( string.format("ring%d", index) )
 		end
@@ -401,9 +409,8 @@ function ElectricTower.new()
 			setCurrentInfo()
 			--clear coldown info for boost upgrade
 			upgrade.clearCooldown()
-		else
-			return--level unchanged
 		end
+		initModel()
 	end
 	function self.handleUpgradeRange(param)
 		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
@@ -658,6 +665,7 @@ function ElectricTower.new()
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
+			initModel()
 			--if the tower was upgraded while boosted, then the boost should be available
 			if boostedOnLevel~=upgrade.getLevel("upgrade") then
 				upgrade.clearCooldown()

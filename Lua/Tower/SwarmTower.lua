@@ -190,6 +190,14 @@ function SwarmTower.new()
 		end
 		--model:getMesh( "masterAim" ):setVisible( upgrade.getLevel("smartTargeting")>0 )
 		model:getMesh( "boost" ):setVisible( upgrade.getLevel("boost")==1 )
+		--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
+			
+			mesh:setTexture(shader,texture,4)
+		end
 		
 		--model:getMesh( "notBoosted" ):setVisible( upgrade.getLevel("boost")==0 )
 		--local towerPos = model:getMesh("tower"):getLocalMatrix():getPosition()
@@ -377,9 +385,8 @@ function SwarmTower.new()
 			setCurrentInfo()
 			--clear coldown info for boost upgrade
 			upgrade.clearCooldown()
-		else
-			return--level unchanged
 		end
+		initModel()
 	end
 	function self.handleUpgradeBurnDamage(param)
 		if tonumber(param)>upgrade.getLevel("burnDamage") and tonumber(param)<=upgrade.getLevel("upgrade") then
@@ -450,6 +457,7 @@ function SwarmTower.new()
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
+			initModel()
 			--if the tower was upgraded while boosted, then the boost should be available
 			if boostedOnLevel~=upgrade.getLevel("upgrade") then
 				upgrade.clearCooldown()

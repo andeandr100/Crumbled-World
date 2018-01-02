@@ -560,8 +560,17 @@ function SpawnManager.new()
 				-- - --value difficult is offcourse lessen by that upgrades have a 10% damage incrase
 				-- - --and of course that some tower can slow enemy speed that gives more time to kill them
 				--(275*8)/(((12/4)+(7*0.25))*455) == 1.018
+				--
+				--===
+				--===	parameters
+				--===
+				--waveMin				== can only spawn after this wave
+				--waveMax				== can only spawn before this wave
+				--waveUseLimit			== how many can spawn per wave
+				--groupSpawnDepthMin	== can only spawn after x groups have spawn on active wave
+				--groupSpawnDepthMax	== can only spawn before x groups have spawn on active wave
 				{waveUseLimit=0},
-				{waveUseLimit=1,{npc="rat",delay=0.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},--2000/2s <-> 1000ps
+				{waveUseLimit=1, groupSpawnDepthMin=1,{npc="rat",delay=0.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},--2000/2s <-> 1000ps
 				--(450*8)/(((12/2)+(7*0.25))*455) == 1.021
 				{{npc="skeleton",delay=0.0},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
 				--(600*6)/(((12/2)+(5*0.35))*455) == 1.021
@@ -582,7 +591,7 @@ function SpawnManager.new()
 				--(800*5)/(((12/2)+(4*0.5))*455) == 1.099
 				{{npc="fireSpirit",delay=0.0},{npc="fireSpirit",delay=0.5},{npc="fireSpirit",delay=0.5},{npc="fireSpirit",delay=0.5},{npc="fireSpirit",delay=0.5}},
 				--((3*600)+(6*275))/(((12/3.65)+(2*0.4)+(5*0.25)+1.25)*455) == 1.15
-				{waveMin=10,{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.4},{npc="rat_tank",delay=0.4},{npc="rat",delay=1.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},
+				{waveMin=10, groupSpawnDepthMin=1,{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.4},{npc="rat_tank",delay=0.4},{npc="rat",delay=1.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},
 				--((800)+(8*450))/(((12/2)+(7*0.25))*455) == 1.248
 				{{npc="electroSpirit",delay=0.0},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
 				--
@@ -592,7 +601,7 @@ function SpawnManager.new()
 				--((2*1000)+(8*450))/(((12/2)+(9*0.4))*455) == 1.282
 				{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}},
 				--(600*6)/(((12/3.25)+(5*0.40))*455) == 1.390
-				{{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
+				{groupSpawnDepthMin=1,{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
 				--?
 				{{npc="scorpion",delay=0.0},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="turtle",delay=0.4},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35}},
 				--((2*1000)+(6*450)+(2*800))/(((12/2)+(9*0.4))*455) == 1.442
@@ -600,7 +609,7 @@ function SpawnManager.new()
 				--((1200*4)+(275*6))/(((12/2)+((3*0.75)+(6*0.25)))*455) == 1.454
 				{waveUseLimit=1,{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="rat",delay=3.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},
 				--(275*16)/(((12/4)+(16*0.2))*455) == 1.560
-				{{npc="rat",delay=0.0},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2}},
+				{groupSpawnDepthMin=1,{npc="rat",delay=0.0},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2}},
 				--A*B*C == ?
 				{waveUseLimit=1,{npc="skeleton_cf",delay=0.0},{npc="reaper",delay=0.75}},
 				--A*B*C == ?
@@ -626,7 +635,7 @@ function SpawnManager.new()
 				--((1*2500)+(8*600))/(((12/2)+(7*0.35)+0.5)*455) == 1.793
 				{waveUseLimit=1,{npc="stoneSpirit",delay=0.0},{npc="scorpion",delay=0.5},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35}},
 				--(600*10)/(((12/3.25)+(9*0.40))*455) == 1.808
-				{waveUseLimit=1,{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
+				{waveUseLimit=1,groupSpawnDepthMin=1,{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
 				--
 				{waveUseLimit=1,{npc="stoneSpirit",delay=0.0},{npc="turtle",delay=1.0},{npc="stoneSpirit",delay=1.0}},
 				--(4*2500)/(((12/2)+(3*1))*455) == 2.254(unbeatable)
@@ -785,6 +794,8 @@ function SpawnManager.new()
 							elseif groupComp[groupIndex].groupSpawnDepthMax and groupCountForWave>groupComp[groupIndex].groupSpawnDepthMax then
 								--if the npc has missed its spawn window
 								popItem(groupComp,groupIndex)--try again
+							elseif groupComp[groupIndex].groupSpawnDepthMin and groupCountForWave<=groupComp[groupIndex].groupSpawnDepthMin then
+								--if the npc is before its spawn window
 							else
 								if groupComp[groupIndex].waveUseLimit then
 									groupComp[groupIndex].waveUseLimit = groupComp[groupIndex].waveUseLimit-1

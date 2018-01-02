@@ -216,7 +216,13 @@ function SwarmTower.new()
 		--set visibility on all meshes
 		model:getMesh( "physic" ):setVisible(false)
 		model:getMesh( "weaken" ):setVisible(upgrade.getLevel("weaken")>0)
-		model:getMesh( "boost" ):setVisible(upgrade.getLevel("boost")>0)
+		model:getMesh( "boost" ):setVisible(upgrade.getLevel("boost")>0)--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
+			mesh:setTexture(shader,texture,4)
+		end
 		for i=1, upgrade.getLevel("upgrade") do
 			model:getMesh( "range"..i ):setVisible(upgrade.getLevel("range")==i)
 			model:getMesh( "dmg"..i ):setVisible(upgrade.getLevel("damage")==i)
@@ -278,6 +284,7 @@ function SwarmTower.new()
 		end
 		upgrade.clearCooldown()
 		setCurrentInfo()
+		self.handleUpgradeDamage(param)
 	end
 	-- function:	handleBoost
 	-- purpose:		boost has been upgraded
@@ -300,9 +307,9 @@ function SwarmTower.new()
 			upgrade.degrade("boost")
 			upgrade.clearCooldown()
 			--
-			initModel()
 			setCurrentInfo()
 		end
+		initModel()
 	end
 	-- function:	handleUpgradeRange
 	-- purpose:		do all changes for upgrading the range
@@ -458,6 +465,7 @@ function SwarmTower.new()
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
+			initModel()
 			--if the tower was upgraded while boosted, then the boost should be available
 			if boostedOnLevel~=upgrade.getLevel("upgrade") then
 				upgrade.clearCooldown()
@@ -651,30 +659,33 @@ function SwarmTower.new()
 								stats = {SupportRange =			{ upgrade.add, 3}}
 							} )
 		-- Damage
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("damage",1) and 0 or 100,
+		upgrade.addUpgrade( {	cost = 0,
 								name = "damage",
 								info = "support tower damage",
 								order = 3,
 								icon = 64,
 								value1 = 10,
+								hidden = true,
 								levelRequirement = cTowerUpg.getLevelRequierment("damage",1),
 								stats = {supportDamage =		{ upgrade.add, 1}}
 							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("damage",1) and 100 or 200,
+		upgrade.addUpgrade( {	cost = 0,
 								name = "damage",
 								info = "support tower damage",
 								order = 3,
 								icon = 64,
 								value1 = 20,
+								hidden = true,
 								levelRequirement = cTowerUpg.getLevelRequierment("damage",2),
 								stats = {supportDamage =		{ upgrade.add, 2}}
 							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("damage",1) and 200 or 300,
+		upgrade.addUpgrade( {	cost = 0,
 								name = "damage",
 								info = "support tower damage",
 								order = 3,
 								icon = 64,
 								value1 = 30,
+								hidden = true,
 								levelRequirement = cTowerUpg.getLevelRequierment("damage",3),
 								stats = {supportDamage =		{ upgrade.add, 3}}
 							} )
@@ -719,7 +730,7 @@ function SwarmTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("gold",1),
 								stats = {supportGold =	{ upgrade.add, 1} }
 							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("gold",1) and 100 or 200,
+		upgrade.addUpgrade( {	cost = 100,
 								name = "gold",
 								info = "support tower gold",
 								order = 5,
@@ -728,7 +739,7 @@ function SwarmTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("gold",2),
 								stats = {supportGold =	{ upgrade.add, 2} }
 							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("gold",1) and 200 or 300,
+		upgrade.addUpgrade( {	cost = 100,
 								name = "gold",
 								info = "support tower gold",
 								order = 5,
