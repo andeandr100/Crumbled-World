@@ -22,8 +22,8 @@ local isVictory
 local campaignData = CampaignData.new()
 local files = campaignData.getMaps()
 local currentMapData = files[mapInfo.getMapNumber()]
-local diffPerLevelBase = math.floor( ((currentMapData.maxScore-currentMapData.minScore)*0.33)/500 )
-local diffPerLevel = diffPerLevelBase*500
+local diffPerLevelBase = math.floor( ((currentMapData.maxScore-currentMapData.minScore)*0.33)/1000 )
+local diffPerLevel = diffPerLevelBase*1000
 local scoreLimits = {
 	{score=0, 										index=1, minPos=Vec2(0.25,0.75),		maxPos=Vec2(0.5,0.8125), 	color=Vec3(0.65,0.65,0.65)},
 	{score=currentMapData.minScore, 				index=2, minPos=Vec2(0.0,0.5625),	maxPos=Vec2(0.25,0.625), 	color=Vec3(0.86,0.63,0.38)},
@@ -211,7 +211,8 @@ function setGraphLayout()
 	
 end
 function initiate()
-	data = bilboardStats:getTable("scoreHistory")
+	local d1 = bilboardStats:getTable("scoreHistory")
+	data = d1
 	local endWaveData = data[#data]
 	local maxScore = endWaveData[#endWaveData][9]
 	local scoreItem = getScoreItem(maxScore)

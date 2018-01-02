@@ -384,7 +384,7 @@ function CampaignGameMenu.new(panel)
 	end
 	local function showShop()
 		windowShop.setVisible(true)
-		form:setVisible(false)
+		mainPanel:setVisible(false)
 	end
 	local function updateCrystalButton()
 		crystalCountLabel:setText( Text(tostring(campaignData.getCrystal())) )
@@ -499,12 +499,11 @@ function CampaignGameMenu.new(panel)
 			windowShop.update()
 		end
 	end
+	local function returnFromShopToCampaign()
+		mainPanel:setVisible(true)
+	end
 	local function init()
-		local camera = this:getRootNode():findNodeByName("MainCamera")
-		if camera then
-			windowShop = Shop.new(camera, updateCrystalButton)
-			windowShop.setParentForm(form)
-		end
+		
 		--CampaignGameMenu.mapTable = {}
 		selectedFile = ""
 		
@@ -518,6 +517,13 @@ function CampaignGameMenu.new(panel)
 		--Top menu button panel
 		labels[5] = mainPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("campaign"), Vec3(0.94), Alignment.MIDDLE_CENTER))
 		labels[5]:setTag("campaign")
+		
+		
+		local camera = this:getRootNode():findNodeByName("MainCamera")
+		if camera then
+			windowShop = Shop.new(camera, updateCrystalButton, panel, labels[5])
+			windowShop.setGoBackCallback(returnFromShopToCampaign)
+		end
 		
 		--shop = Shop.new(mainAreaPanel)
 		

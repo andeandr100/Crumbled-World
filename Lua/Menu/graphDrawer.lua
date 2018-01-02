@@ -234,6 +234,7 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 		local steps = #data/(x-leftMargin)
 		local max = #data+0.9999
 		local wave = 1
+		local smothedY
 		while true do
 			local xx = getGridX(wave)
 			wave = wave+steps
@@ -241,7 +242,8 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 				line[#line+1] = Vec2(xx,func(max))
 				return line
 			else
-				line[#line+1] = Vec2(xx,func(wave))
+				smothedY = smothedY and ((smothedY*0.75)+(func(wave)*0.25)) or func(wave)
+				line[#line+1] = Vec2(xx,smothedY)
 			end
 		end
 		return line

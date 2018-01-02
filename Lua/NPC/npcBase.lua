@@ -211,6 +211,7 @@ function NpcBase.new()
 	end
 	function self.disappear()
 		print("self.disappear() - "..LUA_INDEX)
+		billboard:setBool("isAlive",false)
 		soul.setHp(-1.0)
 		npcIsDestroyed = true
 		syncConfirmedDeath = true

@@ -240,7 +240,7 @@ function MissileTower.new()
 			model:getMesh(meshName..(upgrade.getLevel(name)-1)):setVisible(false)
 		end
 	end
-	local function initModel()
+	local function initModel(setMissilePos)
 		level = upgrade.getLevel("upgrade")
 		for index =1, 3, 1 do
 			model:getMesh( "range"..index ):setVisible(upgrade.getLevel("range")==index)
@@ -249,15 +249,24 @@ function MissileTower.new()
 		model:getMesh( "physic" ):setVisible(false)
 		model:getMesh( "hull" ):setVisible(false)
 		model:getMesh( "boost" ):setVisible(upgrade.getLevel("boost")==1)
+		if setMissilePos then
+			for i = 1, 2+level, 1 do
+				missile[i] = missile[i] or {}
+				missile[i].missilePosition = model:getMesh( "missile"..i ):getLocalPosition()
+				missile[i].hatch1matrix = model:getMesh( "hatch"..(i*10+1) ):getLocalMatrix()
+				missile[i].hatch2matrix = model:getMesh( "hatch"..(i*10+2) ):getLocalMatrix()
+			end
+		end
+		--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
+			mesh:setTexture(shader,texture,4)
+		end
 		model:getMesh( "masterAim1" ):setVisible(false)
 		if upgrade.getLevel("range")>0 then
 			activeRangeMesh = model:getMesh( "range"..upgrade.getLevel("range") )
-		end
-		for i = 1, 2+level, 1 do
-			missile[i] = missile[i] or {}
-			missile[i].missilePosition = model:getMesh( "missile"..i ):getLocalPosition()
-			missile[i].hatch1matrix = model:getMesh( "hatch"..(i*10+1) ):getLocalMatrix()
-			missile[i].hatch2matrix = model:getMesh( "hatch"..(i*10+2) ):getLocalMatrix()
 		end
 		if level>1 then
 			model:getMesh( "antenna1" ):setVisible( false )
@@ -295,7 +304,7 @@ function MissileTower.new()
 			this:removeChild(model)
 			model = Core.getModel( upgrade.getValue("model") )
 			this:addChild(model)
-			initModel()
+			initModel(true)
 		end
 		upgrade.clearCooldown()
 		cTowerUpg.fixAllPermBoughtUpgrades()
@@ -318,9 +327,8 @@ function MissileTower.new()
 			setCurrentInfo()
 			--clear coldown info for boost upgrade
 			upgrade.clearCooldown()
-		else
-			return--level unchanged
 		end
+		initModel()
 	end
 	function self.handleFuel(param)
 		if tonumber(param)>upgrade.getLevel("fuel") and tonumber(param)<=upgrade.getLevel("upgrade") then
@@ -562,6 +570,7 @@ function MissileTower.new()
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
+			initModel()
 			--if the tower was upgraded while boosted, then the boost should be available
 			if boostedOnLevel~=upgrade.getLevel("upgrade") then
 				upgrade.clearCooldown()
@@ -882,7 +891,7 @@ function MissileTower.new()
 		targetSelector.setPosition(this:getGlobalPosition())
 		targetSelector.setRange(upgrade.getValue("range"))
 		
-		initModel()
+		initModel(true)
 		setCurrentInfo()
 		
 		cTowerUpg.addUpg("range",self.handleRange)

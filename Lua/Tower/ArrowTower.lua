@@ -198,6 +198,14 @@ function ArrowTower.new()
 		local showBoostActive = (upgrade.getLevel("boost")>0)
 		model:getMesh( "ammoDrumBoost" ):setVisible(showBoostActive)
 		model:getMesh( "ammoDrum" ):setVisible(not showBoostActive)
+		--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(showBoostActive==false and "towergroup_a" or "towergroup_boost_a")
+			
+			mesh:setTexture(shader,texture,4)
+		end
 		--Meshes
 		rotaterMesh = model:getMesh( "rotater" )
 		crossbowMesh = model:getMesh( "crossbow" )
@@ -338,12 +346,8 @@ function ArrowTower.new()
 			end
 			boostedOnLevel = upgrade.getLevel("upgrade")
 			upgrade.upgrade("boost")
+			resetModel()
 			setCurrentInfo()
-			model:getMesh( "ammoDrumBoost" ):setVisible(true)
-			model:getMesh( "ammoDrum" ):setVisible(false)
-			if upgrade.getLevel("range")>0 then
-				model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), SCOPE_ROTATION_ON_BOOST)
-			end
 			--Achievement
 			comUnit:sendTo("SteamAchievement","Boost","")
 		elseif upgrade.getLevel("boost")>tonumber(param) then
@@ -356,8 +360,6 @@ function ArrowTower.new()
 			end
 			--clear coldown info for boost upgrade
 			upgrade.clearCooldown()
-		else
-			return--level unchanged
 		end
 	end
 	function self.handleUpgradeScope(param)

@@ -46,9 +46,8 @@ function ArrowMortar.new()
 	
 	function self.init()
 		targetSelector.setPosition(this:getGlobalPosition())
-		if targetSelector.isTargetAlive(targetSelector.getTarget())==false then
-			targetSelector.deselect()
-		end
+		targetSelector.setRange(billboard:getFloat("range")+1.0)
+		targetSelector.deselect()
 		
 		targetIndex = billboard:getInt("targetIndex")
 		damage = billboard:getFloat("damage")
