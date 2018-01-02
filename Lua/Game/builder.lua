@@ -361,6 +361,7 @@ function create()
 		--used for arrow tower whos building is canceld
 		nameMaping = {}
 		
+		lastUpdateWasOnAWallTower = false
 		
 		replayIndex = 1
 		towerBuildInfo = {}
@@ -376,6 +377,7 @@ function create()
 	
 		print("test 1\n")
 		keyBinds = Core.getBillboard("keyBind")
+		keyRotationLocked = keyBinds:getKeyBind("Locked rotation")
 		keyBind = {}
 		for i = 1, 9 do
 			print("building "..tostring(i).."\n")
@@ -387,6 +389,7 @@ function create()
 		
 		print("test 2\n")
 		keyUse = keyBinds:getKeyBind("Place")
+		
 		keyDeselect = keyBinds:getKeyBind("Deselect")
 		
 		
@@ -984,8 +987,9 @@ function update()
 	end
 
 	updateSelectedTowerToBuild()
-	rotation = builderFunctions.updateBuildingRotation(rotation)
+	rotation = builderFunctions.updateBuildingRotation(rotation, lastUpdateWasOnAWallTower)
 	buildingBillboard:setInt( "buildingRotation", rotation)
+	lastUpdateWasOnAWallTower = false
 	--print( "num built tower: "..buildingBillboard:getInt("NumBuildingBuilt").."\n")
 	
 	if currentTower then
@@ -993,6 +997,7 @@ function update()
 	else
 		buildingBillboard:setBool("inBuildMode", false)
 	end
+	
 	
 	--set outline on the last seleceted tower, this is totaly seperate from selected menu selected tower
 	--Byt the same tower should be selected
@@ -1017,7 +1022,7 @@ function update()
 		
 		
 		local towerMatrix = this:getTargetIsland():getGlobalMatrix() * this:getLocalIslandMatrix()
-		if canBePlacedHere and keyUse and keyUse:getPressed() and buildCost <= gold then
+		if canBePlacedHere and keyUse and keyUse:getPressed(keyRotationLocked:getHeld()) and buildCost <= gold then
 			building = this:TryToBuild()
 			if building then
 				local script = building:getScriptByName("tower")
@@ -1083,6 +1088,7 @@ function update()
 					canBePlacedHere = true
 					local currentMatrix = towerMatrix
 					towerMatrix = building:getGlobalMatrix()
+					lastUpdateWasOnAWallTower = true
 					
 					--Rotate the tower in 90 degrees interval
 					local dotRightValue = towerMatrix:getRightVec():dot(currentMatrix:getAtVec())
@@ -1100,7 +1106,7 @@ function update()
 					local wallTowerCost = wallTowerScript:getBillboard():getFloat("cost")
 					--update this specific tower location cost
 					buildCost = buildCost - wallTowerCost
-					if keyUse and keyUse:getPressed() and buildCost <= gold then
+					if keyUse and keyUse:getPressed(keyRotationLocked:getHeld()) and buildCost <= gold then
 						--upgrade the building
 --						AutoBuilder.changeBuilding(building, currentTower, building:findNodeByTypeTowardsRoot(NodeId.island):getGlobalMatrix():inverseM() * towerMatrix )
 						local newBuildingMatrix = building:getParent():getGlobalMatrix():inverseM() * towerMatrix
