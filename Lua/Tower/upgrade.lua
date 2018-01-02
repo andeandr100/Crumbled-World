@@ -767,7 +767,7 @@ function Upgrade.new()
 						value[level].isOnDuration = false
 						self.degrade(key)
 						self.fixBillboardAndStats()
-						return true
+						return true--visual change
 					end
 				end
 				--the upgrade waits to be available again
@@ -775,27 +775,12 @@ function Upgrade.new()
 					if (value[level].startWaveCooldown+value[level].cooldown)<=Core.getBillboard("stats"):getInt("wave") then
 						value[level].isOnCoolDown = false
 						self.fixBillboardAndStats()
-						return true
+						return false--no visiual change
 					end
 				end
 			end
 		end
-		--
-	--	if self.timer and self.timer>0 then
-	--		self.timer = self.timer - Core.getDeltaTime()
-	--		if self.timer<0.0 then
-	--			if self.timerName:len()>0 then
-	--				local order = upgradesAvailable[self.timerName][1].order
-	--				local currentLevel = upgraded[order] and upgraded[order].level or 0
-	--				if currentLevel>0 then
-	--					self.degrade( self.timerName )
-	--				end
-	--			end
-	--			self.fixBillboardAndStats()
-	--			return true
-	--		end
-	--	end
-		return false
+		return false--no visiual change
 	end
 	return self
 end

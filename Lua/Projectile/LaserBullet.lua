@@ -52,10 +52,9 @@ function LaserBullet.new()
 		pointLight:setRange(1.5)
 		
 		currentPos = table[2]
-		shieldAreaIndex = targetSelector.getIndexOfShieldCovering(currentPos)
-		
 		targetSelector.setPosition(this:getGlobalPosition())
 		targetSelector.setRange(range+1.0)
+		shieldAreaIndex = targetSelector.getIndexOfShieldCovering(currentPos)
 	
 		local atVec = Vec3( (targetSelector.getTargetPosition(targetIndex)-currentPos) ):normalizeV()
 	

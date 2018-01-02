@@ -29,10 +29,10 @@ function Arrow.new()
 	
 	function self.init()
 		targetSelector.setPosition(this:getGlobalPosition())
-		targetSelector.setTarget(billboard:getInt("targetIndex"))
-		if targetSelector.isTargetAlive(targetSelector.getTarget())==false then
-			targetSelector.deselect()
-		end
+		targetSelector.setRange(billboard:getFloat("range")+1.0)
+		targetSelector.deselect()
+		targetIndex = billboard:getInt("targetIndex")
+		
 		startPos = billboard:getVec3("bulletStartPos")
 		damage = billboard:getFloat("damage")
 		weakenTimer = billboard:getFloat("weakenTimer")
@@ -44,7 +44,7 @@ function Arrow.new()
 		
 		shieldAreaIndex = targetSelector.getIndexOfShieldCovering(currentPos)
 	
-		local atVec = Vec3( (targetSelector.getTargetPosition()-currentPos) )
+		local atVec = Vec3( (targetSelector.getTargetPosition(targetIndex)-currentPos) )
 		atVec = atVec:normalizeV()
 		local matrix = Matrix()
 		matrix:createMatrix(atVec,Vec3(0.0, 0.0, 1.0))
@@ -64,13 +64,13 @@ function Arrow.new()
 	end
 	function self.update()
 		comUnit:clearMessages()
-		local atVec = Vec3( targetSelector.getTargetPosition()-currentPos )
+		local atVec = Vec3( targetSelector.getTargetPosition(targetIndex)-currentPos )
 		local lengthLeft = atVec:length()
 		atVec:normalize()
 		local frameMovment = speed * Core.getDeltaTime()
 		--
 		currentPos = currentPos + (atVec * frameMovment)
-		if targetSelector.isTargetAlive(targetSelector.getTarget())==false then
+		if targetSelector.isTargetAlive(targetIndex)==false then
 			--ops target died on the route, let's see if there is some one else to kill [this can increase damage output by upto 30%, minimizing damage fluctuation on low/high wave level]
 			local per = (startPos-currentPos):length()/8.0
 			per = (per>1.0) and 1.0 or per
@@ -81,6 +81,7 @@ function Arrow.new()
 			if targetSelector.selectAllInRange() then
 				targetSelector.scoreClosestToVector(prevAtVec,10)
 				if targetSelector.selectTargetAfterMaxScore()>0 then
+					targetIndex = targetSelector.getTarget()
 					atVec = Vec3( targetSelector.getTargetPosition()-currentPos )
 					lengthLeft = atVec:length()
 					if lengthLeft<1.0 then
@@ -96,10 +97,10 @@ function Arrow.new()
 			--direct hit on enemy target
 			--mark of death,first so that it can be used by our own attack
 			if markOfDeathPer>0.001 then
-			 	comUnit:sendTo(targetSelector.getTarget(),"markOfDeath",{per=markOfDeathPer,timer=weakenTimer,type="targeted"})
+			 	comUnit:sendTo(targetIndex,"markOfDeath",{per=markOfDeathPer,timer=weakenTimer,type="targeted"})
 			end
 			--do the attack
-			comUnit:sendTo(targetSelector.getTarget(),"attackPhysical",tostring(damage))
+			comUnit:sendTo(targetIndex,"attackPhysical",tostring(damage))
 			self.stop()
 			return false
 		elseif shieldAreaIndex~=targetSelector.getIndexOfShieldCovering(currentPos) then
@@ -114,7 +115,7 @@ function Arrow.new()
 			self.stop()
 			return false
 		end
-		if targetSelector.isTargetAlive(targetSelector.getTarget())==false then
+		if targetSelector.isTargetAlive(targetIndex)==false then
 			self.stop()
 			return false
 		end

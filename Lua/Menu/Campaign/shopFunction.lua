@@ -46,7 +46,7 @@ ShopFunction.towerUpgInfo = { ["Tower/MinigunTower.lua"]={
 		},
 		["Tower/SupportTower.lua"]={
 			{text="support tower range",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}, permaUppgrade=true, iconIndex=59, name="range" },
-			{text="support tower damage",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}, permaUppgrade=true, iconIndex=64, name="damage"},
+			--{text="support tower damage",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}, permaUppgrade=true, iconIndex=64, name="damage"},
 			{text="support tower weaken",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}, permaUppgrade=true, iconIndex=66, name="weaken"},
 			{text="support tower gold",[1]={["value1"]="1"},[2]={["value1"]="2"},[3]={["value1"]="3"}, permaUppgrade=true, iconIndex=67, name="gold"}
 		}

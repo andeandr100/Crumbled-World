@@ -211,7 +211,8 @@ function setGraphLayout()
 	
 end
 function initiate()
-	data = bilboardStats:getTable("scoreHistory")
+	local d1 = bilboardStats:getTable("scoreHistory")
+	data = d1
 	local endWaveData = data[#data]
 	local maxScore = endWaveData[#endWaveData][9]
 	local scoreItem = getScoreItem(maxScore)

@@ -11,6 +11,7 @@ require("Game/mapInfo.lua")
 QuakeTower = {}
 function QuakeTower.new()
 	local self = {}
+	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	--stats
 	local waveCount = 1
 	local dmgDone = 0
@@ -184,7 +185,7 @@ function QuakeTower.new()
 			comUnit:sendTo("SteamAchievement","QuakeMaxed","")
 		end
 	end
-	local function fixModel()
+	local function fixModel(setDefault)
 		log = model:getMesh("loog")
 		model:getMesh("elementSmasher"):setVisible(upgrade.getLevel("fireStrike")>0 or upgrade.getLevel("electricStrike")>0)
 		for i=1, upgrade.getLevel("upgrade") do
@@ -192,22 +193,31 @@ function QuakeTower.new()
 			model:getMesh("elementTower"..i):setVisible(upgrade.getLevel("fireStrike")==i or upgrade.getLevel("electricStrike")==i)
 		end
 		model:getMesh("boost"):setVisible( upgrade.getLevel("boost")==1 )
-		cogs = {}
-		for i=1, 4, 1 do
-			cogs[i] = {mesh=model:getMesh("cog"..i)}
-			local atVec = cogs[i].mesh:getLocalPosition()
-			atVec.y = 0.0
-			local mat = Matrix()
-			mat:createMatrix(atVec,Vec3(0,1,0))
-			cogs[i].rightVec = Vec3(0,1,0)
+		--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
+			mesh:setTexture(shader,texture,4)
 		end
-		defaultPos = model:getMesh("loog"):getLocalPosition()
-		if upgrade.getLevel("upgrade")==1 then
-			dropLength = 0.77
-		elseif upgrade.getLevel("upgrade")==2 then
-			dropLength = 0.98
-		else
-			dropLength = 1.22
+		if setDefault then
+			cogs = {}
+			for i=1, 4, 1 do
+				cogs[i] = {mesh=model:getMesh("cog"..i)}
+				local atVec = cogs[i].mesh:getLocalPosition()
+				atVec.y = 0.0
+				local mat = Matrix()
+				mat:createMatrix(atVec,Vec3(0,1,0))
+				cogs[i].rightVec = Vec3(0,1,0)
+			end
+			defaultPos = model:getMesh("loog"):getLocalPosition()
+			if upgrade.getLevel("upgrade")==1 then
+				dropLength = 0.77
+			elseif upgrade.getLevel("upgrade")==2 then
+				dropLength = 0.98
+			else
+				dropLength = 1.22
+			end
 		end
 	end
 	function self.handleUpgrade(param)
@@ -241,7 +251,7 @@ function QuakeTower.new()
 		model = Core.getModel( upgrade.getValue("model") )
 		this:addChild(model)
 		cTowerUpg.fixAllPermBoughtUpgrades()	
-		fixModel()
+		fixModel(true)
 		if upgrade.getLevel("fireCrit")>0 then
 			log:addChild(blasterFlame)
 		end
@@ -265,9 +275,8 @@ function QuakeTower.new()
 			setCurrentInfo()
 			--clear coldown info for boost upgrade
 			upgrade.clearCooldown()
-		else
-			return--level unchanged
 		end
+		fixModel()
 	end
 	function self.handleFireCrit(param)
 		if tonumber(param)>upgrade.getLevel("fireCrit") and tonumber(param)<=upgrade.getLevel("upgrade") then
@@ -406,13 +415,27 @@ function QuakeTower.new()
 	--	targeting
 	--
 	local function isAnyOneInRange()
-		targetSelector.selectAllInRange()
-		if upgrade.getLevel("electricStrike")>0 then
-			targetSelector.scoreName("electroSpirit",-1000)
-			return targetSelector.selectTargetAfterMaxScore(-500)>=1
-		else
-			return targetSelector.isAnyInRange()
+--		targetSelector.selectAllInRange()
+--		if upgrade.getLevel("electricStrike")>0 then
+--			targetSelector.scoreName("electroSpirit",-1000)
+--			return targetSelector.selectTargetAfterMaxScore(-500)>=1
+--		else
+--			return targetSelector.isAnyInRange()
+--		end
+		if targetSelector.selectAllInRange() then
+			if upgrade.getLevel("electricStrike")>0 then
+				targetSelector.scoreName("electroSpirit",-1000)
+				if targetSelector.selectTargetAfterMaxScore(-500)>0 then
+					return true
+				end
+			else
+				return true
+			end
 		end
+		if targetSelector.getTarget()==0 then
+			reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
+		end
+		return false
 	end
 	--
 	--
@@ -543,6 +566,7 @@ function QuakeTower.new()
 		if upgrade.update() then
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
+			fixModel()
 			--if the tower was upgraded while boosted, then the boost should be available
 			if boostedOnLevel~=upgrade.getLevel("upgrade") then
 				upgrade.clearCooldown()
@@ -591,7 +615,7 @@ function QuakeTower.new()
 					reloadTimeLeft = 1.75
 					towerState = HOLD_READY
 					hold.count = targetSelector.getAllTargetCount()
-					hold.time = 0.6
+					hold.time = 0.5
 				else
 					--attack
 					dropp()

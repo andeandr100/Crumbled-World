@@ -30,6 +30,7 @@ function ArrowTower.new()
 	--constants
 	local RECOIL_ON_ATTACK = math.pi/18.0	 	 --default kickback
 	local SCOPE_ROTATION_ON_BOOST = math.pi*30/180 --rotation to avoid ammo coger when boost is activated
+	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	--Model
 	local model
 	local rotaterMesh
@@ -197,6 +198,14 @@ function ArrowTower.new()
 		local showBoostActive = (upgrade.getLevel("boost")>0)
 		model:getMesh( "ammoDrumBoost" ):setVisible(showBoostActive)
 		model:getMesh( "ammoDrum" ):setVisible(not showBoostActive)
+		--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(showBoostActive==false and "towergroup_a" or "towergroup_boost_a")
+			
+			mesh:setTexture(shader,texture,4)
+		end
 		--Meshes
 		rotaterMesh = model:getMesh( "rotater" )
 		crossbowMesh = model:getMesh( "crossbow" )
@@ -337,12 +346,8 @@ function ArrowTower.new()
 			end
 			boostedOnLevel = upgrade.getLevel("upgrade")
 			upgrade.upgrade("boost")
+			resetModel()
 			setCurrentInfo()
-			model:getMesh( "ammoDrumBoost" ):setVisible(true)
-			model:getMesh( "ammoDrum" ):setVisible(false)
-			if upgrade.getLevel("range")>0 then
-				model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), SCOPE_ROTATION_ON_BOOST)
-			end
 			--Achievement
 			comUnit:sendTo("SteamAchievement","Boost","")
 		elseif upgrade.getLevel("boost")>tonumber(param) then
@@ -355,8 +360,6 @@ function ArrowTower.new()
 			end
 			--clear coldown info for boost upgrade
 			upgrade.clearCooldown()
-		else
-			return--level unchanged
 		end
 	end
 	function self.handleUpgradeScope(param)
@@ -489,7 +492,6 @@ function ArrowTower.new()
 	local function updateTarget()
 		--only select new target if we own the tower or we are not told anything usefull
 		if (billboard:getBool("isNetOwner") or targetSelector.getTargetIfAvailable()==0) then
-			local previousTarget = targetSelector.getTarget()
 			if targetSelector.selectAllInRange() then
 				targetSelector.filterOutState(state.ignore)
 				if targetMode==1 then
@@ -540,6 +542,9 @@ function ArrowTower.new()
 				if newTarget>0 then
 					comUnit:sendNetworkSync("NetTarget", Core.getNetworkNameOf(newTarget))
 				end
+			end
+			if targetSelector.getTarget()==0 then
+				reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
 			end
 		end
 	end

@@ -32,6 +32,7 @@ function BladeTower.new()
 	local STATUS_WAITING   							= 1
 	local STATUS_MOVING_ARM_INTO_ATTACK_POSITION	= 2
 	local STATUS_MOVING_TO_WAITING_AREA				= 3
+	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	local angle = 0.0
 	local anglePreviousFrame = 0.0
 	local status = STATUS_WAITING
@@ -280,7 +281,7 @@ function BladeTower.new()
 		mesh:setUniform(mesh:getShader(), "heatUvCoordOffset", Vec2(256/mesh:getTexture(mesh:getShader(),0):getSize().x,0))
 		mesh:setUniform(mesh:getShader(), "heat", 0.0)
 	end
-	local function initModel()
+	local function initModel(setDefaults)
 	
 		towerBuiltListener = Listener("builder")
 		towerBuiltListener:registerEvent("built",checkRange)
@@ -288,9 +289,6 @@ function BladeTower.new()
 		model:createBoundVolumeGroup()
 		model:setBoundingVolumeCanShrink(false)
 	
-		if not bulletStartPos then
-			bulletStartPos = model:getMesh( "blade" ):getGlobalPosition()
-		end
 		for index = 1, math.floor(upgrade.getLevel("upgrade")+0.01) do
 			model:getMesh( "speed"..index ):setVisible(upgrade.getLevel("attackSpeed")==index)
 		end
@@ -301,6 +299,13 @@ function BladeTower.new()
 		model:getMesh( "boost" ):setVisible(upgrade.getLevel("boost")==1)
 		model:getMesh( "showBlade" ):setVisible( (upgrade.getLevel("masterBlade")>0 and upgrade.getLevel("boost")==0) )
 		model:getMesh( "showSpear" ):setVisible( (upgrade.getLevel("masterBlade")>0 and upgrade.getLevel("boost")==1) )
+		--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
+			mesh:setTexture(shader,texture,4)
+		end
 	
 		model:getMesh( "physic" ):setVisible(false)
 	
@@ -314,67 +319,73 @@ function BladeTower.new()
 		setHeatShader(model:getMesh( "showBlade" ))
 		setHeatShader(model:getMesh( "showSpear" ))
 		
-		piston = {}
-		pistonMatrix = {}
-		pistonAtVec = {}
-		for index = 0, 1+math.floor(upgrade.getLevel("upgrade")+0.01), 1 do
-			piston[index] = model:getMesh( string.format("piston%d", index+1) )
-			pistonMatrix[index] = piston[index]:getLocalMatrix()
-			pistonAtVec[index] = Vec3()-piston[index]:getLocalPosition()--tower:getGlobalPosition()-piston[index]:getGlobalPosition()
-		end
-		pistonAng = {}
-		if upgrade.getLevel("upgrade")<2 then
-			angleStart=3.65--209.0
-			pistonAng[0]=3.65--209.0
-			pistonAng[1]=4.28--245.0
-			pistonAng[2]=4.93--283.0
-			pistonAng[3]=5.43--311.0
-		elseif upgrade.getLevel("upgrade")<3 then
-			angleStart=2.98--171.0
-			pistonAng[0]=2.98--171.0
-			pistonAng[1]=3.74--214.0
-			pistonAng[2]=4.28--245.0
-			pistonAng[3]=4.93--283.0
-			pistonAng[4]=5.43--311.0
-		elseif upgrade.getLevel("upgrade")==3 then
-			angleStart=2.37--136.0
-			pistonAng[0]=2.37--136.0
-			pistonAng[1]=3.05--175.0
-			pistonAng[2]=3.74--214.0
-			pistonAng[3]=4.28--245.0
-			pistonAng[4]=4.93--283.0
-			pistonAng[5]=5.43--311.0
-		end
-		pistonCount = 2+math.floor(upgrade.getLevel("upgrade")+0.01)
-	
-		local len=2.0*math.pi*(arm:getGlobalPosition()-bulletStartPos):length()
-		local rotTime=len/15.0
-		rotationSpeed=math.pi/rotTime--not accurate (this looks good enough)
+		if setDefaults then
+			if not bulletStartPos then
+				bulletStartPos = model:getMesh( "blade" ):getGlobalPosition()
+			end
 		
-		--performance check
-		for i=0, model:getNumMesh()-1, 1 do
-			if not model:getMesh(i):getName():toString()=="tower" then
-				model:getMesh(i):DisableBoundingVolumesDynamicUpdates()
+			piston = {}
+			pistonMatrix = {}
+			pistonAtVec = {}
+			for index = 0, 1+math.floor(upgrade.getLevel("upgrade")+0.01), 1 do
+				piston[index] = model:getMesh( string.format("piston%d", index+1) )
+				pistonMatrix[index] = piston[index]:getLocalMatrix()
+				pistonAtVec[index] = Vec3()-piston[index]:getLocalPosition()--tower:getGlobalPosition()-piston[index]:getGlobalPosition()
 			end
-		end
+			pistonAng = {}
+			if upgrade.getLevel("upgrade")<2 then
+				angleStart=3.65--209.0
+				pistonAng[0]=3.65--209.0
+				pistonAng[1]=4.28--245.0
+				pistonAng[2]=4.93--283.0
+				pistonAng[3]=5.43--311.0
+			elseif upgrade.getLevel("upgrade")<3 then
+				angleStart=2.98--171.0
+				pistonAng[0]=2.98--171.0
+				pistonAng[1]=3.74--214.0
+				pistonAng[2]=4.28--245.0
+				pistonAng[3]=4.93--283.0
+				pistonAng[4]=5.43--311.0
+			elseif upgrade.getLevel("upgrade")==3 then
+				angleStart=2.37--136.0
+				pistonAng[0]=2.37--136.0
+				pistonAng[1]=3.05--175.0
+				pistonAng[2]=3.74--214.0
+				pistonAng[3]=4.28--245.0
+				pistonAng[4]=4.93--283.0
+				pistonAng[5]=5.43--311.0
+			end
+			pistonCount = 2+math.floor(upgrade.getLevel("upgrade")+0.01)
 		
-		if status~=STATUS_MOVING_ARM_INTO_ATTACK_POSITION then
-			status = STATUS_WAITING
-			reloadTimeLeft = 0.0--model is reseted
-			angle = angleStart
-			--
-			--manage pistons
-			for index = 0, pistonCount-1, 1 do
-			 	piston[index]:setLocalPosition(pistonMatrix[index]:getPosition())
+			local len=2.0*math.pi*(arm:getGlobalPosition()-bulletStartPos):length()
+			local rotTime=len/15.0
+			rotationSpeed=math.pi/rotTime--not accurate (this looks good enough)
+			
+			--performance check
+			for i=0, model:getNumMesh()-1, 1 do
+				if not model:getMesh(i):getName():toString()=="tower" then
+					model:getMesh(i):DisableBoundingVolumesDynamicUpdates()
+				end
 			end
-			--manage effects
-			if upgrade.getLevel("electricBlade")>0 then
-				 sparkCenter1:setScale( upgradeElectricScale ) 
-				 sparkCenter2:setScale( upgradeElectricScale )
+			
+			if status~=STATUS_MOVING_ARM_INTO_ATTACK_POSITION then
+				status = STATUS_WAITING
+				reloadTimeLeft = 0.0--model is reseted
+				angle = angleStart
+				--
+				--manage pistons
+				for index = 0, pistonCount-1, 1 do
+				 	piston[index]:setLocalPosition(pistonMatrix[index]:getPosition())
+				end
+				--manage effects
+				if upgrade.getLevel("electricBlade")>0 then
+					 sparkCenter1:setScale( upgradeElectricScale ) 
+					 sparkCenter2:setScale( upgradeElectricScale )
+				end
 			end
+			anglePreviousFrame = angle
+			arm:rotate(Vec3(1.0,0.0,0.0), angle)--generateRotationMatrix(_angle);
 		end
-		anglePreviousFrame = angle
-		arm:rotate(Vec3(1.0,0.0,0.0), angle)--generateRotationMatrix(_angle);
 	end
 	local function NetAttack()
 		if reloadTimeLeft<0.0 and status==STATUS_MOVING_ARM_INTO_ATTACK_POSITION and angle>2.0*math.pi then
@@ -439,7 +450,7 @@ function BladeTower.new()
 				model:getMesh( "tower" ):addChild(sparkCenter2)
 			end
 		
-			initModel()--resets the model
+			initModel(true)--resets the model
 			if upgrade.getLevel("masterBlade")>0 then
 				--heat level
 				local percentage = upgrade.getLevel("masterBlade")/3.0
@@ -460,27 +471,16 @@ function BladeTower.new()
 			end
 			boostedOnLevel = upgrade.getLevel("upgrade")
 			upgrade.upgrade("boost")
-			model:getMesh( "boost" ):setVisible(true)
-			model:getMesh( "showSpear" ):setVisible(true)
-			model:getMesh( "showBlade" ):setVisible(false)
-			model:getMesh( "spear" ):setVisible(status==STATUS_MOVING_ARM_INTO_ATTACK_POSITION)
-			model:getMesh( "blade" ):setVisible(false)
 			setCurrentInfo()
 			--Achievement
 			comUnit:sendTo("SteamAchievement","Boost","")
 		elseif upgrade.getLevel("boost")>tonumber(param) then
 			upgrade.degrade("boost")
-			model:getMesh( "boost" ):setVisible(false)
-			model:getMesh( "spear" ):setVisible(false)
-			model:getMesh( "blade" ):setVisible(true)
-			model:getMesh( "showBlade" ):setVisible( upgrade.getLevel("masterBlade")>0 )
-			model:getMesh( "showSpear" ):setVisible( false )
 			setCurrentInfo()
 			--clear coldown info for boost upgrade
 			upgrade.clearCooldown()
-		else
-			return--level unchanged
 		end
+		initModel()
 	end
 	function self.handleAttackSpeed(param)
 		if tonumber(param)>upgrade.getLevel("attackSpeed") and tonumber(param)<=upgrade.getLevel("upgrade") then
@@ -664,11 +664,7 @@ function BladeTower.new()
 		end
 		--handle boost
 		if upgrade.update() then
-			model:getMesh( "boost" ):setVisible(false)
-			model:getMesh( "spear" ):setVisible(false)
-			model:getMesh( "blade" ):setVisible(true)
-			model:getMesh( "showBlade" ):setVisible( upgrade.getLevel("masterBlade")>0 )
-			model:getMesh( "showSpear" ):setVisible( false )
+			initModel()
 			setCurrentInfo()
 			--if the tower was upgraded while boosted, then the boost should be available
 			if boostedOnLevel~=upgrade.getLevel("upgrade") then
@@ -685,18 +681,22 @@ function BladeTower.new()
 		--
 		if reloadTimeLeft<0.0 then
 			--we can fire at any time
-			if status==STATUS_WAITING and targetSelector.selectAllInCapsule(attackLine,1.5) then
-				--start the attack
-				status = STATUS_MOVING_ARM_INTO_ATTACK_POSITION
-				--manage reload timer
-				if reloadTimeLeft+deltaTime<0.0 then
-					reloadTimeLeft = 0.0--we have been waiting to start an attack
+			if status==STATUS_WAITING then
+				if targetSelector.selectAllInCapsule(attackLine,1.5) then
+					--start the attack
+					status = STATUS_MOVING_ARM_INTO_ATTACK_POSITION
+					--manage reload timer
+					if reloadTimeLeft+deltaTime<0.0 then
+						reloadTimeLeft = 0.0--we have been waiting to start an attack
+					end
+					--show blade/spear
+					blade:setVisible(upgrade.getLevel("boost")==0)
+					spear:setVisible(upgrade.getLevel("boost")==1)
+					--play sound
+					soundRelease:play(0.75,false)
+				else
+					reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
 				end
-				--show blade/spear
-				blade:setVisible(upgrade.getLevel("boost")==0)
-				spear:setVisible(upgrade.getLevel("boost")==1)
-				--play sound
-				soundRelease:play(0.75,false)
 			end
 			if status==STATUS_MOVING_ARM_INTO_ATTACK_POSITION then
 				--we are moving the arm into position to drop the blade
@@ -736,7 +736,7 @@ function BladeTower.new()
 				anglePreviousFrame = angle
 			end
 			--reload animations/particles
-			if reloadTimeLeft+deltaTime>0.0 then
+			if reloadTimeLeft+deltaTime>0.0 and status~=STATUS_WAITING then
 				local procent=reloadTimeLeft/(1.0/upgrade.getValue("RPS"))
 				--manage pistons
 				for index = 0, pistonCount-1, 1 do

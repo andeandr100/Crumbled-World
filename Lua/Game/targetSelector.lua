@@ -181,7 +181,7 @@ function TargetSelector.new(pteam)
 		if self.isTargetAlive(target) then
 			local effectiveRange = range + (self.isTargetInStateAShieldGenerator(target) and SHIELD_RANGE or 0.0)
 			local pos = self.getTargetPosition(target)
-			local inRange = (soulTable[target] and (pos-position):length()<=effectiveRange)
+			local inRange = (pos-position):length()<=effectiveRange
 			if inRange and defaultAngleLimit<math.pi then
 				local diff = pos-position
 				local targetAt = Vec2(diff.x,diff.z)
@@ -473,9 +473,6 @@ function TargetSelector.new(pteam)
 	-- purpose:		manualy set what target to target
 	function self.setTarget(target)
 		currentTarget = target
-		if not self.isTargetAvailable() then
-			currentTarget = 0
-		end
 	end
 	-- function:	deselect
 	-- purpose:		manually deselect selected target
@@ -595,6 +592,7 @@ function TargetSelector.new(pteam)
 		end
 	end
 	-- function:	scoreRandom
+	
 	-- purpose:
 	function self.scoreRandom(maxScoreToAdd)
 		for index,score in pairs(targetTable) do

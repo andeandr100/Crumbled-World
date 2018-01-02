@@ -8,7 +8,7 @@ function restartMap()
 	waveHistory = {}
 	scoreHistory = {}
 	currentWave = mapInfo.getStartWave()
-	
+	billboard:erase("scoreHistory")
 	billboard:setDouble("gold", startGold or 1000)
 	billboard:setDouble("goldGainedTotal", startGold or 1000)
 	billboard:setDouble("goldGainedFromKills", 0.0)
@@ -65,8 +65,8 @@ function restartWave(wave)
 	local item = waveHistory[wave]
 	currentWave = wave
 	statsPerKillTable[currentWave] = {}
-	statsPerKillTable[currentWave+1] = {}
 	LOG("STATS.RESTARTWAVE("..tostring(wave)..")\n")
+	billboard:erase("scoreHistory")
 	if not item then
 		error("the wave must be cretated, to be able to restore it")
 	else
@@ -534,13 +534,6 @@ function handleSaveScore()
 			end
 		end
 	end
-	--
---	local mapInfo = MapInfo.new()	
---	local f1 = File("Data/Dynamic/CampaignScore/"..mapInfo.getMapName().."__"..mapInfo.getLevel().."_"..mapInfo.getGameMode()..".st")
---	local writeToFile = true
---	if f1:exist() then
---		billboard:setTable("scoreHistory", totable(f1:getContent()) )
---	end
 end
 function handleAddSpawn()
 	billboard:setInt("spawnCount", billboard:getInt("spawnCount")+1)
