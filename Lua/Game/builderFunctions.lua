@@ -46,10 +46,56 @@ function BuilderFunctions.new(keyBinds, inCamera)
 		end
 	end
 	
-	function self.updateBuildingRotation(rotation)
-		local mouseWheelTickes = Core.getInput():getKeyHeld(Key.lshift) and 0 or Core.getInput():getMouseWheelTicks()
+	local function stepRotation(stepSize, mouseWheelTickes, rotation)
+			print("mouseWheelTickes: "..mouseWheelTickes.."\n")
+			
+			print("stepSize: "..stepSize.."\n")
+			local diff = rotation - math.floor(rotation / stepSize) * stepSize;
+			print("diff: "..diff.."\n")
+			if math.abs(diff) > 0.01 then
+				
+				if mouseWheelTickes > 0 then
+					rotation = math.ceil(rotation / stepSize) * stepSize;
+				else
+					rotation = math.floor(rotation / stepSize) * stepSize;
+				end
+				
 		
-		if keyRotationLocked and keyRotationLocked:getHeld() and mouseWheelTickes ~= 0 then
+				if math.abs( diff ) > stepSize * 0.1 then
+					rotationTime = Core.getGameTime()
+				end
+			end
+			
+			if Core.getGameTime() - rotationTime > 0.1 then
+				if mouseWheelTickes > 0 then
+					rotation = rotation + stepSize
+					print("mouseWheelTickes > 0\n")
+				else
+					print("mouseWheelTickes < 0\n")
+					rotation = rotation - stepSize
+				end
+				rotationTime = Core.getGameTime()
+			end
+		return rotation
+	end 
+	
+	function self.updateBuildingRotation(rotation, lastUpdateWasOnAWallTower)
+		local mouseWheelTickes = Core.getInput():getKeyHeld(Key.lshift) and 0 or Core.getInput():getMouseWheelTicks()
+		if lastUpdateWasOnAWallTower then
+			if math.abs(mouseWheelTickes) > 0.001 and Core.getGameTime() - rotationTime > 0.05 then
+	
+				if mouseWheelTickes > 0 then
+					rotation = rotation + math.pi * 0.25;
+				else
+					rotation = rotation - math.pi * 0.25;
+				end
+				
+				rotationTime = Core.getGameTime()
+				
+				rotation = (rotation > 2 * math.pi) and rotation - 2 * math.pi or rotation
+				rotation = (rotation < 0) and rotation + 2 * math.pi or rotation
+			end
+		elseif keyRotationLocked and keyRotationLocked:getHeld() and math.abs(mouseWheelTickes) > 0.001 then
 			print("mouseWheelTickes: "..mouseWheelTickes.."\n")
 			
 			local stepSize = math.pi * 0.25;

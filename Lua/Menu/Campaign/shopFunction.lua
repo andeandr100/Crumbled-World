@@ -23,7 +23,7 @@ ShopFunction.towerUpgInfo = { ["Tower/MinigunTower.lua"]={
 			{text="electric tower range",[1]={["value1"]="4.75"},[2]={["value1"]="5.5"},[3]={["value1"]="6.25"}, permaUppgrade=true, iconIndex=59 , name="range"},
 			{text="electric tower slow",[1]={["value1"]="15",["value2"]="0.75"},[2]={["value1"]="30",["value2"]="1.25"},[3]={["value1"]="45",["value2"]="1.75"}, permaUppgrade=true, iconIndex=55, name="ampedSlow"},
 			{text="electric tower energy pool",[1]={["value1"]="30"},[2]={["value1"]="60"},[3]={["value1"]="90"}, permaUppgrade=true, iconIndex=41, name="energyPool"},
-			{text="electric tower energy regen",[1]={["value1"]="15"},[2]={["value1"]="30"},[3]={["value1"]="45"}, permaUppgrade=true, iconIndex=38, name="energy"}
+			{text="electric tower energy regen",[1]={["value1"]="15"},[2]={["value1"]="30"},[3]={["value1"]="45"}, permaUppgrade=true, iconIndex=50, name="energy"}
 		},
 		["Tower/BladeTower.lua"]={
 			{text="Arrow tower range",[1]={["value1"]="10.5"},[2]={["value1"]="12"},[3]={["value1"]="13.5"}, permaUppgrade=true, iconIndex=59, name="range" },
