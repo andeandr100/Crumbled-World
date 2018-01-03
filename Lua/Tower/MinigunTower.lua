@@ -100,6 +100,8 @@ function MinigunTower.new()
 					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
 					DamageTotal = billboard:getDouble("DamageTotal"),
 					currentTargetMode = billboard:getInt("currentTargetMode"),
+					overHeatPer = overHeatPer,
+					overheated = overheated,
 					engineMatrix = engineMesh:getLocalMatrix(),
 					rotatorMatrix = rotatorMesh:getLocalMatrix(),
 					boostedOnLevel = boostedOnLevel,
@@ -153,6 +155,8 @@ function MinigunTower.new()
 				engineMesh:setLocalMatrix(tab.engineMatrix)
 				rotatorMesh:setLocalMatrix(tab.rotatorMatrix)
 				boostedOnLevel = tab.boostedOnLevel
+				overHeatPer = tab.overHeatPer
+				overheated = tab.overheated
 			end
 		end
 	end
@@ -871,36 +875,33 @@ function MinigunTower.new()
 								info = "minigun tower overcharge",
 								order = 3,
 								icon = 63,
-								value1 = 40,
+								value1 = 30,
 								levelRequirement = cTowerUpg.getLevelRequierment("overCharge",1),
-								stats = {	damage = 	{ upgrade.mul, 1.27, ""},
-											RPS =		{ upgrade.mul, 1.1, ""},
+								stats = {	damage = 	{ upgrade.mul, 1.30, ""},
 											cooldown =	{ upgrade.add, 10.0, "s"},
-											overheat =	{ upgrade.add, 12.0, "s"} }--(10/(10+12))*RPS*damge==0.76 (worst case -26%) [15% is target for average]
+											overheat =	{ upgrade.add, 13.0, "s"} }--(10/(10+12))*RPS*damge==0.76 (worst case -26%) [15% is target for average]
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "overCharge",
 								info = "minigun tower overcharge",
 								order = 3,
 								icon = 63,
-								value1 = 80,
+								value1 = 60,
 								levelRequirement = cTowerUpg.getLevelRequierment("overCharge",2),
-								stats = {	damage = 	{ upgrade.mul, 1.56, ""},
-											RPS =		{ upgrade.mul, 1.15, ""},
+								stats = {	damage = 	{ upgrade.mul, 1.60, ""},
 											cooldown =	{ upgrade.add, 10.0, "s"},
-											overheat =	{ upgrade.add, 12.0, "s"} }--(10/(10+12))*RPS*damge==0.98 (worst case -2%) [30% is target for average]
+											overheat =	{ upgrade.add, 13.0, "s"} }--(10/(10+12))*RPS*damge==0.98 (worst case -2%) [30% is target for average]
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "overCharge",
 								info = "minigun tower overcharge",
 								order = 3,
 								icon = 63,
-								value1 = 120,
+								value1 = 90,
 								levelRequirement = cTowerUpg.getLevelRequierment("overCharge",3),
-								stats = {	damage = 	{ upgrade.mul, 1.84, ""},
-											RPS =		{ upgrade.mul, 1.2, ""},
+								stats = {	damage = 	{ upgrade.mul, 1.90, ""},
 											cooldown =	{ upgrade.add, 10.0, "s"},
-											overheat =	{ upgrade.add, 12.0, "s"} }--(10/(10+12))*RPS*damge==1.20 (worst case +20%)	[45% is target for average]
+											overheat =	{ upgrade.add, 13.0, "s"} }--(10/(10+12))*RPS*damge==1.20 (worst case +20%)	[45% is target for average]
 							} )
 		-- Grease bullets (increases the damage to burning targets by 20% every upgrade)
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,

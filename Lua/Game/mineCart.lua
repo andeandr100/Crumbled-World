@@ -60,6 +60,10 @@ function restoreWaveChangeStats( wave )
 		offset = tab.offset
 		this:setLocalMatrix(tab.mat)
 	end
+	lostTheGame = false
+	fallVelocity = Vec3()
+	fallDirection = Vec3()
+	fallAtDirection = Vec3()
 end
 function restartWave(param)
 	restoreWaveChangeStats( tonumber(param) )
@@ -82,7 +86,6 @@ function restartMap()
 	fallDirection = Vec3()
 	fallAtDirection = Vec3()
 	lostTheGame = false
-	update = mainUpdate
 	this:setLocalMatrix(startMatrix)
 	--we have gone back in time erase all tables that is from the future, that can never be used
 	clearWavesAfter(0)
@@ -109,7 +112,6 @@ function create()
 	wheel1 = this:getMesh("wheel1")
 	wheel2 = this:getMesh("wheel2")
 	
-	mainUpdate = update
 	startMatrix = this:getLocalMatrix()
 	
 	restartListener = Listener("Restart")

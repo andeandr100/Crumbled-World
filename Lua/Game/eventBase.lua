@@ -52,7 +52,7 @@ function EventBase.new()
 	local restartListener
 	local destroyInNFrames = nil
 	local restartInWaves = nil
-	local startTime = Core.getGameTime()
+	local restartTimer = Core.getGameTime()
 	--this:addChild(soundWind)
 	--
 	--
@@ -278,6 +278,8 @@ function EventBase.new()
 	end
 	function self.doRestartWave(restartedFromTheOutSide)
 		if waveCount>=(STARTWAVE+1) then
+			waveRestarted = true
+			restartTimer = Core.getGameTime()
 			waveCount = math.max(STARTWAVE, spawnManager.isFirstNpcOfWaveSpawned() and (waveCount - 1) or (waveCount - 2) )
 			comUnit:sendTo("SteamStats","ReverseTimeCount",1)
 			previousWaveCounter = previousWaveCounter + 1		--acievment stat counter
@@ -301,7 +303,6 @@ function EventBase.new()
 			else
 				currentState = EVENT_CHANGE_WAVE
 				comUnit:broadCast(Vec3(),math.huge,"disappear","")
-				waveRestarted = true
 				
 				--
 				local restartWaveListener = Listener("RestartWave")
@@ -573,7 +574,7 @@ function EventBase.new()
 --		end
 		
 		if bilboardStats then
-			if bilboardStats:getInt("life") <= 0 and waveCount>STARTWAVE and (Core.getGameTime()-startTime) > 1.0 then
+			if bilboardStats:getInt("life") <= 0 and waveCount>STARTWAVE and waveRestarted==false and (Core.getGameTime()-restartTimer) > 4.0 then
 				local highScoreBillBoard = Core.getGlobalBillboard("highScoreReplay")
 				local isAReplay = highScoreBillBoard:getBool("replay")
 				if not eventBaserunOnlyOnce and isAReplay == false then

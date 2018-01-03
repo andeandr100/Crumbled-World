@@ -45,18 +45,19 @@ end
 -- purpose:		called when restart button is pressed (only available on losing the game)
 function restartMap()
 	restartListener:pushEvent("restart")
+	update = endScript
 end
 -- function:	restartWave
 -- purpose:		called whne restart wave is clicked (only available on losing the game)
 function restartWave()
 	restartWaveListener:pushEvent("EventBaseRestartWave")
-	form:setVisible(false)
 	comUnit:sendTo("EventManager","EventBaseRestartWave","")
+	update = endScript
 end
 -- function:	waveRetarted
 -- purpose:		called when another script has restarted a wave
-function waveRestarted()
-	form:setVisible(false)
+function waveRestartedElsewhere()
+	update = endScript
 end
 
 local function getScoreItem(score)
@@ -223,10 +224,9 @@ function initiate()
 	indexSpeed = indexMax/PLAYTIME+1
 	
 	restartListener = Listener("Restart")
-	restartWaveListener = Listener("EventBaseRestartWave")
-	
+	restartListener:registerEvent("restart", waveRestartedElsewhere)
 	restartWaveListener = Listener("RestartWave")
-	restartWaveListener:registerEvent("restartWave", waveRestarted)
+	restartWaveListener:registerEvent("restartWave", waveRestartedElsewhere)
 	
 	local rootNode = this:getRootNode();
 	local camera = rootNode:findNodeByName("MainCamera");
@@ -372,6 +372,9 @@ local function waveIndexHasChanged(waveIndex)
 end
 -- function:	update
 -- purpose:		updates the script every frame
+function endScript()
+	return false
+end
 function update()
 	if data then
 		if initEventDone==false and index~=indexMax then

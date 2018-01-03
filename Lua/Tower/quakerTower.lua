@@ -860,7 +860,7 @@ function QuakeTower.new()
 								stats ={damage =	{ upgrade.mul, 1.30},
 										slow = 		{ upgrade.add, 0.15},
 										slowTimer =	{ upgrade.add, 2.0},
-										count =		{ upgrade.add, 6}}
+										count =		{ upgrade.add, 7}}
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "electricStrike",
@@ -874,7 +874,7 @@ function QuakeTower.new()
 								stats ={damage =	{ upgrade.mul, 1.60},
 										slow = 		{ upgrade.add, 0.28},
 										slowTimer =	{ upgrade.add, 2.0},
-										count =		{ upgrade.add, 6}}
+										count =		{ upgrade.add, 7}}
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "electricStrike",
@@ -888,7 +888,7 @@ function QuakeTower.new()
 								stats ={damage =	{ upgrade.mul, 1.90},
 										slow = 		{ upgrade.add, 0.39},
 										slowTimer =	{ upgrade.add, 2.0},
-										count =		{ upgrade.add, 6}}
+										count =		{ upgrade.add, 7}}
 							} )
 		supportManager.setUpgrade(upgrade)
 		supportManager.addHiddenUpgrades()
