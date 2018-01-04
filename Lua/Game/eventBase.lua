@@ -224,9 +224,7 @@ function EventBase.new()
 		waveFinishedBonus = pWaveFinishedBonus
 		interestOnKill = tostring(pInterestOnKill)
 		setGold(pStartGold)
-		comUnit:sendTo("stats", "setLife", tostring(pLives))
 		comUnit:sendTo("stats", "setMaxLife", tostring(pLives))
-		comUnit:sendTo("stats","setInterestRateOnKill",interestOnKill)--0.2% intereset per kill
 		local tab = {startGold=pStartGold,WaveFinishedBonus=pWaveFinishedBonus,lives=pLives,level=pLevel}
 		--comUnit:sendNetworkSyncSafe("NetInitData",tabToStrMinimal(tab))
 		sendNetworkSyncSafe("NetInitData",tabToStrMinimal(tab))
@@ -274,7 +272,6 @@ function EventBase.new()
 		spawnManager.setGoldMultiplayerOnKills(pGoldMultiplayerOnKills)
 		interestOnKill = tostring(pInterestOnKill)
 		setGold(pStartGold)
-		comUnit:sendTo("stats","setInterestRateOnKill",interestOnKill)--0.2% intereset per kill
 	end
 	function self.doRestartWave(restartedFromTheOutSide)
 		if waveCount>=(STARTWAVE+1) then

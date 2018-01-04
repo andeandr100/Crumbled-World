@@ -6,7 +6,7 @@ ShopFunction = {}
 ShopFunction.data = CampaignData.new()
 ShopFunction.towerUpgInfo = { ["Tower/MinigunTower.lua"]={
 			{text="minigun tower range",[1]={["value1"]="5.75"},[2]={["value1"]="6.5"},[3]={["value1"]="7.25"}, permaUppgrade=true, iconIndex=59, name="range" },
-			{text="minigun tower overcharge",[1]={["value1"]="30"},[2]={["value1"]="60"},[3]={["value1"]="90"}, permaUppgrade=true, iconIndex=63, name="overCharge"},
+			{text="minigun tower overcharge",[1]={["value1"]="35"},[2]={["value1"]="70"},[3]={["value1"]="105"}, permaUppgrade=true, iconIndex=63, name="overCharge"},
 			{text="minigun tower firecrit",[1]={["value1"]="20"},[2]={["value1"]="40"},[3]={["value1"]="60"}, permaUppgrade=true, iconIndex=36, name="fireCrit"}
 		},
 		["Tower/ArrowTower.lua"]={
