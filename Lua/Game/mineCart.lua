@@ -159,10 +159,6 @@ function getNumNpcOnTheCart()
 	
 	return targetsInRangeCount
 end
-
-function move(point1, point2, offset, moveDistance)
-	
-end
 function updateDeathArea()
 	cartDeathPosition = cartDeathPosition or this:getGlobalPosition()
 	comUnit:broadCast(cartDeathPosition,1,"attack",tostring(1000000000))
@@ -229,20 +225,20 @@ function update()
 					index = index + 1
 				end
 			end
-			--rotating wheel
-			local rotationThisFrame = Core.getDeltaTime()*2*math.pi*(currentSpeed/1.153)	--1.153=diameter*pi
-			wheel1:rotate(Vec3(1,0,0),rotationThisFrame)
-			wheel2:rotate(Vec3(1,0,0),rotationThisFrame)
-			--can only lose if some one is touching the cart
-			--prevents sync issues, that all dies, new wave, cart falls over edge
-			if index == numPoints and numNpc>=1 then
+			--check if cart is falling over  the edge
+			if index == numPoints then
 				lostTheGame = true
+				
+				comUnit:sendTo("stats", "npcReachedEnd",100)	--for menu stats
 				
 				fallDirection = ((points[numPoints] - points[numPoints-1]):normalizeV() + Vec3(0,-0.3,0)):normalizeV()
 				fallAtDirection = fallDirection
 				fallVelocity = fallDirection * currentSpeed
 			end
-			
+			--rotating wheel
+			local rotationThisFrame = Core.getDeltaTime()*2*math.pi*(currentSpeed/1.153)	--1.153=diameter*pi
+			wheel1:rotate(Vec3(1,0,0),rotationThisFrame)
+			wheel2:rotate(Vec3(1,0,0),rotationThisFrame)
 		elseif moveBackTime < 0 and (index > 1 or offset > 0) then
 			currentSpeed = math.clamp(currentSpeed - (maxSpeed*0.2*Core.getDeltaTime()), -maxSpeed*0.2, 0.0)
 			local moveDistance = currentSpeed * Core.getDeltaTime()
@@ -285,11 +281,6 @@ function update()
 	if lostTheGame then
 		--cart is dead
 		updateDeathArea()
-		
-		--
-		--	Communicate map failure
-		--
-		comUnit:sendTo("stats", "npcReachedEnd",1)	--for menu stats
 		--
 		
 		local localMatrix = this:getLocalMatrix()
