@@ -199,62 +199,64 @@ function SpawnManager.new()
 		currentWaves[#currentWaves] = nil
 	end
 	function self.spawnUnits()
-		LOG("self.spawnUnits()")
-		local i=1
-		while i<=#currentWaves do
-			local current = currentWaves[i]
-			if not spawns then
-				pathBilboard = pathBilboard and pathBilboard or Core.getBillboard("Paths")
-				if not pathBilboard then
-					error("No path bilboard")
+		bilboardStats = bilboardStats or Core.getBillboard("stats")
+		if bilboardStats:getInt("life")>=0 then
+			local i=1
+			while i<=#currentWaves do
+				local current = currentWaves[i]
+				if not spawns then
+					pathBilboard = pathBilboard and pathBilboard or Core.getBillboard("Paths")
+					if not pathBilboard then
+						error("No path bilboard")
+					end
+					spawns = pathBilboard and pathBilboard:getTable("spawns") or {}
+					if #spawns==0 then
+						error("No spawn points detected\n")
+					end
 				end
-				spawns = pathBilboard and pathBilboard:getTable("spawns") or {}
-				if #spawns==0 then
-					error("No spawn points detected\n")
-				end
-			end
-			currentSpawn = current[current.waveUnitIndex]
-			if not currentSpawn then
-				eraseCurrentWave(i)
-			else
-				--count down untill spawn
-				currentSpawn.delay =  currentSpawn.delay - Core.getDeltaTime()
-				if  currentSpawn.delay<0.0 then
-					
-					--inform path render system that the first wave has spawned
-					Core.getGlobalBillboard("Paths"):setBool("started", true)
-					
-					if spawnPattern==SPAWN_PATTERN.Random then
-						spawnCurrentUnit(current,math.randomInt(1, #spawns))
-					elseif spawnPattern==SPAWN_PATTERN.Clone then
-						for i=1, #spawns do
-							if Core.isInMultiplayer()==false or Core.getNetworkClient():isPlayerIdInUse(spawns[i].island:getPlayerId())==true then
-								spawnCurrentUnit(current,i)
+				currentSpawn = current[current.waveUnitIndex]
+				if not currentSpawn then
+					eraseCurrentWave(i)
+				else
+					--count down untill spawn
+					currentSpawn.delay =  currentSpawn.delay - Core.getDeltaTime()
+					if  currentSpawn.delay<0.0 then
+						
+						--inform path render system that the first wave has spawned
+						Core.getGlobalBillboard("Paths"):setBool("started", true)
+						
+						if spawnPattern==SPAWN_PATTERN.Random then
+							spawnCurrentUnit(current,math.randomInt(1, #spawns))
+						elseif spawnPattern==SPAWN_PATTERN.Clone then
+							for i=1, #spawns do
+								if Core.isInMultiplayer()==false or Core.getNetworkClient():isPlayerIdInUse(spawns[i].island:getPlayerId())==true then
+									spawnCurrentUnit(current,i)
+								end
 							end
+						elseif spawnPattern==SPAWN_PATTERN.Grouped then
+							if not npc[currentSpawn.npc] then
+								--currentPortalId = currentPortalId==#spawns and 1 or currentPortalId+1
+								currentPortalId = ((current.waveCount+current.groupCounter)%(#spawns))+1
+								current.groupCounter = current.groupCounter + 1
+							end
+							spawnCurrentUnit(current,currentPortalId)
+						else
+							error("Not implemented\n")
+							spawnCurrentUnit(current,math.randomInt(1, #spawns))
 						end
-					elseif spawnPattern==SPAWN_PATTERN.Grouped then
-						if not npc[currentSpawn.npc] then
-							--currentPortalId = currentPortalId==#spawns and 1 or currentPortalId+1
-							currentPortalId = ((current.waveCount+current.groupCounter)%(#spawns))+1
-							current.groupCounter = current.groupCounter + 1
+						--get next unit to spawn
+						current.waveUnitIndex = current.waveUnitIndex + 1
+						local nextSpawn = current[current.waveUnitIndex]
+						if nextSpawn then
+							--update time for the next spawn
+							nextSpawn.delay = nextSpawn.delay + currentSpawn.delay
+						else
+							eraseCurrentWave(i)
+							i = i - 1
 						end
-						spawnCurrentUnit(current,currentPortalId)
-					else
-						error("Not implemented\n")
-						spawnCurrentUnit(current,math.randomInt(1, #spawns))
 					end
-					--get next unit to spawn
-					current.waveUnitIndex = current.waveUnitIndex + 1
-					local nextSpawn = current[current.waveUnitIndex]
-					if nextSpawn then
-						--update time for the next spawn
-						nextSpawn.delay = nextSpawn.delay + currentSpawn.delay
-					else
-						eraseCurrentWave(i)
-						i = i - 1
-					end
+					i = i + 1
 				end
-				i = i + 1
 			end
 		end
 	end

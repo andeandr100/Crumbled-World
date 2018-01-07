@@ -20,6 +20,8 @@ function NpcPanel.new(panel)
 	local loadBarIcon2
 	local startTimeIcone
 	--
+	local bilboardStats
+	--
 	local spawnList
 	local spawnListWaveIndex = {}
 	
@@ -618,7 +620,8 @@ function NpcPanel.new(panel)
 			--this will only change the buffer if the buffer size changes
 			selectedCamera:setFrameBufferSize(frameBufferSize)
 		end
-		if spawnList then
+		bilboardStats = bilboardStats or Core.getBillboard("stats")
+		if spawnList and bilboardStats:getInt("life")>=0 then
 			--make sure there is enough npc's to fill the menu
 			fillMenu(currentWaveIndex,false,false)
 			--remove units outside this waveCount

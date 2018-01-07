@@ -68,6 +68,10 @@ function restoreWaveChangeStats( wave )
 	fallVelocity = Vec3()
 	fallDirection = Vec3()
 	fallAtDirection = Vec3()
+	if index == numPoints then
+		index = numPoints-1
+		offset = 0
+	end
 end
 function restartWave(param)
 	update = defaultUpdate
