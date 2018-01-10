@@ -103,7 +103,7 @@ function restartWave(wave)
 		billboard:setInt("spawnCount", item["spawnCount"])
 		timer = wave<=1 and 0 or item.timer
 		handleSetMaxLife()
-		handleSetLife(math.min(1,item["life"]))
+		handleSetLife(math.max(1,item["life"]))
 		updateTimerStr()
 	end
 	updateScore()

@@ -643,6 +643,56 @@ function SpawnManager.new()
 				--(4*2500)/(((12/2)+(3*1))*455) == 2.254(unbeatable)
 				--{{npc="stoneSpirit",delay=0.0},{npc="stoneSpirit",delay=1.25},{npc="stoneSpirit",delay=1.25},{npc="stoneSpirit",delay=1.25}}
 			}
+			local endWave = {
+				maxScriptedGroups = 2,
+				selected = 0,
+				count=0,
+				{	waves={[1]=true,[2]=true},
+					odds=function() return 0.4 end,
+					group={
+						{{npc="hydra5",delay=0.0}}
+						},
+					},
+					followupOdds=function() return 0.5 end,
+					followup={
+						{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="turtle",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
+						{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
+						{{npc="stoneSpirit",delay=0.0},{npc="turtle",delay=1.0},{npc="stoneSpirit",delay=1.0}},
+						{{npc="stoneSpirit",delay=0.0},{npc="stoneSpirit",delay=1.0}},
+					},
+				{	waves={[3]=true,[4]=true},
+					odds=function(selected) return selected==1 and 0.25 or 1.0 end,
+					group={
+						{{npc="skeleton_cf",delay=0.0},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75}},
+						{{npc="skeleton_cf",delay=0.0},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75}}
+						},
+					followupOdds=function() return 1.0 end,
+					followup={
+						{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="turtle",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
+						{{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="turtle",delay=0.4},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
+						{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="turtle",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}}
+						},
+					},
+				{	waves={[4]=true,[5]=true},
+					odds=function(selected) return 0.125 end,
+					group={
+						{{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
+						{{npc="rat",delay=0.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}}
+						}
+					},
+				["LAST"] ={	
+					waves={["LAST"]=true},
+					odds=function() return 1.0 end,
+					group={
+						{{npc="stoneSpirit",delay=0.0},{npc="turtle",delay=1.0},{npc="stoneSpirit",delay=1.0}},
+						{{npc="stoneSpirit",delay=0.0},{npc="stoneSpirit",delay=1.0}},
+						{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="turtle",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
+						{{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}}
+						},
+					},
+					
+			}
+			endWave.count = #endWave
 			--How many of each npc type that is allowed to spawn, this is so you dont get a wave of only dinos for example
 			local waveUnitLimitOriginal = {
 				rat = 16,
@@ -762,53 +812,14 @@ function SpawnManager.new()
 				local waveGoldEarned = 0.0
 				local waveNpcGold = 0.0
 				waveInfo[i] = {}
-				--spawn npcs untill we have passed the minimum hp goal
-				--LOG("<while "..usedSpawnHP.."<"..totalSpawnHP.." and "..waveTotalTime.."<"..(totalSpawnTime*2.0).." do")
-				while usedSpawnHP<totalSpawnHP and waveTotalTime<totalSpawnTime*2.0 do
-					--LOG("while "..usedSpawnHP.."<"..totalSpawnHP.." and "..waveTotalTime.."<"..(totalSpawnTime*2.0).." do")
-					if itemCount>3 then
-						waveDetails[itemCount] = {npc="none",delay=(isInMultiplayer and 1.5 or timerAddBetweenWaves)}--add dead time after a group (groups are the peak spawn several times the average hp/s)
-						itemCount = itemCount + 1
-					end
-					--
+				--
+				local function addGroupSplitter()
+					waveDetails[itemCount] = {npc="none",delay=(isInMultiplayer and 1.5 or timerAddBetweenWaves)}--add dead time after a group (groups are the peak spawn several times the average hp/s)
+					itemCount = itemCount + 1
+				end
+				local function addSelectedGroupToWave(group)
 					local cost = 0
 					local index = 1
-					groupCountForWave = groupCountForWave + 1
-					--
-					--select a group to spawn and remove groups that cant be used any more
-					--
-					local group = {}
-					if fixedGroupToSpawn[i] and fixedGroupToSpawn[i][groupCountForWave] then
-						--the group is fixed  used function  self:addGroupToSpawn
-						group = getCopyOfTable(fixedGroupToSpawn[i][groupCountForWave])
-					else
-						--select a random npc group and make sure it is allowed to spawn or remove it
-						while true do
-							local groupIndex = rand:range(1,math.min(#groupComp,hardestGroupThatCanSpawn))
-							--print("groupIndex("..#groupComp..","..hardestGroupThatCanSpawn..") == "..groupIndex.."\n")
-							group = getCopyOfTable(groupComp[groupIndex])
-							if isGroupContainingLimitedUnits(groupComp[groupIndex]) then
-								--if the group contains a unit that has reached limited spawn count, for this wave
-								popItem(groupComp,groupIndex)--try again
-							elseif groupComp[groupIndex].waveUseLimit and groupComp[groupIndex].waveUseLimit<=0 then
-								--if the group has reach it limited spawn count, for this wave
-								popItem(groupComp,groupIndex)--we broke the limit with this pass, continue
-							elseif groupComp[groupIndex].groupSpawnDepthMax and groupCountForWave>groupComp[groupIndex].groupSpawnDepthMax then
-								--if the npc has missed its spawn window
-								popItem(groupComp,groupIndex)--try again
-							elseif groupComp[groupIndex].groupSpawnDepthMin and groupCountForWave<=groupComp[groupIndex].groupSpawnDepthMin then
-								--if the npc is before its spawn window
-							else
-								if groupComp[groupIndex].waveUseLimit then
-									groupComp[groupIndex].waveUseLimit = groupComp[groupIndex].waveUseLimit-1
-								end
-								break
-							end
-						end
-					end
-					--
-					--adding selected group to wave
-					--
 					local groupUnit = group[index]
 					while groupUnit do
 						--statistics
@@ -842,10 +853,125 @@ function SpawnManager.new()
 						index = index + 1
 						groupUnit = group[index]
 					end
+					return cost
+				end
+				local function checkLimitsOnEndWave()
+					for j=1, endWave.count+1 do
+						local item = endWave[j==endWave.count+1 and "LAST" or j]
+						if item then
+							local lists = {group=true,followup=true}
+							for key,v in pairs(lists) do
+								local group = item[key]
+								if group then
+									local index = 1
+									while group[index] do
+										if isGroupContainingLimitedUnits(group[index]) then
+											group[index] = group[#group]
+											group[#group] = nil
+										else
+											index = index + 1
+										end
+									end
+									if #group==0 then
+										item[key] = nil
+									end
+								end
+							end
+							if item.group==nil and item.followup==nil then
+								endWave[j==endWave.count+1 and "LAST" or j] = nil
+							end
+						end
+					end
+				end
+				
+				--spawn npcs untill we have passed the minimum hp goal
+				--LOG("<while "..usedSpawnHP.."<"..totalSpawnHP.." and "..waveTotalTime.."<"..(totalSpawnTime*2.0).." do")
+				while usedSpawnHP<totalSpawnHP and waveTotalTime<totalSpawnTime*2.0 do
+					local cost = 0
+					--LOG("while "..usedSpawnHP.."<"..totalSpawnHP.." and "..waveTotalTime.."<"..(totalSpawnTime*2.0).." do")
+					groupCountForWave = groupCountForWave + 1
+					if itemCount>3 then
+						addGroupSplitter()
+					end
+					--
+					--select a group to spawn and remove groups that cant be used any more
+					--
+					local endWaveSpawned = false
+					if i==numWaves and numWaves>=25 and endWave.selected<2 then
+						checkLimitsOnEndWave()
+						for j=1, endWave.count do
+							if endWave[j] and endWave[j].waves[groupCountForWave] and endWave[j].odds(endWave.selected)>=math.randomFloat() then
+								endWave.selected = endWave.selected + 1
+								local tab = endWave[j].group
+								if tab then
+									local group = getCopyOfTable(tab[math.randomInt(1,#tab)])
+									cost = cost + addSelectedGroupToWave(group)
+								end
+								if endWave[j].followup and endWave[j].followupOdds()>=math.randomFloat() then
+									addGroupSplitter()
+									tab = endWave[j].followup
+									cost = cost + addSelectedGroupToWave( getCopyOfTable(tab[math.randomInt(1,#tab)]) )
+								end
+								--
+								endWaveSpawned = true
+								endWave[j]=nil
+								break
+							end
+						end
+					end
+					if not endWaveSpawned then
+						local group = {}
+						if fixedGroupToSpawn[i] and fixedGroupToSpawn[i][groupCountForWave] then
+							--the group is fixed  used function  self:addGroupToSpawn
+							group = getCopyOfTable(fixedGroupToSpawn[i][groupCountForWave])
+						else
+							--select a random npc group and make sure it is allowed to spawn or remove it
+							while true do
+								local groupIndex = rand:range(1,math.min(#groupComp,hardestGroupThatCanSpawn))
+								--print("groupIndex("..#groupComp..","..hardestGroupThatCanSpawn..") == "..groupIndex.."\n")
+								group = getCopyOfTable(groupComp[groupIndex])
+								if isGroupContainingLimitedUnits(groupComp[groupIndex]) then
+									--if the group contains a unit that has reached limited spawn count, for this wave
+									popItem(groupComp,groupIndex)--try again
+								elseif groupComp[groupIndex].waveUseLimit and groupComp[groupIndex].waveUseLimit<=0 then
+									--if the group has reach it limited spawn count, for this wave
+									popItem(groupComp,groupIndex)--we broke the limit with this pass, continue
+								elseif groupComp[groupIndex].groupSpawnDepthMax and groupCountForWave>groupComp[groupIndex].groupSpawnDepthMax then
+									--if the npc has missed its spawn window
+									popItem(groupComp,groupIndex)--try again
+								elseif groupComp[groupIndex].groupSpawnDepthMin and groupCountForWave<=groupComp[groupIndex].groupSpawnDepthMin then
+									--if the npc is before its spawn window
+								else
+									if groupComp[groupIndex].waveUseLimit then
+										groupComp[groupIndex].waveUseLimit = groupComp[groupIndex].waveUseLimit-1
+									end
+									break
+								end
+							end
+						end
+						--
+						--adding selected group to wave
+						--
+						cost = cost + addSelectedGroupToWave(group)
+					end
 					--add extra dead time for group cost
 					usedSpawnHP = usedSpawnHP + cost
 					nextWaveDelayTime = timerAddBetweenWaves
 				end
+				if i==numWaves and numWaves>=25 and endWave.selected<2 and endWave["LAST"] then
+					checkLimitsOnEndWave()
+					if endWave["LAST"] then
+						addGroupSplitter()
+						local tab = endWave["LAST"].group
+						if tab then
+							addSelectedGroupToWave( getCopyOfTable(tab[math.randomInt(1,#tab)]) )
+						end
+					end
+				end
+--				if i==numWaves and numWaves>=25 then
+--					print(tostring(waveDetails))
+--					abort()
+--				end
 				--LOG(">while "..usedSpawnHP.."<"..totalSpawnHP.." and "..waveTotalTime.."<"..(totalSpawnTime*2.0).." do")
 --				if true then
 --					local routePlanner = this:findNodeByType(NodeId.RoutePlanner)
