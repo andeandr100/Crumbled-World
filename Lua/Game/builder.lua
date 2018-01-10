@@ -670,8 +670,8 @@ function netSellTower(paramNetworkName,doNotReturnMoney)
 		--print("buildingValue == "..buildingValue.."\n")
 		if this:removeBuilding( buildingToSell ) then
 			if billBoard:getBool("isNetOwner") and doNotReturnMoney ~= true then
-				comUnit:sendTo("stats", "addGoldNoScore", tostring(buildingValue))
-				comUnit:sendTo("stats","addBillboardDouble","goldLostFromSelling;"..tostring(buildingValueLost))
+				comUnit:sendTo("stats","addGoldNoScore", tostring(buildingValue))
+				comUnit:sendTo("stats","addGoldLostFromSelling",tostring(buildingValueLost))
 				comUnit:sendTo("stats","addTowersSold","")
 			end
 			--comUnit:sendTo("builder", "soldTower", tostring(buildingId))

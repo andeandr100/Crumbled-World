@@ -875,9 +875,9 @@ function MinigunTower.new()
 								info = "minigun tower overcharge",
 								order = 3,
 								icon = 63,
-								value1 = 30,
+								value1 = 35,
 								levelRequirement = cTowerUpg.getLevelRequierment("overCharge",1),
-								stats = {	damage = 	{ upgrade.mul, 1.30, ""},
+								stats = {	damage = 	{ upgrade.mul, 1.35, ""},
 											cooldown =	{ upgrade.add, 10.0, "s"},
 											overheat =	{ upgrade.add, 13.0, "s"} }--(10/(10+12))*RPS*damge==0.76 (worst case -26%) [15% is target for average]
 							} )
@@ -886,9 +886,9 @@ function MinigunTower.new()
 								info = "minigun tower overcharge",
 								order = 3,
 								icon = 63,
-								value1 = 60,
+								value1 = 70,
 								levelRequirement = cTowerUpg.getLevelRequierment("overCharge",2),
-								stats = {	damage = 	{ upgrade.mul, 1.60, ""},
+								stats = {	damage = 	{ upgrade.mul, 1.70, ""},
 											cooldown =	{ upgrade.add, 10.0, "s"},
 											overheat =	{ upgrade.add, 13.0, "s"} }--(10/(10+12))*RPS*damge==0.98 (worst case -2%) [30% is target for average]
 							} )
@@ -897,9 +897,9 @@ function MinigunTower.new()
 								info = "minigun tower overcharge",
 								order = 3,
 								icon = 63,
-								value1 = 90,
+								value1 = 105,
 								levelRequirement = cTowerUpg.getLevelRequierment("overCharge",3),
-								stats = {	damage = 	{ upgrade.mul, 1.90, ""},
+								stats = {	damage = 	{ upgrade.mul, 2.05, ""},
 											cooldown =	{ upgrade.add, 10.0, "s"},
 											overheat =	{ upgrade.add, 13.0, "s"} }--(10/(10+12))*RPS*damge==1.20 (worst case +20%)	[45% is target for average]
 							} )

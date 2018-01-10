@@ -18,12 +18,11 @@ function restartMap()
 	billboard:setDouble("goldInsertedToTowers", 0.0)
 	billboard:setDouble("goldLostFromSelling", 0.0)
 	billboard:setDouble("defaultGold", startGold or 1000)
-	billboard:setDouble("interestrate",0.0020)
-	billboard:setDouble("activeInterestrate",0.0020)
 	--
 	billboard:setDouble("totalDamageDone", 0.0)
 	--
-	billboard:setInt("life", 20)
+	handleSetMaxLife()
+	handleSetLife(billboard:getInt("maxLife"))
 	billboard:setDouble("score", 0.0)
 	billboard:setFloat("difficult", 1.0)
 	--
@@ -84,7 +83,6 @@ function restartWave(wave)
 		billboard:setDouble("DamageTotal", item["DamageTotal"])
 		billboard:setDouble("waveGold", item["waveGold"])--the amount of gold that can be erarned as xp in the "leveler" game mode
 		billboard:setDouble("totalHp", item["totalHp"])--the total amount of hp that will spawn this wave, in the "leveler" game mode
-		billboard:setInt("life", item["life"])--the total of units you can let through before losing
 		billboard:setDouble("score", item["score"])--your highscore
 		billboard:setInt("wave", wave)--the current wave number
 		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])--achivemenet
@@ -104,6 +102,8 @@ function restartWave(wave)
 		billboard:setInt("killCount", item["killCount"])
 		billboard:setInt("spawnCount", item["spawnCount"])
 		timer = wave<=1 and 0 or item.timer
+		handleSetMaxLife()
+		handleSetLife(math.min(1,item["life"]))
 		updateTimerStr()
 	end
 	updateScore()
@@ -149,16 +149,15 @@ function create()
 	--ComUnitCallbacks
 	comUnitTable = {}
 	comUnitTable["setLife"] = handleSetLife
-	comUnitTable["setMaxLife"] = handleSetMaxLife
 	comUnitTable["setGold"] = handleSetGold
 	comUnitTable["setStartGold"] = handleSetStartGold
 	comUnitTable["addGold"] = handleAddGold
+	comUnitTable["addGoldLostFromSelling"] = HandleAddGoldLostFromSelling
 	comUnitTable["addGoldNoScore"] = handleAddGoldNoScore
 	comUnitTable["addGoldWaveBonus"] = handleAddGoldWaveBonus
 	comUnitTable["addTotalDmg"] = handleAddTotalDamage
 	comUnitTable["goldInterest"] = handleGoldInterest
 	comUnitTable["removeGold"] = handleRemoveGold
-	comUnitTable["setInterestRateOnKill"] = handleSetInterestRateOnKill
 	--
 	comUnitTable["addTowersSold"] = handleAddTowerSold
 	comUnitTable["addTowerBuilt"] = handleAddTowerBuilt
@@ -201,7 +200,6 @@ function create()
 	comUnitTable["showScore"] = handleSaveScore
 	comUnitTable["addSpawn"] = handleAddSpawn
 	comUnitTable["killedLessThan5m"] = handleKilledLessThan5m
-	--
 	
 	
 	buildNode = this:findNodeByType(NodeId.buildNode)
@@ -233,13 +231,29 @@ function handleKilledLessThan5m()
 	end
 end
 function handleSetLife(numLife)
+	assert(tonumber(numLife)<=billboard:getInt("maxLife"),"cant set more life than max")
+	local mapInfo = MapInfo.new()
 	billboard:setInt("life", tonumber(numLife))
-	billboard:setDouble("activeInterestrate",billboard:getDouble("interestrate")*(billboard:getInt("life")/billboard:getInt("maxLife")))
+	if mapInfo.getGameMode()=="training" then
+		billboard:setDouble("activeInterestrate",0.0)	
+	else
+		if mapInfo.isCartMap() then
+			billboard:setDouble("activeInterestrate",0.002)
+		else
+			billboard:setDouble("activeInterestrate",0.002*(billboard:getInt("life")/billboard:getInt("maxLife")))
+		end
+	end
 	updateScore()
 end
-function handleSetMaxLife(maxNumLife)
-	billboard:setInt("maxLife", tonumber(maxNumLife))
-	billboard:setDouble("activeInterestrate",billboard:getDouble("interestrate")*(billboard:getInt("life")/billboard:getInt("maxLife")))
+function handleSetMaxLife()
+	local mapInfo = MapInfo.new()
+	if mapInfo.isCartMap() then
+		billboard:setInt("maxLife", 1)
+		handleSetLife(1)
+	else
+		billboard:setInt("maxLife", tonumber(20))
+		handleSetLife(tonumber(20))
+	end
 end
 function handleSetStartGold(amount)
 	startGold = tonumber(amount)
@@ -260,6 +274,10 @@ function handleAddGoldNoScore(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")+tonumber(amount))
 	updateScore()
 end
+function HandleAddGoldLostFromSelling(amout)
+	billboard:setDouble("goldLostFromSelling", billboard:getDouble("goldLostFromSelling")+tonumber(amount))
+	updateScore()
+end
 function handleAddGoldWaveBonus(amount)
 	handleAddGold(amount)
 	billboard:setDouble("goldGainedFromWaves",billboard:getDouble("goldGainedFromWaves")+tonumber(amount))
@@ -269,10 +287,6 @@ function handleGoldInterest(multiplyer)
 	local interestEarned = billboard:getDouble("gold")*tonumber(multiplyer)*billboard:getDouble("activeInterestrate")
 	handleAddGold( interestEarned )
 	billboard:setDouble( "goldGainedFromInterest", billboard:getDouble("goldGainedFromInterest")+interestEarned )
-end
-function handleSetInterestRateOnKill(interest)
-	billboard:setDouble("interestrate",tonumber(interest))
-	billboard:setDouble("activeInterestrate",billboard:getDouble("interestrate")*(billboard:getInt("life")/billboard:getInt("maxLife")))
 end
 function handleRemoveGold(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")-tonumber(amount))
@@ -337,11 +351,7 @@ function handleSetwave(inWave)
 	updateScore()
 end
 function handleNpcReachedEnd(param)
-	billboard:setInt("life", billboard:getInt("life")-tonumber(param))
-	if billboard:getInt("life")<0 then
-		billboard:setInt("life",0)
-	end
-	billboard:setDouble("activeInterestrate",billboard:getDouble("interestrate")*(billboard:getInt("life")/billboard:getInt("maxLife")))
+	handleSetLife(math.max(0,billboard:getInt("life")-tonumber(param)))
 end
 function handleAddTowerSold()
 	billboard:setInt("towersSold", billboard:getInt("towersSold")+1)

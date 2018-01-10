@@ -113,7 +113,7 @@ function upgradeFromTowerToTower(buildingToUpgrade, buildCost, scriptName, newLo
 					--from otherTower to wallTower (selling)
 					comUnit:sendTo("stats","addGoldNoScore",tostring( math.max( fromTowerCost - toTowerCost, 0)))
 					local buildingValueLost = fromTowerScript:getBillboard():getDouble("totalCost")-fromTowerScript:getBillboard():getDouble("value")
-					comUnit:sendTo("stats","addBillboardDouble","goldLostFromSelling;"..tostring(buildingValueLost))
+					comUnit:sendTo("stats","addGoldLostFromSelling",tostring(buildingValueLost))
 					comUnit:sendTo("stats","addTowersSold","")
 				end
 				comUnit:sendTo(buildingScript:getIndex(),"NetOwner","YES")

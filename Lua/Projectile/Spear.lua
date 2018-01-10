@@ -61,11 +61,11 @@ function Spear.new(pTargetSelector)
 			comUnit:sendTo(target,"attackBlade",tostring(damage).."")
 			damageDone = damageDone + damage
 		end
+		if slow>0.0 then
+			comUnit:sendTo(target,"slow",{per=slow,time=slowTimer,type="physical"})
+		end
 		if shieldBypass>0.5 then
 			comUnit:sendTo(target,"destroyShield","")
-		end
-		if slow>0.0 and (targetSelector.getTargetPosition(target)-(thePosition+(atVec*movment))):length()<2.0 then
-			comUnit:sendTo(target,"slow",{per=slow,time=slowTimer,type="physical"})
 		end
 		model:setLocalPosition( model:getLocalPosition() + (model:getLocalPosition():normalizeV()*0.01 ) )
 	end

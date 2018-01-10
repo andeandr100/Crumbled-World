@@ -16,6 +16,8 @@ local fallDirection = Vec3()
 local fallAtDirection = Vec3()
 --Acievement
 local untouched = true
+--
+local defaultUpdate
 --comunit
 local comUnit
 local comUnitTable = {}
@@ -44,6 +46,7 @@ function storeWaveChangeStats( wave )
 		moveBackTime = moveBackTime,
 		currentSpeed = currentSpeed,
 		offset = offset,
+		untouched = untouched,
 		mat = this:getLocalMatrix()
 	}
 	
@@ -58,14 +61,20 @@ function restoreWaveChangeStats( wave )
 		moveBackTime = tab.moveBackTime
 		currentSpeed = tab.currentSpeed
 		offset = tab.offset
+		untouched = tab.untouched
 		this:setLocalMatrix(tab.mat)
 	end
 	lostTheGame = false
 	fallVelocity = Vec3()
 	fallDirection = Vec3()
 	fallAtDirection = Vec3()
+	if index == numPoints then
+		index = numPoints-1
+		offset = 0
+	end
 end
 function restartWave(param)
+	update = defaultUpdate
 	restoreWaveChangeStats( tonumber(param) )
 end
 
@@ -78,6 +87,7 @@ function waveChanged(param)
 end
 
 function restartMap()
+	update = defaultUpdate
 	index = 1
 	offset = 0
 	currentSpeed = 0
@@ -86,6 +96,8 @@ function restartMap()
 	fallDirection = Vec3()
 	fallAtDirection = Vec3()
 	lostTheGame = false
+	untouched = false
+	moveBackTime = 15
 	this:setLocalMatrix(startMatrix)
 	--we have gone back in time erase all tables that is from the future, that can never be used
 	clearWavesAfter(0)
@@ -116,7 +128,8 @@ function create()
 	
 	restartListener = Listener("Restart")
 	restartListener:registerEvent("restart", restartMap)
-		
+	
+	defaultUpdate = update	
 	
 	return true
 end
@@ -138,17 +151,13 @@ function getNumNpcOnTheCart()
 	--we have now selected all possible targets, even turtles with a shield that is not close enough to push the cart
 	local targetsInRangeCount = 0
 	local targets = targetSelector.getAllTargets()
-	for index,score in pairs(targets) do
-		if (this:getGlobalPosition()-targetSelector.getTargetPosition(index)):length()<2.5 then
+	for i,score in pairs(targets) do
+		if (this:getGlobalPosition()-targetSelector.getTargetPosition(i)):length()<2.5 then
 			targetsInRangeCount = targetsInRangeCount + 1
 		end
 	end
 	
 	return targetsInRangeCount
-end
-
-function move(point1, point2, offset, moveDistance)
-	
 end
 function updateDeathArea()
 	cartDeathPosition = cartDeathPosition or this:getGlobalPosition()
@@ -169,12 +178,15 @@ function update()
 		moveBackTime = moveBackTime - Core.getDeltaTime()
 		--Achievement
 		if numNpc==0 and moveBackTime+Core.getDeltaTime()+0.01>15 then
-			local atVec = (points[index+1] - points[index])
-			local pos = points[index] + atVec * offset
 			local distance = 0
-			distance = distance + (pos-points[index+1]):length()
-			for i=index+1, numPoints-1 do
-				distance = distance + (points[i]-points[i+1]):length()
+			if index+1<=numPoints then
+				local atVec = (points[index+1] - points[index])
+				local pos = points[index] + atVec * offset
+				local distance = 0
+				distance = distance + (pos-points[index+1]):length()
+				for i=index+1, numPoints-1 do
+					distance = distance + (points[i]-points[i+1]):length()
+				end
 			end
 			if distance<=1.0 then
 				comUnit:sendTo("SteamAchievement","ToClose","")
@@ -213,22 +225,24 @@ function update()
 					index = index + 1
 				end
 			end
-			--rotating wheel
-			local rotationThisFrame = Core.getDeltaTime()*2*math.pi*(currentSpeed/1.153)	--1.153=diameter*pi
-			wheel1:rotate(Vec3(1,0,0),rotationThisFrame)
-			wheel2:rotate(Vec3(1,0,0),rotationThisFrame)
+			--check if cart is falling over  the edge
 			if index == numPoints then
 				lostTheGame = true
+				
+				comUnit:sendTo("stats", "npcReachedEnd",100)	--for menu stats
 				
 				fallDirection = ((points[numPoints] - points[numPoints-1]):normalizeV() + Vec3(0,-0.3,0)):normalizeV()
 				fallAtDirection = fallDirection
 				fallVelocity = fallDirection * currentSpeed
 			end
-			
+			--rotating wheel
+			local rotationThisFrame = Core.getDeltaTime()*2*math.pi*(currentSpeed/1.153)	--1.153=diameter*pi
+			wheel1:rotate(Vec3(1,0,0),rotationThisFrame)
+			wheel2:rotate(Vec3(1,0,0),rotationThisFrame)
 		elseif moveBackTime < 0 and (index > 1 or offset > 0) then
 			currentSpeed = math.clamp(currentSpeed - (maxSpeed*0.2*Core.getDeltaTime()), -maxSpeed*0.2, 0.0)
 			local moveDistance = currentSpeed * Core.getDeltaTime()
-			local atVec = (points[index+1] - points[index])
+			local atVec = index==numPoints and (points[index] - points[index-1]) or (points[index+1] - points[index])
 			local distace = atVec:normalize()
 			local nextAtVec = 	(index+1 < numPoints) and (points[index+2] - points[index+1]):normalizeV() or atVec
 			
@@ -263,14 +277,10 @@ function update()
 		--
 		--
 		--
-	else
+	end
+	if lostTheGame then
 		--cart is dead
 		updateDeathArea()
-		
-		--
-		--	Communicate map failure
-		--
-		comUnit:sendTo("stats", "npcReachedEnd",1)	--for menu stats
 		--
 		
 		local localMatrix = this:getLocalMatrix()
