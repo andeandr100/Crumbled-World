@@ -50,7 +50,7 @@ function load(inData)
 
 	if #pathNodes > 1 then
 		--remove from tree	
-		this:getParent():removeChild(this)
+		this:getParent():removeChild(this:toSceneNode())
 		update = stopUpdate
 	else	
 		numTowers = 0
@@ -127,7 +127,7 @@ function init()
 			local railPath = railPaths[i]
 			local minecart = railPath.followNode
 			minecart:setCanBeSaved(false)
-			points[railPath.id].island:addChild( minecart )
+			points[railPath.id].island:addChild( minecart:toSceneNode() )
 			
 			
 			local atVec = (railPath.points[2] - railPath.points[1]):normalizeV()
@@ -364,9 +364,12 @@ function findNextPointFromSpawn(spawn)
 end
 
 function rotateSpawnPortals()
-	local navMesh = this:findNodeByType(NodeId.navMesh)
+	local navMesh = ConvertToNavMesh( this:findNodeByType(NodeId.navMesh) )
 	if navMesh then
 		print("navMesh Found\n")
+		print("SceneId: "..navMesh:getNodeType())
+		print("navMesh: "..tostring(navMesh:getHull()))
+		print("")
 	end
 	
 	print("Num portals: "..#spawnPortals.."\n")
@@ -394,6 +397,12 @@ function rotateSpawnPortals()
 		
 		
 		if spawn and nextPoint and navMesh then
+			print("navMesh Found\n")
+			print("SceneId: "..navMesh:getNodeType())
+			print("navMesh: "..tostring(navMesh:getHull()))
+			print("spawn: "..tostring(spawn))
+			print("nextPoint: "..tostring(nextPoint))
+			print("")
 			local path = navMesh:getPath(0.8, spawn, nextPoint)
 			
 			print("Path size: "..#path.."\n")

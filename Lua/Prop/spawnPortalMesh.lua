@@ -3,7 +3,7 @@
 SpawnPortalMesh = {}
 
 function SpawnPortalMesh.createPortal(PortalSize)
-	local mesh = NodeMesh()
+	local mesh = NodeMesh.new()
 	mesh:setVertexType(VertexType.position3, VertexType.uvcoord, VertexType.color4)
 	
 	mesh:setRenderLevel(4)
@@ -41,13 +41,13 @@ function SpawnPortalMesh.createPortal(PortalSize)
 	
 	mesh:compile()
 	mesh:setBoundingSphere(Sphere( centerPos, math.max(PortalSize.x, PortalSize.y,PortalSize.z)))	
-	this:addChild(mesh)	
+	this:addChild(mesh:toSceneNode())	
 	
 	return mesh
 end
 
 function SpawnPortalMesh.createPortalEdge(PortalSize)
-	local mesh = NodeMesh()
+	local mesh = NodeMesh.new()
 	mesh:setVertexType(VertexType.position3, VertexType.color4)
 	
 	mesh:setRenderLevel(4)
@@ -117,7 +117,7 @@ function SpawnPortalMesh.createPortalEdge(PortalSize)
 	
 	mesh:compile()
 	mesh:setBoundingSphere(Sphere( centerPos, math.max(PortalSize.x, PortalSize.y,PortalSize.z)))	
-	this:addChild(mesh)	
+	this:addChild(mesh:toSceneNode())	
 	
 	return mesh
 end

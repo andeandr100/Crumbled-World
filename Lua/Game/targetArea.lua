@@ -11,7 +11,7 @@ function TargetArea.new()
 	local meshNumExtraRange = 0
 	local meshExtraRange = {}
 	local meshExtraRangeColor = {Vec4(1,0,0,0.5),Vec4(1,1,0,0.35),Vec4(0,1,1,0.2)}
-	local nodeArea = SceneNode()
+	local nodeArea = SceneNode.new()
 	local curentShader = sphereShader
 	
 	
@@ -50,15 +50,15 @@ function TargetArea.new()
 	
 	local function initTargetMesh()
 		--Sphere
-		mesh = NodeMesh()
+		mesh = NodeMesh.new()
 		mesh:setRenderLevel(6)
-		nodeArea:addChild(mesh)
+		nodeArea:addChild(mesh:toSceneNode())
 		buildTargetAreaMesh(mesh)
 		mesh:setShader(curentShader)
 		
 		--find main camera
 		local rootNode = this:getRootNode()
-		rootNode:addChild(nodeArea)
+		rootNode:addChild(nodeArea:toSceneNode())
 		mainCamera = rootNode:findNodeByName("MainCamera")
 		
 		self.hiddeTargetMesh()
@@ -126,7 +126,7 @@ function TargetArea.new()
 	end
 	
 	function self.setRenderTarget(node, rangeLevel, colorTabel)
-		--node = SceneNode()
+		--node = SceneNode.new()
 		
 		if node ~= nil then
 			local towerScript = node:getScriptByName("tower")

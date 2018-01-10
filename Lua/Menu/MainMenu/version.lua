@@ -12,7 +12,7 @@ function create()
 	
 	
 	local version = Core.getGlobalBillboard("version"):getString("version")
-	local versionCamera = Camera("Version camera", false, 512,128 )
+	local versionCamera = Camera.new("Version camera", false, 512,128 )
 	
 	form = Form( versionCamera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
 	form:setBackground(Gradient(Vec4(Vec3(0),0.85), Vec4(Vec3(0),0.7)));
@@ -39,7 +39,7 @@ function create()
 		--camera = Camera()
 	
 		if camera then
-			form = Form(camera, PanelSize(Vec2(1,0.025)), Alignment.BOTTOM_LEFT);
+			form = Form(ConvertToCamera(camera), PanelSize(Vec2(1,0.025)), Alignment.BOTTOM_LEFT);
 			
 			form:setRenderLevel(6)
 			

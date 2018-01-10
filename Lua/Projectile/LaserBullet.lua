@@ -23,14 +23,14 @@ function LaserBullet.new()
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	
-	local particleEffectBullet = ParticleSystem( ParticleEffect.LaserBullet )
-	local particleEffectBullet2 = ParticleSystem( ParticleEffect.LaserBulletShine )
-	local particleEffectBullet3 = ParticleSystem( ParticleEffect.LaserBulletcenter )
-	local node = SceneNode()
+	local particleEffectBullet = ParticleSystem.new( ParticleEffect.LaserBullet )
+	local particleEffectBullet2 = ParticleSystem.new( ParticleEffect.LaserBulletShine )
+	local particleEffectBullet3 = ParticleSystem.new( ParticleEffect.LaserBulletcenter )
+	local node = SceneNode.new()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
-	node:addChild(particleEffectBullet)
-	node:addChild(particleEffectBullet2)
-	node:addChild(particleEffectBullet3)
+	node:addChild(particleEffectBullet:toSceneNode())
+	node:addChild(particleEffectBullet2:toSceneNode())
+	node:addChild(particleEffectBullet3:toSceneNode())
 	particleEffectBullet:setVisible(false)
 	particleEffectBullet2:setVisible(false)
 	particleEffectBullet3:setVisible(false)
@@ -38,9 +38,9 @@ function LaserBullet.new()
 	--targetingSystem
 	targetSelector.setPosition(this:getGlobalPosition())
 	
-	local pointLight = PointLight(Vec3(0,0,0),Vec3(0,4,4),1.5)
+	local pointLight = PointLight.new(Vec3(0,0,0),Vec3(0,4,4),1.5)
 	pointLight:setVisible(false)
-	node:addChild(pointLight)
+	node:addChild(pointLight:toSceneNode())
 	function self.init(table)
 		targetIndex = table[1]
 		damage = billboard:getFloat("damage")
@@ -67,7 +67,7 @@ function LaserBullet.new()
 	end
 	function self.destroy()
 		if node:getParent() then--as the parrent can already be destroyed, if end of the map
-			node:getParent():removeChild(node)
+			node:getParent():removeChild(node:toSceneNode())
 		end
 	end
 	function self.stop()

@@ -37,31 +37,31 @@ function Missile.new()
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	--scenNode
-	local node = SceneNode()
+	local node = SceneNode.new()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
 	--model
 	local model = Core.getModel("missile.mym")
-	node:addChild(model)
+	node:addChild(model:toSceneNode())
 	--particleEffect
-	local explosion = ParticleSystem( ParticleEffect.Explosion )
-	node:addChild(explosion)
-	local smokeTrail = ParticleSystem( ParticleEffect.ShellTrail )
-	local missileTrail = ParticleSystem( ParticleEffect.missileTale )
-	local missileTrail2 = ParticleSystem( ParticleEffect.missileTaleBlue )
-	node:addChild(smokeTrail)
-	node:addChild(missileTrail)
-	node:addChild(missileTrail2)
+	local explosion = ParticleSystem.new( ParticleEffect.Explosion )
+	node:addChild(explosion:toSceneNode())
+	local smokeTrail = ParticleSystem.new( ParticleEffect.ShellTrail )
+	local missileTrail = ParticleSystem.new( ParticleEffect.missileTale )
+	local missileTrail2 = ParticleSystem.new( ParticleEffect.missileTaleBlue )
+	node:addChild(smokeTrail:toSceneNode())
+	node:addChild(missileTrail:toSceneNode())
+	node:addChild(missileTrail2:toSceneNode())
 	--pointLight
-	local pointLight = PointLight(Vec3(0,0,0),Vec3(3,1.5,0.0),1.0)
+	local pointLight = PointLight.new(Vec3(0,0,0),Vec3(3,1.5,0.0),1.0)
 	pointLight:setCutOff(0.15)
-	node:addChild(pointLight)
+	node:addChild(pointLight:toSceneNode())
 	--sound
 	local soundMissileSplit
 	local soundMissileSplitCount = 0
-	local soundExplosion = SoundNode("missileExplosion")
-	local soundMissile = SoundNode("missile_engine")
-	node:addChild(soundExplosion)
-	node:addChild(soundMissile)
+	local soundExplosion = SoundNode.new("missileExplosion")
+	local soundMissile = SoundNode.new("missile_engine")
+	node:addChild(soundExplosion:toSceneNode())
+	node:addChild(soundMissile:toSceneNode())
 
 	-- function:	Tries to find a new target, if the current has died
 	local function manageIfTargetIsNotAvailable()
@@ -144,9 +144,9 @@ function Missile.new()
 		--If firestorm is unlocked make sure the assets have been loaded
 		if FirestormLevel>0 and not fireStorm then
 			fireStorm = FireStorm.new(node)
-			soundMissileSplit = SoundNode("missile_split")
+			soundMissileSplit = SoundNode.new("missile_split")
 			soundMissileSplitCount = 0
-			node:addChild(soundMissileSplit)
+			node:addChild(soundMissileSplit:toSceneNode())
 		end
 		timeEndingExplosion = false
 		model:setLocalPosition(position)
@@ -180,7 +180,7 @@ function Missile.new()
 	-- function:	Cleans up all lose edges
 	function self.destroy()
 		if node:getParent() then--as the parrent can already be destroyed, if end of the map
-			node:getParent():removeChild(node)
+			node:getParent():removeChild(node:toSceneNode())
 		end
 	end
 	-- function:	Activates the explosion effect

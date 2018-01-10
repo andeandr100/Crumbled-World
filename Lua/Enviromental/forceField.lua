@@ -4,10 +4,10 @@ ForceField.positions = {}
 ForceField.lifeTime = {}
 ForceField.spawnTime = {}
 function ForceField.create(node, radius, offset)
-	--node = SceneNode()
+	--node = SceneNode.new()
 	--radius = number()
 	--offset = Vec3()
-	local mesh = NodeMesh()
+	local mesh = NodeMesh.new()
 	mesh:setVertexType(VertexType.position3, VertexType.color4, VertexType.uvcoord, VertexType.normal)
 	
 	local yDiff = math.pi/17
@@ -66,7 +66,7 @@ function ForceField.create(node, radius, offset)
 	local texture = Core.getTexture("hexagon.tga")
 	ForceField.forceFieldShader = Core.getShader("ForceField")
 
-	node:addChild(mesh)
+	node:addChild(mesh:toSceneNode())
 	
 	mesh:setBoundingSphere(Sphere(Vec3(), 2.0))
 	mesh:setShader(ForceField.forceFieldShader)

@@ -2,9 +2,9 @@
 
 LineModel = {}
 function LineModel.new(inParentNode, inColor, size)
-	--inParentNode = SceneNode()
+	--inParentNode = SceneNode.new()
 	local self = {}
-	local mesh = NodeMesh()
+	local mesh = NodeMesh.new()
 	local color = inColor
 	local points = {}
 	local w = size and size or 0.075
@@ -117,9 +117,9 @@ function LineModel.new(inParentNode, inColor, size)
 	end
 	
 	function init()
-		mesh = NodeMesh()
+		mesh = NodeMesh.new()
 		mesh:setVertexType(VertexType.position3, VertexType.color3)
-		inParentNode:addChild(mesh)	
+		inParentNode:addChild(mesh:toSceneNode())	
 		mesh:setRenderLevel(31)
 		mesh:setShader(Core.getShader("toolNormal"))
 		mesh:setColor(Vec4(1))

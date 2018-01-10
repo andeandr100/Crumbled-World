@@ -10,7 +10,7 @@ end
 function create()
 	return false
 --	if this:getNodeType() == NodeId.playerNode then
---		local menuNode = this:getRootNode():addChild(SceneNode())
+--		local menuNode = this:getRootNode():addChild(SceneNode.new())
 --		--camera = Camera()
 --		menuNode:setSceneName("Stats menu")
 --		menuNode:createWork()	
@@ -46,7 +46,7 @@ function create()
 --			textField:addEventCallbackExecute(executeCommand)
 --			
 --			comUnit = Core.getComUnit()
---			consoleCommands = SceneNode()
+--			consoleCommands = SceneNode.new()
 --			consoleCommands:loadLuaScript("Menu/consoleCommands.lua")
 --			this:addChild(consoleCommands)
 --		else

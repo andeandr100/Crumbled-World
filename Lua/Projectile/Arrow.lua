@@ -21,11 +21,11 @@ function Arrow.new()
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	--scenNode
-	local node = SceneNode()
+	local node = SceneNode.new()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
 	--model
 	local model = Core.getModel("arrow.mym")
-	node:addChild(model)
+	node:addChild(model:toSceneNode())
 	
 	function self.init()
 		targetSelector.setPosition(this:getGlobalPosition())
@@ -56,7 +56,7 @@ function Arrow.new()
 	end
 	function self.destroy()
 		if node:getParent() then--as the parrent can already be destroyed, if end of the map
-			node:getParent():removeChild(node)
+			node:getParent():removeChild(node:toSceneNode())
 		end
 	end
 	function self.stop()

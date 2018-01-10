@@ -23,9 +23,9 @@ function IconCamera.create()
 	
 	--Create the camera
 	--this icon should at least support 4k screen and 2016-01-14 icon size in the menu was approximately 750px for 4k screen for my 2560x1440 resolution was 450px
-	IconCamera.camera = Camera("icon camera", true, 1024, 1024)
+	IconCamera.camera = Camera.new("icon camera", true, 1024, 1024)
 	--IconCamera.camera:setClearColor(Vec4(0,0,0,1))
-	this:getRootNode():addChild( IconCamera.camera )
+	this:getRootNode():addChild( IconCamera.camera:toSceneNode() )
 	
 	IconCamera.camera:setDirectionLight(Core.getDirectionalLight(this))
 	IconCamera.camera:setAmbientLight(Core.getAmbientLight(this))

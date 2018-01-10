@@ -38,7 +38,7 @@
 --end
 --
 --function SpawnIconMeshBuilder.loadIconMesh(shader)
---	local aMesh = NodeMesh()
+--	local aMesh = NodeMesh.new()
 --	aMesh:setVisible(false)
 --	this:addChild(aMesh)
 --	
@@ -98,7 +98,7 @@
 --
 --function SpawnIconMeshBuilder.loadCharMesh(parrent, xToYRation, maxUvCoord, shaderText)
 --		
---	local aMesh = NodeMesh()
+--	local aMesh = NodeMesh.new()
 --	aMesh:setVisible(false)
 --	parrent:addChild(aMesh)
 --	

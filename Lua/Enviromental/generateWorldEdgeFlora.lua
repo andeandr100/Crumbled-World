@@ -27,7 +27,7 @@ function create()
 	end
 	-- add the connection last, so no collisions occure
 	for i=0, natureCount-1, 1 do
-		natureConectToScene[i]:addChild(nature[i])
+		natureConectToScene[i]:addChild(nature[i]:toSceneNode())
 		--now make so there is no need to do an update
 		nature[i]:setIsStatic(true)
 		--nature[i]:render()

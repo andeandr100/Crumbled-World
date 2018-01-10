@@ -12,15 +12,15 @@ function SwarmBall.new(pTargetSelector)
 	local comUnit = Core.getComUnit()
 	local billboard = Core.getBillboard()
 	
-	local node = SceneNode()
+	local node = SceneNode.new()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
 
-	local hittExplosion = ParticleSystem( ParticleEffect.ExplosionFireBallOnHitt )
-	local explosion = ParticleSystem( ParticleEffect.ExplosionFireBall )
-	local effect2 = ParticleSystem( ParticleEffect.FireBall )
-	node:addChild(hittExplosion)
-	node:addChild(explosion)
-	node:addChild(effect2)
+	local hittExplosion = ParticleSystem.new( ParticleEffect.ExplosionFireBallOnHitt )
+	local explosion = ParticleSystem.new( ParticleEffect.ExplosionFireBall )
+	local effect2 = ParticleSystem.new( ParticleEffect.FireBall )
+	node:addChild(hittExplosion:toSceneNode())
+	node:addChild(explosion:toSceneNode())
+	node:addChild(effect2:toSceneNode())
 	effect2:setVisible(false)
 	
 	local velocity = Vec3()
@@ -48,14 +48,14 @@ function SwarmBall.new(pTargetSelector)
 	local LIFE_STAGE_PREPPING_TO_DIE = 4
 	local lifeStage = 0
 	
-	local pointLight = PointLight(Vec3(0,0,0),Vec3(4,2,0),1.5)
+	local pointLight = PointLight.new(Vec3(0,0,0),Vec3(4,2,0),1.5)
 	pointLight:setCutOff(0.1)
 	pointLight:setVisible(false)
-	node:addChild(pointLight)
+	node:addChild(pointLight:toSceneNode())
 	
 	--sound
-	local soundHitt = SoundNode("swarmBall_hitt")
-	node:addChild(soundHitt)
+	local soundHitt = SoundNode.new("swarmBall_hitt")
+	node:addChild(soundHitt:toSceneNode())
 
 	--
 	--	private functions
@@ -234,7 +234,7 @@ function SwarmBall.new(pTargetSelector)
 	end
 	function self.destroy()
 		if node:getParent() then
-			node:getParent():removeChild(node)
+			node:getParent():removeChild(node:toSceneNode())
 		end
 	end
 	function self.stop()

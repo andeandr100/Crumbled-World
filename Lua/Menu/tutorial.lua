@@ -87,7 +87,7 @@ function create()
 	end
 	
 	--camera = Camera()
-	local camera = this:getRootNode():findNodeByName("MainCamera")
+	local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 	if not camera then
 		return false
 	end

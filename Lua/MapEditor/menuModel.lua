@@ -1,2 +1,2 @@
---this=SceneNode()
+--this=SceneNode.new()
 require("menuBaseFunction.lua")

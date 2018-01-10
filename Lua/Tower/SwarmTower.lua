@@ -37,7 +37,7 @@ function SwarmTower.new()
 	local reloadTimeLeft = 0.0
 	local boostedOnLevel = 0
 	--effects
-	local fireCenter = ParticleSystem(ParticleEffect.SwarmTowerFlame)
+	local fireCenter = ParticleSystem.new(ParticleEffect.SwarmTowerFlame)
 	local pointLight
 	--communication
 	local comUnit = Core.getComUnit()
@@ -215,7 +215,7 @@ function SwarmTower.new()
 		
 		--performance check
 		for i=0, model:getNumMesh()-1, 1 do
-			if not model:getMesh(i):getName():toString()=="tower" then
+			if not model:getMesh(i):getName() =="tower" then
 				model:getMesh(i):DisableBoundingVolumesDynamicUpdates()
 			end
 		end
@@ -362,10 +362,10 @@ function SwarmTower.new()
 		end
 		--
 		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
-			this:removeChild(model)
+			this:removeChild(model:toSceneNode())
 			model = Core.getModel( upgrade.getValue("model") )
 			initModel()
-			this:addChild(model)
+			this:addChild(model:toSceneNode())
 			billboard:setModel("tower",model)
 			cTowerUpg.fixAllPermBoughtUpgrades()
 		end
@@ -552,10 +552,10 @@ function SwarmTower.new()
 	
 		model = Core.getModel("tower_swarm_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
-		this:addChild(model)
+		this:addChild(model:toSceneNode())
 	
 		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable)
+			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
 		end
 	
 		--ComUnit
@@ -811,10 +811,10 @@ function SwarmTower.new()
 		cTowerUpg.fixAllPermBoughtUpgrades()
 	
 		--ParticleEffects
-		this:addChild( fireCenter )
+		this:addChild( fireCenter:toSceneNode() )
 		fireCenter:activate(Vec3(0.0,1.9,0.0))
-		pointLight = PointLight(Vec3(0,2.45,0),Vec3(5,2.5,0.0),1.25)
-		this:addChild(pointLight)
+		pointLight = PointLight.new(Vec3(0,2.45,0),Vec3(5,2.5,0.0),1.25)
+		this:addChild(pointLight:toSceneNode())
 		
 		return true
 	end

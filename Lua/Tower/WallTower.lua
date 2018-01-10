@@ -17,7 +17,7 @@ function create()
 	----this:setIsStatic(true)
 	--upgrade 1
 	model = Core.getModel("tower_wall.mym");
-	this:addChild(model);
+	this:addChild(model:toSceneNode());
 	model:getMesh("hull"):setVisible(false)
 	--model:setIsStatic(true)
 	--model:render()

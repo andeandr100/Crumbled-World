@@ -1,10 +1,10 @@
 --this = SceneNode()
 CircleModel = {}
-CircleModel.mesh = NodeMesh()
+CircleModel.mesh = NodeMesh.new()
 
 
 function CircleModel.init()
-	this:getRootNode():addChild(CircleModel.mesh)	
+	this:getRootNode():addChild(CircleModel.mesh:toSceneNode())	
 	CircleModel.mesh:setRenderLevel(31)
 	CircleModel.mesh:setShader(Core.getShader("toolNormal"))
 	CircleModel.mesh:setColor(Vec4(1,1,1,1))

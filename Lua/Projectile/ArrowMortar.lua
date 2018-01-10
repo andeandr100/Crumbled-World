@@ -27,21 +27,21 @@ function ArrowMortar.new()
 	local targetSelector = TargetSelector.new(activeTeam)
 		
 	--scenNode
-	local node = SceneNode()
+	local node = SceneNode.new()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
 	--model
 	local model = Core.getModel("projectile_mortar.mym")
-	node:addChild(model)
+	node:addChild(model:toSceneNode())
 	
 	--Particle effect
-	local explosion = ParticleSystem( ParticleEffect.ExplosionMedium )
-	node:addChild(explosion)
+	local explosion = ParticleSystem.new( ParticleEffect.ExplosionMedium )
+	node:addChild(explosion:toSceneNode())
 	
 	--pointLight
-	local pointLight = PointLight(Vec3(0,0,0),Vec3(4,2,0),0.2)
+	local pointLight = PointLight.new(Vec3(0,0,0),Vec3(4,2,0),0.2)
 	pointLight:setCutOff(0.1)
 	pointLight:setVisible(false)
-	node:addChild(pointLight)
+	node:addChild(pointLight:toSceneNode())
 	
 	
 	function self.init()
@@ -77,7 +77,7 @@ function ArrowMortar.new()
 	end
 	function self.destroy()
 		if node:getParent() then--as the parrent can already be destroyed, if end of the map
-			node:getParent():removeChild(node)
+			node:getParent():removeChild(node:toSceneNode())
 		end
 	end
 	function self.stop()

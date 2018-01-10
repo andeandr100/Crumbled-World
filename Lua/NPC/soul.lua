@@ -43,7 +43,7 @@ function TheSoul.new()
 	local pointLightElectric
 	--sound
 	local soundShieldHitt
-	--local soundHitt = SoundNode("npc_hitt2")
+	--local soundHitt = SoundNode.new("npc_hitt2")
 	
 	-- function:	defaultStats
 	-- purpose:		set default stats for the npc
@@ -73,12 +73,12 @@ function TheSoul.new()
 		if setVisible then
 			if not pointLightFlame then
 				--create the particle effect
-				pointLightFlame = PointLight(Vec3(0,0.4,0),Vec3(2.0,1.15,0.0),2.0)
+				pointLightFlame = PointLight.new(Vec3(0,0.4,0),Vec3(2.0,1.15,0.0),2.0)
 				pointLightFlame:setCutOff(0.15)
-				globalNode:addChild(pointLightFlame)
+				globalNode:addChild(pointLightFlame:toSceneNode())
 				--
-				flameEffect = ParticleSystem(ParticleEffect.NPCFlame)
-				globalNode:addChild(flameEffect)
+				flameEffect = ParticleSystem.new(ParticleEffect.NPCFlame)
+				globalNode:addChild(flameEffect:toSceneNode())
 				flameEffect:activate(firePosition)
 			else
 				--make it visible
@@ -99,13 +99,13 @@ function TheSoul.new()
 		if setVisible then
 			if not pointLightElectric then
 				--create the effect, and make it visible
-				electricEffect = ParticleSystem(ParticleEffect.NPCElectric)
-				globalNode:addChild(electricEffect)
+				electricEffect = ParticleSystem.new(ParticleEffect.NPCElectric)
+				globalNode:addChild(electricEffect:toSceneNode())
 				electricEffect:activate(firePosition+Vec3(0,0.75,0))
 				--
-				pointLightElectric = PointLight(Vec3(0,0.4,0),Vec3(0.0,0.6,1.2),2.0)
+				pointLightElectric = PointLight.new(Vec3(0,0.4,0),Vec3(0.0,0.6,1.2),2.0)
 				pointLightElectric:setCutOff(0.15)
-				globalNode:addChild(pointLightElectric)
+				globalNode:addChild(pointLightElectric:toSceneNode())
 			else
 				--make the effect visible
 				pointLightElectric:setVisible(true)
@@ -132,8 +132,8 @@ function TheSoul.new()
 	function self.setCanBlockBlade(param)
 		canBlockBlade = param
 		if not soundShieldHitt then
-			soundShieldHitt = SoundNode("shield_block")
-			globalNode:addChild(soundShieldHitt)
+			soundShieldHitt = SoundNode.new("shield_block")
+			globalNode:addChild(soundShieldHitt:toSceneNode())
 		end
 	end
 	-- function:	setResistance
@@ -224,8 +224,8 @@ function TheSoul.new()
 			local attackVec = attackerPos-this:getGlobalPosition()
 			--	sparks on shield
 			if not blockSparks then
-				blockSparks = ParticleSystem( ParticleEffect.SparksWhenBlocking )
-				this:addChild(blockSparks)
+				blockSparks = ParticleSystem.new( ParticleEffect.SparksWhenBlocking )
+				this:addChild(blockSparks:toSceneNode())
 				blockSparks:activate( Vec3(0,1,0)+(attackVec*0.3) )
 			end
 			attackVec = (this:getGlobalMatrix():inverseM()*attackerPos):normalizeV()
@@ -238,8 +238,8 @@ function TheSoul.new()
 			-- blood effect on hitt
 			if bloodInfo then
 				if not bloodSpray then
-					bloodSpray = ParticleSystem( ParticleEffect[bloodInfo.pName] )
-					globalNode:addChild(bloodSpray)
+					bloodSpray = ParticleSystem.new( ParticleEffect[bloodInfo.pName] )
+					globalNode:addChild(bloodSpray:toSceneNode())
 					bloodSpray:setScale(bloodInfo.pScale)
 					bloodSpray:activate(firePosition+Vec3(0,0.2,0),(Core.getBillboard(fromIndex):getVec3("Position")-this:getGlobalPosition()):normalizeV())
 				end
@@ -395,7 +395,7 @@ function TheSoul.new()
 				markOfDeathModel = Core.getModel("skeleton_head.mym")
 				markOfDeathModel:setLocalPosition(markOfDeathOffset)
 				markOfDeathModel:setColor(Vec4(1.25,0.25,0.25,1.0))--there is no alpha, because we don't use a forwardShader
-				globalNode:addChild(markOfDeathModel)
+				globalNode:addChild(markOfDeathModel:toSceneNode())
 			else
 				markOfDeathModel:setVisible(true)
 			end
@@ -598,15 +598,15 @@ function TheSoul.new()
 		setElectricVisible(false)
 		--unlink effects
 		if flameEffect then
-			globalNode:removeChild(flameEffect)
-			globalNode:removeChild(pointLightFlame)
+			globalNode:removeChild(flameEffect:toSceneNode())
+			globalNode:removeChild(pointLightFlame:toSceneNode())
 		end
 		if electricEffect then
-			globalNode:removeChild(electricEffect)
-			globalNode:removeChild(pointLightElectric)
+			globalNode:removeChild(electricEffect:toSceneNode())
+			globalNode:removeChild(pointLightElectric:toSceneNode())
 		end
 		if bloodSpray then
-			bloodSpray:getParent():removeChild(bloodSpray)
+			bloodSpray:getParent():removeChild(bloodSpray:toSceneNode())
 		end
 	end
 	

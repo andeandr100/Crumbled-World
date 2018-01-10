@@ -13,7 +13,7 @@ function create()
 --		local spawnName = spawnArea:getName()
 --		billboard:setString("spawnAreaName", spawnName)
 --		
---		local iconSpawnNode = spawnArea:getIsland():addChild(SceneNode())
+--		local iconSpawnNode = spawnArea:getIsland():addChild(SceneNode.new())
 --		local script = iconSpawnNode:loadLuaScript("Enviromental/spawnIcon.lua")
 --		script:update()
 --	end

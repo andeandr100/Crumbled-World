@@ -64,7 +64,7 @@ function ExportForm.new()
 	
 	local function init()
 		--camera = Camera()
-		local camera = this:getRootNode():findNodeByName("MainCamera")
+		local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 		
 		--export question form
 		optionsForm = Form( camera, PanelSize(Vec2(-1,0.15), Vec2(2.8,1)), Alignment.MIDDLE_CENTER);

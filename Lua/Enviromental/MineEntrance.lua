@@ -2,7 +2,7 @@
 MineEntrance = {}
 
 function MineEntrance.create(mineNode, localMatrix)
-	local mesh = NodeMesh()
+	local mesh = NodeMesh.new()
 	
 	mesh:addPosition(Vec3(-1.3,0,0))
 	mesh:addPosition(Vec3(-1.3,3.4,0))
@@ -16,7 +16,7 @@ function MineEntrance.create(mineNode, localMatrix)
 
 	local mineEntranceShader = Core.getShader("mineEntrance")
 
-	mineNode:addChild(mesh)
+	mineNode:addChild(mesh:toSceneNode())
 	
 	mesh:setBoundingSphere(Sphere(Vec3(0,1.5,0), 2.0))
 	mesh:setShader(mineEntranceShader)

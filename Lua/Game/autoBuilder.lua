@@ -39,7 +39,7 @@ local function getBuildingFromIndex(buildingIndex)
 end
 
 function AutoBuilder.addBuilding(currentBuilding, collisionMesh, globalCollisionPos, rotation, building)
---	--building = SceneNode()
+--	--building = SceneNode.new()
 --	print("AutoBuilder.addBuilding()\n")
 --	local buildingId = getbuildingId(currentBuilding)
 --	
@@ -57,7 +57,7 @@ function AutoBuilder.addBuilding(currentBuilding, collisionMesh, globalCollision
 end
 
 function AutoBuilder.changeBuilding(currentBuilding, nextBuilding, localMatrix)
---	--building = SceneNode()
+--	--building = SceneNode.new()
 --	print("AutoBuilder.addBuilding()\n")
 --	local buildingId = getbuildingId(nextBuilding)
 --	
@@ -312,7 +312,7 @@ function AutoBuilder.update()
 --			while buildingToUpgrade:getChildSize() > 0 do
 --				local child = buildingToUpgrade:getChildNode(0)
 --				child:setVisible(false)
---				buildingToUpgrade:removeChild(child)
+--				buildingToUpgrade:removeChild(child:toSceneNode())
 --			end
 --			
 --			--the wall tower has been removed from the map

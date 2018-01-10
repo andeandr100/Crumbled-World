@@ -1,5 +1,5 @@
 require("Menu/MainMenu/mainMenuStyle.lua")
---this=SceneNode()
+--this=SceneNode.new()
 
 
 MainMenuStyle.backgroundTopColor = Vec4(0,0,0,0.8)

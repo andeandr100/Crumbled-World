@@ -25,14 +25,14 @@ function TowerImage.createTowerImage(towerScriptName)
 	TowerImage.rootNodes[#TowerImage.rootNodes+1] = rootNode
 	
 	--Tower Node
-	local towerNode = rootNode:addChild( SceneNode() )
+	local towerNode = rootNode:addChild( SceneNode.new() )
 	--towerNode:setIsStatic(true)
 
 	local luaScript = towerNode:loadLuaScript(towerScriptName)
 	towerNode:update()--execute lua functions
 
 	--Camera
-	local towerCamera =  rootNode:addChild( Camera(Text("TowerCamera"),true,200,200) )
+	local towerCamera =  rootNode:addChild( Camera.new(Text("TowerCamera"),true,200,200) )
 	towerCamera:setAmbientLight(AmbientLight(Vec3(1.0)))	
 	
 	--Camera Matrix

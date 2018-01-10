@@ -257,7 +257,7 @@ function NpcPanel.new(panel)
 	-- purpose:		sets what panel we will work against
 	function self.addTargetPanel()
 		--Create camera
-		selectedCamera = Camera(Text("eventCamera"),false,800,100);
+		selectedCamera = Camera.new(Text("eventCamera"),false,800,100);
 		--clear color
 		selectedCamera:setClearColor(Vec4(0,0,0,1.0))
 		

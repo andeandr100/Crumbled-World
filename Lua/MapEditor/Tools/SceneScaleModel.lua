@@ -5,7 +5,7 @@ SceneScaleModel = {}
 
 function SceneScaleModel.create()
 	
-	local lines = NodeMesh()
+	local lines = NodeMesh.new()
 	
 	local blockSize = 0.2
 	SceneScaleModel.addLine(lines, Vec3(blockSize*0.5,0,0), Vec3(1,0,0))
@@ -17,8 +17,8 @@ function SceneScaleModel.create()
 	lines:setRenderLevel(10)
 	lines:setBoundingSphere(Sphere(Vec3(0),1))
 	
-	SceneScaleModel.sceneNode = SceneNode()
-	this:getRootNode():addChild(SceneScaleModel.sceneNode)
+	SceneScaleModel.sceneNode = SceneNode.new()
+	this:getRootNode():addChild(SceneScaleModel.sceneNode:toSceneNode())
 	SceneScaleModel.lineModel = lines
 	
 	
@@ -28,11 +28,11 @@ function SceneScaleModel.create()
 	SceneScaleModel.centerModel = SceneScaleModel.createBoxMesh(Vec3(0.8,0.8,0.8), Vec3(0,-blockSize*0.5,0), Vec3(0,blockSize*0.5,0))
 	
 	
-	SceneScaleModel.sceneNode:addChild(SceneScaleModel.rightModel)
-	SceneScaleModel.sceneNode:addChild(SceneScaleModel.upModel)
-	SceneScaleModel.sceneNode:addChild(SceneScaleModel.atModel)
-	SceneScaleModel.sceneNode:addChild(SceneScaleModel.centerModel)
-	SceneScaleModel.sceneNode:addChild(lines)
+	SceneScaleModel.sceneNode:addChild(SceneScaleModel.rightModel:toSceneNode())
+	SceneScaleModel.sceneNode:addChild(SceneScaleModel.upModel:toSceneNode())
+	SceneScaleModel.sceneNode:addChild(SceneScaleModel.atModel:toSceneNode())
+	SceneScaleModel.sceneNode:addChild(SceneScaleModel.centerModel:toSceneNode())
+	SceneScaleModel.sceneNode:addChild(lines:toSceneNode())
 end
 
 function SceneScaleModel.setVisible(visible)
@@ -68,7 +68,7 @@ function SceneScaleModel.setMatrix(matrix)
 end
 
 function SceneScaleModel.createBoxMesh(color, startPoint, endPoint)
-	local mesh = NodeMesh()
+	local mesh = NodeMesh.new()
 	
 	local centerPos = (startPoint + endPoint) * 0.5
 	local rightVec, upVec, atVec = getDirectionsFromPoints(startPoint, endPoint)

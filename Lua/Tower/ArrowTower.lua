@@ -221,7 +221,7 @@ function ArrowTower.new()
 		
 		--performance check
 		for i=0, model:getNumMesh()-1, 1 do
-			if not model:getMesh(i):getName():toString()=="tower" then
+			if not model:getMesh(i):getName() =="tower" then
 				model:getMesh(i):DisableBoundingVolumesDynamicUpdates()
 			end
 		end
@@ -313,9 +313,9 @@ function ArrowTower.new()
 			local crossbowMatrix = crossbowMesh:getLocalMatrix()--get rotation for engine
 			local rotaterBaseMatrix = model:getMesh( "rotaterBase" ):getLocalMatrix()
 		
-			this:removeChild(model)
+			this:removeChild(model:toSceneNode())
 			model = Core.getModel( string.format("tower_crossbow_l%d.mym", upgrade.getLevel("upgrade")) )
-			this:addChild(model)
+			this:addChild(model:toSceneNode())
 			billboard:setModel("tower",model);
 		
 			resetModel()--resets the model and reload time
@@ -696,10 +696,10 @@ function ArrowTower.new()
 	
 		model = Core.getModel("tower_crossbow_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
-		this:addChild(model)
+		this:addChild(model:toSceneNode())
 		
-		soundNode = SoundNode("bow_release")
-		this:addChild(soundNode)
+		soundNode = SoundNode.new("bow_release")
+		this:addChild(soundNode:toSceneNode())
 	
 		--
 		--
@@ -711,7 +711,7 @@ function ArrowTower.new()
 		--this:addChild(candle2)
 		
 		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable)
+			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
 		end
 	
 		--ComUnit

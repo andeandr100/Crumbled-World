@@ -23,12 +23,12 @@ function create()
 	npcBase.init("fireSpirit",nil,0.2,0.6,0.75,2.0)
 	npcBase.setDefaultState(state.burning)--fire crit
 	--particle effect
-	effect = ParticleSystem(ParticleEffect.NPCSpirit)
-	this:addChild(effect)
+	effect = ParticleSystem.new(ParticleEffect.NPCSpirit)
+	this:addChild(effect:toSceneNode())
 	effect:activate(Vec3(0,0.65,0))
 	npcBase.addParticleEffect(effect,0.35)
 	--pointlight
-	pointLight = PointLight(Vec3(0,0.25,0),Vec3(3.0,1.0,0.0),pLightRange)
+	pointLight = PointLight.new(Vec3(0,0.25,0),Vec3(3.0,1.0,0.0),pLightRange)
 	pointLight:setCutOff(0.1)
 	
 	--collisionModel, need to be able to click on this npc
@@ -40,8 +40,8 @@ function create()
 	end
 	
 	--pointLight:setIsStatic(true)
-	this:addChild(pointLight)
-	this:addChild(collisionModel)
+	this:addChild(pointLight:toSceneNode())
+	this:addChild(collisionModel:toSceneNode())
 	npcBase.addPointLight(pointLight,0.35)
 	--
 	npcBase.getSoul().setResistance(1.33,true,true,0.0)

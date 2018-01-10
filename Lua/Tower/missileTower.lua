@@ -276,7 +276,7 @@ function MissileTower.new()
 		end
 		--performance check
 		for i=0, model:getNumMesh()-1, 1 do
-			if not model:getMesh(i):getName():toString()=="tower" then
+			if not model:getMesh(i):getName() =="tower" then
 				model:getMesh(i):DisableBoundingVolumesDynamicUpdates()
 			end
 		end
@@ -301,9 +301,9 @@ function MissileTower.new()
 		end
 		--
 		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
-			this:removeChild(model)
+			this:removeChild(model:toSceneNode())
 			model = Core.getModel( upgrade.getValue("model") )
-			this:addChild(model)
+			this:addChild(model:toSceneNode())
 			initModel(true)
 		end
 		upgrade.clearCooldown()
@@ -621,7 +621,7 @@ function MissileTower.new()
 		this:createBoundVolumeGroup()
 		this:setBoundingVolumeCanShrink(false)
 		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable)
+			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
 		end
 		
 		Core.setUpdateHz(24.0)--slow gates and a slow rise of an missile
@@ -860,8 +860,8 @@ function MissileTower.new()
 		
 		--model
 		model = Core.getModel(upgrade.getValue("model"))
-		this:addChild(model)
-		this:addChild(StaticBody(model:getMesh("physic")))
+		this:addChild(model:toSceneNode())
+		this:addChild(StaticBody.new(model:getMesh("physic")):toSceneNode())
 		
 		--Hull
 		local hullModel = Core.getModel("tower_resource_hull.mym")

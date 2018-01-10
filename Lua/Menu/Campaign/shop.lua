@@ -273,7 +273,7 @@ function Shop.new(camera, updateCrystalButton, inPanel)
 		
 		shopPanel = createBorderPanel()
 		
---		form = Form(camera, PanelSize(Vec2(-1,-0.8), Vec2(1.2,1)), Alignment.MIDDLE_CENTER);
+--		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-0.8), Vec2(1.2,1)), Alignment.MIDDLE_CENTER);
 --		form:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(panelSpacingVec2)));
 --		form:setRenderLevel(9)	
 --		form:setVisible(false)

@@ -54,7 +54,7 @@ function create()
 	local camera = this.getRootNode(this):findNodeByName("MainCamera")
 	visible = false;
 	if camera then
-		form = Form(camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
+		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
 		form:setLayout(FlowLayout(PanelSize(Vec2(0.01,0.01))));
 		form:setRenderLevel(12)
 		

@@ -310,7 +310,7 @@ function create()
 	start_time = Core.getGameTime()
 	
 	if this:getNodeType() == NodeId.playerNode then
-		local menuNode = this:getRootNode():addChild(SceneNode())
+		local menuNode = this:getRootNode():addChild(SceneNode.new())
 		--camera = Camera()
 		menuNode:setSceneName("Stats menu")
 		menuNode:createWork()

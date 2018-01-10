@@ -13,15 +13,15 @@ function create()
 	--physic animated death
 	npcBase.addDeathRigidBody()
 	--particle effect
-	sparkCenter = ParticleSystem(ParticleEffect.SpiritStone)
+	sparkCenter = ParticleSystem.new(ParticleEffect.SpiritStone)
 	sparkCenter:activate(Vec3(0.0,0.75,0.0))
-	this:addChild(sparkCenter)
+	this:addChild(sparkCenter:toSceneNode())
 	npcBase.addParticleEffect(sparkCenter,0.5)
 	--pointlight
-	pointLight = PointLight(Vec3(0,0.85,0),Vec3(0.0,3.0,3.0),1.5)
+	pointLight = PointLight.new(Vec3(0,0.85,0),Vec3(0.0,3.0,3.0),1.5)
 	pointLight:setCutOff(0.1)
 	--pointLight:setIsStatic(true)
-	this:addChild(pointLight)
+	this:addChild(pointLight:toSceneNode())
 	npcBase.addPointLight(pointLight,0.5)
 	--
 	if npcBase.update and type(npcBase.update)=="function" then

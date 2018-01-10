@@ -47,7 +47,7 @@ function QuakeTower.new()
 	local comUnitTable = {}
 	local billboardWaveStats
 	--effects
-	local quakeDust = ParticleSystem(ParticleEffect.QuakeDustLingeringEffect)
+	local quakeDust = ParticleSystem.new(ParticleEffect.QuakeDustLingeringEffect)
 	local quakeDustBlast	--fireCrit
 	local blasterFlame		--fireCrit
 	local quakeFlameBlast	--fireStrike
@@ -240,20 +240,20 @@ function QuakeTower.new()
 		end
 		--
 		--clear out the old data
-		this:removeChild(model)
+		this:removeChild(model:toSceneNode())
 		if upgrade.getLevel("upgrade")==1 then
-			this:addChild( quakeDust )
+			this:addChild( quakeDust:toSceneNode() )
 		end
 		if upgrade.getLevel("fireCrit")>0 then
-			log:removeChild(blasterFlame)
+			log:removeChild(blasterFlame:toSceneNode())
 		end
 		--insert the new data
 		model = Core.getModel( upgrade.getValue("model") )
-		this:addChild(model)
+		this:addChild(model:toSceneNode())
 		cTowerUpg.fixAllPermBoughtUpgrades()	
 		fixModel(true)
 		if upgrade.getLevel("fireCrit")>0 then
-			log:addChild(blasterFlame)
+			log:addChild(blasterFlame:toSceneNode())
 		end
 		upgrade.clearCooldown()
 		setCurrentInfo()
@@ -292,10 +292,10 @@ function QuakeTower.new()
 		end
 		if upgrade.getLevel("fireCrit")>0 then
 			if (not quakeDustBlast) or (not blasterFlame) then
-				quakeDustBlast = ParticleSystem(ParticleEffect.QuakeDustEffect)
-				blasterFlame = ParticleSystem(ParticleEffect.quakeBlaster)
-				log:addChild(blasterFlame)
-				this:addChild(quakeDustBlast)
+				quakeDustBlast = ParticleSystem.new(ParticleEffect.QuakeDustEffect)
+				blasterFlame = ParticleSystem.new(ParticleEffect.quakeBlaster)
+				log:addChild(blasterFlame:toSceneNode())
+				this:addChild(quakeDustBlast:toSceneNode())
 			end
 			if upgrade.getLevel("fireCrit")>1 then
 				model:getMesh("blaster"..(upgrade.getLevel("fireCrit")-1)):setVisible(false)
@@ -328,12 +328,12 @@ function QuakeTower.new()
 			end
 		else
 			if quakeFlameBlast==nil  then
-				quakeFlameBlast = ParticleSystem(ParticleEffect.qukeFireBlast)
-				fireBall = ParticleSystem(ParticleEffect.quakeFireBall)
-				firePointLigth = PointLight(Vec3(2.0,1.15,0.0),3.0)
-				this:addChild( quakeFlameBlast )
-				this:addChild( fireBall )
-				this:addChild( firePointLigth )
+				quakeFlameBlast = ParticleSystem.new(ParticleEffect.qukeFireBlast)
+				fireBall = ParticleSystem.new(ParticleEffect.quakeFireBall)
+				firePointLigth = PointLight.new(Vec3(2.0,1.15,0.0),3.0)
+				this:addChild( quakeFlameBlast:toSceneNode() )
+				this:addChild( fireBall:toSceneNode() )
+				this:addChild( firePointLigth:toSceneNode() )
 			end
 			fireBall:activate(Vec3(0,0.75,0))
 			firePointLigth:setLocalPosition( Vec3(0,0.75,0) )
@@ -372,17 +372,17 @@ function QuakeTower.new()
 			end
 		else
 			if electricBall==nil then
-				electricBall = ParticleSystem(ParticleEffect.SparkSpirit)
-				electricPointLigth = PointLight(Vec3(0.0,1.5,1.5),3.0)
-				soundAttack = SoundNode("electric_attack")
+				electricBall = ParticleSystem.new(ParticleEffect.SparkSpirit)
+				electricPointLigth = PointLight.new(Vec3(0.0,1.5,1.5),3.0)
+				soundAttack = SoundNode.new("electric_attack")
 				electrikStrike = {token=0}
-				this:addChild( electricBall )
-				this:addChild( electricPointLigth )
-				this:addChild( soundAttack )
+				this:addChild( electricBall:toSceneNode() )
+				this:addChild( electricPointLigth:toSceneNode() )
+				this:addChild( soundAttack:toSceneNode() )
 				for i=1, 6 do
-					electrikStrike[i] = {effect=ParticleEffectElectricFlash("Lightning_D.tga"), light=PointLight(Vec3(0.0,1.0,1.0),2.5)}
-					this:addChild(electrikStrike[i].effect)
-					this:addChild(electrikStrike[i].light)
+					electrikStrike[i] = {effect=ParticleEffectElectricFlash.new("Lightning_D.tga"), light=PointLight.new(Vec3(0.0,1.0,1.0),2.5)}
+					this:addChild(electrikStrike[i].effect:toSceneNode())
+					this:addChild(electrikStrike[i].light:toSceneNode())
 				end
 			end
 			electricBall:activate(Vec3(0,0.75,0))
@@ -683,10 +683,10 @@ function QuakeTower.new()
 		--
 		model = Core.getModel("tower_quaker_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
-		this:addChild(model)
+		this:addChild(model:toSceneNode())
 	
 		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable)
+			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
 		end
 	
 		--ComUnit

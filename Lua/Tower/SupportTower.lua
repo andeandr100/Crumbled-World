@@ -38,7 +38,7 @@ function SwarmTower.new()
 	local meshRange
 	local timer = 0.0
 	--effects
-	sparkCenter = ParticleSystem(ParticleEffect.EndCrystal)
+	sparkCenter = ParticleSystem.new(ParticleEffect.EndCrystal)
 	weakenEffects = {}
 	weakenPointLight = {}
 	--communication
@@ -230,10 +230,10 @@ function SwarmTower.new()
 		
 		--get all meshes that we will interact with later
 		if meshCrystal then
-			meshCrystal:removeChild( sparkCenter )
+			meshCrystal:removeChild( sparkCenter:toSceneNode() )
 		end
 		meshCrystal = model:getMesh( "crystal" )
-		meshCrystal:addChild( sparkCenter )
+		meshCrystal:addChild( sparkCenter:toSceneNode() )
 		sparkCenter:activate(Vec3(0,0,1))
 		local rangeMatrix
 		if meshRange then
@@ -275,10 +275,10 @@ function SwarmTower.new()
 		--
 		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
 			--
-			this:removeChild(model)
+			this:removeChild(model:toSceneNode())
 			model = Core.getModel( upgrade.getValue("model") )
 			initModel()
-			this:addChild(model)
+			this:addChild(model:toSceneNode())
 			billboard:setModel("tower",model)
 			cTowerUpg.fixAllPermBoughtUpgrades()
 		end
@@ -394,14 +394,14 @@ function SwarmTower.new()
 			--loop all effects and create them
 			if not weakeningArea then
 				for i=1, 4 do
-					weakenEffects[i] = ParticleSystem(ParticleEffect.weakening)
-					weakenPointLight[i] = PointLight(Vec3(1.0,1.0,0.0), 1.0)
+					weakenEffects[i] = ParticleSystem.new(ParticleEffect.weakening)
+					weakenPointLight[i] = PointLight.new(Vec3(1.0,1.0,0.0), 1.0)
 					weakenPointLight[i]:setCutOff(0.05)
-					this:addChild( weakenEffects[i] )
-					this:addChild( weakenPointLight[i] )
+					this:addChild( weakenEffects[i]:toSceneNode() )
+					this:addChild( weakenPointLight[i]:toSceneNode() )
 				end
-				weakeningArea = ParticleSystem(ParticleEffect.weakeningArea)
-				this:addChild(weakeningArea)
+				weakeningArea = ParticleSystem.new(ParticleEffect.weakeningArea)
+				this:addChild(weakeningArea:toSceneNode())
 			end
 			weakenEffects[1]:activate(Vec3(-0.575,0.75,0.0))
 			weakenPointLight[1]:setLocalPosition(Vec3(-0.575,0.75,0.0))
@@ -548,10 +548,10 @@ function SwarmTower.new()
 	
 		model = Core.getModel("tower_support_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
-		this:addChild(model)
+		this:addChild(model:toSceneNode())
 	
 		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable)
+			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
 		end
 	
 		--ComUnit

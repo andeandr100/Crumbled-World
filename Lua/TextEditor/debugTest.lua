@@ -4,7 +4,7 @@
 function create()
 	local island = this:findNodeByTypeTowardsLeafe(NodeId.island)		
 	box = Core.getModel("box1.mym")
-	island:addChild(box);
+	island:addChild(box:toSceneNode());
 	return true
 end
 

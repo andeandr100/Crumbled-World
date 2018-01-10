@@ -81,7 +81,7 @@ function saveFunction(export)
 end
 
 function createNodeMesh(island, localPosition)
-	nodeMesh = NodeMesh()
+	nodeMesh = NodeMesh.new()
 		
 	nodeMesh:setCollisionEnabled(false)
 	nodeMesh:setLocalPosition(localPosition)
@@ -99,7 +99,7 @@ function createNodeMesh(island, localPosition)
 	nodeMesh:setCanBeSaved(false)
 	
 	
-	island:addChild(nodeMesh)
+	island:addChild(nodeMesh:toSceneNode())
 	return nodeMesh
 end
 

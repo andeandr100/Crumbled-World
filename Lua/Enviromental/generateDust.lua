@@ -36,7 +36,7 @@ function worldEdge.create(island)
 --		--Dust
 --		--Core.addDebugLine(worldEdgePos[worldEdgeConnections[i][1]],worldEdgePos[worldEdgeConnections[i][2]],3600.0,worldEdgeConnections[i][3])
 --		counter = counter + 1
---		rockDust[counter] = ParticleSystem("RockDust",true)
+--		rockDust[counter] = ParticleSystem.new("RockDust",true)
 --		this:addChild( rockDust[counter]:toSceneNode() )
 --		rockDust[counter]:activate(Vec3())
 --		rockDust[counter]:setEmitterLine(Line3D(worldEdgePos[worldEdgeConnections[i][1]],worldEdgePos[worldEdgeConnections[i][2]]))
@@ -52,7 +52,7 @@ function worldEdge.generateDust(island)
 
 	for i=0, list:size()-1, 1 do
 		counter = counter + 1
---		rockDust[counter] = {dust = ParticleSystem("RockDust",true), emitterNode=list:item(i)}
+--		rockDust[counter] = {dust = ParticleSystem.new("RockDust",true), emitterNode=list:item(i)}
 --		island:getParent():addChild(rockDust[counter].dust:toSceneNode())
 --		rockDust[counter].dust:activate(rockDust[counter].emitterNode:getGlobalPosition()+Vec3(0.0,-3.0,0.0))
 		worldEdgePos[counter] = list:item(i):getGlobalPosition()+Vec3(0.0,-2.25,0.0)

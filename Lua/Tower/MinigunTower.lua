@@ -61,7 +61,7 @@ function MinigunTower.new()
 	local particleEffectGun = {}
 	local particleEffectGunLaser = {}
 	local particleEffectTracer = {}
-	local pointLight = PointLight(Vec3(0.16,-1.0,0.18),Vec3(5,2.5,0.0),1.25)
+	local pointLight = PointLight.new(Vec3(0.16,-1.0,0.18),Vec3(5,2.5,0.0),1.25)
 	local pointLightTimer = -1.0
 	--cummunication
 	local comUnit = Core.getComUnit()
@@ -276,7 +276,7 @@ function MinigunTower.new()
 		end
 		--performance check
 		for i=0, model:getNumMesh()-1, 1 do
-			if not model:getMesh(i):getName():toString()=="tower" then
+			if not model:getMesh(i):getName() =="tower" then
 				model:getMesh(i):DisableBoundingVolumesDynamicUpdates()
 			end
 		end
@@ -456,50 +456,50 @@ function MinigunTower.new()
 			local rotaterMatrix = rotatorMesh:getLocalMatrix()--get rotation for rotater
 			local engineMatrix = engineMesh:getLocalMatrix()--get rotation for engine
 			local prevModel = model
-			this:removeChild(model)
+			this:removeChild(model:toSceneNode())
 		
 			model = Core.getModel( string.format("tower_minigun_l%d.mym", upgrade.getLevel("upgrade")) )
-			this:addChild(model)
+			this:addChild(model:toSceneNode())
 			initModel()
 			rotatorMesh:setLocalMatrix(rotaterMatrix)
 			rotatorMesh:setLocalPosition(Vec3())
 			engineMesh:setLocalMatrix(engineMatrix)--set the old rotation
 			
-			particleEffectGun[0]:getParent():removeChild( particleEffectGun[0] )
-			particleEffectGunLaser[0]:getParent():removeChild( particleEffectGunLaser[0] )
+			particleEffectGun[0]:getParent():removeChild( particleEffectGun[0]:toSceneNode() )
+			particleEffectGunLaser[0]:getParent():removeChild( particleEffectGunLaser[0]:toSceneNode() )
 			if upgrade.getLevel("overCharge")>0 then
-				particleEffectSmoke[0]:getParent():removeChild( particleEffectSmoke[0] )
+				particleEffectSmoke[0]:getParent():removeChild( particleEffectSmoke[0]:toSceneNode() )
 			end
-			pointLight:getParent():removeChild( pointLight )
-			if heatPointLight1 then heatPointLight1:getParent():removeChild( heatPointLight1 ) end
-			particleEffectTracer[0]:getParent():removeChild( particleEffectTracer[0] )
+			pointLight:getParent():removeChild( pointLight:toSceneNode() )
+			if heatPointLight1 then heatPointLight1:getParent():removeChild( heatPointLight1:toSceneNode() ) end
+			particleEffectTracer[0]:getParent():removeChild( particleEffectTracer[0]:toSceneNode() )
 			if upgrade.getLevel("range")>0 then
-				particleEffectBeam:getParent():removeChild(particleEffectBeam)
-				model:getMesh( "lasersight"..upgrade.getLevel("range") ):addChild(particleEffectBeam)
+				particleEffectBeam:getParent():removeChild(particleEffectBeam:toSceneNode())
+				model:getMesh( "lasersight"..upgrade.getLevel("range") ):addChild(particleEffectBeam:toSceneNode())
 			end
 			
 			if upgrade.getLevel("overCharge")>0 then
-				this:addChild(particleEffectSmoke[0])
+				this:addChild(particleEffectSmoke[0]:toSceneNode())
 			end
-			engineMesh:addChild(pointLight)
+			engineMesh:addChild(pointLight:toSceneNode())
 			pointLight:setVisible(false)
-			if heatPointLight1 then engineMesh:addChild(heatPointLight1) end
-			pipesMesh:addChild(particleEffectGun[0])
-			model:getMesh( "pipeBoost" ):addChild(particleEffectGunLaser[0])
-			pipesMesh:addChild(particleEffectTracer[0])
+			if heatPointLight1 then engineMesh:addChild(heatPointLight1:toSceneNode()) end
+			pipesMesh:addChild(particleEffectGun[0]:toSceneNode())
+			model:getMesh( "pipeBoost" ):addChild(particleEffectGunLaser[0]:toSceneNode())
+			pipesMesh:addChild(particleEffectTracer[0]:toSceneNode())
 			if upgrade.getLevel("upgrade")==3 then
 				if upgrade.getLevel("overCharge")>0 then
-					particleEffectSmoke[1] = ParticleSystem( ParticleEffect.MinigunOverheatSmoke )
-					heatPointLight2 = PointLight(Vec3(),Vec3(3.0,0.15,0.0),0.2)
-					model:getMesh( "engine" ):addChild( heatPointLight2 )
+					particleEffectSmoke[1] = ParticleSystem.new( ParticleEffect.MinigunOverheatSmoke )
+					heatPointLight2 = PointLight.new(Vec3(),Vec3(3.0,0.15,0.0),0.2)
+					model:getMesh( "engine" ):addChild( heatPointLight2:toSceneNode() )
 					setPipePointLightPos(heatPointLight2,1)
-					this:addChild(particleEffectSmoke[1])
+					this:addChild(particleEffectSmoke[1]:toSceneNode())
 					particleEffectSmoke[1]:activate(Vec3())
 					particleEffectSmoke[1]:setSpawnRate(0.0)
 				end
-				pipes2Mesh:addChild(particleEffectGun[1])
-				model:getMesh( "pipeBoost" ):addChild(particleEffectGunLaser[1])
-				pipes2Mesh:addChild(particleEffectTracer[1])
+				pipes2Mesh:addChild(particleEffectGun[1]:toSceneNode())
+				model:getMesh( "pipeBoost" ):addChild(particleEffectGunLaser[1]:toSceneNode())
+				pipes2Mesh:addChild(particleEffectTracer[1]:toSceneNode())
 			end
 			--
 			--save the memory
@@ -558,19 +558,19 @@ function MinigunTower.new()
 				particleEffectBeam:deactivate()
 			end
 		else
-			particleEffectBeam = particleEffectBeam or ParticleSystem( ParticleEffect.LaserSight1 )
+			particleEffectBeam = particleEffectBeam or ParticleSystem.new( ParticleEffect.LaserSight1 )
 			model:getMesh("lasersight"..upgrade.getLevel("range")):setVisible(true)
 			local laserBeamRange = 0.45+(upgrade.getLevel("range")*0.12)
 			if upgrade.getLevel("range")>1 then
 				model:getMesh("lasersight"..upgrade.getLevel("range")-1):setVisible(false)
-				model:getMesh("lasersight"..upgrade.getLevel("range")-1):removeChild(particleEffectBeam)
+				model:getMesh("lasersight"..upgrade.getLevel("range")-1):removeChild(particleEffectBeam:toSceneNode())
 				particleEffectBeam:setSpawnRate( 1.0+(upgrade.getLevel("range")) )
 			end
 			--particleEffectBeam:setSpawnRadius(0.5)
 			particleEffectBeam:activate(Vec3(0.0,-0.1,0.0),Vec3(0.0,-1.0,0.0))
 			particleEffectBeam:setFullAlphaOnRange(laserBeamRange)
 			particleEffectBeam:setEmitterLine(Line3D(Vec3(0.0,-0.6,0.0),Vec3(0.0,-laserBeamRange,0.0)),Vec3(0.0,-1.0,0.0))
-			model:getMesh( "lasersight"..upgrade.getLevel("range") ):addChild(particleEffectBeam)
+			model:getMesh( "lasersight"..upgrade.getLevel("range") ):addChild(particleEffectBeam:toSceneNode())
 			--Acievement
 			if upgrade.getLevel("range")==3 then
 				comUnit:sendTo("SteamAchievement","Range","")
@@ -632,14 +632,14 @@ function MinigunTower.new()
 		else
 			if not particleEffectSmoke then
 				particleEffectSmoke = {}
-				particleEffectSmoke[0] = ParticleSystem( ParticleEffect.MinigunOverheatSmoke )
-				this:addChild(particleEffectSmoke[0])
+				particleEffectSmoke[0] = ParticleSystem.new( ParticleEffect.MinigunOverheatSmoke )
+				this:addChild(particleEffectSmoke[0]:toSceneNode())
 			end
 			billboard:setFloat("overHeatPer",0.0)
 			doMeshUpgradeForLevel("overCharge","engineboost")
 			if not heatPointLight1 then
-				heatPointLight1 = PointLight(Vec3(),Vec3(3.0,0.15,0.0),0.2)
-				model:getMesh( "engine" ):addChild( heatPointLight1 )
+				heatPointLight1 = PointLight.new(Vec3(),Vec3(3.0,0.15,0.0),0.2)
+				model:getMesh( "engine" ):addChild( heatPointLight1:toSceneNode() )
 				setPipePointLightPos(heatPointLight1,0)
 				particleEffectSmoke[0]:activate(Vec3())
 				particleEffectSmoke[0]:setSpawnRate(0.0)
@@ -648,11 +648,11 @@ function MinigunTower.new()
 			heatPointLight1:setCutOff(0.15)
 			if upgrade.getLevel("overCharge")==3 or upgrade.getLevel("upgrade")==3 then
 				if not heatPointLight2 then
-					particleEffectSmoke[1] = ParticleSystem( ParticleEffect.MinigunOverheatSmoke )
-					heatPointLight2 = PointLight(Vec3(),Vec3(3.0,0.15,0.0),0.2)
-					model:getMesh( "engine" ):addChild( heatPointLight2 )
+					particleEffectSmoke[1] = ParticleSystem.new( ParticleEffect.MinigunOverheatSmoke )
+					heatPointLight2 = PointLight.new(Vec3(),Vec3(3.0,0.15,0.0),0.2)
+					model:getMesh( "engine" ):addChild( heatPointLight2:toSceneNode() )
 					setPipePointLightPos(heatPointLight2,1)
-					this:addChild(particleEffectSmoke[1])
+					this:addChild(particleEffectSmoke[1]:toSceneNode())
 					particleEffectSmoke[1]:activate(Vec3())
 					particleEffectSmoke[1]:setSpawnRate(0.0)
 				end
@@ -688,8 +688,8 @@ function MinigunTower.new()
 	
 		model = Core.getModel("tower_minigun_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
-		this:addChild(model)
-		this:addChild(StaticBody(model:getMesh("physic")))
+		this:addChild(model:toSceneNode())
+		this:addChild(StaticBody.new(model:getMesh("physic")):toSceneNode())
 		--
 		--
 		--
@@ -702,45 +702,45 @@ function MinigunTower.new()
 		--
 		--ParticleEffects
 		--
-		particleEffectGun[0] = ParticleSystem( ParticleEffect.MinigunFire2 )
+		particleEffectGun[0] = ParticleSystem.new( ParticleEffect.MinigunFire2 )
 		particleEffectGun[0]:setScale(0.80)
-		particleEffectGun[1] = ParticleSystem( ParticleEffect.MinigunFire2 )
+		particleEffectGun[1] = ParticleSystem.new( ParticleEffect.MinigunFire2 )
 		particleEffectGun[1]:setScale(0.80)
 		
-		particleEffectGunLaser[0] = ParticleSystem( ParticleEffect.MinigunLaserBlast )
+		particleEffectGunLaser[0] = ParticleSystem.new( ParticleEffect.MinigunLaserBlast )
 		particleEffectGunLaser[0]:setScale(0.80)
-		particleEffectGunLaser[1] = ParticleSystem( ParticleEffect.MinigunLaserBlast )
+		particleEffectGunLaser[1] = ParticleSystem.new( ParticleEffect.MinigunLaserBlast )
 		particleEffectGunLaser[1]:setScale(0.80)
 		
 		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable)
+			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
 		end
 	
-		particleEffectTracer[0] = ParticleSystem( ParticleEffect.TracerLine )
-		particleEffectTracer[1] = ParticleSystem( ParticleEffect.TracerLine )
+		particleEffectTracer[0] = ParticleSystem.new( ParticleEffect.TracerLine )
+		particleEffectTracer[1] = ParticleSystem.new( ParticleEffect.TracerLine )
 		
 		pointLight:setVisible(false)
 		
-		model:getMesh( "pipe1" ):addChild(particleEffectGun[0])
-		model:getMesh( "pipeBoost" ):addChild(particleEffectGunLaser[0])
-		model:getMesh( "engine" ):addChild(pointLight)
+		model:getMesh( "pipe1" ):addChild(particleEffectGun[0]:toSceneNode())
+		model:getMesh( "pipeBoost" ):addChild(particleEffectGunLaser[0]:toSceneNode())
+		model:getMesh( "engine" ):addChild(pointLight:toSceneNode())
 		
-		--model:getMesh( "pipe2" ):addChild(particleEffectGun[1])
+		--model:getMesh( "pipe2" ):addChild(particleEffectGun[1]:toSceneNode())
 	
-		--model:addChild(particleEffectHitt)
-		model:getMesh( "pipe1" ):addChild(particleEffectTracer[0])
-		--model:getMesh( "pipe2" ):addChild(particleEffectTracer[1]
+		--model:addChild(particleEffectHitt:toSceneNode())
+		model:getMesh( "pipe1" ):addChild(particleEffectTracer[0]:toSceneNode())
+		--model:getMesh( "pipe2" ):addChild(particleEffectTracer[1]:toSceneNode())
 
 		--Laser
-		soundLaser = SoundNode("laser_bullet1")
+		soundLaser = SoundNode.new("laser_bullet1")
 		soundLaser:setSoundPlayLimit(8)
 		soundLaser:setLocalSoundPLayLimit(4)
-		this:addChild(soundLaser)
+		this:addChild(soundLaser:toSceneNode())
 		--Gun
-		soundAttack = SoundNode("minigunTower_attack")
+		soundAttack = SoundNode.new("minigunTower_attack")
 		soundAttack:setSoundPlayLimit(8)
 		soundAttack:setLocalSoundPLayLimit(3)
-		this:addChild(soundAttack)
+		this:addChild(soundAttack:toSceneNode())
 		
 		for i=1,2 do
 			local pipeMesh = model:getMesh( "pipe"..i )

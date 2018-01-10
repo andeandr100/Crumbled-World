@@ -42,11 +42,11 @@ function ElectricTower.new()
 	--effect
 	local energyLightShow = 2.0
 	local pointLightBaseRange = 1.75
-	local sparkCenter = ParticleSystem(ParticleEffect.SparkSpirit)
-	local electric1 = ParticleEffectElectricFlash("Lightning_D.tga")
-	local electric2 = ParticleEffectElectricFlash("Lightning_D.tga")
-	local pointLight = PointLight(Vec3(0,2.5,0),Vec3(0.0,4.0,4.0),pointLightBaseRange)
-	local pointLightAttack = PointLight(Vec3(),Vec3(0.0,3.0,3.0),3.0)
+	local sparkCenter = ParticleSystem.new(ParticleEffect.SparkSpirit)
+	local electric1 = ParticleEffectElectricFlash.new("Lightning_D.tga")
+	local electric2 = ParticleEffectElectricFlash.new("Lightning_D.tga")
+	local pointLight = PointLight.new(Vec3(0,2.5,0),Vec3(0.0,4.0,4.0),pointLightBaseRange)
+	local pointLightAttack = PointLight.new(Vec3(),Vec3(0.0,3.0,3.0),3.0)
 	--upgrades
 	local energyOffers = {size=0,frameCounter=0,depth=0}
 	--communication
@@ -55,7 +55,7 @@ function ElectricTower.new()
 	local comUnitTable = {}
 	local billboardWaveStats
 	--sound
-	local soundAttack = SoundNode("electric_attack")
+	local soundAttack = SoundNode.new("electric_attack")
 	--other
 	local isAnyInRange = {timer=0.0, isAnyInRange=false}
 	local syncTimer = 0.0 
@@ -357,10 +357,10 @@ function ElectricTower.new()
 			for i=1, upgrade.getLevel("upgrade")-1, 1 do
 				matrixList[i] = model:getMesh("ring"..i):getLocalMatrix()
 			end
-			this:removeChild(model)
+			this:removeChild(model:toSceneNode())
 			
 			model = Core.getModel( upgrade.getValue("model") )
-			this:addChild(model)
+			this:addChild(model:toSceneNode())
 			for i=1, upgrade.getLevel("upgrade")-1, 1 do
 				model:getMesh("ring"..i):setLocalMatrix( matrixList[i] )
 			end
@@ -748,10 +748,10 @@ function ElectricTower.new()
 		model = Core.getModel("tower_electric_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		--this:handleTowerHullAndSpace(model)
-		this:addChild(model)
+		this:addChild(model:toSceneNode())
 	
 		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable)
+			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
 		end
 		--sound
 		soundAttack:setSoundPlayLimit(6)
@@ -1046,15 +1046,15 @@ function ElectricTower.new()
 		initModel()
 	
 		--ParticleEffects
-		this:addChild(sparkCenter)
+		this:addChild(sparkCenter:toSceneNode())
 		ring[1]:rotate(math.randomVec3(), math.pi*2.0*math.randomFloat())
 		sparkCenter:activate(Vec3(0,2.75,0))
-		this:addChild(electric1)
-		this:addChild(electric2)
+		this:addChild(electric1:toSceneNode())
+		this:addChild(electric2:toSceneNode())
 		pointLightAttack:setCutOff(0.05)
 		pointLightAttack:setVisible(false)
 		
-		this:addChild(soundAttack)
+		this:addChild(soundAttack:toSceneNode())
 	
 		pointLight:setCutOff(0.05)
 		--pointLight = Core.getLight(LightType.point,Vec3(),Vec3(0.0,1.3,1.3),2.35)
@@ -1063,8 +1063,8 @@ function ElectricTower.new()
 		--pointLight:addFlicker(Vec3(0.0,0.3,0.3),0.2,0.6)
 		--pointLight:addFlicker(Vec3(0.0,0.3,0.3),0.0,0.3)
 		--pointLight:setIsStatic(true)--so we dont have to call update()
-		this:addChild(pointLight)
-		this:addChild(pointLightAttack)
+		this:addChild(pointLight:toSceneNode())
+		this:addChild(pointLightAttack:toSceneNode())
 		--pLight:setLocalPosition(Vec3(0,2.75,0))
 	
 	

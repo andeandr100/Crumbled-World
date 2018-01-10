@@ -2,9 +2,9 @@
 
 CircleModel = {}
 function CircleModel.new(inParentNode, radius, lineWidth, inColor)
-	--inParentNode = SceneNode()
+	--inParentNode = SceneNode.new()
 	local self = {}
-	local mesh = NodeMesh()
+	local mesh = NodeMesh.new()
 	local color = inColor
 	local sphereRadius = radius
 	
@@ -28,9 +28,9 @@ function CircleModel.new(inParentNode, radius, lineWidth, inColor)
 
 
 	function init()
-		mesh = NodeMesh()
+		mesh = NodeMesh.new()
 		mesh:setVertexType(VertexType.position3, VertexType.color3)
-		inParentNode:addChild(mesh)	
+		inParentNode:addChild(mesh:toSceneNode())	
 		mesh:setRenderLevel(31)
 		mesh:setShader(Core.getShader("toolNormal"))
 		mesh:setColor(Vec4(1))

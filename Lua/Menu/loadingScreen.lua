@@ -8,7 +8,7 @@ end
 
 function create()
 	
-	camera = Camera("loading screen camera", false)
+	camera = Camera.new("loading screen camera", false)
 	Core.setMainCamera(camera)
 	
 	local files = File("Data/Images/LoadingScreen"):getFiles()

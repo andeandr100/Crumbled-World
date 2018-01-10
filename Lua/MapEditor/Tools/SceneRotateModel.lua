@@ -5,7 +5,7 @@ SceneRotateModel = {}
 
 function SceneRotateModel.create()
 	
-	local lines = NodeMesh()
+	local lines = NodeMesh.new()
 	
 
 	SceneRotateModel.addLine(lines, Vec3(0,0,0), Vec3(1,0,0))
@@ -17,8 +17,8 @@ function SceneRotateModel.create()
 	lines:setRenderLevel(10)
 	lines:setBoundingSphere(Sphere(Vec3(0),1))
 	
-	SceneRotateModel.sceneNode = SceneNode()
-	this:getRootNode():addChild(SceneRotateModel.sceneNode)
+	SceneRotateModel.sceneNode = SceneNode.new()
+	this:getRootNode():addChild(SceneRotateModel.sceneNode:toSceneNode())
 	SceneRotateModel.lineModel = lines
 	
 	
@@ -27,10 +27,10 @@ function SceneRotateModel.create()
 	SceneRotateModel.zRotation = SceneRotateModel.createRing(Vec3(0,0,1), 3, 1)
 	
 	
-	SceneRotateModel.sceneNode:addChild(SceneRotateModel.xRotation)
-	SceneRotateModel.sceneNode:addChild(SceneRotateModel.yRotation)
-	SceneRotateModel.sceneNode:addChild(SceneRotateModel.zRotation)
-	SceneRotateModel.sceneNode:addChild(lines)
+	SceneRotateModel.sceneNode:addChild(SceneRotateModel.xRotation:toSceneNode())
+	SceneRotateModel.sceneNode:addChild(SceneRotateModel.yRotation:toSceneNode())
+	SceneRotateModel.sceneNode:addChild(SceneRotateModel.zRotation:toSceneNode())
+	SceneRotateModel.sceneNode:addChild(lines:toSceneNode())
 end
 
 function SceneRotateModel.setVisible(visible)
@@ -65,7 +65,7 @@ function SceneRotateModel.setMatrix(matrix)
 end
 
 function SceneRotateModel.createRing(color, id, length)
-	local mesh = NodeMesh()
+	local mesh = NodeMesh.new()
 	
 	local rightVec = color * 0.03
 	

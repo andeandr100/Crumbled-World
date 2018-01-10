@@ -30,9 +30,9 @@ function Spear.new(pTargetSelector)
 
 	local model = Core.getModel("projectile_spear.mym")
 	local spear = model:getMesh( "spear" )
-	local node = SceneNode()
+	local node = SceneNode.new()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
-	node:addChild(model)
+	node:addChild(model:toSceneNode())
 	
 	spear:setShader(Core.getShader("minigunPipe"))	
 	spear:setUniform(spear:getShader(), "heatUvCoordOffset", Vec2(256/spear:getTexture(spear:getShader(),0):getSize().x,0))
@@ -103,13 +103,13 @@ function Spear.new(pTargetSelector)
 		
 		if billboard:getFloat("electricBlade")>0 then
 			if not parkCenter then
-				sparkCenter = ParticleSystem(ParticleEffect.SparkSpirit)
-				spear:addChild(sparkCenter)
+				sparkCenter = ParticleSystem.new(ParticleEffect.SparkSpirit)
+				spear:addChild(sparkCenter:toSceneNode())
 				sparkCenter:setLocalPosition(Vec3(-0.33,0.0,0.0))
 				--
-				pointLight = PointLight(Vec3(0,0,0),Vec3(0,1.75,3.5),2.5)
+				pointLight = PointLight.new(Vec3(0,0,0),Vec3(0,1.75,3.5),2.5)
 				pointLight:setVisible(false)
-				model:addChild(pointLight)
+				model:addChild(pointLight:toSceneNode())
 			end
 			sparkCenter:setScale( 0.10+(0.05*billboard:getFloat("electricBlade")) )
 			sparkCenter:activate(Vec3())
@@ -134,7 +134,7 @@ function Spear.new(pTargetSelector)
 	end
 	function self.destroy()
 		if node:getParent() then--as the parrent can already be destroyed, if end of the map
-			node:getParent():removeChild(node)
+			node:getParent():removeChild(node:toSceneNode())
 		end
 	end
 	

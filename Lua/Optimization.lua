@@ -21,19 +21,19 @@ function collapseNode(aIsland, node)
 	--on the back tear down the nodes and if they are mesh move
 	if not ( node:getNodeType() == NodeId.model or node:getNodeType() == NodeId.sceneNode ) then
 		local globalMat = node:getGlobalMatrix()
-		node:getParent():removeChild(node)
+		node:getParent():removeChild(node:toSceneNode())
 		
-		aIsland:addChild(node)
+		aIsland:addChild(node:toSceneNode())
 		node:setLocalMatrix( aIsland:getGlobalMatrix():inverseM() * globalMat )
 		return true
 	else
-		node:getParent():removeChild(node)
+		node:getParent():removeChild(node:toSceneNode())
 		return true
 	end
 end
 
 function islandOptimization(aIsland)
-	local staticNode = aIsland:addChild(SceneNode())
+	local staticNode = aIsland:addChild(SceneNode.new())
 	--staticNode:setIsStatic(true)
 	staticNode:setEnableUpdates(false)
 	
@@ -71,7 +71,7 @@ function islandScriptGroupOptimizer(aIsland)
 		--groupNode:setIsStatic(true)
 		groupNode:createWork()
 		for i=1, groupSize do
-			groupNode:addChild(	list[i] )	
+			groupNode:addChild(	list[i]:toSceneNode() )	
 		end
 	end
 end
@@ -103,18 +103,18 @@ function createRenderMesh(island)
 	while counter > 1 and maxRuns > 0 do
 		newList = {}
 		counter = 1
-		mesh = NodeMesh()
+		mesh = NodeMesh.new()
 		for i=1, #meshList do
 			if not mesh:addMesh(meshList[i]) then
 				newList[counter] = meshList[i]
 				counter = counter + 1
 			else
-				meshList[i]:getParent():removeChild(meshList[i])
+				meshList[i]:getParent():removeChild(meshList[i]:toSceneNode())
 			end
 		end
 		mesh:compile()
 		if mesh:getNumVertex() > 0 then
-			island:addChild(mesh)
+			island:addChild(mesh:toSceneNode())
 			meshList = newList
 			newList = {}
 		else

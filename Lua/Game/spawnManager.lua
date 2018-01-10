@@ -101,7 +101,7 @@ function SpawnManager.new()
 	--NPC
 	local function createNpcNode(portalId)
 		local island, localPos = getSpawnPosition(portalId)
-		local npcNode = island:addChild(SceneNode())
+		local npcNode = island:addChild(SceneNode.new())
 		npcNode:setLocalPosition( localPos )
 		npcNode:setSceneName("NPC")
 		npcNode:createWork()
@@ -271,7 +271,7 @@ function SpawnManager.new()
 					break
 				end
 			end
-			local npcNode = SceneNode()
+			local npcNode = SceneNode.new()
 			island:addChild( npcNode )
 			npcNode:setLocalPosition( tab.pos )
 			local npcScript = npcNode:loadLuaScript(tab.scriptName)

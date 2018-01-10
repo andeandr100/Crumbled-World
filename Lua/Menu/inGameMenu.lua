@@ -126,7 +126,7 @@ function create()
 	
 	
 	if this:getNodeType() == NodeId.playerNode then
-		local menuNode = this:getRootNode():addChild(SceneNode())
+		local menuNode = this:getRootNode():addChild(SceneNode.new())
 		--camera = Camera()
 		menuNode:setSceneName("In game menu")
 		menuNode:createWork()
@@ -158,7 +158,7 @@ function create()
 		
 		local rootNode = this:getRootNode();
 		--camera = Camera()
-		local camera = rootNode:findNodeByName("MainCamera");
+		local camera = ConvertToCamera( rootNode:findNodeByName("MainCamera") )
 		
 		local keyBinds = Core.getBillboard("keyBind")
 		keyBindInfo = keyBinds:getKeyBind("Info screen")
@@ -175,7 +175,6 @@ function create()
 		gamePaused = false
 	
 		if camera then
-			local camera = ConvertToCamera(camera);
 			form = Form( camera, PanelSize(Vec2(1)), Alignment.TOP_LEFT)
 			form:setName("InGameMenu form")
 			form:setRenderLevel(12)

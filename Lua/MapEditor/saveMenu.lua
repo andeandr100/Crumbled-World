@@ -123,7 +123,7 @@ function create()
 	
 
 	--camera = Camera()
-	local camera = this:getRootNode():findNodeByName("MainCamera")
+	local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 	
 	input = Core.getInput()
 

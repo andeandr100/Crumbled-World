@@ -48,7 +48,7 @@ function uppgradeWallTowerTab(tab)
 	end
 end
 function upgradeFromTowerToTower(buildingToUpgrade, buildCost, scriptName, newLocalBuildngMatrix, networkName, isOwner, playerId, disableRotatorScript)
-	--buildingToUpgrade = SceneNode()
+	--buildingToUpgrade = SceneNode.new()
 	--upgradeToBuilding = SCeneNode()
 	
 	local toTowerCost = 200
@@ -79,7 +79,7 @@ function upgradeFromTowerToTower(buildingToUpgrade, buildCost, scriptName, newLo
 		while buildingToUpgrade:getChildSize() > 0 do
 			local child = buildingToUpgrade:getChildNode(0)
 			child:setVisible(false)
-			buildingToUpgrade:removeChild(child)
+			buildingToUpgrade:removeChild(child:toSceneNode())
 		end
 		
 		--the wall tower has been removed from the map

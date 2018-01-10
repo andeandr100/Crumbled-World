@@ -52,7 +52,7 @@ function QuestionForm.new(headerText, bodyText, enabelOkButton, enableCancelButt
 	end
 	
 	local function init()
-		local camera = this:getRootNode():findNodeByName("MainCamera")
+		local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 		--camera = Camera()
 		form = Form( camera, PanelSize(Vec2(1, 1)), Alignment.TOP_LEFT);
 		form:setName("Question form")

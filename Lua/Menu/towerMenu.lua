@@ -193,7 +193,7 @@ function create()
 	print("TOWERMENU:::Create()\n")
 	if this:getNodeType() == NodeId.playerNode then
 		
-		local menuNode = this:addChild(SceneNode())
+		local menuNode = this:addChild(SceneNode.new())
 		--camera = Camera()
 		menuNode:setSceneName("Tower menu")
 	
@@ -265,7 +265,7 @@ function create()
 				
 				
 				--Load a tower node
-				buildings[numBuildings].towerNode = SceneNode()
+				buildings[numBuildings].towerNode = SceneNode.new()
 	
 				local scriptName = buildingBillboard:getString(tostring(numBuildings))
 				print("\n\nTower id: "..numBuildings.." script name: "..scriptName.."\n")

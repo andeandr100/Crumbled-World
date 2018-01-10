@@ -11,7 +11,7 @@ function create()
 		return false
 	end
 	if this:getNodeType() == NodeId.playerNode then
-		local menuNode = this:getRootNode():addChild(SceneNode())
+		local menuNode = this:getRootNode():addChild(SceneNode.new())
 		--camera = Camera()
 		menuNode:setSceneName("Log menu")
 		menuNode:createWork()
@@ -81,7 +81,7 @@ function printlnerror(out)
 		form:setBackground(Sprite(Vec4(0.1, 0.1, 0.1, 0.7)));
 		
 		
-		--local luaTextEditor = this:getRootNode():addChild(SceneNode())
+		--local luaTextEditor = this:getRootNode():addChild(SceneNode.new())
 		--luaTextEditor:createWork()
 		--luaTextEditor:loadLuaScript("Menu/luaTextEditor.lua")
 		

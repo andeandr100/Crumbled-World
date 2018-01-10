@@ -3,8 +3,8 @@ require("Menu/settings.lua")
 function create()
 	if this:getNodeType() == NodeId.camera then
 		rootNode = this:getRootNode()
-		worldNode = SceneNode()
-		localCameraNode = SceneNode()
+		worldNode = SceneNode.new()
+		localCameraNode = SceneNode.new()
 		rootNode:addChild(worldNode)
 		worldNode:addChild(localCameraNode)
 		
@@ -47,13 +47,19 @@ function create()
 		update = waitUpdate
 	else
 		
-		local camera = this:getRootNode():addChild(Camera(Text("MainCamera"), true))
+		local camera = Camera.new(Text("MainCamera"), true)
+		this:getRootNode():addChild(camera:toSceneNode())
 		--camera = Camera()
 		camera:setRenderScript("Game/render.lua")
-		camera = ConvertToCamera(camera)
 		camera:setEnableUpdates(true)
 	
-		camera:setDirectionLight(Core.getDirectionalLight(this))
+		local directionlight = Core.getDirectionalLight(this)
+		if directionlight == nil  then
+			print("no light found, --directionlight")
+		else
+			print("found it")
+		end
+		camera:setDirectionLight(directionlight)
 		camera:setAmbientLight(Core.getAmbientLight(this))
 		camera:setUseShadow(Settings.shadow.getIsEnabled())
 		camera:setUseGlow(Settings.glow.getEnabled())
@@ -115,7 +121,7 @@ function waitUpdate()
 		
 		
 		
-		Core.setMainCamera(this)
+		Core.setMainCamera(ConvertToCamera(this))
 		
 		update = mainUpdate
 	end

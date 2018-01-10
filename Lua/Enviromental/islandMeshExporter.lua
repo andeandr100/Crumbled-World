@@ -242,7 +242,7 @@ function IslandMeshExporter.new()
 						meshOldLocalMatrix = meshes[i].mesh:getLocalMatrix() 
 						parent = meshes[i].mesh:getParent()
 						meshes[i].mesh:setLocalMatrix(meshes[i].localMatrix)
-						parent:removeChild(meshes[i].mesh)
+						parent:removeChild(meshes[i].mesh:toSceneNode())
 						
 
 						--Try to add mesh and if so remove all triangles facing down and have a dot value greater then 0.75
@@ -253,7 +253,7 @@ function IslandMeshExporter.new()
 							end	
 						end
 						if not added then
-							areaMeshes[#areaMeshes+1] = NodeMesh()
+							areaMeshes[#areaMeshes+1] = NodeMesh.new()
 							areaMeshes[#areaMeshes]:setLocalPosition(Vec3(x+5,0,z+5))
 							if not areaMeshes[#areaMeshes]:addMesh(meshes[i].mesh, Vec3(0,-1,0), 0.75) then
 								print("Mesh was not added to a combined mesh\n")
@@ -262,7 +262,7 @@ function IslandMeshExporter.new()
 						
 						--restore the mesh information
 						meshes[i].mesh:setLocalMatrix(meshOldLocalMatrix)
-						parent:addChild(meshes[i].mesh)
+						parent:addChild(meshes[i].mesh:toSceneNode())
 						
 					end	
 				end
@@ -340,7 +340,7 @@ function IslandMeshExporter.new()
 			for i=1, #combinedMeshes do
 				print("Save model "..fileId.."\n")
 				local nodeMesh = combinedMeshes[i]
-				--nodeMesh = NodeMesh()
+				--nodeMesh = NodeMesh.new()
 				local modelName = "Island"..this:getIslandId().."Model"..fileId
 				local modelFile = nodeMesh:saveToFile(modelName)
 				fileNode:addFile(modelName, modelFile)

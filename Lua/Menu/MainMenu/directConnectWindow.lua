@@ -80,7 +80,7 @@ function DirectConnectWindow.new(camera)
 		local panelSpacing = 0.005
 		local panelSpacingVec2 = Vec2(panelSpacing, panelSpacing)
 		
-		form = Form(camera, PanelSize(Vec2(0.8,0.09), Vec2(6.5,1)), Alignment.TOP_CENTER);
+		form = Form(ConvertToCamera(camera), PanelSize(Vec2(0.8,0.09), Vec2(6.5,1)), Alignment.TOP_CENTER);
 		form:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(panelSpacingVec2)));
 		form:setRenderLevel(9)	
 		form:setVisible(false)

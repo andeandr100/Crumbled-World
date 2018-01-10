@@ -4,7 +4,7 @@ IslandMeshImporter = {}
 function IslandMeshImporter.new()
 	
 	local self = {}
-	local staticNode = SceneNode()
+	local staticNode = SceneNode.new()
 	local staticDensityNode = nil
 	local modelDensity = 2.0
 	
@@ -26,7 +26,7 @@ function IslandMeshImporter.new()
 			staticDensityNode:destroy()
 			staticDensityNode = nil
 		end
-		staticDensityNode = SceneNode()
+		staticDensityNode = SceneNode.new()
 		staticNode:addChild(staticDensityNode)
 		
 		
@@ -46,7 +46,7 @@ function IslandMeshImporter.new()
 			local modelInfo = modelGroup[modelGroupIndex].models
 			print("modeinfo: "..tostring(modelInfo).."\n")
 			for i=1, #modelInfo do
-				nodeMesh = NodeMesh()
+				nodeMesh = NodeMesh.new()
 				
 				print("add mesh\n")
 				
@@ -58,7 +58,7 @@ function IslandMeshImporter.new()
 --				nodeMesh:setColor(Vec4(math.randomFloat(),math.randomFloat(),math.randomFloat(),1.0))
 				nodeMesh:compile()
 				
-				staticDensityNode:addChild(nodeMesh)
+				staticDensityNode:addChild(nodeMesh:toSceneNode())
 			end
 		end
 

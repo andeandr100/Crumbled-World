@@ -56,7 +56,7 @@ function generateGravel(island)
 				
 				pos[gravelCount] =  Vec3(x,-y,z) 
 				gravels[gravelCount]:setLocalPosition( pos[gravelCount] )
-				list:item(i):addChild(gravels[gravelCount])
+				list:item(i):addChild(gravels[gravelCount]:toSceneNode())
 				gravels[gravelCount]:DisableBoundingVolumesDynamicUpdates()
 				--gravels[gravelCount]:setIsStatic(true)
 				gravelCount = gravelCount + 1

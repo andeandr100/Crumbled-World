@@ -60,7 +60,7 @@ function Campaing.new(camera, inForm)
 	function init()
 		
 			
-		form = Form(camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
+		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
 		form:setLayout(FlowLayout(PanelSize(Vec2(0.01,0))));
 		form:setRenderLevel(8)	
 		form:setVisible(false)	

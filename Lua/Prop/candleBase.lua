@@ -75,10 +75,10 @@ local CandleFlameRed =  {
 		lifeTime =  {min=0.8, max=1.9}
 	}
 function initCandle(node,position)
-	local candle1 = ParticleSystem(CandleFlame)
-	local candle2 = ParticleSystem(CandleFlameRed)
-	node:addChild(candle1)
-	node:addChild(candle2)
+	local candle1 = ParticleSystem.new(CandleFlame)
+	local candle2 = ParticleSystem.new(CandleFlameRed)
+	node:addChild(candle1:toSceneNode())
+	node:addChild(candle2:toSceneNode())
 	candle1:setScale(1.25)
 	candle2:setScale(1.25)
 	candle1:activate(position)
@@ -86,8 +86,8 @@ function initCandle(node,position)
 
 	local colorVariations = Vec3(0.2,0.15,0.05)
 	local color = Vec3(1.75,1.35,0.5)
-	local pLight = PointLight(Vec3(-0.02,0.35,0.0),color,1.5)
-	node:addChild(pLight)
+	local pLight = PointLight.new(Vec3(-0.02,0.35,0.0),color,1.5)
+	node:addChild(pLight:toSceneNode())
 	pLight:addFlicker(colorVariations*0.75,0.05,0.1)
 	pLight:addSinCurve(colorVariations,1.0)
 end

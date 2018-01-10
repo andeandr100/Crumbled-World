@@ -117,7 +117,7 @@ function IslandInfo.new(camera)
 		local panelSpacing = 0.005
 		local panelSpacingVec2 = Vec2(panelSpacing, panelSpacing)
 		
-		form = Form(camera, PanelSize(Vec2(0.55,0.45), Vec2(1.4,1)), Alignment.TOP_LEFT);
+		form = Form(ConvertToCamera(camera), PanelSize(Vec2(0.55,0.45), Vec2(1.4,1)), Alignment.TOP_LEFT);
 		form:setLayout(FlowLayout(PanelSize(panelSpacingVec2)));
 		form:setRenderLevel(9)	
 		form:setVisible(false)

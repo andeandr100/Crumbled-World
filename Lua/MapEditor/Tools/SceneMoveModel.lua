@@ -5,7 +5,7 @@ SceneMoveModel = {}
 
 function SceneMoveModel.create()
 	
-	local lines = NodeMesh()
+	local lines = NodeMesh.new()
 	
 	SceneMoveModel.addLine(lines, Vec3(0,0,0), Vec3(1,0,0))
 	SceneMoveModel.addLine(lines, Vec3(0,0,0), Vec3(0,1,0))
@@ -16,8 +16,8 @@ function SceneMoveModel.create()
 	lines:setRenderLevel(10)
 	lines:setBoundingSphere(Sphere(Vec3(0),1))
 	
-	SceneMoveModel.sceneNode = SceneNode()
-	this:getRootNode():addChild(SceneMoveModel.sceneNode)
+	SceneMoveModel.sceneNode = SceneNode.new()
+	this:getRootNode():addChild(SceneMoveModel.sceneNode:toSceneNode())
 	SceneMoveModel.lineModel = lines
 	
 	SceneMoveModel.rightModel = SceneMoveModel.createConeMesh(Vec3(1,0,0), Vec3(1,0,0), Vec3(1.25,0,0))
@@ -25,10 +25,10 @@ function SceneMoveModel.create()
 	SceneMoveModel.atModel = SceneMoveModel.createConeMesh(Vec3(0,0,1), Vec3(0,0,1), Vec3(0,0,1.25))
 	
 	
-	SceneMoveModel.sceneNode:addChild(SceneMoveModel.rightModel)
-	SceneMoveModel.sceneNode:addChild(SceneMoveModel.upModel)
-	SceneMoveModel.sceneNode:addChild(SceneMoveModel.atModel)
-	SceneMoveModel.sceneNode:addChild(lines)
+	SceneMoveModel.sceneNode:addChild(SceneMoveModel.rightModel:toSceneNode())
+	SceneMoveModel.sceneNode:addChild(SceneMoveModel.upModel:toSceneNode())
+	SceneMoveModel.sceneNode:addChild(SceneMoveModel.atModel:toSceneNode())
+	SceneMoveModel.sceneNode:addChild(lines:toSceneNode())
 end
 
 function SceneMoveModel.setVisible(visible)
@@ -62,7 +62,7 @@ function SceneMoveModel.setMatrix(matrix)
 end
 
 function SceneMoveModel.createConeMesh(color, startPoint, endPoint)
-	local mesh = NodeMesh()
+	local mesh = NodeMesh.new()
 	
 	local rightVec, upVec = getDirectionsFromPoints(startPoint, endPoint)
 	local coneRadius = 0.07

@@ -7,13 +7,13 @@ require("MapEditor/Tools/railwaysModels.lua")
 function createRailroadButton(data)
 	local button = Button( PanelSize( Vec2(-1), Vec2(1)), "B" )
 	
-	local posterCamera =  Camera(Text("TowerCamera"), true, 200,200);
+	local posterCamera =  Camera.new(Text("TowerCamera"), true, 200,200);
 	posterCamera:setAmbientLight(AmbientLight(Vec3(0.5)))
 	posterCamera:setDirectionLight(DirectionalLight(Vec3(0.5, 0.8, 0.5), Vec3(1,1,1)))
 	posterCamera:setShadowScale(3.0)
 	
 	data.cameraModel = Model(data.model)
-	data.cameraModel:addChild(posterCamera)
+	data.cameraModel:addChild(posterCamera:toSceneNode())
 	data.camera = posterCamera
 	
 	local lookAt = Vec3(0.5,1,-1) * data.offset:getPosition() * 0.5
@@ -69,7 +69,7 @@ function buttonClick(button)
 		local model = Model(railways[num].model)
 		if aIsland then
 			model:setLocalMatrix(aIsland:getGlobalMatrix():inverseM() * ( selectedNode:getGlobalMatrix() * railways[num].offset ) )
-			aIsland:addChild(model)
+			aIsland:addChild(model:toSceneNode())
 			
 			Tool.clearSelectedNodes()
 			Tool.addSelectedScene(model)
@@ -109,13 +109,13 @@ function create()
 	
 	railways = RailwaysModels.getModelTable()
 		
-	railwayScene = SceneNode()
+	railwayScene = SceneNode.new()
 	this:addChild(railwayScene)
 	railwayScene:setVisible(false)
 	
 	placeIndex = 1
 	for i=1, #railways do
-		railwayScene:addChild( railways[i].model )
+		railwayScene:addChild( railways[i].model:toSceneNode() )
 		if i ~= placeIndex then
 			railways[i].model:setVisible(false)
 		end
@@ -262,7 +262,7 @@ end
 
 function update()
 	local node, collisionPos, collisionNormal = Tool.getCollision(false)
-	--node = SceneNode()
+	--node = SceneNode.new()
 	if node then
 		
 		local selectedNode = getSelectedNode()
@@ -289,7 +289,7 @@ function update()
 		if aIsland and Core.getInput():getMouseDown( MouseKey.left ) then
 			local model = Model(railways[placeIndex].model)
 			model:setLocalMatrix(aIsland:getGlobalMatrix():inverseM() * railways[placeIndex].model:getGlobalMatrix() )
-			aIsland:addChild(model)
+			aIsland:addChild(model:toSceneNode())
 			
 			
 			Tool.clearSelectedNodes()

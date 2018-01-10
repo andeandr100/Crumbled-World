@@ -18,7 +18,7 @@ local deathTimer
 function destroy()
 	npcBase.destroy()
 	if reaperCloud then
-		playerNode:removeChild(reaperCloud)
+		playerNode:removeChild(reaperCloud:toSceneNode())
 		reaperCloud = nil
 	end
 end
@@ -27,7 +27,7 @@ function create()
 	
 	
 	npcBase = NpcBase.new()
-	soundReaperSpawn = SoundNode("reaper_spawn")
+	soundReaperSpawn = SoundNode.new("reaper_spawn")
 	
 	playerNode = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 	
@@ -41,11 +41,11 @@ function create()
 	spawnTimeMax = 5.5
 	SpawnCount = 0
 	--particle effect
-	reaperCloud = ParticleSystem(ParticleEffect.reaperCloud)
-	reaperSpawnEffect = ParticleSystem(ParticleEffect.reaperSpawn)
-	playerNode:addChild(reaperCloud)
-	this:addChild(reaperSpawnEffect)
-	this:addChild(soundReaperSpawn)
+	reaperCloud = ParticleSystem.new(ParticleEffect.reaperCloud)
+	reaperSpawnEffect = ParticleSystem.new(ParticleEffect.reaperSpawn)
+	playerNode:addChild(reaperCloud:toSceneNode())
+	this:addChild(reaperSpawnEffect:toSceneNode())
+	this:addChild(soundReaperSpawn:toSceneNode())
 	reaperSpawnEffect:setSpawnRate(0.0)
 	reaperSpawnEffect:activate(Vec3(0,0,0))
 	npcBase.addParticleEffect(reaperSpawnEffect,0.1)

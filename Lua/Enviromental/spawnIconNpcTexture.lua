@@ -13,13 +13,13 @@ function SpawnIconNpcTexture.getTexture(scriptName)
 		--Create a root node
 		local worldNode = RootNode()
 		--Many NPC script require a soulmanager
-		worldNode:addChild(SoulManager())
+		worldNode:addChild(SoulManager():toSceneNode())
 		
 		--Create camera. Set the Spawn icon as 10% of the screen resolution
 		local screenSize = Core.getScreenResolution()
-		local camera = Camera("SpawnIcon camera", true, screenSize.x * 0.1, screenSize.x * 0.1)
+		local camera = Camera.new("SpawnIcon camera", true, screenSize.x * 0.1, screenSize.x * 0.1)
 		camera:setClearColor(Vec4(0))
-		worldNode:addChild(camera)
+		worldNode:addChild(camera:toSceneNode())
 		
 		
 		--Load npc script onto this node

@@ -41,18 +41,18 @@ function create()
 	
 	local portalSize = Vec3(0.85, 1.25, 1)
 	
-	portalEffect = ParticleSystem( portalEffectData )
+	portalEffect = ParticleSystem.new( portalEffectData )
 	local mat = portalEffect:getLocalMatrix()
 	mat:rotate(Vec3(1,0,0),math.pi*0.5)
 	mat:scale(Vec3(portalSize.x, 0.1, portalSize.y))
 	mat:setPosition(Vec3(0,0.3,0))
 	portalEffect:setLocalMatrix(mat)
-	this:addChild(portalEffect)
+	this:addChild(portalEffect:toSceneNode())
 	portalEffect:activate(Vec3(0,0.0,0.6))
 	--sound
-	local soundPortal = SoundNode("spawnPortal")
+	local soundPortal = SoundNode.new("spawnPortal")
 	soundPortal:setSoundRolloff(2)
-	this:addChild(soundPortal)
+	this:addChild(soundPortal:toSceneNode())
 	soundPortal:play(0.5,true)
 	
 	local meshList = this:findAllNodeByTypeTowardsLeaf(NodeId.mesh)	
@@ -62,11 +62,11 @@ function create()
 	
 	portal, portalEdge = SpawnPortalMesh.create(portalSize)
 	--
-	local pLight = PointLight(Vec3(0.0,1.25,0.0),Vec3(1.75,1.75,0.0),4.0)
+	local pLight = PointLight.new(Vec3(0.0,1.25,0.0),Vec3(1.75,1.75,0.0),4.0)
 	pLight:setCutOff(0.25)
 	pLight:addFlicker(Vec3(0.075,0.075,0.0),0.1,0.2)
 	pLight:addSinCurve(Vec3(0.4,0.4,0.0),2.0)
-	this:addChild(pLight)
+	this:addChild(pLight:toSceneNode())
 	--
 	return true
 end

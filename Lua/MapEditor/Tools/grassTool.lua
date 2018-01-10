@@ -436,7 +436,7 @@ end
 
 function update()
 	local node, collisionPos, collisionNormal = Tool.getCollision(grassConfig.objectCollision)
-	--node = SceneNode()
+	--node = SceneNode.new()
 	if node then
 		
 		local weight = 1
@@ -560,7 +560,7 @@ function removeStrawFromMesh(data, strawIndex)
 end
 
 function createNodeMesh(island, localPosition)
-	nodeMesh = NodeMesh()
+	nodeMesh = NodeMesh.new()
 		
 	nodeMesh:setCollisionEnabled(false)
 	nodeMesh:setLocalPosition(localPosition)
@@ -578,7 +578,7 @@ function createNodeMesh(island, localPosition)
 	nodeMesh:setCanBeSaved(false)
 	
 	
-	island:addChild(nodeMesh)
+	island:addChild(nodeMesh:toSceneNode())
 	return nodeMesh
 end
 

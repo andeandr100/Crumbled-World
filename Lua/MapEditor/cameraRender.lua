@@ -1,4 +1,4 @@
---this=SceneNode()
+--this=SceneNode.new()
 function create()
 	return true
 end

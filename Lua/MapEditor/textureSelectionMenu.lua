@@ -65,7 +65,7 @@ function TextureSelectionMenu.new(inCallback)
 	end
 	
 	local function init()
-		local camera = this:getRootNode():findNodeByName("MainCamera")
+		local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 		--camera = Camera()
 	
 		form = Form( camera, PanelSize(Vec2(1, 0.6),Vec2(2,3)), Alignment.MIDDLE_CENTER);

@@ -8,7 +8,7 @@ local shieldNode
 function destroy()
 	npcBase.destroy()
 	if shieldNode then
-		this:removeChild(shieldNode)
+		this:removeChild(shieldNode:toSceneNode())
 		shieldNode = nil
 	end
 end
@@ -38,12 +38,12 @@ function create()
 	--shield
 	shieldRange = 3.5
 
-	shieldNode = SceneNode()
-	this:addChild(shieldNode)
+	shieldNode = SceneNode.new()
+	this:addChild(shieldNode:toSceneNode())
 	ForceField.create(shieldNode,shieldRange,Vec3(0,0.75,0))
 	npcBase.getComUnitTable()["addForceFieldEffect"] = handleAddForceFieldEffect
 
-	soundForceFieldHitt = SoundNode("forceField_hitt")
+	soundForceFieldHitt = SoundNode.new("forceField_hitt")
 	soundForceFieldHitt:setSoundPlayLimit(6)
 	soundForceFieldHitt:setLocalSoundPLayLimit(4)
 	
@@ -55,7 +55,7 @@ end
 function update()
 	local ret = npcBase.update()
 	if soul.getHp()<=0 and shieldNode then
-		this:removeChild(shieldNode)
+		this:removeChild(shieldNode:toSceneNode())
 		shieldNode = nil
 	end
 	

@@ -97,7 +97,7 @@ function ColorPickerForm.new(inParentPanel, panelSize, inColor)
 			inColor = Vec3(1)
 		end
 		
-		local camera = this:getRootNode():findNodeByName("MainCamera")
+		local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 	
 		form = Form( camera, PanelSize(Vec2(0.17,1), Vec2(3,2.1)), Alignment.TOP_LEFT);
 	

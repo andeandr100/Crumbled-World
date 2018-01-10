@@ -268,7 +268,7 @@ function addModel( dataSet, pos1, pos2 )
 
 	model:setLocalMatrix( mat * dataSet.matrix:inverseM())
 
-	island:addChild(model)
+	island:addChild(model:toSceneNode())
 	model:setSceneName("WorldEdge")
 	
 

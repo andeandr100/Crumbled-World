@@ -121,7 +121,7 @@ function create()
 	if not client:isConnected() then
 		return false
 	end
-	camera = this:getRootNode():findNodeByName("MainCamera");
+	camera = ConvertToCamera(this:getRootNode():findNodeByName("MainCamera"))
 	--camera = Camera()
 	
 	mouseFocus = 0

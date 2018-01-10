@@ -6,7 +6,7 @@ function create()
 	this:loadLuaScript("Menu/selectedMenu.lua")
 	this:loadLuaScript("Menu/FPS.lua")
 
-	local buildNode = this:addChild(BuildNode())
+	local buildNode = this:addChild(BuildNode.new():toSceneNode())
 	buildNode:loadLuaScript("Game/builder.lua")
 	
 	local camera = this:getRootNode():findNodeByName("MainCamera")

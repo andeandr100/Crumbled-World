@@ -45,7 +45,7 @@ function create()
 	
 	if camera then
 		
-		form = Form(camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT)
+		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT)
 		form:setLayout(FallLayout())
 
 		createMenuBar()

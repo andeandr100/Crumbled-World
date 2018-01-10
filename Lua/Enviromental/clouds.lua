@@ -5,7 +5,7 @@ function create()
 	--stars
 	starData = {}
 	for i=1, 15 do
-		starData[i] = {time=math.randomFloat()*4.0,mesh=NodeMesh()}
+		starData[i] = {time=math.randomFloat()*4.0,mesh=NodeMesh.new()}
 		starData[i].mesh=createStars()
 		local mat = Matrix()
 	end
@@ -13,7 +13,7 @@ function create()
 	return true
 end
 function createStars()
-	local mesh = NodeMesh()
+	local mesh = NodeMesh.new()
 	for i=0, 200 do
 		local atVec = Vec3()
 		atVec = math.randomVec3()	
@@ -40,8 +40,8 @@ function createStars()
 	return mesh
 end
 function createSpace()
-	local mesh1 = NodeMesh()
-	local mesh2 = NodeMesh()
+	local mesh1 = NodeMesh.new()
+	local mesh2 = NodeMesh.new()
 	local atVec = Vec3(0,0,1)
 	local rightVec = Vec3(1,0,0)
 	local upVec = Vec3(0,1,0)
@@ -113,7 +113,7 @@ function activateMesh(mesh,texture)
 	--mesh = NodeMesh()
 	--Finis up the star mesh
 	local starShader = Core.getShader("space")
-	this:addChild(mesh)
+	this:addChild(mesh:toSceneNode())
 	mesh:setBoundingSphere(Sphere(Vec3(), 5.0))
 	mesh:setShader(starShader)
 	mesh:setTexture(starShader, texture, 0)

@@ -11,7 +11,7 @@ function create()
 	targetSelector.setRange(512.0)
 	camera = playerNode:getRootNode():findNodeByName("MainCamera")
 	
-	nodeMesh = NodeMesh(RenderMode.points)
+	nodeMesh = NodeMesh.new(RenderMode.points)
 	
 	local shader = Core.getShader("lifeBar")
 	
@@ -21,7 +21,7 @@ function create()
 	nodeMesh:setRenderLevel(2)
 	nodeMesh:setTexture(shader,Core.getTexture("icon_table.tga"),0)
 	
-	playerNode:getRootNode():addChild(nodeMesh)
+	playerNode:getRootNode():addChild(nodeMesh:toSceneNode())
 	
 	
 	settingsListener = Listener("Settings")

@@ -400,7 +400,7 @@ function create()
 		print("create\n")
 	
 		local rootNode = this:getRootNode()
-		towerWorld = rootNode:addChild(SceneNode())
+		towerWorld = rootNode:addChild(SceneNode.new())
 		buildingBillboard = Core.getBillboard("buildings")
 		buildingBillboard:setInt("NumBuildingBuilt", 0)
 		buildingBillboard:setBool("inBuildMode", false)
@@ -410,9 +410,9 @@ function create()
 		for i=1, 10 do
 			buildingBillboard:setInt("tower"..i, 0)
 		end
-		soundNode = SoundNode("towerBuild")
+		soundNode = SoundNode.new("towerBuild")
 		soundNode:setLocalSoundPLayLimit(7)
-		rootNode:addChild(soundNode)
+		rootNode:addChild(soundNode:toSceneNode())
 		
 		towerBuiltListener = Listener("builder")
 		
@@ -426,7 +426,7 @@ function create()
 		buildings = {}
 		local numBuildings = 1
 		while buildingBillboard:exist(tostring(numBuildings)) do
-			buildings[numBuildings] = towerWorld:addChild( SceneNode() );
+			buildings[numBuildings] = towerWorld:addChild( SceneNode.new() );
 			local scriptName = buildingBillboard:getString(tostring(numBuildings));
 			local luaScript = buildings[numBuildings]:loadLuaScript(scriptName);
 			if luaScript then
@@ -435,7 +435,7 @@ function create()
 				--buildings[numBuildings]:setIsStatic(false)
 				buildings[numBuildings]:update()
 				buildings[numBuildings]:setVisible(false)
-				local canBePlacedHere = this:tryToSnapBuildingInToPlace(buildings[numBuildings], SceneNode(), Vec3(), 0.0 )
+				local canBePlacedHere = this:tryToSnapBuildingInToPlace(buildings[numBuildings], SceneNode.new(), Vec3(), 0.0 )
 			else
 				buildings[numBuildings] = nil;
 				abort();
@@ -488,7 +488,7 @@ function create()
 	else
 		print("------------------------------\n")
 		--move this script from the current PlayerNode to a BuildNode
-		local builderNode = this:addChild(BuildNode())
+		local builderNode = this:addChild(BuildNode.new():toSceneNode())
 		--this:removeScript(this:getCurrentScript():getName());
 		builderNode:loadLuaScript(this:getCurrentScript():getFileName()):setName("BuilderScript")
 		print("BUILDER:::RETURN == false\n")
@@ -522,7 +522,7 @@ function addGhostModel(modelName, matrix, scale, renderLevel, color, island)
 	scaleMat:scale(scale)
 	local model = Core.getModel(modelName)
 	model:setLocalMatrix(matrix * scaleMat)
-	island:addChild(model);
+	island:addChild(model:toSceneNode());
 	model:getMesh("hull"):setVisible(false)
 	
 	
@@ -1003,7 +1003,7 @@ function update()
 	--Byt the same tower should be selected
 	builderFunctions.updateSelectedTower(currentTower)
 	
-	--currentTower = SceneNode()
+	--currentTower = SceneNode.new()
 	if currentTower and worldCollision() then
 		local island = collisionMesh:findNodeByTypeTowardsRoot(NodeId.island)
 		local canBePlacedHere = this:tryToSnapBuildingInToPlace(currentTower, collisionMesh, collPos, rotation );
@@ -1153,6 +1153,7 @@ function update()
 		
 			
 		if this:getTargetIsland() and currentTower then
+--			Core.addDebugSphere(Sphere(towerMatrix:getPosition(),1.1),0.05, Vec3(0,0,1))
 			currentTower:setLocalMatrix(towerMatrix);
 			towerWorld:update();	
 		end

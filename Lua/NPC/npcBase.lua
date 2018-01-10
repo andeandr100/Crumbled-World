@@ -93,7 +93,7 @@ function NpcBase.new()
 		--model and animation
 		if modelName then
 			model = Core.getModel(modelName)
-			this:addChild(model)
+			this:addChild(model:toSceneNode())
 			model:getAnimation():play("run",1.0,PlayMode.stopSameLayer)
 			model:getAnimation():fastForwardAnimations(math.randomFloat()*model:getAnimation():getLengthOfClip("run"))
 		end
@@ -362,7 +362,7 @@ function NpcBase.new()
 			if target==0 then			
 				comUnit:sendTo("stats","addSpawn","")
 				--
-				local npc = SceneNode()
+				local npc = SceneNode.new()
 				this:getParent():addChild( npc )
 				local lPos = this:getParent():getGlobalMatrix():inverseM()*globalPosition
 				npc:setLocalPosition( lPos )
@@ -488,10 +488,10 @@ function NpcBase.new()
 			else
 				if deathSoftBodyFunc then
 					deathManager.addSoftBody(deathSoftBodyFunc())
-					this:removeChild(model)
+					this:removeChild(model:toSceneNode())
 				elseif deathRigidBodyFunc then
 					deathRigidBodyFunc()
-					this:removeChild(model)
+					this:removeChild(model:toSceneNode())
 				end
 			end
 		end
@@ -509,7 +509,7 @@ function NpcBase.new()
 			if deathManager.enableSelfDestruct then
 				this:destroyTree()
 			else
-				this:removeChild(model)
+				this:removeChild(model:toSceneNode())
 			end
 			return false--destroy this script
 		end

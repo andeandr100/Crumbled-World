@@ -34,10 +34,10 @@ function CutterBlade.new(pTargetSelector)
 	local projectileIsDead = false
 	local model = Core.getModel("projectile_blade.mym")
 	local blade = model:getMesh( "blade" )
-	local node = SceneNode()
+	local node = SceneNode.new()
 	local damageDone = 0.0
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
-	node:addChild(model)
+	node:addChild(model:toSceneNode())
 	
 	blade:setShader(Core.getShader("minigunPipe"))	
 	blade:setUniform(blade:getShader(), "heatUvCoordOffset", Vec2(256/blade:getTexture(blade:getShader(),0):getSize().x,0))
@@ -47,7 +47,7 @@ function CutterBlade.new(pTargetSelector)
 	local targetSelector = pTargetSelector
 
 	local function attack(target,startPos)
-		--ParticleEffectElectricFlash("Lightning_D.tga")
+		--ParticleEffectElectricFlash.new("Lightning_D.tga")
 		if testForceFiledOnAttack and shieldAreaIndex~=targetSelector.getIndexOfShieldCovering(targetSelector.getTargetPosition(target)) then
 			--the npc is inside a forcefield
 		else
@@ -115,15 +115,15 @@ function CutterBlade.new(pTargetSelector)
 			if not sparkCenter then
 				sparkCenter = {}
 				for i=1, 4, 1 do
-					sparkCenter[i] = ParticleSystem(ParticleEffect.SparkSpirit)
-					blade:addChild(sparkCenter[i])
+					sparkCenter[i] = ParticleSystem.new(ParticleEffect.SparkSpirit)
+					blade:addChild(sparkCenter[i]:toSceneNode())
 				end
 				sparkCenter[2]:setLocalPosition(Vec3(0.05,0.28,0.0)*0.66)
 				sparkCenter[3]:setLocalPosition(Vec3(-0.28,-0.10,0.0)*0.66)
 				sparkCenter[4]:setLocalPosition(Vec3(0.22,-0.20,0.0)*0.66)
-				pointLight = PointLight(Vec3(0,0,0),Vec3(0,1.75,3.5),2.5)
+				pointLight = PointLight.new(Vec3(0,0,0),Vec3(0,1.75,3.5),2.5)
 				pointLight:setVisible(false)
-				model:addChild(pointLight)
+				model:addChild(pointLight:toSceneNode())
 			end
 			for i=1, 4, 1 do
 				sparkCenter[i]:setScale( 0.10+(0.05*billboard:getInt("electricBlade")) )
@@ -161,7 +161,7 @@ function CutterBlade.new(pTargetSelector)
 		local globalPos = model:getGlobalPosition()
 		
 		local rigidBody = RigidBody(this,Box(globalPos - Vec3(0.5,0.2,0.5), globalPos + Vec3(0.5,0.2,0.5)),outVector*3)
-		rigidBody:addChild(lmodel)
+		rigidBody:addChild(lmodel:toSceneNode())
 		--set rotation from model blade
 		lmodel:setLocalMatrix( model:getGlobalMatrix():inverseM() * lmodel:getGlobalMatrix() )
 		--remove offset, this should not be needed
@@ -171,7 +171,7 @@ function CutterBlade.new(pTargetSelector)
 	end
 	function self.destroy()
 		if node:getParent() then--as the parrent can already be destroyed, if end of the map
-			node:getParent():removeChild(node)
+			node:getParent():removeChild(node:toSceneNode())
 		end
 	end
 	function self.stop()

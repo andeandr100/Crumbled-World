@@ -2,9 +2,9 @@ require("Menu/settings.lua")
 --this = Island()
 
 IslandMeshOptimizer = {}
-IslandMeshOptimizer.staticNode = SceneNode()		--meshes that will never change (in theory)
-IslandMeshOptimizer.dynamicNode = SceneNode()		--Dynamic nodes that will need to be updated
-IslandMeshOptimizer.oldNodes = SceneNode()
+IslandMeshOptimizer.staticNode = SceneNode.new()		--meshes that will never change (in theory)
+IslandMeshOptimizer.dynamicNode = SceneNode.new()		--Dynamic nodes that will need to be updated
+IslandMeshOptimizer.oldNodes = SceneNode.new()
 IslandMeshOptimizer.meshTable = {mesh=nil, localMatrix=Matrix()}
 IslandMeshOptimizer.meshTableLocked = {mesh=nil, localMatrix=Matrix()}
 IslandMeshOptimizer.notMovedNodes = {}
@@ -61,7 +61,7 @@ function IslandMeshOptimizer.findAllMeshes(node, meshTable, moveNodes)
 		if (node:getNodeType() ~= NodeId.island and #node:getAllScript() > 0 ) then
 			if moveNodes then
 				local globalMatrix = node:getGlobalMatrix()
-				node:getParent():removeChild(node)
+				node:getParent():removeChild(node:toSceneNode())
 				node:setLocalMatrix(this:getGlobalMatrix():inverseM() * globalMatrix)
 				IslandMeshOptimizer.addToIsland[#IslandMeshOptimizer.addToIsland+1] = node
 			else
@@ -75,7 +75,7 @@ function IslandMeshOptimizer.findAllMeshes(node, meshTable, moveNodes)
 					print("Ignore == "..node:getFileName().."\n")
 				end
 				local globalMatrix = node:getGlobalMatrix()
-				node:getParent():removeChild(node)
+				node:getParent():removeChild(node:toSceneNode())
 				node:setLocalMatrix(this:getGlobalMatrix():inverseM() * globalMatrix)
 				IslandMeshOptimizer.staticNode:addChild(node)	
 			else
@@ -86,7 +86,7 @@ function IslandMeshOptimizer.findAllMeshes(node, meshTable, moveNodes)
 		if string.find(node:getFileName(),"tree") then
 			if moveNodes then
 				local globalMatrix = node:getGlobalMatrix()
-				node:getParent():removeChild(node)
+				node:getParent():removeChild(node:toSceneNode())
 				node:setLocalMatrix(this:getGlobalMatrix():inverseM() * globalMatrix)
 				IslandMeshOptimizer.unusedSpecialNodes[#IslandMeshOptimizer.unusedSpecialNodes+1] = node
 			else
@@ -114,7 +114,7 @@ function IslandMeshOptimizer.findAllMeshes(node, meshTable, moveNodes)
 				if childNode:getNodeType() == NodeId.mesh or childNode:getNodeType() == NodeId.model or childNode:getNodeType() == NodeId.islandMesh then
 					if self.findAllMeshes( childNode, meshTable, moveNodes) then
 						if moveNodes then
-							childNode:getParent():removeChild(childNode)		
+							childNode:getParent():removeChild(childNode:toSceneNode())		
 						else
 							IslandMeshOptimizer.notMovedNodes[#IslandMeshOptimizer.notMovedNodes] = childNode
 							i=i+1
@@ -244,7 +244,7 @@ function IslandMeshOptimizer.combineMeshes()
 		for z = minPos.z, maxPos.z+5, 10 do
 			--print("------------------------ x:"..tostring(z).." z: "..tostring(z).."\n")
 			local areaMeshes = {}
-			--local mesh = NodeMesh()
+			--local mesh = NodeMesh.new()
 	
 			for i=1, #meshList do
 				
@@ -256,7 +256,7 @@ function IslandMeshOptimizer.combineMeshes()
 						meshOldLocalMatrix = meshList[i].mesh:getLocalMatrix() 
 						parent = meshList[i].mesh:getParent()
 						meshList[i].mesh:setLocalMatrix(meshList[i].localMatrix)
-						parent:removeChild(meshList[i].mesh)
+						parent:removeChild(meshList[i].mesh:toSceneNode())
 					end
 				
 					--if meshList[i].mesh:getParent() and IslandMeshOptimizer.moveNodes then
@@ -270,7 +270,7 @@ function IslandMeshOptimizer.combineMeshes()
 						end	
 					end
 					if not added then
-						areaMeshes[#areaMeshes+1] = NodeMesh()
+						areaMeshes[#areaMeshes+1] = NodeMesh.new()
 						areaMeshes[#areaMeshes]:setLocalPosition(Vec3(x+5,0,z+5))
 						if not areaMeshes[#areaMeshes]:addMesh(meshList[i].mesh, Vec3(0,-1,0), 0.75) then
 							print("Mesh was not added to a combined mesh\n")
@@ -384,10 +384,10 @@ function IslandMeshOptimizer.setDesity(density)
 		IslandMeshOptimizer.density = density
 		
 		for i=1, #IslandMeshOptimizer.combinedMeshes do
-			IslandMeshOptimizer.combinedMeshes[i]:getParent():removeChild(IslandMeshOptimizer.combinedMeshes[i])
+			IslandMeshOptimizer.combinedMeshes[i]:getParent():removeChild(IslandMeshOptimizer.combinedMeshes[i]:toSceneNode())
 		end
 		for i=1, #IslandMeshOptimizer.activeSpecialNodes do
-			IslandMeshOptimizer.activeSpecialNodes[i]:getParent():removeChild(IslandMeshOptimizer.activeSpecialNodes[i])
+			IslandMeshOptimizer.activeSpecialNodes[i]:getParent():removeChild(IslandMeshOptimizer.activeSpecialNodes[i]:toSceneNode())
 		end
 		IslandMeshOptimizer.activeSpecialNodes = {}
 		

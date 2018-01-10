@@ -27,7 +27,7 @@ function RailCartPathTool.new(inRailPath)
 	minecartModel = Core.getModel("props/minecart_npc")
 	minecartModel:setVisible(false)
 	
-	this:getRootNode():addChild(minecartModel)
+	this:getRootNode():addChild(minecartModel:toSceneNode())
 	
 	--Load all railpaths
 	railways = RailwaysModels.getModelTable()	
@@ -79,7 +79,7 @@ function RailCartPathTool.new(inRailPath)
 			
 			local minecart = Core.getModel("props/minecart_npc")
 			minecart:setCanBeSaved(false)
-			railPath[i].island:addChild(minecart)
+			railPath[i].island:addChild(minecart:toSceneNode())
 			minecart:setLocalMatrix( railPath[i].mineCartLocalMatrix )
 					
 			railPath[i].minecart = minecart			
@@ -192,7 +192,7 @@ function RailCartPathTool.new(inRailPath)
 		else
 			lineModelRemove.setVisible(false)
 			local node, collisionPos, collisionNormal = Tool.getCollision(true)
-			--node = SceneNode()
+			--node = SceneNode.new()
 			
 			if collisionPos then
 				Core.addDebugSphere(Sphere(collisionPos, 0.5), 0, Vec3(1))
@@ -219,7 +219,7 @@ function RailCartPathTool.new(inRailPath)
 					
 					local minecart = Core.getModel("props/minecart_npc")
 					minecart:setCanBeSaved(false)
-					island:addChild(minecart)
+					island:addChild(minecart:toSceneNode())
 					minecart:setLocalMatrix( invIslandMatrix * minecartModel:getGlobalMatrix() )
 					
 					--getId() is defined in pathTool.lua

@@ -326,8 +326,8 @@ function DeathManager.new()
 					body.fallingAnimationPosition = body.model:getGlobalPosition()--we must know where it is falling
 					body.fallingAnimationRotationSpeed = 0.0--rotation to hide the loack of animation
 					local gMatrix = body.model:getGlobalMatrix()
-					body.model:getParent():removeChild(body.model)
-					this:getPlayerNode():addChild(body.model)--global space for (performance)
+					body.model:getParent():removeChild(body.model:toSceneNode())
+					this:getPlayerNode():addChild(body.model:toSceneNode())--global space for (performance)
 					body.model:setLocalMatrix(gMatrix)
 					if body.lifeTime < 5.0 then
 						body.lifeTime = 5.0
@@ -374,7 +374,7 @@ function DeathManager.new()
 					body.model:setLocalPosition( body.fallingAnimationPosition )
 					body.model:rotate(body.model:getLocalMatrix():getRightVec(),body.fallingAnimationRotationSpeed*deltaTime)--rotate model to hide animation weakness
 					if body.fallingAnimationPosition.y>100.0 then
-						body.model:getParent():removeChild(body.model)--this is in global space, must be deleted
+						body.model:getParent():removeChild(body.model:toSceneNode())--this is in global space, must be deleted
 						animation = nil--removes the animation from the list,lets other death obeject to die
 						local comUnit = Core.getComUnit()
 						comUnit:sendTo("SteamAchievement","Falling","")

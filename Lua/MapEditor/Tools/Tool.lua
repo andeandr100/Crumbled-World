@@ -495,10 +495,10 @@ function Tool.update()
 						
 						for i=1, #meshes do
 							local model = Model()
-							parentNode:addChild(model)
+							parentNode:addChild(model:toSceneNode())
 							model:setLocalMatrix(invParentMatrix * meshes[i]:getGlobalMatrix())
 							meshes[i]:setLocalMatrix(Matrix())
-							model:addChild(meshes[i])
+							model:addChild(meshes[i]:toSceneNode())
 							Tool.addSelectedScene(model)
 						end
 						--destroy remaining nodes
@@ -506,7 +506,7 @@ function Tool.update()
 					end
 				elseif Core.getInput():getKeyDown(Key.j) then
 					local model = Model()
-					selectedScene[1]:getParent():addChild(model)
+					selectedScene[1]:getParent():addChild(model:toSceneNode())
 					local globalCenterPos = selectedScene[1]:getGlobalPosition()
 					for i=2, #selectedScene do
 						globalCenterPos = globalCenterPos + selectedScene[i]:getGlobalPosition()
@@ -520,7 +520,7 @@ function Tool.update()
 						for n=1, #nodes do
 							local matix = nodes[n]:getGlobalMatrix()
 							nodes[n]:setLocalMatrix(inverseModelMatrix * matix)
-							model:addChild(nodes[n])
+							model:addChild(nodes[n]:toSceneNode())
 						end
 						selectedScene[i]:destroy()
 					end

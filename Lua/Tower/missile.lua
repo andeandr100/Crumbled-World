@@ -7,19 +7,19 @@ FireBalls = {}
 function FireBalls.new(pNode,pCount)
 	local self = {}
 	local node = pNode
-	local groupNode = SceneNode()
+	local groupNode = SceneNode.new()
 	local fireballs = {}
 	local rotate = 0.0
 	local totalLength = 0
 	local isActivate=false
 	--effects
-	local startExlosion = ParticleSystem( ParticleEffect.ExplosionMediumBlue )
-	local pLight = PointLight(Vec3(),Vec3(0,2.0,2.0),3.0)
+	local startExlosion = ParticleSystem.new( ParticleEffect.ExplosionMediumBlue )
+	local pLight = PointLight.new(Vec3(),Vec3(0,2.0,2.0),3.0)
 	--
 	function self.setBallCount(count)
 		for i=#fireballs+1, count do
-			fireballs[#fireballs+1] = ParticleSystem( ParticleEffect.FireBall )
-			groupNode:addChild(fireballs[#fireballs])
+			fireballs[#fireballs+1] = ParticleSystem.new( ParticleEffect.FireBall )
+			groupNode:addChild(fireballs[#fireballs]:toSceneNode())
 		end
 	end
 	function self.update(matrix,length)
@@ -66,10 +66,10 @@ function FireBalls.new(pNode,pCount)
 		pLight:setVisible(false)
 	end
 	local function init()
-		node:addChild(groupNode)
-		node:addChild(startExlosion)
-		groupNode:addChild(pLight)
-		self.setBallCount(pCount)
+		node:addChild(groupNode:toSceneNode())
+		node:addChild(startExlosion:toSceneNode())
+		groupNode:addChild(pLight:toSceneNode())
+		self.setBallCount(pCount:toSceneNode())
 	end
 	init()
 	return self
@@ -78,11 +78,11 @@ FireStorm = {}
 function FireStorm.new(pNode)
 	local self = {}
 	local node = pNode
-	local fireStorm1 = ParticleSystem( ParticleEffect.fireStormFlame )
-	local fireStorm2 = ParticleSystem( ParticleEffect.fireStormSparks )
-	local fireStorm3 = ParticleSystem( ParticleEffect.fireStormFire )
+	local fireStorm1 = ParticleSystem.new( ParticleEffect.fireStormFlame )
+	local fireStorm2 = ParticleSystem.new( ParticleEffect.fireStormSparks )
+	local fireStorm3 = ParticleSystem.new( ParticleEffect.fireStormFire )
 	local colorVariations = Vec3(0.35,0.35,0.05)
-	local pLight = PointLight(Vec3(),Vec3(1.75,0.6,0.1),3.5)
+	local pLight = PointLight.new(Vec3(),Vec3(1.75,0.6,0.1),3.5)
 	local comUnit = Core.getComUnit()
 	local billboard = Core.getBillboard()
 	local ATTACKUPDATETIMER = 0.25
@@ -95,7 +95,7 @@ function FireStorm.new(pNode)
 	local slow = 0.0
 	local position = Vec3()
 	--
-	local soundFireStorm = SoundNode("firestorm")
+	local soundFireStorm = SoundNode.new("firestorm")
 	function self.activate(pDuration,pPosition,pDamage,pSlow,pRange)
 		fireStormTimer = pDuration
 		duration = pDuration
@@ -161,11 +161,11 @@ function FireStorm.new(pNode)
 		pLight:setVisible(false)
 		pLight:addFlicker(Vec3(0.2,0.15,0.05)*0.75,0.05,0.1)
 		pLight:addSinCurve(Vec3(0.2,0.15,0.05),1.0)
-		node:addChild(fireStorm1)
-		node:addChild(fireStorm2)
-		node:addChild(fireStorm3)
-		node:addChild(pLight)
-		node:addChild(soundFireStorm)
+		node:addChild(fireStorm1:toSceneNode())
+		node:addChild(fireStorm2:toSceneNode())
+		node:addChild(fireStorm3:toSceneNode())
+		node:addChild(pLight:toSceneNode())
+		node:addChild(soundFireStorm:toSceneNode())
 	end
 	init()
 	return self
@@ -203,31 +203,31 @@ function Missile.new()
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	--scenNode
-	local node = SceneNode()
+	local node = SceneNode.new()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
 	--model
 	local model = Core.getModel("missile.mym")
-	node:addChild(model)
+	node:addChild(model:toSceneNode())
 	--particleEffect
-	local explosion = ParticleSystem( ParticleEffect.Explosion )
-	node:addChild(explosion)
-	local smokeTrail = ParticleSystem( ParticleEffect.ShellTrail )
-	local missileTrail = ParticleSystem( ParticleEffect.missileTale )
-	local missileTrail2 = ParticleSystem( ParticleEffect.missileTaleBlue )
-	node:addChild(smokeTrail)
-	node:addChild(missileTrail)
-	node:addChild(missileTrail2)
+	local explosion = ParticleSystem.new( ParticleEffect.Explosion )
+	node:addChild(explosion:toSceneNode())
+	local smokeTrail = ParticleSystem.new( ParticleEffect.ShellTrail )
+	local missileTrail = ParticleSystem.new( ParticleEffect.missileTale )
+	local missileTrail2 = ParticleSystem.new( ParticleEffect.missileTaleBlue )
+	node:addChild(smokeTrail:toSceneNode())
+	node:addChild(missileTrail:toSceneNode())
+	node:addChild(missileTrail2:toSceneNode())
 	--pointLight
-	local pointLight = PointLight(Vec3(0,0,0),Vec3(3,1.5,0.0),1.0)
+	local pointLight = PointLight.new(Vec3(0,0,0),Vec3(3,1.5,0.0),1.0)
 	pointLight:setCutOff(0.15)
-	node:addChild(pointLight)
+	node:addChild(pointLight:toSceneNode())
 	--sound
 	local soundMissileSplit
 	local soundMissileSplitCount = 0
-	local soundExplosion = SoundNode("missileExplosion")
-	local soundMissile = SoundNode("missile_engine")
-	node:addChild(soundExplosion)
-	node:addChild(soundMissile)
+	local soundExplosion = SoundNode.new("missileExplosion")
+	local soundMissile = SoundNode.new("missile_engine")
+	node:addChild(soundExplosion:toSceneNode())
+	node:addChild(soundMissile:toSceneNode())
 
 	local function manageIfTargetIsNotAvailable()
 		if targetIndex>1 and targetSelector.isTargetAlive(targetIndex)==false then
@@ -316,9 +316,9 @@ function Missile.new()
 		
 		if FirestormLevel>0 and not fireStorm then
 			fireStorm = FireStorm.new(node)
-			soundMissileSplit = SoundNode("missile_split")
+			soundMissileSplit = SoundNode.new("missile_split")
 			soundMissileSplitCount = 0
-			node:addChild(soundMissileSplit)
+			node:addChild(soundMissileSplit:toSceneNode())
 		end
 		timeEnding = false
 		model:setVisible(true)
@@ -365,7 +365,7 @@ function Missile.new()
 	end
 	function self.destroy()
 		if node:getParent() then--as the parrent can already be destroyed, if end of the map
-			node:getParent():removeChild(node)
+			node:getParent():removeChild(node:toSceneNode())
 		end
 	end
 	local function doDetonationEffect()

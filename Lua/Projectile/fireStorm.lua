@@ -6,11 +6,11 @@ FireStorm = {}
 function FireStorm.new(pNode)
 	local self = {}
 	local node = pNode
-	local fireStorm1 = ParticleSystem( ParticleEffect.fireStormFlame )
-	local fireStorm2 = ParticleSystem( ParticleEffect.fireStormSparks )
-	local fireStorm3 = ParticleSystem( ParticleEffect.fireStormFire )
+	local fireStorm1 = ParticleSystem.new( ParticleEffect.fireStormFlame )
+	local fireStorm2 = ParticleSystem.new( ParticleEffect.fireStormSparks )
+	local fireStorm3 = ParticleSystem.new( ParticleEffect.fireStormFire )
 	local colorVariations = Vec3(0.35,0.35,0.05)
-	local pLight = PointLight(Vec3(),Vec3(1.75,0.6,0.1),3.5)
+	local pLight = PointLight.new(Vec3(),Vec3(1.75,0.6,0.1),3.5)
 	local comUnit = Core.getComUnit()
 	local billboard = Core.getBillboard()
 	local ATTACKUPDATETIMER = 0.25
@@ -23,7 +23,7 @@ function FireStorm.new(pNode)
 	local slow = 0.0
 	local position = Vec3()
 	--
-	local soundFireStorm = SoundNode("firestorm")
+	local soundFireStorm = SoundNode.new("firestorm")
 	function self.activate(pDuration,pPosition,pDamage,pSlow,pRange)
 		fireStormTimer = pDuration
 		duration = pDuration
@@ -97,11 +97,11 @@ function FireStorm.new(pNode)
 		pLight:setVisible(false)
 		pLight:addFlicker(Vec3(0.2,0.15,0.05)*0.75,0.05,0.1)
 		pLight:addSinCurve(Vec3(0.2,0.15,0.05),1.0)
-		node:addChild(fireStorm1)
-		node:addChild(fireStorm2)
-		node:addChild(fireStorm3)
-		node:addChild(pLight)
-		node:addChild(soundFireStorm)
+		node:addChild(fireStorm1:toSceneNode())
+		node:addChild(fireStorm2:toSceneNode())
+		node:addChild(fireStorm3:toSceneNode())
+		node:addChild(pLight:toSceneNode())
+		node:addChild(soundFireStorm:toSceneNode())
 	end
 	init()
 	return self

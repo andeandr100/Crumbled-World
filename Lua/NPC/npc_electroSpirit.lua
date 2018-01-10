@@ -22,15 +22,15 @@ function create()
 	npcBase.init("electroSpirit",nil,0.2,0.6,0.75,2.0)
 	npcBase.setDefaultState(state.electrecuted)
 	--particle effect
-	effect = ParticleSystem(ParticleEffect.SparkSpirit)
-	this:addChild(effect)
+	effect = ParticleSystem.new(ParticleEffect.SparkSpirit)
+	this:addChild(effect:toSceneNode())
 	effect:activate(Vec3(0,0.65,0))
 	-- DEBUG START
 	effect:setEmitterLine(Line3D(Vec3(0,0.65,0),Vec3(0,0.65,0)))--this should not be needed
 	-- DEBUG END
 	npcBase.addParticleEffect(effect,0.35)
 	--pointlight
-	pointLight = PointLight(Vec3(0,0.25,0),Vec3(0.0,3.0,3.0),1.1)
+	pointLight = PointLight.new(Vec3(0,0.25,0),Vec3(0.0,3.0,3.0),1.1)
 	pointLight:setCutOff(0.1)
 	
 	--collisionModel, need to be able to click on this npc
@@ -41,8 +41,8 @@ function create()
 		meshList[i]:setCanBeRendered(false)
 	end
 	--pointLight:setIsStatic(true)
-	this:addChild(pointLight)
-	this:addChild(collisionModel)
+	this:addChild(pointLight:toSceneNode())
+	this:addChild(collisionModel:toSceneNode())
 	npcBase.addPointLight(pointLight,0.35)
 	--resistance
 	npcBase.getSoul().setResistance(0.0,true,true,1.33)

@@ -90,7 +90,7 @@ local function setNode(pos)
 	local self = worldEdgeStuff
 	--Core.addDebugLine(pos,pos+Vec3(0,5,0),3600,Vec3(0.2)+math.randomVec3())
 	self.nodes.size = self.nodes.size + 1
-	self.nodes[self.nodes.size] = {nodeStatic=SceneNode(), nodeDynamic=SceneNode(), position=pos}
+	self.nodes[self.nodes.size] = {nodeStatic=SceneNode.new(), nodeDynamic=SceneNode.new(), position=pos}
 	pos = this:getGlobalMatrix():inverseM()*pos
 	self.nodes[self.nodes.size].nodeStatic:setLocalPosition(pos)
 	self.nodes[self.nodes.size].nodeDynamic:setLocalPosition(pos)
@@ -123,8 +123,8 @@ function worldEdgeStuff.createDustAndGravel()
 		local localEndPos = node:getGlobalMatrix():inverseM()*self.worldEdgePos[self.worldEdgeConnections[i][2]]
 		--Dust
 		self.counter = self.counter + 1
-		local rockDust = ParticleSystem(ParticleEffect.RockDust)
-		node:addChild( rockDust )
+		local rockDust = ParticleSystem.new(ParticleEffect.RockDust)
+		node:addChild( rockDust:toSceneNode() )
 		rockDust:activate(Vec3())
 		rockDust:setSpawnRate( math.min(1.0,(localEndPos-localStartPos):length()/4.5) )
 		rockDust:setEmitterLine(Line3D(localStartPos,localEndPos))
@@ -275,7 +275,7 @@ function worldEdgeStuff.generateGravel(startPos,endPos,atVec,rightVec,upVec)
 			local str = string.format("Data/Models/nature/stone/gravel%d.mym", rand)
 			local model = Core.getModel( str )--:getMesh(0)
 			local mesh = model:getMesh(0)
-			model:removeChild(mesh)
+			model:removeChild(mesh:toSceneNode())
 			local mat = mesh:getLocalMatrix()
 			mat:scale(0.75+(math.randomFloat()*0.5))
 			mesh:setLocalMatrix(mat)
@@ -286,7 +286,7 @@ function worldEdgeStuff.generateGravel(startPos,endPos,atVec,rightVec,upVec)
 			--local node = self.staticNode--getClosestNode(pos,true)
 			local localPosition = this:getGlobalMatrix():inverseM()*pos
 			mesh:setLocalPosition( localPosition )
-			self.island:addChild(mesh)
+			self.island:addChild(mesh:toSceneNode())
 			self.staticStones[#self.staticStones+1] = mesh
 		else
 			--dynamic stones
@@ -296,7 +296,7 @@ function worldEdgeStuff.generateGravel(startPos,endPos,atVec,rightVec,upVec)
 			--assert(mesh,"no mesh found for "..file)
 			
 			mesh:setSceneName("dynamicStone")
-			model:removeChild(mesh)
+			model:removeChild(mesh:toSceneNode())
 			local mat = mesh:getLocalMatrix()
 			mat:scale(0.2+(math.randomFloat()*0.5))
 			mesh:setLocalMatrix(mat)
@@ -306,7 +306,7 @@ function worldEdgeStuff.generateGravel(startPos,endPos,atVec,rightVec,upVec)
 			local node = self.staticNode--getClosestNode(pos,false)
 			local localPosition = this:getGlobalMatrix():inverseM()*pos
 			mesh:setLocalPosition( localPosition )
-			node:addChild(mesh)
+			node:addChild(mesh:toSceneNode())
 			self.dynamicStones.size = self.dynamicStones.size + 1
 			self.dynamicStones[self.dynamicStones.size] = {node=mesh, timer=0.0, axis1=math.randomVec3(),axis2=math.randomVec3(), offset=mesh:getLocalPosition()+math.randomVec3()*(0.2+0.3*math.randomFloat())}
 		end

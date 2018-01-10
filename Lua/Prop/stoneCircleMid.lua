@@ -20,14 +20,14 @@ function create()
 	comUnitTable["NpcDeath"] = handleNpcDeath
 	comUnitTable["waveChanged"] = handleWaveChanged
 	--particle effect
-	pLight = PointLight(Vec3(0.0,0.5,0.0),Vec3(0,2,2),2.5)
+	pLight = PointLight.new(Vec3(0.0,0.5,0.0),Vec3(0,2,2),2.5)
 	pLight:setCutOff(0.1)
 	pLight:addFlicker(Vec3(0,0.2,0.2)*0.75,0.05,0.1)
 	pLight:addSinCurve(Vec3(0,0.2,0.2),1.0)
-	effect = ParticleSystem(ParticleEffect.MidPointColorBlueShort)
+	effect = ParticleSystem.new(ParticleEffect.MidPointColorBlueShort)
 	pLight:setRange(0.0)
-	this:addChild(effect)
-	this:addChild(pLight)
+	this:addChild(effect:toSceneNode())
+	this:addChild(pLight:toSceneNode())
 	effect:activate(Vec3(0.0,0.15,0.0))
 	effect:setSpawnRate(0.0)
 	restartListener:registerEvent("restart", restartMap)

@@ -66,7 +66,7 @@ function update()
 	print("\nBridge tool\n")
 	
 	local node, collisionPos, collisionNormal = Tool.getCollision(false)
-	--node = SceneNode()
+	--node = SceneNode.new()
 	
 	
 	--Check that we we can build on the current island
@@ -133,7 +133,7 @@ function update()
 					bridge:addIslandPole(currentBridgePoles[i][1]:toSceneNode(), currentBridgePoles[i][2])
 				end
 				local playerNode = this:getRootNode():findNodeByType(NodeId.playerNode)
-				playerNode:addChild(bridge)
+				playerNode:addChild(bridge:toSceneNode())
 				
 				currentBridgePoles = {}
 			end

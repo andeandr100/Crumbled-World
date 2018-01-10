@@ -27,7 +27,7 @@ function init()
 --				Core.addDebugLine(Line3D(path[n-1].island:getGlobalMatrix() * path[n-1].position + Vec3(0,1,0), path[n].island:getGlobalMatrix() * path[n].position + Vec3(0,1,0)), 1000, Vec3(1))
 --			end
 		end
-		ourRootNode = SceneNode()
+		ourRootNode = SceneNode.new()
 		this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(ourRootNode)
 --		createMesh()
 		return true
@@ -36,7 +36,7 @@ function init()
 end
 
 --function createMesh()
---	nodeMesh = NodeMesh(RenderMode.points)
+--	nodeMesh = NodeMesh.new(RenderMode.points)
 --	nodeMesh:setVertexType(VertexType.vec3, VertexType.vec3)
 --	nodeMesh:bindVertexToShaderName("pos1", "pos2" )
 --	nodeMesh:setShader(Core.getShader("pathRender"))
@@ -180,20 +180,20 @@ function spawnSpirit()
 		local spawn = spawns[spawnIndex]
 		
 		--create node
-		local node = SceneNode()
+		local node = SceneNode.new()
 		spawn.island:addChild(node)
 		node:setLocalPosition(spawn.position)
 		node:setVisible(true)
 		
-		local particle = node:addChild( ParticleSystem(SpiritsParticleEffect["endCrystalSpirit"..math.clamp(spawnIndex,1,3)]) )
+		local particle = node:addChild( ParticleSystem.new(SpiritsParticleEffect["endCrystalSpirit"..math.clamp(spawnIndex,1,3)]):toSceneNode() )
 		particle:activate(Vec3(0,0.5,0))
 		particle:setVisible(true)
 		--
-		local particleTale = ourRootNode:addChild( ParticleSystem(SpiritsParticleEffect["endCrystalSpiritTale"..math.clamp(spawnIndex,1,3)]) )
+		local particleTale = ourRootNode:addChild( ParticleSystem.new(SpiritsParticleEffect["endCrystalSpiritTale"..math.clamp(spawnIndex,1,3)]):toSceneNode() )
 		particleTale:activate( particle:getGlobalPosition() )
 		particleTale:setVisible(true)
 		--
-		local pLight = particle:addChild( PointLight(Vec3(0.5,0.5,0.0),4.0) )
+		local pLight = particle:addChild( PointLight.new(Vec3(0.5,0.5,0.0),4.0):toSceneNode() )
 		pLight:setLocalPosition(Vec3(0,0.5,0))
 		--
 		

@@ -111,7 +111,7 @@ function changeModel()
 		--currentModel = Model()
 		if currentModel then
 			if this:getRootNode() then
-				this:getRootNode():addChild(currentModel)
+				this:getRootNode():addChild(currentModel:toSceneNode())
 			else
 				currentModel = nil
 			end
@@ -137,7 +137,7 @@ end
 function deActivated()
 	if currentModel then
 		if currentModel:getParent() then
-			currentModel:getParent():removeChild(currentModel)
+			currentModel:getParent():removeChild(currentModel:toSceneNode())
 		end
 		currentModel = nil
 	end
@@ -217,7 +217,7 @@ function update()
 			--Convert from global space to local space
 			model:setLocalMatrix( node:getGlobalMatrix():inverseM() * currentModel:getGlobalMatrix() )
 			--Add model to collision sceneNode
-			node:addChild( model )
+			node:addChild( model:toSceneNode() )
 			--update model, color, rotation and scale
 			updateModelState()
 		end

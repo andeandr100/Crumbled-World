@@ -81,7 +81,7 @@ function FileDropDownMenu.new(inButton)
 		fileButton = inButton
 		fileButton:addEventCallbackExecute(self.toogleVisible)
 		
-		local camera = this:getRootNode():findNodeByName("MainCamera")
+		local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 		--camera = Camera()
 		
 		if not inColor then

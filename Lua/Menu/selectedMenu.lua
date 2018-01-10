@@ -113,7 +113,7 @@ function create()
 	end
 	
 	if this:getNodeType() == NodeId.playerNode then
-		local menuNode = this:getRootNode():addChild(SceneNode())
+		local menuNode = this:getRootNode():addChild(SceneNode.new())
 		--camera = Camera()
 		menuNode:setSceneName("Selected menu")
 		
@@ -130,7 +130,7 @@ function create()
 		buildingNodeBillboard = Core.getBillboard("buildings")
 		
 		--camera
-		selectedCamera = Camera(Text("Selected buildng"),true,200,200);
+		selectedCamera = Camera.new(Text("Selected buildng"),true,200,200);
 		selectedCamera:setShadowScale(2.0)
 		selectedCamera:setDirectionLight(Core.getDirectionalLight(this))
 		selectedCamera:setAmbientLight(Core.getAmbientLight(this))

@@ -70,7 +70,7 @@ function load(message)
 	end
 	
 	if islandTable.edgeInfo then
-		dynamicNode = SceneNode()
+		dynamicNode = SceneNode.new()
 		dynamicNode:createBoundVolumeGroup()
 		dynamicNode:setBoundingVolumeCanShrink(false)
 		this:addChild(dynamicNode)

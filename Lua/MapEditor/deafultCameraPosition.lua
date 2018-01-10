@@ -56,8 +56,8 @@ function DeafultCameraPosition.new()
 		local minSize = math.min( Core.getScreenResolution().x, Core.getScreenResolution().y )
 		
 		--Create the camera
-		camera = Camera("icon camera", true, minSize, minSize)
-		this:getRootNode():addChild( camera )
+		camera = Camera.new("icon camera", true, minSize, minSize)
+		this:getRootNode():addChild( camera:toSceneNode() )
 		
 		camera:setDirectionLight(Core.getDirectionalLight(this))
 		camera:setAmbientLight(Core.getAmbientLight(this))

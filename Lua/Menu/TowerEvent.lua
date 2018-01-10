@@ -6,7 +6,7 @@ function createNpcNode()
 	--routePlanner = RoutePlanner()
 	local spawnArea = routePlanner:getRandomSpawnArea()
 	local island = spawnArea:getIsland()
-	local npcNode = island:addChild(SceneNode())
+	local npcNode = island:addChild(SceneNode.new())
 	npcNode:setLocalPosition( island:getGlobalMatrix():inverseM() * spawnArea:getGlobalPosition())
 	return npcNode
 end

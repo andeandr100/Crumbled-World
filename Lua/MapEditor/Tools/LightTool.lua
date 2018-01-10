@@ -97,7 +97,7 @@ function create()
 	lightModel = PointLightModel(Vec3(1), 5)
 	worldNode = this:getRootNode()
 	lightModel:setVisible(false)
-	worldNode:addChild(lightModel)
+	worldNode:addChild(lightModel:toSceneNode())
 	
 	--Get billboard for the map editor
 	local mapEditor = Core.getBillboard("MapEditor")
@@ -144,7 +144,7 @@ end
 
 function update()
 	local node, collisionPos, collisionNormal = Tool.getCollision(useObjectCollision)
-	--node = SceneNode()
+	--node = SceneNode.new()
 	if node then
 		
 		if useObjectNormal then
@@ -157,7 +157,7 @@ function update()
 		if Core.getInput():getMouseDown( MouseKey.left ) then
 			local aIsland = node:findNodeByType(NodeId.island)
 			if aIsland then
-				aIsland:addChild(PointLightModel( aIsland:getGlobalMatrix():inverseM() * collisionPos, lightModel:getColor(), lightModel:getRange()))
+				aIsland:addChild(PointLightModel( aIsland:getGlobalMatrix():inverseM() * collisionPos, lightModel:getColor(), lightModel:getRange()):toSceneNode())
 			end
 		end
 	else

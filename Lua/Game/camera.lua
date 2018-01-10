@@ -53,8 +53,8 @@ function create()
 		updatePosition = true
 		
 		rootNode = this:getRootNode()
-		worldNode = SceneNode()
-		localCameraNode = SceneNode()
+		worldNode = SceneNode.new()
+		localCameraNode = SceneNode.new()
 		rootNode:addChild(worldNode)
 		worldNode:addChild(localCameraNode)
 		
@@ -123,7 +123,7 @@ function create()
 
 	else
 
-		local camera = this:getRootNode():addChild(Camera(Text("MainCamera"), true))
+		local camera = this:getRootNode():addChild(Camera.new(Text("MainCamera"), true):toSceneNode())
 		--camera = Camera()
 		camera = ConvertToCamera(camera)
 		camera:setEnableUpdates(true)
@@ -325,8 +325,8 @@ function countDownUpdate()
 	print("\ncamera pre update\n")
 	--only render the world when it's ready to be shown, or when a a very long time has passed
 	if (resetTime < 0.0 and pathBilboard and pathBilboard:exist("spawnPortals")) or resetTime < -15 then
-		Core.setMainCamera(this)
-		Core.setSoundCamera(nil)
+		Core.setMainCamera(ConvertToCamera(this))
+--		Core.setSoundCamera(nil)
 		update = tmpUpdate
 	end
 	

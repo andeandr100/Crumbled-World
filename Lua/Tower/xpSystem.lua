@@ -21,8 +21,8 @@ function XpSystem.new(upg,towerName)
 	local xpForSubLevel = 1
 	local currentWave = 0
 	local xpBonusMul = 1.0
-	local particleEffectUpgradeAvailable = ParticleSystem( ParticleEffect.upgradeAvailable )
-	local particleEffectTowerUpgraded = ParticleSystem( ParticleEffect.towerUpgraded)
+	local particleEffectUpgradeAvailable = ParticleSystem.new( ParticleEffect.upgradeAvailable )
+	local particleEffectTowerUpgraded = ParticleSystem.new( ParticleEffect.towerUpgraded)
 	local SUBUPGRADE = 1
 	local MAINUPGRADE = 2
 	local whatIsLeveling = MAINUPGRADE
@@ -226,8 +226,8 @@ function XpSystem.new(upg,towerName)
 	-- function:	init
 	-- purpose:		creates everything needed to run the xpSystem
 	local function init()
-		this:addChild(particleEffectUpgradeAvailable)
-		this:addChild(particleEffectTowerUpgraded)
+		this:addChild(particleEffectUpgradeAvailable:toSceneNode())
+		this:addChild(particleEffectTowerUpgraded:toSceneNode())
 		self.addXp(0)
 		upgrade.setXpSystem(self)
 	end

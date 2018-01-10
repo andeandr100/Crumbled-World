@@ -32,7 +32,7 @@ function create()
 		for i=1, nature.size, 1 do
 			--nature[i].model:setLocalPosition(nature[i].globalPos)
 			nature[i].model:setLocalMatrix(nature[i].parrent:getGlobalMatrix():inverseM()*nature[i].model:getGlobalMatrix())
-			nature[i].parrent:addChild(nature[i].model)
+			nature[i].parrent:addChild(nature[i].model:toSceneNode())
 		end
 	end
 	return false--no need for updates

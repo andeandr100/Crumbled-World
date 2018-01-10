@@ -8,11 +8,11 @@ function SwarmBall.new()
 	local timeLeft = 0.0
 	local speed = 6.0
 	
-	local node = SceneNode()
+	local node = SceneNode.new()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
 
-	local explosion = ParticleSystem( "ExplosionFireBall" )
-	local effect2 = ParticleSystem( "FireBall" )
+	local explosion = ParticleSystem.new( "ExplosionFireBall" )
+	local effect2 = ParticleSystem.new( "FireBall" )
 	node:addChild(explosion:toSceneNode())
 	node:addChild(effect2:toSceneNode())
 	effect2:setVisible(false)
@@ -37,7 +37,7 @@ function SwarmBall.new()
 	local LIFE_STAGE_PREPPING_TO_DIE = 4
 	local lifeStage = 0
 	
-	local pointLight = PointLight(Vec3(0,0,0),Vec3(4,2,0),1.5)
+	local pointLight = PointLight.new(Vec3(0,0,0),Vec3(4,2,0),1.5)
 	pointLight:setCutOff(0.1)
 	pointLight:setVisible(false)
 	node:addChild(pointLight:toSceneNode())
@@ -170,7 +170,7 @@ function SwarmBall.new()
 		timer:stop()
 	end
 	function self.destroy()
-		node:getParent():removeChild(node)
+		node:getParent():removeChild(node:toSceneNode())
 	end
 	function self.update()
 		timer:start("updateSwarmBall")

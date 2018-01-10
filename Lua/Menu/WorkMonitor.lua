@@ -17,7 +17,7 @@ function create()
 	end
 	
 	if this:getNodeType() == NodeId.playerNode then
-		local menuNode = this:getRootNode():addChild(SceneNode())
+		local menuNode = this:getRootNode():addChild(SceneNode.new())
 		--camera = Camera()
 		menuNode:setSceneName("Work monitor")
 		--Create a worker

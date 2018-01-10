@@ -64,7 +64,7 @@ function BladeTower.new()
 	--Events
 	restartListener = Listener("RestartWave")
 	--sound
-	local soundRelease = SoundNode("bladeTower_attack")
+	local soundRelease = SoundNode.new("bladeTower_attack")
 	--other
 	local staticNodes--used for range tests
 	local towerBuiltListener
@@ -363,7 +363,7 @@ function BladeTower.new()
 			
 			--performance check
 			for i=0, model:getNumMesh()-1, 1 do
-				if not model:getMesh(i):getName():toString()=="tower" then
+				if not model:getMesh(i):getName() =="tower" then
 					model:getMesh(i):DisableBoundingVolumesDynamicUpdates()
 				end
 			end
@@ -437,17 +437,17 @@ function BladeTower.new()
 		--
 		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
 			if upgrade.getLevel("electricBlade")>0 then
-				model:getMesh( "tower" ):removeChild(sparkCenter1)
-				model:getMesh( "tower" ):removeChild(sparkCenter2)
+				model:getMesh( "tower" ):removeChild(sparkCenter1:toSceneNode())
+				model:getMesh( "tower" ):removeChild(sparkCenter2:toSceneNode())
 			end
-			this:removeChild(model)
+			this:removeChild(model:toSceneNode())
 			model = Core.getModel( upgrade.getValue("model") )
 		
-			this:addChild(model)
+			this:addChild(model:toSceneNode())
 			billboard:setModel("tower",model);
 			if upgrade.getLevel("electricBlade")>0 then
-				model:getMesh( "tower" ):addChild(sparkCenter1)
-				model:getMesh( "tower" ):addChild(sparkCenter2)
+				model:getMesh( "tower" ):addChild(sparkCenter1:toSceneNode())
+				model:getMesh( "tower" ):addChild(sparkCenter2:toSceneNode())
 			end
 		
 			initModel(true)--resets the model
@@ -597,24 +597,24 @@ function BladeTower.new()
 			upgradeElectricScale = 0.20 + (upgrade.getLevel("electricBlade")*0.05)
 			if sparkCenter1==nil then
 				--electric balls
-				sparkCenter1 = ParticleSystem(ParticleEffect.SparkSpirit)
-				sparkCenter2 = ParticleSystem(ParticleEffect.SparkSpirit)
-				model:getMesh( "tower" ):addChild( sparkCenter1 )
-				model:getMesh( "tower" ):addChild( sparkCenter2 )
+				sparkCenter1 = ParticleSystem.new(ParticleEffect.SparkSpirit)
+				sparkCenter2 = ParticleSystem.new(ParticleEffect.SparkSpirit)
+				model:getMesh( "tower" ):addChild( sparkCenter1:toSceneNode() )
+				model:getMesh( "tower" ):addChild( sparkCenter2:toSceneNode() )
 				sparkCenter1:activate(Vec3(-0.35,-0.54,-0.5))
 				sparkCenter2:activate(Vec3(0.35,-0.54,-0.5))
 				--lightning effect when the blade is released
-				electric1 = ParticleEffectElectricFlash("Lightning_D.tga")
-				electric2 = ParticleEffectElectricFlash("Lightning_D.tga")
-				this:addChild(electric1)
-				this:addChild(electric2)
+				electric1 = ParticleEffectElectricFlash.new("Lightning_D.tga")
+				electric2 = ParticleEffectElectricFlash.new("Lightning_D.tga")
+				this:addChild(electric1:toSceneNode())
+				this:addChild(electric2:toSceneNode())
 				--lighting
-				electricPointLight1 = PointLight(Vec3(-0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
+				electricPointLight1 = PointLight.new(Vec3(-0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
 				electricPointLight1:setCutOff(0.05)
-				this:addChild(electricPointLight1)
-				electricPointLight2 = PointLight(Vec3(0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
+				this:addChild(electricPointLight1:toSceneNode())
+				electricPointLight2 = PointLight.new(Vec3(0.35,0.85,0.61),Vec3(0.0,5.0,5.0),0.5)
 				electricPointLight2:setCutOff(0.05)
-				this:addChild(electricPointLight2)
+				this:addChild(electricPointLight2:toSceneNode())
 			else
 				sparkCenter1:activate(Vec3(-0.35,-0.54,-0.5))
 				sparkCenter2:activate(Vec3(0.35,-0.54,-0.5))
@@ -775,12 +775,12 @@ function BladeTower.new()
 		
 		model = Core.getModel("tower_cutter_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
-		this:addChild(model)
+		this:addChild(model:toSceneNode())
 		--
 		restartListener:registerEvent("restartWave", restartWave)
 		--
 		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable)
+			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
 		end
 	
 		--upgrade
@@ -1042,7 +1042,7 @@ function BladeTower.new()
 		targetSelector.setPosition(this:getGlobalPosition())
 		targetSelector.setRange(range)
 		--
-		this:addChild(soundRelease)
+		this:addChild(soundRelease:toSceneNode())
 		soundRelease:setSoundPlayLimit(4)
 		soundRelease:setLocalSoundPLayLimit(3)
 		
