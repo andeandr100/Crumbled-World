@@ -368,7 +368,7 @@ function rotateSpawnPortals()
 	if navMesh then
 		print("navMesh Found\n")
 		print("SceneId: "..navMesh:getNodeType())
-		print("navMesh: "..tostring(navMesh:getHull()))
+		--print("navMesh: "..tostring(navMesh:getHull()))
 		print("")
 	end
 	
@@ -399,7 +399,7 @@ function rotateSpawnPortals()
 		if spawn and nextPoint and navMesh then
 			print("navMesh Found\n")
 			print("SceneId: "..navMesh:getNodeType())
-			print("navMesh: "..tostring(navMesh:getHull()))
+			--print("navMesh: "..tostring(navMesh:getHull()))
 			print("spawn: "..tostring(spawn))
 			print("nextPoint: "..tostring(nextPoint))
 			print("")
