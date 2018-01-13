@@ -20,15 +20,18 @@ function SupportManager.new()
 	-- upg:			The name of the upgrade
 	-- level:		What level is should have
 	local function fixLevel(upg,level)
---		print("fixLevel("..upg..","..level..")")
+		print("fixLevel("..upg..","..level..")")
 		local dCount = 0
 		while upgrade.getLevel(upg)~=level do
 			dCount = dCount + 1
---			print("upgrade.getLevel("..upg..") = "..upgrade.getLevel(upg))
---			print("level = "..level)
+			print("upgrade.getLevel(upgrade) = "..upgrade.getLevel("upgrade"))
+			print("upgrade.getLevel("..upg..") = "..upgrade.getLevel(upg))
+			print("level = "..level)
 			if upgrade.getLevel(upg)>level then
+				print("degrade")
 				upgrade.degrade(upg)
 			else
+				print("upgrade")
 				upgrade.upgrade(upg)
 			end
 			if dCount==5 then

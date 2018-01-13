@@ -127,7 +127,8 @@ function Upgrade.new()
 			upg.cost = (upg.cost and upg.cost or upg.costFunction())/(addSubCount+1.0)
 		end
 		upg.levelRequirement = upg.levelRequirement or 0
-		--print("upg == "..tostring(upg).."\n")
+		print("upgLevel == "..tostring(#upgradesAvailable[upg.name]+1))
+		print("upg == "..tostring(upg))
 		upgradesAvailable[upg.name][#upgradesAvailable[upg.name]+1] = upg
 		-- set the default build cost
 		billboard:setFloat("cost", upgradesAvailable["upgrade"][1].cost)
@@ -211,7 +212,7 @@ function Upgrade.new()
 	-- function:	upgrade
 	-- purpose:		do an upgrade
 	function self.upgrade( name )
-		--print("self.upgrade( "..name.." )")
+--		print("self.upgrade( "..name.." )c")
 		--assert(upgradesAvailable[name],"no upgrade available with name:\""..name.."\" in upgradesAvailable:"..tostring(upgradesAvailable))
 		--add cost to value
 		
@@ -253,8 +254,8 @@ function Upgrade.new()
 			if ignoreUpgrade == false then
 				if billboard:getBool("isNetOwner") then
 					comUnit:sendTo("stats","removeGold",tostring(lCost))
-					print("# upgrade: "..name)
-					print("# cost: "..lCost)
+--					print("# upgrade: "..name)
+--					print("# cost: "..lCost)
 				end
 			else
 				ignoreUpgrade = false
@@ -262,6 +263,7 @@ function Upgrade.new()
 		end
 		billboard:setDouble("value", totalCost*valueEfficiency)--value)
 		billboard:setDouble("totalCost",totalCost)
+		local d1 = (upgraded[order] and tostring(upgraded[order].level) or "0")
 		self.upgradeOnly( name, true )
 		if upgradesAvailable[name][1].duration then
 			--if upgrade is temporary
@@ -336,12 +338,20 @@ function Upgrade.new()
 		--print("self.upgradeOnly("..name..") - BEG\n")
 		--upgrade name
 		local order = upgradesAvailable[name][1].order
+		local d1 = upgraded[order] and upgraded[order].level or 0
 		if upgraded[order] then
+			print("has been upgraded before")
 			--has been upgraded before
-			upgraded[order] = upgradesAvailable[name][upgraded[order].level+1]
+			upgraded[order] = getCopyOfTable(upgradesAvailable[name][upgraded[order].level+1])
 		else
+			print("not listed, grab level 1 version of it")
 			--not listed, grab level 1 version of it
-			upgraded[order] = upgradesAvailable[name][1]
+			upgraded[order] = getCopyOfTable(upgradesAvailable[name][1])
+		end
+		if d1==upgraded[order].level then
+			local d2 = upgradesAvailable[name]
+			local d3 = upgraded[order]
+			abort()
 		end
 		--value = value + upgraded[order].cost
 		subUpgradeCount = subUpgradeCount + ((name=="upgrade" or name=="boost" or name=="calculate" or name=="range" or name=="gold" or name=="supportRange" or name=="supportDamage" or name=="smartTargeting") and 0 or 1)
@@ -389,7 +399,7 @@ function Upgrade.new()
 			upgraded[order] = nil
 		else
 			--revert to previous version
-			upgraded[order] = upgradesAvailable[name][currentLevel-1]
+			upgraded[order] = getCopyOfTable(upgradesAvailable[name][currentLevel-1])
 		end
 		--calculate the stats
 		self.calculateStats( name, toBillboard )

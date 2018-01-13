@@ -89,7 +89,7 @@ function MinigunTower.new()
 	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
-			print("storeWaveChangeStats( "..waveStr.." )")
+--			print("storeWaveChangeStats( "..waveStr.." )")
 			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
 			if billboardWaveStats:exist( waveStr )==false then
@@ -122,7 +122,7 @@ function MinigunTower.new()
 		end
 	end
 	local function restoreWaveChangeStats( wave )
-		print("restoreWaveChangeStats( "..wave.." )")
+--		print("restoreWaveChangeStats( "..wave.." )")
 		if isThisReal and wave>0 then
 			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 			lastRestored = wave

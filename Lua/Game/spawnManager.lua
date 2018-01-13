@@ -692,6 +692,7 @@ function SpawnManager.new()
 					},
 					
 			}
+			local hydraSpawnedLastOnWave = 0
 			endWave.count = #endWave
 			--How many of each npc type that is allowed to spawn, this is so you dont get a wave of only dinos for example
 			local waveUnitLimitOriginal = {
@@ -699,8 +700,8 @@ function SpawnManager.new()
 				skeleton =	math.huge,
 				scorpion =	math.huge,
 				rat_tank =	10,
-				fireSpirit = 10,
-				electroSpirit =	10,
+				fireSpirit = 8,
+				electroSpirit =	8,
 				skeleton_cf = 2,
 				skeleton_cb = 2,
 				turtle = 2,
@@ -756,6 +757,8 @@ function SpawnManager.new()
 					for k,v in pairs(group) do
 						if type(v)=="table" then
 							if waveUnitLimit[v.npc] and waveUnitLimit[v.npc]<=0 then
+								return true
+							elseif v.npc=="hydra5" and hydraSpawnedLastOnWave+1==i then--if hydra spawned on previous wave, no hydra can psawn this wave. [unless it is the last 2 waves, then hydra can always spawn]
 								return true
 							elseif v.npc=="hydra5" or v.npc=="hydra4" or v.npc=="stoneSpirit" or v.npc=="turtle" or v.npc=="reaper" or v.npc=="dino" then
 								waveUnitLimit.superHeavy = waveUnitLimit.superHeavy - ( v.npc=="reaper" and 0.51 or (v.npc=="dino" and 0.26 or 1.0))
@@ -848,6 +851,9 @@ function SpawnManager.new()
 							waveDetailsInfo[groupUnit.npc].numEnemies = waveDetailsInfo[groupUnit.npc].numEnemies + 1
 						else
 							waveDetailsInfo[groupUnit.npc] = { name=groupUnit.npc, scriptName=npc[groupUnit.npc].script, numEnemies=1, npcSize=npc[groupUnit.npc].size}
+						end
+						if groupUnit.npc=="hydra5" and i<numWaves-2 then--hydra can always spawn on the last 2 waves
+							hydraSpawnedLastOnWave = i
 						end
 						-- continue
 						index = index + 1

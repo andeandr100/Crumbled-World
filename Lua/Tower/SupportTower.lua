@@ -75,7 +75,6 @@ function SwarmTower.new()
 					boostLevel = upgrade.getLevel("boost"),
 					upgradeLevel = upgrade.getLevel("upgrade"),
 					rangeLevel = upgrade.getLevel("range"),
-					damageLevel = upgrade.getLevel("damage"),
 					weakenLevel = upgrade.getLevel("weaken"),
 					goldLevel = upgrade.getLevel("gold")
 				}
@@ -108,7 +107,6 @@ function SwarmTower.new()
 				--
 				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
 				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.handleUpgradeRange)
-				doDegrade(upgrade.getLevel("damage"),tab.damageLevel,self.handleUpgradeDamage)
 				doDegrade(upgrade.getLevel("weaken"),tab.weakenLevel,self.handleUpgradeWeaken)
 				doDegrade(upgrade.getLevel("gold"),tab.goldLevel,self.handleUpgradegold)
 				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
