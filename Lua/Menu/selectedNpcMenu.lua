@@ -76,6 +76,8 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function removeSoul(data)
+--		print("\n\n\n\nremoveSoul()\n")
+--		print("data: "..tostring(data).."\n\n\n\n")
 		if data and data.id then
 			souls[data.id] = nil
 			counter = counter - 1
@@ -146,6 +148,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function getNpcInfo()
+
 		soulManagerBillboard = soulManagerBillboard or Core.getBillboard("SoulManager")
 		if soulManagerBillboard and currentIndex then
 --			print("currentIndex: "..currentIndex)
@@ -153,14 +156,11 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			local worldMax = soulManagerBillboard:getVec2("max")
 			for x=worldMin.x, worldMax.x do
 				for y=worldMin.y, worldMax.y do
-					local input = soulManagerBillboard:getString("souls"..x.."/"..y)
-					for str in string.gmatch(input, "([^|]+)") do
---						print("npc Soul info: "..str)
-						local index = string.match(str, "([^,]+)")
-						
-						if tonumber(index) == currentIndex then
-							local index,x1,y1,z1,x2,y2,z2,dist,hp,hpmax,team,npcState,name = string.match(str, "([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)")
-							return hp, hpmax, name, dist
+					local input = soulManagerBillboard:getTable("souls"..x.."/"..y)
+					for i=1, #input do
+						if input[i][1] == currentIndex then
+							--hp, hpmax, name, dist, team, stateId
+							return input[i][6], input[i][7], input[i][10], input[i][5], input[i][8], input[i][9]
 						end
 					end
 					
@@ -174,7 +174,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function ignoreNpc()
-		local clientId = currentNode and currentNode:getPlayerNode():getClientId() or -1;
+		local clientId = ( currentNode and currentNode:getPlayerNode() ) and currentNode:getPlayerNode():getClientId() or -1;
 		if currentIndex and ( clientId == 0 or clientId == Core.getNetworkClient():getClientId() ) then
 			print("ignoreNpc()")
 
@@ -189,7 +189,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function highPriorityTarget()
-		local clientId = currentNode and currentNode:getPlayerNode():getClientId() or -1;
+		local clientId = ( currentNode and currentNode:getPlayerNode() ) and currentNode:getPlayerNode():getClientId() or -1;
 		if currentIndex and ( clientId == 0 or clientId == Core.getNetworkClient():getClientId() ) then
 			print("highPriorityTarget()")
 			comUnit:sendTo("builder"..clientId,"addPrioEvent",tabToStrMinimal( {netName=currentNetName,event=1} ))
@@ -203,7 +203,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	local function initMenu()
-		hp, hpMax, name, distance = getNpcInfo()
+		hp, hpMax, name, distance, team, stateId = getNpcInfo()
 		print("set size to fit npc panel")
 		leftMainPanel:setPanelSize(PanelSize(Vec2(-1),Vec2(1,0.30)))
 		if hp and hpMax and name then
@@ -308,30 +308,42 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					form:setVisible(false)
 					form:setVisible(true)
 					header:setText("")
-					currentNode:addChild(selectedCamera:toSceneNode())
-					
+--					currentNode:addChild(selectedCamera:toSceneNode())
+					if selectedCamera:getParent() ~= currentNode:getRootNode() then
+						currentNode:getRootNode():addChild(selectedCamera:toSceneNode())
+					end
 					initMenu()
 					
 				else
 					currentNode = nil
 					currentIndex = nil
+					if npcPanel:getVisible() then
+						self.setVisible(false)
+						form:setVisible(false)
+					end
 				end
 			end
 		end
 		
 		if currentNode then
-			hp, hpMax, name, distance = getNpcInfo()
+			hp, hpMax, name, distance, team, stateId = getNpcInfo()
+			
 			if hp and hpMax and name and deadTimer < 0 then
+--				print("hp: "..hp)
+--				print("hpMax: "..hpMax)
+--				print("name: "..name)
+--				print("distance: "..distance)
 				healtBar:setValue(math.max(0,hp)/hpMax)
-				healtBar:setText(tostring(math.max(0,hp)).."/"..hpMax)	
+				healtBar:setText(tostring(math.round(math.max(0,hp))).."/"..hpMax)	
 			end
 			
-			
-			local camMatrix = Matrix();
-			local camPos = Vec3(0,6,-4)
-			camMatrix:createMatrix((camPos-Vec3(0,1.2,0)):normalizeV(), Vec3(0,1,0))
-			camMatrix:setPosition(camPos)
-			selectedCamera:setLocalMatrix(camMatrix)
+			if hp and hp > 0 then
+				local camMatrix = Matrix();
+				local camPos = Vec3(0,6,-4)
+				camMatrix:createMatrix((camPos-Vec3(0,1.2,0)):normalizeV(), Vec3(0,1,0))
+				camMatrix:setPosition(camPos)
+				selectedCamera:setLocalMatrix( currentNode:getGlobalMatrix() * camMatrix)
+			end
 		end
 		
 		soulListener:pushEvent("test")
