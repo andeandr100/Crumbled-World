@@ -209,7 +209,7 @@ function update()
 		
 		if Core.getInput():getMouseDown(MouseKey.left) then
 			--Create a copy of the model
-			local model = Model(currentModel)
+			local model = Model.new(currentModel)
 			--Set script
 			for i=1, #setttings.defaultScripts do
 				model:loadLuaScript(setttings.defaultScripts[i])

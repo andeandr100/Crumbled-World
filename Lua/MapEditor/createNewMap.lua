@@ -41,11 +41,11 @@ function CreateNewMap.newMap()
 	playerNode:loadLuaScript("Game/timeSync.lua");					--Used in multiplayer to sync up time, when frame rate goes under 10FPS
 	
 	
-	local grassNode = playerNode:addChild(SceneNode("Grass node"))
+	local grassNode = playerNode:addChild(SceneNode.new("Grass node"))
 	local script = grassNode:loadLuaScript("Enviromental/grass.lua")	--Enable grass to be loaded and edited
 	script:update()
 	
-	local pathNode = playerNode:addChild(SceneNode("Path node"))
+	local pathNode = playerNode:addChild(SceneNode.new("Path node"))
 	local pathScript = pathNode:loadLuaScript("MapEditor/pathNode.lua")	--Path node system. keeps inforamtion about spawn, end crystal waypoints, paths and mine cart path.
 	pathScript:update()
 	

@@ -97,10 +97,10 @@ function Tool.saveSelectedScene(selectedNodes)
 	local previousNumScene = mapEditor:getInt("numSelectedScene")
 	mapEditor:setInt("numSelectedScene", #selectedNodes)
 	for i=1, #selectedNodes do
-		mapEditor:setSceneNode("selectedScene"..tostring(i), selectedNodes[i])
+		mapEditor:setSceneNode("selectedScene"..tostring(i), selectedNodes[i]:toSceneNode())
 	end
 	for i=#selectedNodes+1, previousNumScene do
-		mapEditor:setSceneNode("selectedScene"..tostring(i), nil)
+		mapEditor:erase("selectedScene"..tostring(i))
 	end
 end
 
@@ -333,7 +333,7 @@ function Tool.getSelectedSceneNodes()
 	local out = {}
 	local numSelectedNodes = mapEditor:getInt("numSelectedScene")
 	for i=1, numSelectedNodes do
-		out[i] = mapEditor:getSceneNode("selectedScene"..tostring(i))
+		out[i] = mapEditor:getSceneNode("selectedScene"..tostring(i)):toSceneNode()
 	end
 	return out
 end

@@ -128,7 +128,7 @@ function update()
 				currentBridgePoles[3] = {aIsland, aIsland:getGlobalMatrix():inverseM() * (collisionPos+rightVec*length*0.5) }
 				currentBridgePoles[4] = {aIsland, aIsland:getGlobalMatrix():inverseM() * (collisionPos-rightVec*length*0.5) }
 				
-				local bridge = RopeBridge()
+				local bridge = RopeBridge.new()
 				for i=1, 4 do
 					bridge:addIslandPole(currentBridgePoles[i][1]:toSceneNode(), currentBridgePoles[i][2])
 				end

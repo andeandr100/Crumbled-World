@@ -94,7 +94,7 @@ end
 function create()
 	Tool.create()
 	
-	lightModel = PointLightModel(Vec3(1), 5)
+	lightModel = PointLightModel.new(Vec3(1), 5)
 	worldNode = this:getRootNode()
 	lightModel:setVisible(false)
 	worldNode:addChild(lightModel:toSceneNode())
@@ -157,7 +157,7 @@ function update()
 		if Core.getInput():getMouseDown( MouseKey.left ) then
 			local aIsland = node:findNodeByType(NodeId.island)
 			if aIsland then
-				aIsland:addChild(PointLightModel( aIsland:getGlobalMatrix():inverseM() * collisionPos, lightModel:getColor(), lightModel:getRange()):toSceneNode())
+				aIsland:addChild(PointLightModel.new( aIsland:getGlobalMatrix():inverseM() * collisionPos, lightModel:getColor(), lightModel:getRange()):toSceneNode())
 			end
 		end
 	else

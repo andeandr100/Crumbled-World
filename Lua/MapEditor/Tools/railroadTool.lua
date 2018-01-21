@@ -8,12 +8,12 @@ function createRailroadButton(data)
 	local button = Button( PanelSize( Vec2(-1), Vec2(1)), "B" )
 	
 	local posterCamera =  Camera.new(Text("TowerCamera"), true, 200,200);
-	posterCamera:setAmbientLight(AmbientLight(Vec3(0.5)))
-	posterCamera:setDirectionLight(DirectionalLight(Vec3(0.5, 0.8, 0.5), Vec3(1,1,1)))
+	posterCamera:setAmbientLight(ConvertToLightNode(AmbientLight.new(Vec3(0.5)):toSceneNode()))
+	posterCamera:setDirectionLight(ConvertToLightNode(DirectionalLight.new(Vec3(0.5, 0.8, 0.5), Vec3(1,1,1)):toSceneNode()))
 	posterCamera:setShadowScale(3.0)
 	
-	data.cameraModel = Model(data.model)
-	data.cameraModel:addChild(posterCamera:toSceneNode())
+	data.cameraModel = Model.new(data.model)
+	data.cameraModel:toSceneNode():addChild(posterCamera:toSceneNode())
 	data.camera = posterCamera
 	
 	local lookAt = Vec3(0.5,1,-1) * data.offset:getPosition() * 0.5
@@ -66,7 +66,7 @@ function buttonClick(button)
 	local selectedNode = getSelectedNode()
 	if selectedNode then
 		local aIsland = selectedNode:findNodeByType(NodeId.island)
-		local model = Model(railways[num].model)
+		local model = Model.new(railways[num].model)
 		if aIsland then
 			model:setLocalMatrix(aIsland:getGlobalMatrix():inverseM() * ( selectedNode:getGlobalMatrix() * railways[num].offset ) )
 			aIsland:addChild(model:toSceneNode())
@@ -287,7 +287,7 @@ function update()
 		end
 		
 		if aIsland and Core.getInput():getMouseDown( MouseKey.left ) then
-			local model = Model(railways[placeIndex].model)
+			local model = Model.new(railways[placeIndex].model)
 			model:setLocalMatrix(aIsland:getGlobalMatrix():inverseM() * railways[placeIndex].model:getGlobalMatrix() )
 			aIsland:addChild(model:toSceneNode())
 			
