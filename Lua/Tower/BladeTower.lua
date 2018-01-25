@@ -160,10 +160,11 @@ function BladeTower.new()
 	end
 	local function waveChanged(param)
 		local name
-		local waveCount
-		name,waveCount = string.match(param, "(.*);(.*)")
+		local waveCountStr
+		name,waveCountStr = string.match(param, "(.*);(.*)")
+		waveCount = tonumber(waveCountStr)
 		--update and save stats only if we did not just restore this wave
-		if tonumber(waveCount)>=lastRestored then
+		if waveCount>=lastRestored then
 			if not xpManager then
 				billboard:setDouble("DamagePreviousWave",dmgDone)
 				comUnit:sendTo("stats", "addTotalDmg", dmgDone )
@@ -173,7 +174,7 @@ function BladeTower.new()
 				upgrade.fixBillboardAndStats()
 			end
 			--store wave info to be able to restore it
-			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
+			storeWaveChangeStats( tostring(waveCount+1) )
 		end
 		dmgDone = 0
 	end
@@ -888,7 +889,7 @@ function BladeTower.new()
 		--DPSpG = (RPS*AHB(Average hits per blade)*damage)/cost = (1/2.75)*5.5*670))/1400 == 0.96
 		--DPSpG = 1/3*6*750(*0.8 = 0.96
 		-- BOOST (increases damage output with 400%)
-		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/50+1.0) end
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",

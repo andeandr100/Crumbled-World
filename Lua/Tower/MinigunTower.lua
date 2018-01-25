@@ -226,10 +226,11 @@ function MinigunTower.new()
 	end
 	local function waveChanged(param)
 		local name
-		local waveCount
-		name,waveCount = string.match(param, "(.*);(.*)")
+		local waveCountStr
+		name,waveCountStr = string.match(param, "(.*);(.*)")
+		waveCount = tonumber(waveCountStr)
 		--update and save stats only if we did not just restore this wave
-		if tonumber(waveCount)>=lastRestored then
+		if waveCount>=lastRestored then
 			if not xpManager then
 				--
 				billboard:setDouble("DamagePreviousWave",dmgDone)
@@ -241,7 +242,7 @@ function MinigunTower.new()
 				upgrade.fixBillboardAndStats()
 			end
 			--store wave info to be able to restore it
-			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
+			storeWaveChangeStats( tostring(waveCount+1) )
 		end
 		dmgDone = 0
 	end
@@ -821,9 +822,9 @@ function MinigunTower.new()
 							}, 0 )
 		--DPSpG == Damage*RPS/cost == 146*5/700 = 1.04
 		-- BOOST
-		local function fireDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		local function fireDamage() return upgrade.getStats("damage")*2.0*(waveCount/50+1.0) end
 		--(boost)	0=1x	25=2x	50=3x
-		local function boostDamage() return upgrade.getStats("damage")*3.0*(waveCount/25+1.0) end
+		local function boostDamage() return upgrade.getStats("damage")*3.0*(waveCount/50+1.0) end
 		--(boost)	0=1x	25=2x	50=3x
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,

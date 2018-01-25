@@ -12,7 +12,8 @@ function Spear.new(pTargetSelector)
 	local pointLight
 	local speed = 8.0
 	local range = 1.25
-	local damage
+	local damage = 0
+	local npcHitt = 0
 	local stateDamageMul
 	local movment
 	local slow
@@ -51,12 +52,12 @@ function Spear.new(pTargetSelector)
 		model:setVisible(false)
 	end
 	
-	local function attack(target,startPos)
+	local function attack(target)
 		--ParticleEffectElectricFlash("Lightning_D.tga")
 		attacked[target]=true
 		if stateDamageMul>1.0 and targetSelector.isTargetInState(target,state.burning) then
 			comUnit:sendTo(target,"attackBlade",tostring(damage*stateDamageMul).."")
-			damageDone = damageDone + damage*stateDamageMul
+			damageDone = damageDone + (damage*stateDamageMul)
 		else
 			comUnit:sendTo(target,"attackBlade",tostring(damage).."")
 			damageDone = damageDone + damage
@@ -68,6 +69,7 @@ function Spear.new(pTargetSelector)
 			comUnit:sendTo(target,"destroyShield","")
 		end
 		model:setLocalPosition( model:getLocalPosition() + (model:getLocalPosition():normalizeV()*0.01 ) )
+		npcHitt = npcHitt + 1
 	end
 	
 	function attackAllNewTargetsInRange(line)
@@ -76,7 +78,7 @@ function Spear.new(pTargetSelector)
 		for index,score in pairs(targets) do
 			if not attacked[index] then
 				--if we have not attacked this unit before
-				attack(index,line.startPos)
+				attack(index)
 			end
 		end
 	end
@@ -97,6 +99,7 @@ function Spear.new(pTargetSelector)
 		shieldAreaIndex = targetSelector.getIndexOfShieldCovering(thePosition)
 		spear:setUniform(spear:getShader(), "heat", masterBladeLevel>0 and masterBladeLevel/3.0 or 0.0)
 		damageDone = 0.0
+		npcHitt = 0
 		
 		targetSelector.setPosition(thePosition+(atVec*(length*0.5)))
 		targetSelector.setRange(length*0.55)
@@ -165,6 +168,7 @@ function Spear.new(pTargetSelector)
 		--
 		if movment>length then
 			self.stop()
+			comUnit:sendTo("SteamStats","BladeMaxHittCount",npcHitt)
 			comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
 			return false
 		end

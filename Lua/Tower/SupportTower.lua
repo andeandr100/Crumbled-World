@@ -136,10 +136,11 @@ function SwarmTower.new()
 	-- purpose:		called on wavechange. updates the towers stats
 	local function waveChanged(param)
 		local name
-		local waveCount
-		name,waveCount = string.match(param, "(.*);(.*)")
+		local waveCountStr
+		name,waveCountStr = string.match(param, "(.*);(.*)")
+		waveCount = tonumber(waveCountStr)
 		--update and save stats only if we did not just restore this wave
-		if tonumber(waveCount)>=lastRestored then
+		if waveCount>=lastRestored then
 			if not xpManager then
 				billboard:setDouble("DamagePreviousWave",0)
 				billboard:setDouble("DamagePreviousWavePassive",dmgDoneMarkOfDeath)
@@ -152,7 +153,7 @@ function SwarmTower.new()
 				upgrade.fixBillboardAndStats()
 			end
 			--store wave info to be able to restore it
-			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
+			storeWaveChangeStats( tostring(waveCount+1) )
 		end
 		--tell every tower how it realy is
 		sendSupporUpgrade()

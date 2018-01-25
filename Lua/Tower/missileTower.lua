@@ -426,10 +426,11 @@ function MissileTower.new()
 	end
 	local function waveChanged(param)
 		local name
-		local waveCount
-		name,waveCount = string.match(param, "(.*);(.*)")
+		local waveCountStr
+		name,waveCountStr = string.match(param, "(.*);(.*)")
+		waveCount = tonumber(waveCountStr)
 		--update and save stats only if we did not just restore this wave
-		if tonumber(waveCount)>=lastRestored then
+		if waveCount>=lastRestored then
 			if not xpManager then
 				billboard:setDouble("DamagePreviousWave",dmgDone)
 				comUnit:sendTo("stats", "addTotalDmg", dmgDone )
@@ -439,7 +440,7 @@ function MissileTower.new()
 				upgrade.fixBillboardAndStats()
 			end
 			--store wave info to be able to restore it
-			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
+			storeWaveChangeStats( tostring(waveCount+1) )
 		end
 		dmgDone = 0
 	end
@@ -725,7 +726,7 @@ function MissileTower.new()
 		--AUH == Average Units Hitts == (2.0*1.6) == 3.2
 		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 1080*(2.0*1.6)*(5/12)/1400 == 1.03
 		--boost
-		function boostDamage() return upgrade.getStats("dmg")*2.5*(waveCount/25+1.0) end
+		function boostDamage() return upgrade.getStats("dmg")*2.5*(waveCount/50+1.0) end
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",

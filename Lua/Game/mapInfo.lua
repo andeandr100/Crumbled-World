@@ -19,22 +19,7 @@ function MapInfo.new()
 		--4 = 0.85
 		--5 = 0.90
 		local actualLevel = level
-		print("setLevel("..level..")\n")
---		if type(level)=="string" then
---			local difficult = {Easy=1,Normal=2,Hard=3,Extreme=4,Insane=5}--"Impossible #"
---			print("difficult = "..tostring(difficult).."\n")
---			if difficult[level] then
---				level = tonumber(difficult[level])
---			else
---				print("Imposible\n")
---				level = 5+tonumber(string.match(level, " (.*)"))
---			end
---		end
-		actualLevel = level
-		--balance difficulty to map
-		--increasedDifficultyMin
-		--local addPerLevel = (increasedDifficultyMax-increasedDifficultyMin)/4.0
-		--level = (level+increasedDifficultyMin)+(addPerLevel*(level-1))
+		
 		level = (level+difficultyBase)+(addPerLevel*(level-1))
 		--
 		billboard:setInt("level",actualLevel)

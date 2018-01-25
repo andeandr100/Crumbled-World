@@ -10,7 +10,7 @@ function create()
 	local goldEstimationEarnedPerWave = 500+(numWaves*5)
 	local startGold = 1000
 	local goldMultiplayerOnKills = 1.0
-	local interestOnKill = "0.0020"
+	local interestMultiplyerOnKill = 1.0
 	local startLives = 20
 	local sead = mapInfo.getSead()
 	local startSpawnWindow = mapInfo.getSpawnWindow()			--how many group compositions that can spawn 2==[1,2,3]
@@ -27,7 +27,7 @@ function create()
 	elseif mapInfo.getGameMode()=="survival" then
 		--lower the availabel gold to make the spawned npc's easier. (this will make it easier to get intrest in the available gold)
 		startGold = startGold*0.5				--(makes the spawn easier, restored after the generating of the waves)
-		interestOnKill = "0.0010"		--(makes the spawn easier, restored after the generating of the waves)
+		interestMultiplyerOnKill = 0.5		--(makes the spawn easier, restored after the generating of the waves)
 		numWaves = 100
 	elseif mapInfo.getGameMode()=="training" then
 		--nothing, so the spawns will be the same as if in normal game
@@ -35,9 +35,9 @@ function create()
 		--nonting, to calculate the wave unchanged
 	elseif mapInfo.getGameMode()=="leveler" then
 		startGold = 1000
-		interestOnKill = "0.0"
+		interestMultiplyerOnKill = 0
 	end
-	if not event.init(startGold,waveFinishedGold,interestOnKill,startLives,level) then
+	if not event.init(startGold,waveFinishedGold,interestMultiplyerOnKill,startLives,level) then
 		return false
 	end
 	--
@@ -141,11 +141,11 @@ function create()
 	
 	if mapInfo.getGameMode()=="survival" then
 		startGold = startGold * 2.0
-		interestOnKill = "0.0020"
+		interestMultiplyerOnKill = 1.0
 	elseif mapInfo.getGameMode()=="training" then
 		startGold = 5500
 		waveFinishedGold = 0
-		interestOnKill = "0.0"
+		interestMultiplyerOnKill = 0
 		goldMultiplayerOnKills = 0
 	elseif mapInfo.getGameMode()=="only interest" then
 		waveFinishedGold = 0
@@ -153,8 +153,9 @@ function create()
 		goldMultiplayerOnKills = 0
 	elseif mapInfo.getGameMode()=="leveler" then
 		goldMultiplayerOnKills = 0
+		interestMultiplyerOnKill = 0
 	end
-	event.setDefaultGold(startGold,waveFinishedGold,interestOnKill,goldMultiplayerOnKills)
+	event.setDefaultGold(startGold,waveFinishedGold,interestMultiplyerOnKill,goldMultiplayerOnKills)
 	
 	update = event.update
 	return true
