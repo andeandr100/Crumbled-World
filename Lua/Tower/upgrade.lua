@@ -176,6 +176,9 @@ function Upgrade.new()
 			if type(destination[key])~="function" and (not source[key]) then
 				destination[key] = nil
 			end
+			if type(source[key])=="function" and type(destination[key])~="function" then
+				destination[key] = source[key]
+			end
 		end
 		--replace all variables
 		for key,value in pairs(source) do
@@ -196,6 +199,7 @@ function Upgrade.new()
 		--mergeTables(tab.data,self)
 		combineTables(upgradesAvailable,tab.upgradesAvailable)
 		combineTables(upgraded,tab.upgraded)
+		--upgraded = getCopyOfTable(tab.upgraded)
 		combineTables(stats,tab.stats)
 		subUpgradeCount = tab.subUpgradeCount
 		subUpgradeCountTotal = tab.subUpgradeCountTotal
