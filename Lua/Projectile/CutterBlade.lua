@@ -11,7 +11,7 @@ function CutterBlade.new(pTargetSelector)
 	local pointLight
 	local attacked = {}
 	local speed = 8.0
-	local range = 1.35
+	local RANGE = 1.35
 	local stateDamageMul = 0.0
 	local damage = 0.0
 	local npcHitt = 0
@@ -67,17 +67,12 @@ function CutterBlade.new(pTargetSelector)
 				comUnit:sendTo(target,"destroyShield","")
 			end
 			npcHitt = npcHitt + 1
---			if npcHitt>6 then
---				--the first 6 will take full damage
---				damage = damage*0.90
---				speed = math.max(speed*0.9, 5.0)
---			end
 			model:setLocalPosition( model:getLocalPosition() + (model:getLocalPosition():normalizeV()*0.01 ) )
 		end
 	end
 	
 	local function attackAllNewTargetsInRange(line)
-		targetSelector.selectAllInCapsule(line,range)
+		targetSelector.selectAllInCapsule(line,RANGE)
 		local targets = targetSelector.getAllTargets()
 		for index,score in pairs(targets) do
 			if not attacked[index] then

@@ -2,6 +2,8 @@ require("Game/mapInfo.lua")
 --this = SceneNode()
 
 local timer = 0.0
+local interesetMultiplyerOnKill = 1.0
+
 function restartMap()
 	local mapInfo = MapInfo.new()
 	
@@ -148,6 +150,7 @@ function create()
 
 	--ComUnitCallbacks
 	comUnitTable = {}
+	comUnitTable["setInteresetMultiplyerOnKill"] = handleInteresetMultiplyerOnKill
 	comUnitTable["setLife"] = handleSetLife
 	comUnitTable["setGold"] = handleSetGold
 	comUnitTable["setStartGold"] = handleSetStartGold
@@ -221,6 +224,9 @@ function updateScore()
 	updateScoreIconStatus()
 end
 	
+function handleInteresetMultiplyerOnKill(mul)
+	interesetMultiplyerOnKill = tonumber(mul)
+end
 function handleAddTotalDamage(dmg)
 	billboard:setDouble("totalDamageDone", billboard:getDouble("totalDamageDone")+tonumber(dmg))
 end
@@ -284,9 +290,11 @@ function handleAddGoldWaveBonus(amount)
 end
 --player earn gold on all real kills (repar spawns and hydras>1 does not grant any gold/interest)
 function handleGoldInterest(multiplyer)
-	local interestEarned = billboard:getDouble("gold")*tonumber(multiplyer)*billboard:getDouble("activeInterestrate")
-	handleAddGold( interestEarned )
-	billboard:setDouble( "goldGainedFromInterest", billboard:getDouble("goldGainedFromInterest")+interestEarned )
+	if interesetMultiplyerOnKill>0.00001 then
+		local interestEarned = billboard:getDouble("gold")*tonumber(multiplyer)*billboard:getDouble("activeInterestrate")*interesetMultiplyerOnKill
+		handleAddGold( interestEarned )
+		billboard:setDouble( "goldGainedFromInterest", billboard:getDouble("goldGainedFromInterest")+interestEarned )
+	end
 end
 function handleRemoveGold(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")-tonumber(amount))

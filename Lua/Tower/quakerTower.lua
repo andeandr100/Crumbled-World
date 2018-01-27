@@ -148,10 +148,11 @@ function QuakeTower.new()
 	end
 	local function waveChanged(param)
 		local name
-		local waveCount
-		name,waveCount = string.match(param, "(.*);(.*)")
+		local waveCountStr
+		name,waveCountStr = string.match(param, "(.*);(.*)")
+		waveCount = tonumber(waveCountStr)
 		--update and save stats only if we did not just restore this wave
-		if tonumber(waveCount)>=lastRestored then
+		if waveCount>=lastRestored then
 			if not xpManager then
 				billboard:setDouble("DamagePreviousWave",dmgDone)
 				comUnit:sendTo("stats", "addTotalDmg", dmgDone )
@@ -162,7 +163,7 @@ function QuakeTower.new()
 				upgrade.fixBillboardAndStats()
 			end
 			--store wave info to be able to restore it
-			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
+			storeWaveChangeStats( tostring(waveCount+1) )
 		end
 	end
 	--
@@ -763,7 +764,7 @@ function QuakeTower.new()
 										RPS = 		{ upgrade.add, 0.4},--1.0/2.5},
 										model = 	{ upgrade.set, "tower_quaker_l3.mym"} }
 							}, 0 )
-		function boostDamage() return upgrade.getStats("damage")*3.0*(waveCount/25+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*3.0*(waveCount/50+1.0) end
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",

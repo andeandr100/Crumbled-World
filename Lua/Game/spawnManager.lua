@@ -474,7 +474,7 @@ function SpawnManager.new()
 			local theoreticalPaidHpPS = 0.0
 			local theoreticalGoldPaid = 0.0
 			local theoreticalMinimumScoreInterest = 0.0
-			local timerAddBetweenWaves = 5+math.max(0.0,5*(1.0-difficultBase))
+			local timerAddBetweenWaves = 5+math.max(-0.5,5.5*(1.0-difficultBase))
 			local npcDelayAfterFirstTowerBuilt = 15.0							--delay for first wave
 			local npcDelayBetweenWaves = math.clamp(8.0-((difficultBase-0.75)/0.35*5),3.0,8.0)	--delay for all other waves
 			--
@@ -653,7 +653,7 @@ function SpawnManager.new()
 						{{npc="hydra5",delay=0.0}}
 						},
 					},
-					followupOdds=function() return 0.5 end,
+					followupOdds=function() return 1.0 end,
 					followup={
 						{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="turtle",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
 						{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
@@ -661,12 +661,12 @@ function SpawnManager.new()
 						{{npc="stoneSpirit",delay=0.0},{npc="stoneSpirit",delay=1.0}},
 					},
 				{	waves={[3]=true,[4]=true},
-					odds=function(selected) return selected==1 and 0.25 or 1.0 end,
+					odds=function(selected) local ret={0.25, 0.1, 0.0} return ret[math.clamp(selected,1,#ret)] end,
 					group={
 						{{npc="skeleton_cf",delay=0.0},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75}},
 						{{npc="skeleton_cf",delay=0.0},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75}}
 						},
-					followupOdds=function() return 1.0 end,
+					followupOdds=function(selected) local ret={1.0, 0.5, 0.0} return ret[math.clamp(selected,1,#ret)] end,
 					followup={
 						{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="turtle",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
 						{{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="turtle",delay=0.4},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
@@ -674,7 +674,7 @@ function SpawnManager.new()
 						},
 					},
 				{	waves={[4]=true,[5]=true},
-					odds=function(selected) return 0.125 end,
+					odds=function(selected) return 0.1 end,
 					group={
 						{{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
 						{{npc="rat",delay=0.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}}
@@ -732,7 +732,7 @@ function SpawnManager.new()
 				
 				--adds time between spawned groups making powerful groups easier to handle, as you get more time to kill them
 				--an exponential equation that picks up speed by how many levels that have passed. with the goal to out run the interest gain for gold 
-				local difficult = (difficultIncreaser^i)+(i*(0.2/30))-math.max(0.0,(1.0-difficultBase))--((1.033+(0.0001*x))^x)
+				local difficult = (difficultIncreaser^i)+(i*(0.2/30))-math.max(-0.05,(1.0-difficultBase))--((1.033+(0.0001*x))^x)
 				local unitBypassMultiplyer = 0.95 + (0.5*(i/numWaves))--this value increases the amount of hp that spawns each wave
 				local spawnHealthPerSecond = totalGoldEarned*0.7*difficult--0.7 magic number with no ties to reality anymore
 				local hpMultiplyer = ((totalGoldEarned*difficultBase) / (startGold+50))*difficult--this directly increases the hp on the npcs (+50 is just to flatten the curve)
@@ -753,6 +753,7 @@ function SpawnManager.new()
 				--	Force npc limits, and superheavy comps, that are just out of this world
 				--
 				local waveUnitLimit = getCopyOfTable(waveUnitLimitOriginal)
+				--group = {npc="rat_tank",delay=0.0}
 				local function isGroupContainingLimitedUnits(group)
 					for k,v in pairs(group) do
 						if type(v)=="table" then
@@ -865,25 +866,23 @@ function SpawnManager.new()
 					for j=1, endWave.count+1 do
 						local item = endWave[j==endWave.count+1 and "LAST" or j]
 						if item then
-							local lists = {group=true,followup=true}
-							for key,v in pairs(lists) do
-								local group = item[key]
-								if group then
-									local index = 1
-									while group[index] do
-										if isGroupContainingLimitedUnits(group[index]) then
-											group[index] = group[#group]
-											group[#group] = nil
-										else
-											index = index + 1
-										end
-									end
-									if #group==0 then
-										item[key] = nil
+							--we don't care about limited units in the followup, because they are there to stack up with group
+							local group = item.group
+							if group then
+								local index = 1
+								while group[index] do
+									if isGroupContainingLimitedUnits(group[index]) then
+										group[index] = group[#group]
+										group[#group] = nil
+									else
+										index = index + 1
 									end
 								end
+								if #group==0 then
+									item.group = nil
+								end
 							end
-							if item.group==nil and item.followup==nil then
+							if item.group==nil then
 								endWave[j==endWave.count+1 and "LAST" or j] = nil
 							end
 						end
@@ -903,7 +902,7 @@ function SpawnManager.new()
 					--select a group to spawn and remove groups that cant be used any more
 					--
 					local endWaveSpawned = false
-					if i==numWaves and numWaves>=25 and endWave.selected<2 then
+					if i==numWaves and numWaves>=25 then
 						checkLimitsOnEndWave()
 						for j=1, endWave.count do
 							if endWave[j] and endWave[j].waves[groupCountForWave] and endWave[j].odds(endWave.selected)>=math.randomFloat() then
@@ -964,7 +963,7 @@ function SpawnManager.new()
 					usedSpawnHP = usedSpawnHP + cost
 					nextWaveDelayTime = timerAddBetweenWaves
 				end
-				if i==numWaves and numWaves>=25 and endWave.selected<2 and endWave["LAST"] then
+				if i==numWaves and numWaves>=25 and endWave.selected<3 and endWave["LAST"] then
 					checkLimitsOnEndWave()
 					if endWave["LAST"] then
 						addGroupSplitter()
@@ -975,6 +974,7 @@ function SpawnManager.new()
 					end
 				end
 --				if i==numWaves and numWaves>=25 then
+--					local d1 = endWave
 --					print(tostring(waveDetails))
 --					abort()
 --				end

@@ -27,32 +27,33 @@ function CampaignData.new()
 	local isInGame = Core.getBillboard("SoulManager")
 	
 	local files = { 
-		{file=File("Data/Map/Campaign/Beginning.map"), 		statId="Begining",		statIdOld="L1",		minScore=00000,	maxScore=11000,	type="Crystal",	sead=258187458,	waveCount=10},--? / 11378
+		{file=File("Data/Map/Campaign/Beginning.map"), 		statId="Begining",		statIdOld="L1",		minScore=00000,	maxScore=11000,	type="Crystal",	sead=258187458,	waveCount=10},--? / 11413[5k]
 		{file=File("Data/Map/Campaign/Intrusion.map"), 		statId="Intrusion",		statIdOld="L2",		minScore=00000,	maxScore=18000,	type="Crystal",	sead=334652485,	waveCount=15},--? / 17029
-		{file=File("Data/Map/Campaign/Stockpile.map"),		statId="Stockpile",		statIdOld="L3",		minScore=00000,	maxScore=21000,	type="Crystal",	sead=294158370,	waveCount=20},--? / 20281
-		{file=File("Data/Map/Campaign/Expansion.map"), 		statId="Expansion",		statIdOld="L4",		minScore=11000,	maxScore=29000,	type="Crystal",	sead=864885368,	waveCount=25},--11665 / 28860
-		{file=File("Data/Map/Campaign/Repair station.map"),	statId="RepairStation",	statIdOld="L5",		minScore=00000,	maxScore=50000,	type="Cart",	sead=256546887,	waveCount=25},--? / 42900
-		{file=File("Data/Map/Campaign/Edge world.map"),		statId="EdgeWorld",							minScore=00000,	maxScore=50000,	type="Crystal",	sead=352603864,	waveCount=25},--? / 49950
-		{file=File("Data/Map/Campaign/Bridges.map"),		statId="Bridges",		statIdOld="L6",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=617196048,	waveCount=25},--? / 32474
-		{file=File("Data/Map/Campaign/Spiral.map"),			statId="Spiral",		statIdOld="L7",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=109723780,	waveCount=25},--? / 19737
-		{file=File("Data/Map/Campaign/Broken mine.map"),	statId="BrokenMine",						minScore=00000,	maxScore=50000,	type="Cart",	sead=104266217,	waveCount=25},--? / 37370
-		{file=File("Data/Map/Campaign/Town.map"),			statId="Town",			statIdOld="L8",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=956148502,	waveCount=25},--? / 25963
-		{file=File("Data/Map/Campaign/Plaza.map"),			statId="Plaza",			statIdOld="L9",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=169366078,	waveCount=25},--? / 21803
-		{file=File("Data/Map/Campaign/Long haul.map"),		statId="LongHaul",		statIdOld="L10",	minScore=00000,	maxScore=50000,	type="Cart",	sead=202469227,	waveCount=25},--? / 20336(3) 27695(2) 5772(2)(22k)
-		{file=File("Data/Map/Campaign/Dock.map"),			statId="Dock",			statIdOld="L11",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=742525885,	waveCount=25},--? / 26503
-		{file=File("Data/Map/Campaign/Lodge.map"),			statId="Lodge",								minScore=00000,	maxScore=50000,	type="Crystal",	sead=418531867,	waveCount=25},--? / 49609
-		{file=File("Data/Map/Campaign/Crossroad.map"),		statId="Crossroad",		statIdOld="L12",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=365654225,	waveCount=25},--? / 27472
-		{file=File("Data/Map/Campaign/Mine.map"),			statId="Mine",			statIdOld="L13",	minScore=00000,	maxScore=50000,	type="Cart",	sead=464004721,	waveCount=25},--? / 34951
-		{file=File("Data/Map/Campaign/West river.map"),		statId="West river",						minScore=00000,	maxScore=50000,	type="Crystal",	sead=242072855,	waveCount=25},--? / 19545 (4k)
-		{file=File("Data/Map/Campaign/Blocked path.map"),	statId="BlockedPath",	statIdOld="L14",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=32111861,	waveCount=25},--? / 32096 (9k)
-		{file=File("Data/Map/Campaign/The line.map"),		statId="TheLine",		statIdOld="L15",	minScore=00000,	maxScore=50000,	type="Cart",	sead=752499248,	waveCount=25},--? / 29111 (4k)
-		{file=File("Data/Map/Campaign/Dump station.map"),	statId="DumpStation",						minScore=00000,	maxScore=50000,	type="Crystal",	sead=32111861,	waveCount=25},--? / 24393 (6k)
-		{file=File("Data/Map/Campaign/Rifted.map"),			statId="Rifted",		statIdOld="L16",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=27518540,	waveCount=25},--? / 22583 (5k)
-		{file=File("Data/Map/Campaign/Paths.map"), 			statId="Paths",			statIdOld="L17",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=620382518,	waveCount=25},--? / 39170 (15k)
-		{file=File("Data/Map/Campaign/Divided.map"),		statId="Divided",		statIdOld="L18",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=615837167,	waveCount=25},
-		{file=File("Data/Map/Campaign/Nature.map"),			statId="Nature",		statIdOld="L19",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=581083960,	waveCount=25},
-		{file=File("Data/Map/Campaign/Train station.map"),	statId="TrainStation",	statIdOld="L20",	minScore=00000,	maxScore=50000,	type="Cart",	sead=680821396,	waveCount=25},
-		{file=File("Data/Map/Campaign/Desperado.map"),		statId="Desperado",							minScore=00000,	maxScore=50000,	type="Crystal",	sead=842172835,	waveCount=30},
+		{file=File("Data/Map/Campaign/Stockpile.map"),		statId="Stockpile",		statIdOld="L3",		minScore=00000,	maxScore=24000,	type="Crystal",	sead=294158370,	waveCount=20},--? / 23738[9k]
+		{file=File("Data/Map/Campaign/Expansion.map"), 		statId="Expansion",		statIdOld="L4",		minScore=11000,	maxScore=35000,	type="Crystal",	sead=864885368,	waveCount=25},--? /	35162[13k]							--40K
+		{file=File("Data/Map/Campaign/Repair station.map"),	statId="RepairStation",	statIdOld="L5",		minScore=00000,	maxScore=43000,	type="Cart",	sead=256546887,	waveCount=25},--? / 42900								--40k	
+		{file=File("Data/Map/Campaign/Edge world.map"),		statId="EdgeWorld",							minScore=00000,	maxScore=50000,	type="Crystal",	sead=352603864,	waveCount=25},--? / 39000								--38k
+		{file=File("Data/Map/Campaign/Bridges.map"),		statId="Bridges",		statIdOld="L6",		minScore=00000,	maxScore=33000,	type="Crystal",	sead=617196048,	waveCount=25},--? / 32474								--33k
+		{file=File("Data/Map/Campaign/Spiral.map"),			statId="Spiral",		statIdOld="L7",		minScore=00000,	maxScore=33000,	type="Crystal",	sead=109723780,	waveCount=25},--? / 									--31k
+		{file=File("Data/Map/Campaign/Broken mine.map"),	statId="BrokenMine",						minScore=00000,	maxScore=50000,	type="Cart",	sead=104266217,	waveCount=25},--? / 37370(1.25) ?(1.5)					--30k
+		{file=File("Data/Map/Campaign/Town.map"),			statId="Town",			statIdOld="L8",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=956148502,	waveCount=25},--? / 25963(2.75) ?(2.5)					--30k	
+		{file=File("Data/Map/Campaign/Outpost.map"),		statId="Outpost",							minScore=00000,	maxScore=50000,	type="Crystal",	sead=342413641,	waveCount=25},--? / 28000(6)							--29k	
+		{file=File("Data/Map/Campaign/Plaza.map"),			statId="Plaza",			statIdOld="L9",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=169366078,	waveCount=25},--? / 21803(1.75)	?(1.35)					--
+		{file=File("Data/Map/Campaign/Long haul.map"),		statId="LongHaul",		statIdOld="L10",	minScore=00000,	maxScore=28000,	type="Cart",	sead=202469227,	waveCount=25},--? / 27695(2)[22k]						--
+		{file=File("Data/Map/Campaign/Dock.map"),			statId="Dock",			statIdOld="L11",	minScore=00000,	maxScore=27000,	type="Crystal",	sead=742525885,	waveCount=25},--? / 26503								--
+		{file=File("Data/Map/Campaign/Lodge.map"),			statId="Lodge",								minScore=00000,	maxScore=50000,	type="Crystal",	sead=418531867,	waveCount=25},--? / 49609(2.3) ?(3)						--
+		{file=File("Data/Map/Campaign/Crossroad.map"),		statId="Crossroad",		statIdOld="L12",	minScore=00000,	maxScore=28000,	type="Crystal",	sead=365654225,	waveCount=25},--? / 27472								--27k
+		{file=File("Data/Map/Campaign/Mine.map"),			statId="Mine",			statIdOld="L13",	minScore=00000,	maxScore=50000,	type="Cart",	sead=464004721,	waveCount=25},--? / 34951(2.5) ?(2.75)					--
+		{file=File("Data/Map/Campaign/West river.map"),		statId="West river",						minScore=00000,	maxScore=50000,	type="Crystal",	sead=242072855,	waveCount=25},--? / 19545[4k]							--unchanged lower difficulty
+		{file=File("Data/Map/Campaign/Blocked path.map"),	statId="BlockedPath",	statIdOld="L14",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=32111861,	waveCount=25},--? / 32096(1.5)[9k] ?(1.65)				--
+		{file=File("Data/Map/Campaign/The line.map"),		statId="TheLine",		statIdOld="L15",	minScore=00000,	maxScore=50000,	type="Cart",	sead=752499248,	waveCount=25},--? / 29111[4k]							--
+		{file=File("Data/Map/Campaign/Dump station.map"),	statId="DumpStation",						minScore=00000,	maxScore=25000,	type="Crystal",	sead=32111861,	waveCount=25},--? / 24393[6k]							--25k
+		{file=File("Data/Map/Campaign/Rifted.map"),			statId="Rifted",		statIdOld="L16",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=27518540,	waveCount=25},--? / 22583[5k]							--
+		{file=File("Data/Map/Campaign/Paths.map"), 			statId="Paths",			statIdOld="L17",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=620382518,	waveCount=25},--? / 39170(3.5)[15k] ?(4.25)				--
+		{file=File("Data/Map/Campaign/Divided.map"),		statId="Divided",		statIdOld="L18",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=615837167,	waveCount=25},--? / 34191(5.5) ?(6.25)					--
+		{file=File("Data/Map/Campaign/Nature.map"),			statId="Nature",		statIdOld="L19",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=581083960,	waveCount=25},--? / 33492(3.5)[11k] ?(3.75)				--
+		{file=File("Data/Map/Campaign/Train station.map"),	statId="TrainStation",	statIdOld="L20",	minScore=00000,	maxScore=50000,	type="Cart",	sead=680821396,	waveCount=25},--? / 24105 (4k)							--25k
+		{file=File("Data/Map/Campaign/Desperado.map"),		statId="Desperado",							minScore=00000,	maxScore=50000,	type="Crystal",	sead=842172835,	waveCount=30},--? / 29063 (5k)							--30k
 		{file=File("Data/Map/Campaign/The end.map"),		statId="TheEnd",		statIdOld="L21",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=394914309,	waveCount=30} 
 	}
 	function self.shouldExist(towerName,upgradeName)

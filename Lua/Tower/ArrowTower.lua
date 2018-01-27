@@ -163,10 +163,11 @@ function ArrowTower.new()
 	end
 	local function waveChanged(param)
 		local name
-		local waveCount
-		name,waveCount = string.match(param, "(.*);(.*)")
+		local waveCountStr
+		name,waveCountStr = string.match(param, "(.*);(.*)")
+		waveCount = tonumber(waveCountStr)
 		--update and save stats only if we did not just restore this wave
-		if tonumber(waveCount)>=lastRestored then
+		if waveCount>=lastRestored then
 			if not xpManager then
 				billboard:setDouble("DamagePreviousWave",dmgDone)
 				billboard:setDouble("DamagePreviousWavePassive",dmgDoneMarkOfDeath)
@@ -178,7 +179,7 @@ function ArrowTower.new()
 				upgrade.fixBillboardAndStats()
 			end
 			--store wave info to be able to restore it
-			storeWaveChangeStats( tostring(tonumber(waveCount)+1) )
+			storeWaveChangeStats( tostring(waveCount+1) )
 		end
 		dmgDone = 0
 		dmgDoneMarkOfDeath = 0
@@ -813,7 +814,7 @@ function ArrowTower.new()
 							},0 )
 		--DPSpG == Damage*RPS*(radius/2+3)*0.111/cost == 1920*(1/1.1)/1400 == 1.25
 		-- BOOST (increases damage output with 400%)
-		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/25+1.0) end
+		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/50+1.0) end
 		--(total)	0=2x	25=4x	50=6x
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",

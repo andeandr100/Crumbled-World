@@ -33,7 +33,6 @@ function EventBase.new()
 	local numTowers = 0
 	local wavePoints = 0
 	local pWaveFinishedBonus = 200
-	local interestOnKill = "0.0020"
 	local wait = 15			--gives the player more time to setup the first defense
 	local waitBase = wait
 	local state = 0
@@ -198,7 +197,7 @@ function EventBase.new()
 			currentState = EVENT_CHANGE_WAVE
 		end
 	end
-	function self.init(pStartGold,pWaveFinishedBonus,pInterestOnKill,pLives,pLevel)
+	function self.init(pStartGold,pWaveFinishedBonus,pInterestMulOnKill,pLives,pLevel)
 		--make sure that only one event script is running
 		if Core.getScriptOfNetworkName("Event"..(Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-")) then
 			return false
@@ -222,7 +221,7 @@ function EventBase.new()
 	
 		--mapp setttings for initiating the waves
 		waveFinishedBonus = pWaveFinishedBonus
-		interestOnKill = tostring(pInterestOnKill)
+		comUnit:sendTo("stats","setInteresetMultiplyerOnKill",tonumber(pInterestMulOnKill))
 		setGold(pStartGold)
 		comUnit:sendTo("stats", "setMaxLife", tostring(pLives))
 		local tab = {startGold=pStartGold,WaveFinishedBonus=pWaveFinishedBonus,lives=pLives,level=pLevel}
@@ -267,10 +266,10 @@ function EventBase.new()
 		end
 		return true
 	end
-	function self.setDefaultGold(pStartGold,pWaveFinishedBonus,pInterestOnKill,pGoldMultiplayerOnKills)
+	function self.setDefaultGold(pStartGold,pWaveFinishedBonus,pInterestMulOnKill,pGoldMultiplayerOnKills)
 		waveFinishedBonus = pWaveFinishedBonus
 		spawnManager.setGoldMultiplayerOnKills(pGoldMultiplayerOnKills)
-		interestOnKill = tostring(pInterestOnKill)
+		comUnit:sendTo("stats","setInteresetMultiplyerOnKill",tonumber(pInterestMulOnKill))
 		setGold(pStartGold)
 	end
 	function self.doRestartWave(restartedFromTheOutSide)
