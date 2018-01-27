@@ -103,14 +103,14 @@ function MapInformation.getMapInfoFromFileName(fileName, filePath)
 	end
 	
 	local maps = MapInformation.mapTables[fileName]
-	
---	print("\n\nFileName: "..fileName.."\n")
+	print("\n}ngetMapInfoFromFileName()")
+	print("\n\nFileName: "..fileName.."\n")
 	if maps then
---		print("Maps: "..tostring(maps).."\n")
+		print("Maps: "..tostring(maps).."\n")
 		for i=1, #maps do
---			print("Compare "..maps[i].path.."=="..filePath.."\n")
+			print("Compare "..maps[i].path.."=="..filePath.."\n")
 			if maps[i].path == filePath then
---				print("found\n")
+				print("found\n")
 				return maps[i]
 			end
 		end		
