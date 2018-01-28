@@ -1049,8 +1049,6 @@ function SpawnManager.new()
 			self.updateHpBillboard(0.1)--just fill the billboards
 			
 			spawnListPopulated = true
-			
-			comUnit:sendTo("statsMenu","waveInfo",waves)
 		end
 	
 		return true

@@ -169,7 +169,7 @@ local function updateGoldToolTip()
 							{text=language:getText("From towers"), 			billName="goldGainedFromSupportTowers", color="40,255,40" }, 
 							{text=language:getText("Spent in towers"), 		billName="goldInsertedToTowers", color="255,255,40" }, 
 							{text=language:getText("Lost from selling"),	billName="goldLostFromSelling", color="255,40,40"},
-							{text=language:getText("Iterest rate"),			billName="activeInterestrate", color="40,255,40"},
+							{text=language:getText("Interest rate"),		billName="activeInterestrate", color="40,255,40"},
 --							{text="towersBuilt",		billName="towersBuilt", color="40,255,40"},
 --							{text="wallTowerBuilt",		billName="wallTowerBuilt", color="40,255,40"},
 --							{text="towersSold",		billName="towersSold", color="40,255,40"},
@@ -249,7 +249,7 @@ local function updateScoreToolTip()
 		
 		local scoreLabel
 		if scoreTextList[i].billName=="life" then
-			scoreLabel = scorePanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..scoreTextList[i].color..")>"..tostring(statsBilboard:getInt(scoreTextList[i].billName)*100).."%</font>") ))
+			scoreLabel = scorePanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..scoreTextList[i].color..")>"..tostring(statsBilboard:getInt(scoreTextList[i].billName)*100).."</font>") ))
 		elseif scoreTextList[i].billName=="scorePreviousBestGame" then
 			local scoreDiff = statsBilboard:getInt("score")-statsBilboard:getInt(scoreTextList[i].billName)
 			scoreLabel = scorePanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..(scoreDiff>=0 and "40,255,40" or "255,40,40")..")>"..tostring(scoreDiff).."</font>") ))
@@ -298,8 +298,96 @@ function toogleSpeed()
 	updateGameSpeed()
 end
 
-function init()
-	--Protection in multiplayer environment where multiple instances of this script is loaded
+function init()	
+	keyBinds = Core.getBillboard("keyBind");
+	keyBindSpeed = keyBinds:getKeyBind("Speed")
+	
+	
+	settingsListener = Listener("Settings")
+	settingsListener:registerEvent("LanguageChanged",languageChanged)
+	
+	local rootNode = this:getRootNode()
+	local cameras = rootNode:findAllNodeByNameTowardsLeaf("MainCamera")
+
+	if #cameras == 1 then
+		local camera = ConvertToCamera(cameras[1])
+		form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT)
+		form:setName("StatsMenu form")
+		form:setLayout(FallLayout(PanelSize(Vec2(0.01,0))))
+		form:setRenderLevel(0)
+		form:setVisible(true)
+		local topPanel = MainMenuStyle.createTopMenu(form, PanelSize(Vec2(1,0.019),PanelSizeType.WindowPercentBasedOnX))
+		topPanel:getPanelSize():setMinSize(PanelSize(Vec2(1,0.022),PanelSizeType.WindowPercent))
+		topPanel:setPadding(BorderSize(Vec4(0.0015),true))
+		
+		--filler Panel
+		local mainPanel = form:add(Panel(PanelSize(Vec2(-1))))
+		
+		MenuButton = MainMenuStyle.addTopMenuButton( topPanel, Vec2(4,1), language:getText("menu"))
+		MenuButton:addEventCallbackExecute(toggleInGameMenu)
+		MenuButton:setTag("menu")
+		
+		--create NPC panel
+		npcPanel = NpcPanel.new(topPanel)
+		topPanelRight = npcPanel.getTopPanelRight()
+--			replaced by
+--			topPanelRight = topPanel:add(Panel(PanelSize(Vec2(-1,-1))))
+--			topPanelRight:setLayout(FlowLayout(Alignment.TOP_RIGHT))
+
+		statsBilboard = statsBilboard or Core.getBillboard("stats")
+		statsBilboard:setPanel("MainPanel", mainPanel)
+		local panel = nil
+		
+		--Wave
+		wave = statsBilboard:getInt("wave")
+		maxWave = statsBilboard:getInt("maxWave")
+		waveLabel = createStat(Vec2(0.0,0.1885),Vec2(0.083984,0.231445), tostring(wave).."/"..maxWave, "current wave")
+		--Game speed
+		time = Core.getTimeSpeed()			
+		timeLabel = createSpeedButton(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed", toogleSpeed)
+--			timeLabel = createStat(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed")
+--			--Score
+--			to be used When implemented
+		if gameMode~="rush" then
+			score = statsBilboard:getInt("score")
+			scoreLabel, scoreImage = createStat(Vec2(0.125,0.0),Vec2(0.25,0.0625), tostring(score), "score")
+			scoreLabel:setToolTip(Text("Score"))
+		else
+			timerStr = "0s"
+			scoreLabel, scoreImage = createStat(Vec2(0.625,0.5),Vec2(0.75,0.5625), "0s", "timer")
+			updateScoreIcon()
+			scoreLabel:setToolTip(Text("Timer"))
+		end
+		toolTipsIndexScore = #toolTips
+--			--Enemies
+--			numEnemies = statsBilboard:getInt("alive enemies")
+--			numEnemiesLabel = createStat(Vec2(0.25,0.0),Vec2(0.375,0.0625), tostring(numEnemies), "enemies remaining")
+		--money
+		money = statsBilboard:getInt("gold")
+		moneyLabel = createStat(Vec2(0.0, 0.0),Vec2(0.125, 0.0625), tostring(money), "money")
+
+		toolTipsIndexGold = #toolTips
+		
+		
+		--Life
+		life = statsBilboard:getInt("life")
+		lifeLabel = createStat(Vec2(0.375, 0.0),Vec2(0.5,0.0625), tostring(life), "life remaining")
+		
+		npcPanel.addTargetPanel()
+		
+
+		updateGoldToolTip()
+		updateScoreToolTip()
+	end
+	
+	comUnitTable = {}
+	comUnitTable["waveInfo"] = npcPanel.handleWaveInfo
+	comUnitTable["startWave"] = npcPanel.handleStartWave
+	comUnitTable["setWaveNpcIndex"] = npcPanel.handleSetWaveNpcIndex
+	return true
+end
+
+function create()
 	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 	if ( node == nil and this:getSceneName() ~= "Stats menu" ) or ( node and node:getClientId() ~= 0 ) then
 		return false
@@ -328,99 +416,7 @@ function init()
 		comUnit = Core.getComUnit()
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setName("statsMenu")
-		print("Stats menu set com unit name statsMenu")
-		
-		
-		keyBinds = Core.getBillboard("keyBind");
-		keyBindSpeed = keyBinds:getKeyBind("Speed")
-		
-		
-		settingsListener = Listener("Settings")
-		settingsListener:registerEvent("LanguageChanged",languageChanged)
-		
-		local rootNode = this:getRootNode()
-		local cameras = rootNode:findAllNodeByNameTowardsLeaf("MainCamera")
-	
-		if #cameras == 1 then
-			local camera = ConvertToCamera(cameras[1])
-			form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT)
-			form:setName("StatsMenu form")
-			form:setLayout(FallLayout(PanelSize(Vec2(0.01,0))))
-			form:setRenderLevel(0)
-			form:setVisible(true)
-			local topPanel = MainMenuStyle.createTopMenu(form, PanelSize(Vec2(1,0.019),PanelSizeType.WindowPercentBasedOnX))
-			topPanel:getPanelSize():setMinSize(PanelSize(Vec2(1,0.022),PanelSizeType.WindowPercent))
-			topPanel:setPadding(BorderSize(Vec4(0.0015),true))
-			
-			--filler Panel
-			local mainPanel = form:add(Panel(PanelSize(Vec2(-1))))
-			
-			MenuButton = MainMenuStyle.addTopMenuButton( topPanel, Vec2(4,1), language:getText("menu"))
-			MenuButton:addEventCallbackExecute(toggleInGameMenu)
-			MenuButton:setTag("menu")
-			
-			--create NPC panel
-			npcPanel = NpcPanel.new(topPanel)
-			topPanelRight = npcPanel.getTopPanelRight()
---			replaced by
---			topPanelRight = topPanel:add(Panel(PanelSize(Vec2(-1,-1))))
---			topPanelRight:setLayout(FlowLayout(Alignment.TOP_RIGHT))
-
-			statsBilboard = statsBilboard or Core.getBillboard("stats")
-			statsBilboard:setPanel("MainPanel", mainPanel)
-			local panel = nil
-			
-			--Wave
-			wave = statsBilboard:getInt("wave")
-			maxWave = statsBilboard:getInt("maxWave")
-			waveLabel = createStat(Vec2(0.0,0.1885),Vec2(0.083984,0.231445), tostring(wave).."/"..maxWave, "current wave")
-			--Game speed
-			time = Core.getTimeSpeed()			
-			timeLabel = createSpeedButton(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed", toogleSpeed)
---			timeLabel = createStat(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed")
---			--Score
---			to be used When implemented
-			if gameMode~="rush" then
-				score = statsBilboard:getInt("score")
-				scoreLabel, scoreImage = createStat(Vec2(0.125,0.0),Vec2(0.25,0.0625), tostring(score), "score")
-				scoreLabel:setToolTip(Text("Score"))
-			else
-				timerStr = "0s"
-				scoreLabel, scoreImage = createStat(Vec2(0.625,0.5),Vec2(0.75,0.5625), "0s", "timer")
-				updateScoreIcon()
-				scoreLabel:setToolTip(Text("Timer"))
-			end
-			toolTipsIndexScore = #toolTips
---			--Enemies
---			numEnemies = statsBilboard:getInt("alive enemies")
---			numEnemiesLabel = createStat(Vec2(0.25,0.0),Vec2(0.375,0.0625), tostring(numEnemies), "enemies remaining")
-			--money
-			money = statsBilboard:getInt("gold")
-			moneyLabel = createStat(Vec2(0.0, 0.0),Vec2(0.125, 0.0625), tostring(money), "money")
-
-			toolTipsIndexGold = #toolTips
-			
-			
-			--Life
-			life = statsBilboard:getInt("life")
-			lifeLabel = createStat(Vec2(0.375, 0.0),Vec2(0.5,0.0625), tostring(life), "life remaining")
-			
-			npcPanel.addTargetPanel()
-			
-
-			updateGoldToolTip()
-			updateScoreToolTip()
-		end
-		
-		comUnitTable = {}
-		comUnitTable["waveInfo"] = npcPanel.handleWaveInfo
-		comUnitTable["startWave"] = npcPanel.handleStartWave
-		comUnitTable["setWaveNpcIndex"] = npcPanel.handleSetWaveNpcIndex
 	end
-	return true
-end
-
-function create()
 	return true
 end
 function toggleInGameMenu(panel)

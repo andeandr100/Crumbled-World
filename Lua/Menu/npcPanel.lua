@@ -226,7 +226,7 @@ function NpcPanel.new(panel)
 	-- purpose:		the constructor
 	local function init()
 		panel:addEventCallbackResized(resize)
-		if mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="rush" then
+		if mapInfo.getGameMode()=="rush" then
 			local nextIcon = Core.getTexture("icon_table.tga")
 			customButton = panel:add(Button(PanelSize(Vec2(-0.6,-1), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, nextIcon, Vec2(0.375,0.25), Vec2(0.50, 0.3125)))
 

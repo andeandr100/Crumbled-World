@@ -114,7 +114,9 @@ function CustomeGameMenu.new(panel)
 		end
 	end
 	local function changeGameMode(tag, index)
-		print("changeGameMode("..gameModes[index]..")")
+		if index<=0 or index>#gameModes then
+			index = 1
+		end
 		--set game mode
 		levelInfo.setGameMode(gameModes[index])
 		--
