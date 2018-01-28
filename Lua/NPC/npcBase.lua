@@ -52,11 +52,10 @@ function NpcBase.new()
 	local eventListener
 	local prevState = -1
 	local sentUpdateTimer = 0
-	local tmpUpdate = update
 	
 	function self.destroy()
-		if tmpUpdate and type(tmpUpdate)=="function" then
-			update = tmpUpdate
+		if endUpdate and type(endUpdate)=="function" then
+			update = endUpdate
 		else
 			error("unable to set new update function for destroy")
 		end
