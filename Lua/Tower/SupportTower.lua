@@ -602,7 +602,7 @@ function SwarmTower.new()
 								stats ={range =				{ upgrade.add, TOWERRANGE},
 										model = 			{ upgrade.set, "tower_support_l1.mym"} }
 							} )
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = 300,
 								name = "upgrade",
 								info = "support tower level",
 								order = 1,
@@ -611,7 +611,7 @@ function SwarmTower.new()
 								stats ={range =				{ upgrade.add, TOWERRANGE},
 										model = 			{ upgrade.set, "tower_support_l2.mym"}}
 							},0 )
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = 400,
 								name = "upgrade",
 								info = "support tower level",
 								order = 1,
@@ -694,7 +694,7 @@ function SwarmTower.new()
 								info = "support tower weaken",
 								order = 4,
 								icon = 66,
-								value1 = 10,
+								value1 = 8,
 								levelRequirement = cTowerUpg.getLevelRequierment("weaken",1),
 								stats = {weaken =		{ upgrade.add, 0.08},
 										 weakenTimer =	{ upgrade.add, 1} }
@@ -704,7 +704,7 @@ function SwarmTower.new()
 								info = "support tower weaken",
 								order = 4,
 								icon = 66,
-								value1 = 20,
+								value1 = 16,
 								levelRequirement = cTowerUpg.getLevelRequierment("weaken",2),
 								stats = {weaken =		{ upgrade.add, 0.16},
 										 weakenTimer =	{ upgrade.add, 1} }
@@ -714,7 +714,7 @@ function SwarmTower.new()
 								info = "support tower weaken",
 								order = 4,
 								icon = 66,
-								value1 = 30,
+								value1 = 24,
 								levelRequirement = cTowerUpg.getLevelRequierment("weaken",3),
 								stats = {weaken =		{ upgrade.add, 0.24},
 										 weakenTimer =	{ upgrade.add, 1} }
