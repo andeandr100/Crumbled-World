@@ -446,7 +446,7 @@ function SpawnManager.new()
 		return true
 	end
 	function self.generateWaves(pNumWaves,difficultBase,difficultIncreaser,startSpawnWindow,seed)
-		pNumWaves = 2
+		--pNumWaves = 2
 		local multiplayerGenerateData = {}
 		if Core.getNetworkClient():isAdmin() then
 			multiplayerGenerateData.numWaves = pNumWaves
