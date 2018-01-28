@@ -605,13 +605,13 @@ function EventBase.new()
 --			script:setName("endGameMenuVictory")
 --		end
 --		if DEBUG or true then
-		 	if Core.getInput():getKeyPressed(Key.p) then
-				comUnit:sendTo("log", "println", "cheat-addGold")
-				statsBilboard = Core.getBillboard("stats")
-				comUnit:sendTo("stats", "addGold", tostring(statsBilboard:getDouble("gold")+500.0))
-				saveStats = false
-				Core.getGlobalBillboard("highScoreReplay"):setBool("saveHighScore",saveStats)
-			end
+--		 	if Core.getInput():getKeyPressed(Key.p) then
+--				comUnit:sendTo("log", "println", "cheat-addGold")
+--				statsBilboard = Core.getBillboard("stats")
+--				comUnit:sendTo("stats", "addGold", tostring(statsBilboard:getDouble("gold")+500.0))
+--				saveStats = false
+--				Core.getGlobalBillboard("highScoreReplay"):setBool("saveHighScore",saveStats)
+--			end
 --			if Core.getInput():getKeyPressed(Key.o) then
 --				spawnNextGroup()
 --			end
