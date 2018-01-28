@@ -611,54 +611,56 @@ function NpcPanel.new(panel)
 	-- function:	update
 	-- purpose:		updates the panel every frame
 	function self.update()
-		if not waves then
-			comUnit:sendTo("EventManager","resendWaveData","")
-		end
-		if frameBufferSize ~= targetPanel:getPanelContentPixelSize() then
-			frameBufferSize = targetPanel:getPanelContentPixelSize()
-			--set frame buffer size
-			--this will only change the buffer if the buffer size changes
-			selectedCamera:setFrameBufferSize(frameBufferSize)
-		end
 		bilboardStats = bilboardStats or Core.getBillboard("stats")
-		if spawnList and bilboardStats:getInt("life")>=0 then
-			--make sure there is enough npc's to fill the menu
-			fillMenu(currentWaveIndex,false,false)
-			--remove units outside this waveCount
-			while spawnList[spawnList.index] and (spawnList[spawnList.index].delay<0.0 or currentWaveIndex>spawnList[spawnList.index].waveIndex) do
-				removeTimeLineIcon(0.0)
+		if bilboardStats then
+			if not waves then
+				comUnit:sendTo("EventManager","resendWaveData","")
 			end
-			--
-			local npc = spawnList[spawnList.index]
-			if npc then
-				if currentWaveIndex>=npc.waveIndex then
-					if npc.startDelay>0.0 then
-						npc.startDelay = npc.startDelay - Core.getDeltaTime()
-						if npc.startDelay<=0.0 then
-							npc.delay = npc.delay + npc.startDelay
-						end
-					end
-					if npc.startDelay<=0.0 then
-						npc.delay = npc.delay - Core.getDeltaTime()
-						if npc.delay<0.0 then
-							removeTimeLineIcon(npc.delay)
-						end
-					end
-					setStartTimeIconPer(npc.startDelay/originalStartDelay)
-					--
-					updatePosition()
+			if frameBufferSize ~= targetPanel:getPanelContentPixelSize() then
+				frameBufferSize = targetPanel:getPanelContentPixelSize()
+				--set frame buffer size
+				--this will only change the buffer if the buffer size changes
+				selectedCamera:setFrameBufferSize(frameBufferSize)
+			end
+			if spawnList and bilboardStats:getInt("life")>=0 then
+				--make sure there is enough npc's to fill the menu
+				fillMenu(currentWaveIndex,false,false)
+				--remove units outside this waveCount
+				while spawnList[spawnList.index] and (spawnList[spawnList.index].delay<0.0 or currentWaveIndex>spawnList[spawnList.index].waveIndex) do
+					removeTimeLineIcon(0.0)
 				end
+				--
+				local npc = spawnList[spawnList.index]
+				if npc then
+					if currentWaveIndex>=npc.waveIndex then
+						if npc.startDelay>0.0 then
+							npc.startDelay = npc.startDelay - Core.getDeltaTime()
+							if npc.startDelay<=0.0 then
+								npc.delay = npc.delay + npc.startDelay
+							end
+						end
+						if npc.startDelay<=0.0 then
+							npc.delay = npc.delay - Core.getDeltaTime()
+							if npc.delay<0.0 then
+								removeTimeLineIcon(npc.delay)
+							end
+						end
+						setStartTimeIconPer(npc.startDelay/originalStartDelay)
+						--
+						updatePosition()
+					end
+				end
+				--removed deleted icons
+				for i=1, npcToBeRemoved.size do
+					selectedCamera:remove2DScene(spawnList[npcToBeRemoved[i]].icon)
+					spawnList[npcToBeRemoved[i]].icon = nil
+				end
+				npcToBeRemoved.size = 0
 			end
-			--removed deleted icons
-			for i=1, npcToBeRemoved.size do
-				selectedCamera:remove2DScene(spawnList[npcToBeRemoved[i]].icon)
-				spawnList[npcToBeRemoved[i]].icon = nil
-			end
-			npcToBeRemoved.size = 0
+			
+			--only render when the images changes
+			selectedCamera:render()
 		end
-		
-		--only render when the images changes
-		selectedCamera:render()
 	end
 	
 	
