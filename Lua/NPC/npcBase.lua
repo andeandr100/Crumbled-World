@@ -54,11 +54,10 @@ function NpcBase.new()
 	local sentUpdateTimer = 0
 	
 	function self.destroy()
-		if endUpdate and type(endUpdate)=="function" then
-			update = endUpdate
-		else
-			error("unable to set new update function for destroy")
+		function noupdate()
+			return false
 		end
+		update = noupdate
 	end
 	
 	local function destroyUpdate()
