@@ -25,7 +25,7 @@ function CampaignGameMenu.new(panel)
 	local mainPanel
 	local rewardLabel
 	--Game modes
-	local gameModes = {"default", "survival", "training", "leveler"}--"rush"
+	local gameModes = {"default", "survival", "leveler"}--"rush", "training"
 	local optionsTooltip = {"default tooltip", "survival tooltip", "rush tooltip", "training tooltip", "leveler tooltip"}
 	--Select
 	local menuPrevSelect	--menuPrevSelect=Config()
