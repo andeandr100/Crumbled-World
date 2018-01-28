@@ -171,29 +171,30 @@ function Upgrade.new()
 	-- function:	combineTables
 	-- purpose:		combines 2 tables and make them equal except for functions
 	local function combineTables(destination,source)
-		--remove all values that is not available in the source
+		--remove all values that is not available in the source, ignore if function
 		for key,value in pairs(destination) do
 			if type(destination[key])~="function" and (not source[key]) then
 				destination[key] = nil
 			end
-			if type(source[key])=="function" and type(destination[key])~="function" then
-				destination[key] = source[key]
-			end
 		end
-		--replace all variables
+		--replace all variables, ignore if function
 		for key,value in pairs(source) do
-			if type(source[key])=="table" then
-				if type(destination[key])~="table" then
-					destination[key] = {}
-				end
-				combineTables(destination[key],source[key])
+			if type(destination[key])=="function" then
+				--ignore
 			else
-				destination[key] = source[key]
+				if type(source[key])=="table" then
+					if type(destination[key])~="table" then
+						destination[key] = {}
+					end
+					combineTables(destination[key],source[key])
+				else
+					destination[key] = source[key]
+				end
 			end
 		end
 	end
 	-- function:	restoreWaveChangeStats
-	-- purpose:		restore the cpSystem to a previous state, with data from self.storeWaveChangeStats()
+	-- purpose:		restore the system to a previous state, with data from self.storeWaveChangeStats()
 	function self.restoreWaveChangeStats(tab)
 		--print("self.restoreWaveChangeStats("..tostring(tab)..")")
 		--mergeTables(tab.data,self)

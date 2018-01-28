@@ -52,19 +52,19 @@ function NpcBase.new()
 	local eventListener
 	local prevState = -1
 	local sentUpdateTimer = 0
+	local tmpUpdate = update
 	
 	function self.destroy()
-		function noupdate()
-			return false
+		if tmpUpdate and type(tmpUpdate)=="function" then
+			update = tmpUpdate
 		end
-		update = noupdate
 	end
 	
 	local function destroyUpdate()
 		this:destroyTree()
 		return false
 	end
-	
+
 	function self.init(name,modelName,particleOffset,size,aimHeight,pspeed)
 		--
 		if Core.isInMultiplayer() then
