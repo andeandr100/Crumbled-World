@@ -120,7 +120,10 @@ function create()
 	Core.setScriptNetworkId("stats")
 	comUnit = Core.getComUnit()
 	comUnit:setCanReceiveTargeted(true)
-	comUnit:setName("stats")
+	if not comUnit:setName("stats") then
+		error("STATS.CREATE() failed because billboard name is used")
+		return false
+	end
 	billboard = comUnit:getBillboard()
 	if Core.isInMultiplayer() then
 		netSyncTimer = Core.getTime()
@@ -679,4 +682,9 @@ function update()
 		end
 	end
 	return true
+end
+function destroy()
+--	comUnit:setName("")
+--	comUnit:setCanDisplayBillboard(false)
+--	comUnit = nil
 end

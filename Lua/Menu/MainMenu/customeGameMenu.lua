@@ -24,7 +24,7 @@ function CustomeGameMenu.new(panel)
 	local diffNames = {}
 	local labels = {}
 	--Select
-	local gameModes = {"default", "survival", "rush", "training", "leveler"}
+	local gameModes = {"default", "survival", "training", "leveler"}--"rush"
 	local menuPrevSelect	--menuPrevSelect=Config()
 	local files
 	

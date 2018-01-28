@@ -56,7 +56,7 @@ function MapInformation.loadMapInfo(filePath)
 			while File("Data/Dynamic/"..imageName):exist() do
 				imageName = "Icon/"..file:getName().."_Icon"..iconIndex..".jpg"
 				iconIndex = iconIndex + 1
-				print("Next image name: "..imageName.."\n")
+				--print("Next image name: "..imageName.."\n")
 			end
 			
 			local tmpFile = File("Data/Dynamic/"..imageName)
@@ -64,13 +64,13 @@ function MapInformation.loadMapInfo(filePath)
 				abort()
 			end
 			
-			print("save to file: ".."Data/Dynamic/"..imageName.."\n")
+			--print("save to file: ".."Data/Dynamic/"..imageName.."\n")
 			
 			iconFile:saveToFile(imageName)	
 			imageName = "Data/Dynamic/" .. imageName
 		end
 		
-		print("File found\n")
+		--print("File found\n")
 		local info = totable( mapInfo:getContent() )
 		local mapTable = {}
 		mapTable.mapSize = info.mapSize
@@ -83,16 +83,16 @@ function MapInformation.loadMapInfo(filePath)
 		mapTable.hash = file:getHash()
 		mapTable.path = file:getPath()
 		
-		print("File table: table = "..tostring(mapTable).."\n")
-		print("File: "..file:getPath().."\n")
+		--print("File table: table = "..tostring(mapTable).."\n")
+		--print("File: "..file:getPath().."\n")
 		
 
 		maps[#maps + 1] = mapTable
 		
 		MapInformation.mapConfig:get("data"):setTable(maps)
 		MapInformation.mapConfig:save()
-	else
-		print("no file found\n")
+	--else
+		--print("no file found\n")
 	end
 end
 
@@ -103,14 +103,14 @@ function MapInformation.getMapInfoFromFileName(fileName, filePath)
 	end
 	
 	local maps = MapInformation.mapTables[fileName]
-	print("\n}ngetMapInfoFromFileName()")
-	print("\n\nFileName: "..fileName.."\n")
+	--print("\n}ngetMapInfoFromFileName()")
+	--print("\n\nFileName: "..fileName.."\n")
 	if maps then
-		print("Maps: "..tostring(maps).."\n")
+		--print("Maps: "..tostring(maps).."\n")
 		for i=1, #maps do
-			print("Compare "..maps[i].path.."=="..filePath.."\n")
+			--print("Compare "..maps[i].path.."=="..filePath.."\n")
 			if maps[i].path == filePath then
-				print("found\n")
+				--print("found\n")
 				return maps[i]
 			end
 		end		

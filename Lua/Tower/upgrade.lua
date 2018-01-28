@@ -127,8 +127,8 @@ function Upgrade.new()
 			upg.cost = (upg.cost and upg.cost or upg.costFunction())/(addSubCount+1.0)
 		end
 		upg.levelRequirement = upg.levelRequirement or 0
-		print("upgLevel == "..tostring(#upgradesAvailable[upg.name]+1))
-		print("upg == "..tostring(upg))
+--		print("upgLevel == "..tostring(#upgradesAvailable[upg.name]+1))
+--		print("upg == "..tostring(upg))
 		upgradesAvailable[upg.name][#upgradesAvailable[upg.name]+1] = upg
 		-- set the default build cost
 		billboard:setFloat("cost", upgradesAvailable["upgrade"][1].cost)
@@ -343,11 +343,11 @@ function Upgrade.new()
 		--upgrade name
 		local order = upgradesAvailable[name][1].order
 		if upgraded[order] then
-			print("has been upgraded before")
+--			print("has been upgraded before")
 			--has been upgraded before
 			upgraded[order] = getCopyOfTable(upgradesAvailable[name][upgraded[order].level+1])
 		else
-			print("not listed, grab level 1 version of it")
+--			print("not listed, grab level 1 version of it")
 			--not listed, grab level 1 version of it
 			upgraded[order] = getCopyOfTable(upgradesAvailable[name][1])
 		end

@@ -22,12 +22,13 @@ local isVictory
 local campaignData = CampaignData.new()
 local files = campaignData.getMaps()
 local currentMapData = files[mapInfo.getMapNumber()]
-local diffPerLevelBase = math.floor( ((currentMapData.maxScore-currentMapData.minScore)*0.33)/1000 )
+local diffPerLevelBase = math.floor( ((currentMapData.maxScore-currentMapData.minScore)*0.3)/1000 )
+diffPerLevelBase = math.clamp(diffPerLevelBase, 2, 8)
 local diffPerLevel = diffPerLevelBase*1000
 local scoreLimits = {
-	{score=0, 										index=1, minPos=Vec2(0.25,0.75),		maxPos=Vec2(0.5,0.8125), 	color=Vec3(0.65,0.65,0.65)},
+	{score=0, 										index=1, minPos=Vec2(0.25,0.75),	maxPos=Vec2(0.5,0.8125), 	color=Vec3(0.65,0.65,0.65)},
 	{score=currentMapData.minScore, 				index=2, minPos=Vec2(0.0,0.5625),	maxPos=Vec2(0.25,0.625), 	color=Vec3(0.86,0.63,0.38)},
-	{score=currentMapData.maxScore-diffPerLevel,	index=3, minPos=Vec2(0.0,0.625),		maxPos=Vec2(0.25,0.6875), 	color=Vec3(0.64,0.70,0.73)},
+	{score=currentMapData.maxScore-diffPerLevel,	index=3, minPos=Vec2(0.0,0.625),	maxPos=Vec2(0.25,0.6875), 	color=Vec3(0.64,0.70,0.73)},
 	{score=currentMapData.maxScore,					index=4, minPos=Vec2(0.0,0.6875),	maxPos=Vec2(0.25,0.75), 	color=Vec3(0.93,0.73,0.13)},
 	{score=currentMapData.maxScore+diffPerLevel,	index=5, minPos=Vec2(0.0,0.75),		maxPos=Vec2(0.25,0.8125), 	color=Vec3(0.5,0.92,0.92)}
 }

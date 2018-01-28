@@ -446,7 +446,7 @@ function SpawnManager.new()
 		return true
 	end
 	function self.generateWaves(pNumWaves,difficultBase,difficultIncreaser,startSpawnWindow,seed)
-		--pNumWaves = 2
+		pNumWaves = 2
 		local multiplayerGenerateData = {}
 		if Core.getNetworkClient():isAdmin() then
 			multiplayerGenerateData.numWaves = pNumWaves
@@ -1013,7 +1013,8 @@ function SpawnManager.new()
 				playTime = playTime + waveTotalTime + waitBase + 15.0 -- 15s time to kill last unit after it has spawned ;D
 				
 				longestWave = math.max(longestWave,waveTotalTime)
-				--print("==== WAVE"..i..".time=="..waveTotalTime.."\n")
+--				print("== totalGoldEarned(guaranteed)="..totalGoldEarned)
+--				print("==== WAVE"..i..".time=="..waveTotalTime.."\n")
 			end
 			
 			--print("\nWaves: "..tostring(waves).."\n")
@@ -1022,7 +1023,9 @@ function SpawnManager.new()
 			playTime = playTime - (hours*3600)
 			local minutes=math.floor(playTime/60)
 			--playTime = playTime - (minutes*60)
-			--			print("=== minimalScore="..tostring(((totalGoldEarned+theoreticalMinimumScoreInterest)*0.75)+theoreticalMinimumScoreInterest+100))
+--			print("=== totalGoldEarned(guaranteed)="..totalGoldEarned)
+--			print("=== theoreticalMinimumScoreInterest="..theoreticalMinimumScoreInterest)
+--			print("=== minimalScore="..tostring(((totalGoldEarned+theoreticalMinimumScoreInterest)*0.75)+theoreticalMinimumScoreInterest+100))
 --			abort()
 --			LOG(tostring(waves))
 --			LOG("=== longestWave="..longestWave.."s")
