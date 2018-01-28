@@ -498,7 +498,6 @@ function DeathManager.new()
 			local index = Core.getComUnit():getIndex()
 			--destroy the script if there is nothing to update
 			if enableSelfDestruct then
-				print("Do self destruct["..tostring(index).."]("..Core.getNetworkName()..")")
 				this:destroy()
 			end
 			return false

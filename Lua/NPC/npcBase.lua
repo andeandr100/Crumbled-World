@@ -54,11 +54,11 @@ function NpcBase.new()
 	local sentUpdateTimer = 0
 	local tmpUpdate = update
 	
-	print("NpcBase.new()")
-	
 	function self.destroy()
 		if tmpUpdate and type(tmpUpdate)=="function" then
 			update = tmpUpdate
+		else
+			error("unable to set new update function for destroy")
 		end
 	end
 	
@@ -66,19 +66,6 @@ function NpcBase.new()
 		this:destroyTree()
 		return false
 	end
-	
---	local function restartMap()
---		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
---		eventListener:pushEvent("removeSoul", npcData )
---		
---		comUnit:sendTo("SoulManager","remove","")
---		if destroyUpdate and type(destroyUpdate)=="function" then
---			update = destroyUpdate
---			print("Changed-restartMap[update = "..tostring(update).."]("..Core.getNetworkName()..")")
---		else
---			error("unable to set new update function")
---		end
---	end
 	
 	function self.init(name,modelName,particleOffset,size,aimHeight,pspeed)
 		--
@@ -167,7 +154,7 @@ function NpcBase.new()
 		comUnit:sendTo("SoulManager","addSoul",{pos=mover:getCurrentPosition(), hpMax=hpMax, name=name, team=0, aimHeight = centerOffset})
 	end
 	local function endUpdate()
-		print("endScript")
+		--end script
 		return false
 	end
 	function self.getCurrentIslandPlayerId()
@@ -210,7 +197,6 @@ function NpcBase.new()
 		return comUnitTable
 	end
 	function self.disappear()
-		print("self.disappear() - "..LUA_INDEX)
 		billboard:setBool("isAlive",false)
 		soul.setHp(-1.0)
 		npcIsDestroyed = true
@@ -223,7 +209,11 @@ function NpcBase.new()
 		--
 		comUnit:clearMessages()
 		--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),3.0,Vec3(1,0,0))
-		update = endUpdate
+		if endUpdate and type(endUpdate)=="function" then
+			update = endUpdate
+		else
+			error("unable to set endupdate as update function")
+		end
 	end
 	function self.NETSyncDeath(param)
 		soul.setHp(-1.0)
@@ -266,7 +256,6 @@ function NpcBase.new()
 --				position = this:getGlobalPosition()
 --			end
 --			position = position or this:getGlobalPosition()
-			--print("Reached waypoint\n")
 			waypointReachedList[#waypointReachedList+1] = position
 			comUnit:broadCast(position,1.0,"NpcReachedWayPoint",{id=#waypointReachedList,name=idName})
 		end
@@ -667,11 +656,9 @@ function NpcBase.new()
 				else
 					if endUpdate and type(endUpdate)=="function" then
 						update = endUpdate
-						print("Changed-endUpdate[update = "..tostring(update).."]("..Core.getNetworkName()..")")
 					else
 						error("unable to set new update for dead body")
 					end
-					print("endScript["..tostring(index).."]("..Core.getNetworkName()..") return false")
 					return false
 				end
 			else

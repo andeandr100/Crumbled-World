@@ -35,15 +35,15 @@ function CampaignData.new()
 		{file=File("Data/Map/Campaign/Edge world.map"),		statId="EdgeWorld",							minScore=00000,	maxScore=50000,	type="Crystal",	sead=352603864,	waveCount=25},--? / 39000								--38k
 		{file=File("Data/Map/Campaign/Bridges.map"),		statId="Bridges",		statIdOld="L6",		minScore=00000,	maxScore=33000,	type="Crystal",	sead=617196048,	waveCount=25},--? / 32474								--33k
 		{file=File("Data/Map/Campaign/Spiral.map"),			statId="Spiral",		statIdOld="L7",		minScore=00000,	maxScore=33000,	type="Crystal",	sead=109723780,	waveCount=25},--? / 									--31k
-		{file=File("Data/Map/Campaign/Broken mine.map"),	statId="BrokenMine",						minScore=00000,	maxScore=50000,	type="Cart",	sead=104266217,	waveCount=25},--? / 37370(1.25) ?(1.5)					--30k
-		{file=File("Data/Map/Campaign/Town.map"),			statId="Town",			statIdOld="L8",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=956148502,	waveCount=25},--? / 25963(2.75) ?(2.5)					--30k	
+		{file=File("Data/Map/Campaign/Broken mine.map"),	statId="BrokenMine",						minScore=00000,	maxScore=50000,	type="Cart",	sead=104266217,	waveCount=25},--? / 33500[13k]							--30k
+		{file=File("Data/Map/Campaign/Town.map"),			statId="Town",			statIdOld="L8",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=956148502,	waveCount=25},--? / 32000(2.65)[10K]					--30k	
 		{file=File("Data/Map/Campaign/Outpost.map"),		statId="Outpost",							minScore=00000,	maxScore=50000,	type="Crystal",	sead=342413641,	waveCount=25},--? / 28000(6)							--29k	
-		{file=File("Data/Map/Campaign/Plaza.map"),			statId="Plaza",			statIdOld="L9",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=169366078,	waveCount=25},--? / 21803(1.75)	?(1.35)					--
+		{file=File("Data/Map/Campaign/Plaza.map"),			statId="Plaza",			statIdOld="L9",		minScore=00000,	maxScore=50000,	type="Crystal",	sead=169366078,	waveCount=25},--? / 35000(2.5)							--
 		{file=File("Data/Map/Campaign/Long haul.map"),		statId="LongHaul",		statIdOld="L10",	minScore=00000,	maxScore=28000,	type="Cart",	sead=202469227,	waveCount=25},--? / 27695(2)[22k]						--
 		{file=File("Data/Map/Campaign/Dock.map"),			statId="Dock",			statIdOld="L11",	minScore=00000,	maxScore=27000,	type="Crystal",	sead=742525885,	waveCount=25},--? / 26503								--
-		{file=File("Data/Map/Campaign/Lodge.map"),			statId="Lodge",								minScore=00000,	maxScore=50000,	type="Crystal",	sead=418531867,	waveCount=25},--? / 49609(2.3) ?(3)						--
+		{file=File("Data/Map/Campaign/Lodge.map"),			statId="Lodge",								minScore=00000,	maxScore=50000,	type="Crystal",	sead=418531867,	waveCount=25},--? / 36200[15k]							--
 		{file=File("Data/Map/Campaign/Crossroad.map"),		statId="Crossroad",		statIdOld="L12",	minScore=00000,	maxScore=28000,	type="Crystal",	sead=365654225,	waveCount=25},--? / 27472								--27k
-		{file=File("Data/Map/Campaign/Mine.map"),			statId="Mine",			statIdOld="L13",	minScore=00000,	maxScore=50000,	type="Cart",	sead=464004721,	waveCount=25},--? / 34951(2.5) ?(2.75)					--
+		{file=File("Data/Map/Campaign/Mine.map"),			statId="Mine",			statIdOld="L13",	minScore=00000,	maxScore=50000,	type="Cart",	sead=464004721,	waveCount=25},--? / 37000[15k]					--
 		{file=File("Data/Map/Campaign/West river.map"),		statId="West river",						minScore=00000,	maxScore=50000,	type="Crystal",	sead=242072855,	waveCount=25},--? / 19545[4k]							--unchanged lower difficulty
 		{file=File("Data/Map/Campaign/Blocked path.map"),	statId="BlockedPath",	statIdOld="L14",	minScore=00000,	maxScore=50000,	type="Crystal",	sead=32111861,	waveCount=25},--? / 32096(1.5)[9k] ?(1.65)				--
 		{file=File("Data/Map/Campaign/The line.map"),		statId="TheLine",		statIdOld="L15",	minScore=00000,	maxScore=50000,	type="Cart",	sead=752499248,	waveCount=25},--? / 29111[4k]							--
@@ -131,7 +131,8 @@ function CampaignData.new()
 	end
 	local function updateAvailableMaps()
 		--upto 3 unbeaten maps are available
-		local window = (maps.finishedCount>=3 and 3 or maps.finishedCount+1)
+		local windowSize = {[0]=1,1,2,3,3,3,4,4,4,4,5}
+		local window = windowSize[math.min(#windowSize,maps.finishedCount)]
 		for index=1, #files do
 			if maps.finished[index] then
 				maps.available[index] = 2

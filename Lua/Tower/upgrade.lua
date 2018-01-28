@@ -199,7 +199,6 @@ function Upgrade.new()
 		--mergeTables(tab.data,self)
 		combineTables(upgradesAvailable,tab.upgradesAvailable)
 		combineTables(upgraded,tab.upgraded)
-		--upgraded = getCopyOfTable(tab.upgraded)
 		combineTables(stats,tab.stats)
 		subUpgradeCount = tab.subUpgradeCount
 		subUpgradeCountTotal = tab.subUpgradeCountTotal
@@ -342,7 +341,6 @@ function Upgrade.new()
 		--print("self.upgradeOnly("..name..") - BEG\n")
 		--upgrade name
 		local order = upgradesAvailable[name][1].order
-		local d1 = upgraded[order] and upgraded[order].level or 0
 		if upgraded[order] then
 			print("has been upgraded before")
 			--has been upgraded before
@@ -351,11 +349,6 @@ function Upgrade.new()
 			print("not listed, grab level 1 version of it")
 			--not listed, grab level 1 version of it
 			upgraded[order] = getCopyOfTable(upgradesAvailable[name][1])
-		end
-		if d1==upgraded[order].level then
-			local d2 = upgradesAvailable[name]
-			local d3 = upgraded[order]
-			abort()
 		end
 		--value = value + upgraded[order].cost
 		subUpgradeCount = subUpgradeCount + ((name=="upgrade" or name=="boost" or name=="calculate" or name=="range" or name=="gold" or name=="supportRange" or name=="supportDamage" or name=="smartTargeting") and 0 or 1)

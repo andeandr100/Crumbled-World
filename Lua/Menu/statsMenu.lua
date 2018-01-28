@@ -298,7 +298,7 @@ function toogleSpeed()
 	updateGameSpeed()
 end
 
-function create()
+function init()
 	--Protection in multiplayer environment where multiple instances of this script is loaded
 	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 	if ( node == nil and this:getSceneName() ~= "Stats menu" ) or ( node and node:getClientId() ~= 0 ) then
@@ -366,7 +366,7 @@ function create()
 --			topPanelRight = topPanel:add(Panel(PanelSize(Vec2(-1,-1))))
 --			topPanelRight:setLayout(FlowLayout(Alignment.TOP_RIGHT))
 
-			statsBilboard = Core.getBillboard("stats")
+			statsBilboard = statsBilboard or Core.getBillboard("stats")
 			statsBilboard:setPanel("MainPanel", mainPanel)
 			local panel = nil
 			
@@ -416,8 +416,11 @@ function create()
 		comUnitTable["waveInfo"] = npcPanel.handleWaveInfo
 		comUnitTable["startWave"] = npcPanel.handleStartWave
 		comUnitTable["setWaveNpcIndex"] = npcPanel.handleSetWaveNpcIndex
-		
 	end
+	return true
+end
+
+function create()
 	return true
 end
 function toggleInGameMenu(panel)
@@ -434,8 +437,17 @@ function updateScoreIcon()
 		scoreImage:setUvCoord(Vec2(0.25,0.6875),Vec2(0.375,0.75))
 	end
 end
-
 function update()
+	statsBilboard = statsBilboard or Core.getBillboard("stats")
+	if statsBilboard then
+		if not init() then
+			return false
+		end
+		update = updateReal
+	end
+	return true
+end
+function updateReal()
 	--Handle communication
 	while comUnit:hasMessage() do
 		local msg = comUnit:popMessage()
@@ -444,7 +456,6 @@ function update()
 		end
 	end	
 	
-	statsBilboard = Core.getBillboard("stats")
 	if wave ~= statsBilboard:getInt("wave") or maxWave ~= statsBilboard:getInt("maxWave") then
 		wave = statsBilboard:getInt("wave")
 		maxWave = statsBilboard:getInt("maxWave")
@@ -499,10 +510,10 @@ function update()
 		updateScoreToolTip()--Building towers will not change the score directly just shift it
 	end
 
-	form:update();
+	form:update()
 	
 	
 	npcPanel.update()
 	
-	return true;
+	return true
 end

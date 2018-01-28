@@ -476,7 +476,9 @@ end
 function handleAddKill(param,index)
 	local next = 1
 	if billboard:getInt(tostring(index))==currentWave then
-		--local count = billboard:getInt("killCount")+1
+		if not statsPerKillTable[currentWave] then
+			statsPerKillTable[currentWave] = {}
+		end
 		billboard:setInt( "killCount", billboard:getInt("killCount")+1)
 		next = #statsPerKillTable[currentWave]+1
 		setStatsPerKillTableOn(next)

@@ -43,7 +43,7 @@ function destroyWatermelon(watermelonNode)
 	--physic
 	local model=Core.getModel("watermelonCracked.mym")
 	model:setLocalMatrix(watermelonNode:getLocalMatrix())
-	watermelonNode:getParent():addChild(model)
+	watermelonNode:getParent():addChild(model:toSceneNode())
 	model:setVisible(false)
 	for i=1, 24 do
 		--local atVec = model:getMesh("watermelon"..i):getLocalPosition():normalizeV()

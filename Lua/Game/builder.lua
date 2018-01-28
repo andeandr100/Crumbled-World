@@ -933,7 +933,7 @@ function rebuildSoldTower(tab)
 end
 
 function update()
-	if canBuildInThisWorld == false then
+	if canBuildInThisWorld == false or Core.getBillboard("stats")==nil then
 		--update event from other players
 		updateSelectedTowerToBuild()
 		return true
