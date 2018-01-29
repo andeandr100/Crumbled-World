@@ -330,7 +330,7 @@ function CampaignGameMenu.new(panel)
 	
 	local function changeGameMode(tag, index)
 		if index<=0 or index>#gameModes then
-			index = gameModes
+			index = 1
 		end
 		levelInfo.setGameMode(gameModes[index])
 		--

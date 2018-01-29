@@ -66,6 +66,7 @@ function BladeTower.new()
 	--sound
 	local soundRelease = SoundNode.new("bladeTower_attack")
 	--other
+	local upgradeElectricScale = 0.0
 	local staticNodes--used for range tests
 	local towerBuiltListener
 	local visibleState = 2
@@ -262,11 +263,6 @@ function BladeTower.new()
 			--manage pistons
 			for index = 0, pistonCount-1, 1 do
 			 	piston[index]:setLocalPosition(pistonMatrix[index]:getPosition())
-			end
-			--manage effects
-			if upgrade.getLevel("electricBlade")>0 then
-				 sparkCenter1:setScale( upgradeElectricScale ) 
-				 sparkCenter2:setScale( upgradeElectricScale )
 			end
 		end
 		billboard:setDouble("bladeSpeed",upgrade.getValue("bladeSpeed"))
@@ -741,17 +737,17 @@ function BladeTower.new()
 				local procent=reloadTimeLeft/(1.0/upgrade.getValue("RPS"))
 				--manage pistons
 				for index = 0, pistonCount-1, 1 do
-			 	   if procent>1.0 then 
+					if procent>1.0 then 
 						procent=1.0
 					end
 			 	   if procent<0.0 then procent=0.0 end--procent=(procent<0.0f)?0.0f:procent;
 			 	   piston[index]:setLocalPosition(pistonMatrix[index]:getPosition() + ((pistonAtVec[index]*procent)*0.21))
 				end
-				--manage effects
-				if upgrade.getLevel("electricBlade")>0 then
-				 	sparkCenter1:setScale( upgradeElectricScale*(1.0-(0.75*procent)) ) 
-				 	sparkCenter2:setScale( upgradeElectricScale*(1.0-(0.75*procent)) )
-				end
+			end
+			if upgrade.getLevel("electricBlade")>0 then
+				local procent=reloadTimeLeft/(1.0/upgrade.getValue("RPS"))
+				sparkCenter1:setScale( upgradeElectricScale*(1.0-(0.75*procent)) ) 
+				sparkCenter2:setScale( upgradeElectricScale*(1.0-(0.75*procent)) )
 			end
 		end
 		return true
