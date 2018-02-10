@@ -125,12 +125,12 @@ function updateSelectedTowerToBuild()
 	local run = #transactionQueue > 0 and transactionQueue.wait < 0
 	while run do
 		if transactionQueue.currentState == transactionQueue[1].type then
-			print("Transaction type: "..transactionQueue[1].type)
+--			print("Transaction type: "..transactionQueue[1].type)
 			transactionQueue[1].func(transactionQueue[1].parameter)
 			table.remove(transactionQueue, 1)
 			run = #transactionQueue > 0
 		else
-			print("Wait 4 frames")
+--			print("Wait 4 frames")
 			run = false
 			transactionQueue.currentState = transactionQueue[1].type
 			transactionQueue.wait = 4
@@ -203,13 +203,13 @@ function addRebuildTowerEvent(textData)
 	local tab = totable(textData)
 	towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab.upp,func=5},restore={para1=tab.down,func=rebuildSoldTower}}
 	
-	print("\n\n")
-	print("---------------------------")
-	print("---------------------------")
-	print("---------------------------")
-	print("\n\n")
+--	print("\n\n")
+--	print("---------------------------")
+--	print("---------------------------")
+--	print("---------------------------")
+--	print("\n\n")
 	print(tostring(towerBuildInfo))
-	print("\n\n")
+--	print("\n\n")
 end
 
 function addDowngradeTower(textData)
@@ -233,7 +233,7 @@ function addPrioEvent(intabData)
 end
 
 function callPrioEvent(eventData)
-	local script = Core.getScriptOfNetworkName(eventData.netName)
+	local script = Core.getScriptOfNetworkName( (type(eventData.netName) == "string") and eventData.netName or "noFound" )
 	if script then
 		local comIndex = script:getIndex()
 		if eventData.event == 1 then
@@ -248,14 +248,14 @@ function callPrioEvent(eventData)
 end
 
 function DropLatestBuildingEvent(netName)
-	print("\n\n")
-	print("netName: " .. netName)
-	print("---------------------------")
-	print("---------------------------")
-	print("---------------------------")
-	print("\n\n")
-	print(tostring(towerBuildInfo))
-	print("\n\n")
+--	print("\n\n")
+--	print("netName: " .. netName)
+--	print("---------------------------")
+--	print("---------------------------")
+--	print("---------------------------")
+--	print("\n\n")
+--	print(tostring(towerBuildInfo))
+--	print("\n\n")
 	
 --	 [3]={
 --				restore={
@@ -274,20 +274,20 @@ function DropLatestBuildingEvent(netName)
 	for i=#towerBuildInfo, 1, -1 do
 		if towerBuildInfo[i] and towerBuildInfo[i].restore and towerBuildInfo[i].restore.para1 and towerBuildInfo[i].restore.para1.netName == netName then
 			nameMaping[#nameMaping+1] = {netName.."V3",towerBuildInfo[i].restore.para1.tName}
-			print("remove index: "..i)
+--			print("remove index: "..i)
 			table.remove(towerBuildInfo, i)
 			i = 0
 		end
 	end
 	
 
-	print("\n\n")
-	print("---------------------------")
-	print("---------------------------")
-	print("---------------------------")
-	print("\n\n")
-	print(tostring(towerBuildInfo))
-	print("\n\n")
+--	print("\n\n")
+--	print("---------------------------")
+--	print("---------------------------")
+--	print("---------------------------")
+--	print("\n\n")
+--	print(tostring(towerBuildInfo))
+--	print("\n\n")
 
 end
 
@@ -616,9 +616,9 @@ function upgradeWallTower(param)
 end
 
 function towerUpgradefunc(tab)
-	print("\n\ntowerUpgradefunc")
-	print("NetId: "..tab.netId)
-	print("comUnit:sendTo("..Core.getScriptOfNetworkName(tab.netId):getIndex()..", "..tab.msg..", "..(tab.param or ""))
+--	print("\n\ntowerUpgradefunc")
+--	print("NetId: "..tab.netId)
+--	print("comUnit:sendTo("..Core.getScriptOfNetworkName(tab.netId):getIndex()..", "..tab.msg..", "..(tab.param or ""))
 
 	comUnit:sendTo(Core.getScriptOfNetworkName(tab.netId):getIndex(),tab.msg,tab.param or "")
 end
@@ -628,12 +628,12 @@ function towerUpgrade(param)
 	
 	local tab = totable(param)
 	local scriptName = Core.getScriptOfNetworkName(tab.netId):getFileName()
-	print("----- tower Upgrade -----")
-	print("netId: "..tab.netId)
-	print("msg:   "..tab.msg)
-	print("param: "..(tab.param or ""))
-	print("name:  "..scriptName)
-	print("------------------------")
+--	print("----- tower Upgrade -----")
+--	print("netId: "..tab.netId)
+--	print("msg:   "..tab.msg)
+--	print("param: "..(tab.param or ""))
+--	print("name:  "..scriptName)
+--	print("------------------------")
 	
 	
 	
@@ -889,7 +889,7 @@ end
 
 function rebuildSoldTower(tab)
 	
-	print("rebuildSoldTower: "..tostring(tab))
+--	print("rebuildSoldTower: "..tostring(tab))
 	
 	local wallTowerNetName = tab.wallTowerName
 	local towerNetName = tab.towerName
@@ -910,7 +910,7 @@ function rebuildSoldTower(tab)
 	if foundStartEvent then
 		if towerBuildInfo[index].add.func == 2 then
 			--the wall tower needs to be sold
-			print("Sell Wall Tower: "..wallTowerNetName)
+--			print("Sell Wall Tower: "..wallTowerNetName)
 			sellTowerAddNoEvent(wallTowerNetName)
 		elseif towerBuildInfo[index].add.func == 3 then
 			--rename wallTower

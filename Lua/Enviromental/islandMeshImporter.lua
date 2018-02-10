@@ -46,19 +46,25 @@ function IslandMeshImporter.new()
 			local modelInfo = modelGroup[modelGroupIndex].models
 			print("modeinfo: "..tostring(modelInfo).."\n")
 			for i=1, #modelInfo do
-				nodeMesh = NodeMesh.new()
+				
 				
 				print("add mesh\n")
 				
 				local file = fileNode:getFile(modelInfo[i].modelName)	
 				
-				nodeMesh:setData2(file)
+				if file:exist() then
 				
-				nodeMesh:setLocalPosition(modelInfo[i].localPosition)
---				nodeMesh:setColor(Vec4(math.randomFloat(),math.randomFloat(),math.randomFloat(),1.0))
-				nodeMesh:compile()
-				
-				staticDensityNode:addChild(nodeMesh:toSceneNode())
+					local nodeMesh = NodeMesh.new()
+					nodeMesh:setData2(file)
+					
+					nodeMesh:setLocalPosition(modelInfo[i].localPosition)
+	--				nodeMesh:setColor(Vec4(math.randomFloat(),math.randomFloat(),math.randomFloat(),1.0))
+					nodeMesh:compile()
+					
+					staticDensityNode:addChild(nodeMesh:toSceneNode())
+				else
+					print("Failed to find file: "..modelInfo[i].modelName)
+				end
 			end
 		end
 

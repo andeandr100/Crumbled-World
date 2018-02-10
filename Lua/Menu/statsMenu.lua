@@ -338,10 +338,22 @@ function init()
 		statsBilboard:setPanel("MainPanel", mainPanel)
 		local panel = nil
 		
+		
+		
 		--Wave
 		wave = statsBilboard:getInt("wave")
 		maxWave = statsBilboard:getInt("maxWave")
 		waveLabel = createStat(Vec2(0.0,0.1885),Vec2(0.083984,0.231445), tostring(wave).."/"..maxWave, "current wave")
+		
+		
+		replayBillboard = Core.getBillboard("highScoreReplay")
+		if replayBillboard then
+			replayBillboard:setInt("maxWaves", maxWave)
+			if statsBilboard:getInt("life") > 0 then
+				replayBillboard:setInt("wavesCleared", wave)
+			end
+		end
+		
 		--Game speed
 		time = Core.getTimeSpeed()			
 		timeLabel = createSpeedButton(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed", toogleSpeed)
@@ -456,6 +468,16 @@ function updateReal()
 		wave = statsBilboard:getInt("wave")
 		maxWave = statsBilboard:getInt("maxWave")
 		waveLabel:setText(tostring(wave).."/"..maxWave)
+		
+		if replayBillboard then
+			print("maxWave: "..maxWave)
+			print("maxWave type: "..type(maxWave))
+			print("wave: "..wave)
+			print("wave type: "..type(wave))
+			replayBillboard:setInt("maxWaves", maxWave)
+			replayBillboard:setInt("wavesCleared", wave)
+		end
+		
 	end
 --	to be used When implemented
 	if gameMode~="rush" then
