@@ -359,9 +359,8 @@ function update()
 
 	--music
 	if music.source then
-		if Core.getTime()-music.timer > 5.0 then
+		if Core.getTime()-music.timer > 300.0 then
 			music.source:stopFadeOut(0.5)
-			music.source:toSceneNode():destroy()
 			music.token = music[music.token+1] and music.token+1 or 1
 			music.source = music[music.token]:playSound(0.075, true)
 			music.timer = Core.getTime()
