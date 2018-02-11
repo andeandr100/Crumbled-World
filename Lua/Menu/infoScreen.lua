@@ -170,7 +170,7 @@ function InfoScreen.new(camera)
 		
 		updateConnectedUsers()
 		
-		mainForm = Form( ConvertToCamera( camera ), PanelSize(Vec2(-0.7,-0.45), Vec2(5,2.5)), Alignment.MIDDLE_CENTER);
+		mainForm = Form( ConvertToCamera( camera:toSceneNode() ), PanelSize(Vec2(-0.7,-0.45), Vec2(5,2.5)), Alignment.MIDDLE_CENTER);
 		mainForm:setName("InfoScreen form")
 		mainForm:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))));
 		mainForm:setRenderLevel(11)

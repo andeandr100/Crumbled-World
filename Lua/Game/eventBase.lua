@@ -178,11 +178,6 @@ function EventBase.new()
 		end
 		return false
 	end
-	local function syncEvent(param)
-		local tab = totable(param)
-		spawnManager.generateWaves(tab.numWaves, tab.difficultBase, tab.difficultIncreaser, tab.startSpawnWindow, tab.globalSeed)
-		abort()
-	end
 	local function syncChangeWave(param)
 		local waveNum = tonumber(param)
 		while waveNum>waveCount do
@@ -209,7 +204,6 @@ function EventBase.new()
 		restartListener = Listener("Restart")
 		restartListener:registerEvent("restart", restartMapCalledFromTheOutSide)
 		
-		comUnitTable["NetGenerateWave"] = syncEvent
 		comUnitTable["ChangeWave"] = syncChangeWave
 		comUnitTable["EventBaseRestartWave"] = doRestartMap
 		spawnManager.init(comUnitTable, pWaveFinishedBonus)

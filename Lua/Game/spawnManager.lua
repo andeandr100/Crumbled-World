@@ -58,6 +58,13 @@ function SpawnManager.new()
 	--
 	local totalSpawned = 0
 	local spawnedThisWave = 0
+	
+	local function sendNetworkSyncSafe(msg,param)
+		local tab = Core.getNetworkClient():getConnected()
+		for index=1, Core.getNetworkClient():getConnectedPlayerCount() do
+			comUnit:sendNetworkSyncSafeTo("Event"..tostring(tab[index].clientId),msg,param)
+		end
+	end
 
 	function self.spawnUnitsPattern( pattern )
 		spawnPattern = pattern
@@ -410,6 +417,10 @@ function SpawnManager.new()
 	end
 	function self.disableUnit(npcName)
 		disableUnits[npcName] = true
+	end
+	local function syncEvent(param)
+		local tab = totable(param)
+		self.generateWaves(tab.numWaves, tab.difficultBase, tab.difficultIncreaser, tab.startSpawnWindow, tab.globalSeed)
 	end
 	function self.init(comUnitTable)
 		comUnitTable["NetGenerateWave"] = syncEvent

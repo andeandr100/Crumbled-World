@@ -552,6 +552,16 @@ function NpcBase.new()
 		if npcIsDestroyed then
 			return false
 		end
+		--
+		if billboard:exist("isAlive")==false or billboard:getBool("isAlive")==false then
+			Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),0,Vec3(1,0,0))
+		else
+			if canSyncNPC() then
+				Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,2,0),0,Vec3(0,1,0))
+			else
+				Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,2,0),0,Vec3(1))
+			end
+		end
 		--update the movment
 		--if we need to sync up the npc position
 		if Core.isInMultiplayer() and math.abs(NETSpeedMod)>0.05 then
@@ -595,8 +605,8 @@ function NpcBase.new()
 				error("THIS SHOULD NEVER EVER OCCURE ANYMORE!!!")
 			end
 			--npc is dead
-			billboard:setBool("isAlive",false)
 			if canSyncNPC() or syncConfirmedDeath then
+				billboard:setBool("isAlive",false)
 				local binaryNumPos = {[1]=1,[2]=2,[4]=3,[8]=4,[16]=5,[32]=6,[64]=7,[128]=8,[256]=9,[512]=10,[1024]=11,[2048]=12}
 				self.getCurrentIslandPlayerId()
 				comUnit:sendTo("SteamStats","LongestLivingNPC",npcAge)

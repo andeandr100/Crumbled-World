@@ -323,7 +323,7 @@ function MinigunTower.new()
 			particleEffectTracer[activePipe]:activate(Vec3(0.0,-2.0,0.0),Vec3(0,-1,0))
 			--particleEffectHitt:activate( (this:getGlobalMatrix():inverseM()*targetPosition)+Vec3(0.0,0.45,0.0) )
 			--
-			soundAttack:play(0.3,false)
+			soundAttack:play(0.4,false)
 		end
 	end
 	local function attackLaserBeam()
@@ -740,7 +740,7 @@ function MinigunTower.new()
 		--Gun
 		soundAttack = SoundNode.new("minigunTower_attack")
 		soundAttack:setSoundPlayLimit(8)
-		soundAttack:setLocalSoundPLayLimit(3)
+		soundAttack:setLocalSoundPLayLimit(4)
 		this:addChild(soundAttack:toSceneNode())
 		
 		for i=1,2 do

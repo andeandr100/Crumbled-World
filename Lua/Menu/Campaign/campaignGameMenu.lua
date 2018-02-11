@@ -564,6 +564,7 @@ function CampaignGameMenu.new(panel)
 		--set previous selected settings or a default setting
 		if menuPrevSelect:get("campaign"):exist("selectedMap") and menuPrevSelect:get("campaign"):exist("selectedDifficulty") and menuPrevSelect:get("campaign"):exist("selectedGameMode") then
 			local index = getMapIndex(menuPrevSelect:get("campaign"):get("selectedMap"):getString())
+			index = index>0 and index or 1--we must select a valid value
 			if files[index].available then
 				changeMapTo(menuPrevSelect:get("campaign"):get("selectedMap"):getString())
 				--

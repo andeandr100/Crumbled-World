@@ -217,6 +217,9 @@ function SoulManager.new()
 				end
 			end
 			soul.hp = paramHp
+		else
+			--something is wrong kill that npc
+			Core.getComUnit():sendTo(fromIndex,"attack","100000000")
 		end
 	end
 	-- function:	updateState
