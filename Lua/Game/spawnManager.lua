@@ -422,8 +422,12 @@ function SpawnManager.new()
 		local tab = totable(param)
 		self.generateWaves(tab.numWaves, tab.difficultBase, tab.difficultIncreaser, tab.startSpawnWindow, tab.globalSeed)
 	end
+	local function syncWaveData(param)
+		waves = toTable(param)
+	end
 	function self.init(comUnitTable)
 		comUnitTable["NetGenerateWave"] = syncEvent
+		comUnitTable["NetWaveData"] = syncWaveData
 		comUnitTable["NetSpawnNpc"] = syncSpawnNpc
 		comUnitTable["spawnNextGroup"] = spawnNextGroup
 		comUnitTable["removeNextDelay"] = removeNextDelay
@@ -458,17 +462,6 @@ function SpawnManager.new()
 	end
 	function self.generateWaves(pNumWaves,difficultBase,difficultIncreaser,startSpawnWindow,seed)
 		--pNumWaves = 2
-		local multiplayerGenerateData = {}
-		if Core.getNetworkClient():isAdmin() then
-			multiplayerGenerateData.numWaves = pNumWaves
-			multiplayerGenerateData.difficultBase = difficultBase
-			multiplayerGenerateData.difficultIncreaser = difficultIncreaser
-			multiplayerGenerateData.startSpawnWindow = startSpawnWindow
-			multiplayerGenerateData.globalSeed = seed
-			
-			--comUnit:sendNetworkSyncSafe("NetGenerateWave",tabToStrMinimal(multiplayerGenerateData))
-			sendNetworkSyncSafe("NetGenerateWave",tabToStrMinimal(multiplayerGenerateData))
-		end
 		
 		if seed then
 			local rand = Random(seed)
@@ -672,7 +665,7 @@ function SpawnManager.new()
 						{{npc="stoneSpirit",delay=0.0},{npc="stoneSpirit",delay=1.0}},
 					},
 				{	waves={[3]=true,[4]=true},
-					odds=function(selected) local ret={0.25, 0.1, 0.0} return ret[math.clamp(selected,1,#ret)] end,
+					odds=function(selected) local ret={[0]=1.0, 0.25, 0.0} return ret[math.clamp(selected,0,#ret)] end,
 					group={
 						{{npc="skeleton_cf",delay=0.0},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75}},
 						{{npc="skeleton_cf",delay=0.0},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75}}
@@ -724,7 +717,7 @@ function SpawnManager.new()
 				hydra3 = 1,
 				hydra4 = 1,
 				hydra5 = 1,
-				superHeavy = 4
+				superHeavy = 4		--superheavys are valued as following hydra=1, stonespirit=1, turtle=1, reaper=0.51, dino=0.26
 			}
 			--
 			--
@@ -1060,6 +1053,20 @@ function SpawnManager.new()
 			self.updateHpBillboard(0.1)--just fill the billboards
 			
 			spawnListPopulated = true
+			
+			local multiplayerGenerateData = {}
+			
+			if Core.getNetworkClient():isAdmin() then
+				multiplayerGenerateData.numWaves = pNumWaves
+				multiplayerGenerateData.difficultBase = difficultBase
+				multiplayerGenerateData.difficultIncreaser = difficultIncreaser
+				multiplayerGenerateData.startSpawnWindow = startSpawnWindow
+				multiplayerGenerateData.globalSeed = seed
+				
+				--comUnit:sendNetworkSyncSafe("NetGenerateWave",tabToStrMinimal(multiplayerGenerateData))
+				sendNetworkSyncSafe("NetGenerateWave",tabToStrMinimal(multiplayerGenerateData))
+				sendNetworkSyncSafe("NetWaveData",tabToStrMinimal(waves))
+			end
 		end
 	
 		return true
