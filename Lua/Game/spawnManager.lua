@@ -44,6 +44,8 @@ function SpawnManager.new()
 	local keyBinds = Core.getBillboard("keyBind")
 	local keyBindRevertWave
 	--
+	local seed
+	--
 	local pathBilboard
 	local spawns
 	local isCartMap = false
@@ -176,6 +178,41 @@ function SpawnManager.new()
 			ret[k] = getCopyOfTable(v)
 		end
 		return ret
+	end
+	local function compareValues(t1, t2)
+		--make sure they are the smae type
+		if type(t1)~=type(t2) then
+			abort()
+			return false
+		end
+		
+		if type(t1)=="table" then
+			--compare tables
+			local keysCompared = {}
+			for k,v in pairs(t1) do
+				keysCompared[k] = true
+				--compare the 2 values 
+				if compareValues(t1[k], t2[k])==false then
+					abort()
+					return false
+				end
+			end
+			--make sure that t2 does not contain any other keys
+			for k,v in pairs(t2) do
+				if not keysCompared[k] then
+					abort()
+					return false
+				end
+			end
+		else
+			--compare values
+			if type(t1)=="number" then
+				return ((t1-t2)>-0.0001 and (t1-t2)<0.0001 )
+			else
+				return t1==t2
+			end
+		end
+		return true
 	end
 	local function resendWaveData()
 		comUnit:sendTo("stats", "setWave", mapInfo.getStartWave())
@@ -420,10 +457,21 @@ function SpawnManager.new()
 	end
 	local function syncEvent(param)
 		local tab = totable(param)
+		waveSpawnInformation = tab
 		self.generateWaves(tab.numWaves, tab.difficultBase, tab.difficultIncreaser, tab.startSpawnWindow, tab.globalSeed)
 	end
 	local function syncWaveData(param)
-		waves = toTable(param)
+		local waveData = totable(param)
+		if waveData and waveData.index and waveData.wave then
+--			local d1 = waves[waveData.index]	
+--			local d2 = waveSpawnInformation
+--			if compareValues(waves[waveData.index], waveData.wave)==false then
+--				error("d1==waves[waveData.index] is not equal to waveData.wave")
+--			end
+			waves[waveData.index] = waveData.wave
+		else
+			error("waveData is ill formed, should be like {index=1, wave={}}")
+		end
 	end
 	function self.init(comUnitTable)
 		comUnitTable["NetGenerateWave"] = syncEvent
@@ -460,11 +508,10 @@ function SpawnManager.new()
 		mapStatId = fileName
 		return true
 	end
-	function self.generateWaves(pNumWaves,difficultBase,difficultIncreaser,startSpawnWindow,seed)
+	function self.generateWaves(pNumWaves,difficultBase,difficultIncreaser,startSpawnWindow,pSeed)
 		--pNumWaves = 2
-		
+		seed = pSeed
 		if seed then
-			local rand = Random(seed)
 			npcPathOffset = Random(seed)
 			numWaves = pNumWaves
 			local isInMultiplayer = Core.isInMultiplayer()
@@ -730,6 +777,7 @@ function SpawnManager.new()
 			local nextWaveDelayTime = 0.0
 			waves = {}
 			for i=1, numWaves do
+				local rand = Random(seed+i)
 				local maxSpawnTime = 30.0
 				local totalSpawnTime = math.min(maxSpawnTime,20+(i*0.30))--the calculated time to spawn npcs
 				--launch difficulty (1.0 i max, and should never be used)[Because 1.0 is damge output limit and a of many other factors will make it unsustanable]{0.85 is probably max, increase difficultIncreaser instead}
@@ -788,7 +836,7 @@ function SpawnManager.new()
 						popItem(groupComp,index)
 					else
 						local index2 = 1
-						while groupComp[index][index2] do
+						while groupComp[index][index2] do	
 							if disableUnits[groupComp[index][index2].npc] then
 								popItem(groupComp,index)
 								index = index-1
@@ -909,17 +957,17 @@ function SpawnManager.new()
 					if i==numWaves and numWaves>=25 then
 						checkLimitsOnEndWave()
 						for j=1, endWave.count do
-							if endWave[j] and endWave[j].waves[groupCountForWave] and endWave[j].odds(endWave.selected)>=math.randomFloat() then
+							if endWave[j] and endWave[j].waves[groupCountForWave] and endWave[j].odds(endWave.selected)>=rand:randFloat() then
 								endWave.selected = endWave.selected + 1
 								local tab = endWave[j].group
 								if tab then
-									local group = getCopyOfTable(tab[math.randomInt(1,#tab)])
+									local group = getCopyOfTable(tab[rand:range(1,#tab)])
 									cost = cost + addSelectedGroupToWave(group)
 								end
-								if endWave[j].followup and endWave[j].followupOdds()>=math.randomFloat() then
+								if endWave[j].followup and endWave[j].followupOdds()>=rand:randFloat() then
 									addGroupSplitter()
 									tab = endWave[j].followup
-									cost = cost + addSelectedGroupToWave( getCopyOfTable(tab[math.randomInt(1,#tab)]) )
+									cost = cost + addSelectedGroupToWave( getCopyOfTable(tab[rand:range(1,#tab)]) )
 								end
 								--
 								endWaveSpawned = true
@@ -973,7 +1021,7 @@ function SpawnManager.new()
 						addGroupSplitter()
 						local tab = endWave["LAST"].group
 						if tab then
-							addSelectedGroupToWave( getCopyOfTable(tab[math.randomInt(1,#tab)]) )
+							addSelectedGroupToWave( getCopyOfTable(tab[rand:range(1,#tab)]) )
 						end
 					end
 				end
@@ -982,17 +1030,6 @@ function SpawnManager.new()
 --					print(tostring(waveDetails))
 --					abort()
 --				end
-				--LOG(">while "..usedSpawnHP.."<"..totalSpawnHP.." and "..waveTotalTime.."<"..(totalSpawnTime*2.0).." do")
---				if true then
---					local routePlanner = this:findNodeByType(NodeId.RoutePlanner)
---					local spawn = routePlanner:getRandomSpawnArea()
---					if spawn then
---						for k,v in pairs(waveDetailsInfo) do
---							spawn:addEnemyInfo(i, v)
---						end
---					end
---				end
-				--
 				totalGoldEarned = totalGoldEarned + goldBousForWave
 				waveGoldEarned = waveGoldEarned + goldBousForWave
 				--
@@ -1065,7 +1102,11 @@ function SpawnManager.new()
 				
 				--comUnit:sendNetworkSyncSafe("NetGenerateWave",tabToStrMinimal(multiplayerGenerateData))
 				sendNetworkSyncSafe("NetGenerateWave",tabToStrMinimal(multiplayerGenerateData))
-				sendNetworkSyncSafe("NetWaveData",tabToStrMinimal(waves))
+				--the data must be sent in seperate wave as the system has a max package size of 2^16-3
+				for i=1, numWaves do
+					local tData = {index=i,wave=waves[i]}
+					sendNetworkSyncSafe("NetWaveData",tabToStrMinimal(tData))
+				end
 			end
 		end
 	

@@ -553,15 +553,15 @@ function NpcBase.new()
 			return false
 		end
 		--
-		if billboard:exist("isAlive")==false or billboard:getBool("isAlive")==false then
-			Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),0,Vec3(1,0,0))
-		else
-			if canSyncNPC() then
-				Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,2,0),0,Vec3(0,1,0))
-			else
-				Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,2,0),0,Vec3(1))
-			end
-		end
+--		if billboard:exist("isAlive")==false or billboard:getBool("isAlive")==false then
+--			Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),0,Vec3(1,0,0))
+--		else
+--			if canSyncNPC() then
+--				Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,2,0),0,Vec3(0,1,0))
+--			else
+--				Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,2,0),0,Vec3(1))
+--			end
+--		end
 		--update the movment
 		--if we need to sync up the npc position
 		if Core.isInMultiplayer() and math.abs(NETSpeedMod)>0.05 then

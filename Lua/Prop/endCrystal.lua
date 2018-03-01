@@ -82,45 +82,42 @@ end
 -- function:	update
 -- purpose:		updates the script every frame
 function update()
-	if statsBilboard then
-		local count = statsBilboard:getInt("life")
-		--manage if spirit count have changed
-		if count~=spiritCount then
-			if spiritCount==0 and count>0 then
-				--restore the crystal
-				cleanUpCrystal()
-				restoreCrystal()
-			elseif count==0 and spiritCount>0 then
-				--destroy crystal
-				destroyCrystal()
-			end
-			if count<spiritCount then
-				--we lost a spirit
-				spiritLost()
-			end
-			spiritCount = count
-			--set visability on spirits
-			for i=1, 20 do
-				spirits[i].effect:setVisible(i<=spiritCount)
-			end
+	statsBilboard = statsBilboard or Core.getBillboard("stats")
+	local count = (statsBilboard and statsBilboard:getInt("life")) or 20
+	--manage if spirit count have changed
+	if count~=spiritCount then
+		if spiritCount==0 and count>0 then
+			--restore the crystal
+			cleanUpCrystal()
+			restoreCrystal()
+		elseif count==0 and spiritCount>0 then
+			--destroy crystal
+			destroyCrystal()
 		end
-		--update spirits and crystal
-		if spiritCount>0 then
-			--spirits
-			for i=1, spiritCount do
-				local spirit = spirits[i]
-				spirit.time1 = spirit.time1 + Core.getDeltaTime()*spirit.timeMul1
-				spirit.time2 = spirit.time2 + Core.getDeltaTime()*spirit.timeMul2
-				spirit.mat1:rotate(spirit.axis,spirit.time1)
-				spirit.mat2:rotate(spirit.mat1:getUpVec(),spirit.time2)
-				spirit.effect:setLocalPosition(spirit.mat2*spirit.posVec+Vec3(0.0,1.05,0.0))
-			end
-			--crystal
-			timer = timer + (Core.getDeltaTime()*0.75)
-			this:setLocalPosition(Vec3(0,0.25+0.1*math.sin(timer),0)+localPos)
+		if count<spiritCount then
+			--we lost a spirit
+			spiritLost()
 		end
-	else
-		statsBilboard = Core.getBillboard("stats")
+		spiritCount = count
+		--set visability on spirits
+		for i=1, 20 do
+			spirits[i].effect:setVisible(i<=spiritCount)
+		end
+	end
+	--update spirits and crystal
+	if spiritCount>0 then
+		--spirits
+		for i=1, spiritCount do
+			local spirit = spirits[i]
+			spirit.time1 = spirit.time1 + Core.getDeltaTime()*spirit.timeMul1
+			spirit.time2 = spirit.time2 + Core.getDeltaTime()*spirit.timeMul2
+			spirit.mat1:rotate(spirit.axis,spirit.time1)
+			spirit.mat2:rotate(spirit.mat1:getUpVec(),spirit.time2)
+			spirit.effect:setLocalPosition(spirit.mat2*spirit.posVec+Vec3(0.0,1.05,0.0))
+		end
+		--crystal
+		timer = timer + (Core.getDeltaTime()*0.75)
+		this:setLocalPosition(Vec3(0,0.25+0.1*math.sin(timer),0)+localPos)
 	end
 	return true
 end

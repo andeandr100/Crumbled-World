@@ -302,7 +302,7 @@ function SwarmTower.new()
 			comUnit:broadCast(this:getGlobalPosition(),TOWERRANGEMAX,"supportBoost",1)
 			--Achievement
 			comUnit:sendTo("SteamAchievement","Boost","")
-		else
+		elseif upgrade.getLevel("boost")>tonumber(param) then
 			upgrade.degrade("boost")
 			upgrade.clearCooldown()
 			--

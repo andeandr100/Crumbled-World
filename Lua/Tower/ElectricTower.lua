@@ -175,9 +175,9 @@ function ElectricTower.new()
 		end
 		return false
 	end
-	local function canOfferEnergy()
+	local function canOfferEnergy(askerInPrioOverUs)
 		if energy>AttackEnergyCost then
-			return math.clamp(energy*0.1,AttackEnergyCost,energy)
+			return math.clamp(AttackEnergyCost*1.5, energy*(askerInPrioOverUs and 0.35 or 0.1), energy)
 		else
 			return 0
 		end
@@ -185,26 +185,29 @@ function ElectricTower.new()
 	local function doWeHaveEnergyOver(param, fromIndex)
 		--energy transfer can only occure if there is no enemy in range
 		--we will only give energy if they have priority(an enemy in range)
-		--or that we have 10% more energy available
+		--or we have shorter time to max energy +2s
+		
+		--make sure we don't have priority (enemy in range)
 		if targetSelector.isAnyInRange()==false and reloadTimeLeft<0.0 then
 			local energyMax = upgrade.getValue("energyMax")
 			local percentage = energy/energyMax
 			--make sure the tower is in range
 			if (this:getGlobalPosition()-Core.getBillboard(fromIndex):getVec3("GlobalPosition")):length()<=upgrade.getValue("range")+0.75 then
+				local rechargeTimeLeft = (energyMax-energy)/energyReg
 				if param.deficit>1 then
-					local canOffer = canOfferEnergy()
+					local canOffer = canOfferEnergy(param.prio)
 					if canOffer>AttackEnergyCost*0.5 then
 						local canOfferPercentage = (canOffer*2)/energyMax
-						if param.prio or percentage>=param.percentage+canOfferPercentage then
-							--give energy if they are in priority or we can send energy without going to request energy back
+						if param.prio or rechargeTimeLeft+2.0<param.rechargeTimeLeft then
+							--give energy if they are in priority or we have 2s shorter resharge time
 							if energy>AttackEnergyCost then
-								comUnit:sendTo(fromIndex,"canOfferEnergy",canOffer)
+								comUnit:sendTo(fromIndex,"canOfferEnergy",{canOffer=canOffer, rechargeTimeLeft=rechargeTimeLeft})
 							end
 						end
 					end
 				elseif energy+1>energyMax then
 					--if we are full on energy and the other tower is not requesting energy, then we can do a light show to visualize the link
-					comUnit:sendTo(fromIndex,"canOfferEnergy",0.1)-- offers<1 will not send any energy
+					comUnit:sendTo(fromIndex,"canOfferEnergy",{canOffer=0.1, rechargeTimeLeft=0})-- offers<1 will not send any energy
 				end
 			end
 		end
@@ -212,7 +215,8 @@ function ElectricTower.new()
 	--a tower have asked for our energy reserve
 	local function sendEnergyTo(parameter, fromIndex)
 		local neededEnergy = parameter.energyNeed
-		local canOffer = canOfferEnergy()
+		--we assume he has prio. (because they will not ask for more that our offer)
+		local canOffer = canOfferEnergy(true)
 		local willSend = canOffer>neededEnergy and neededEnergy or canOffer
 		comUnit:sendTo(fromIndex,"sendEnergyTo",tostring(willSend))
 		energy = energy - willSend
@@ -235,12 +239,13 @@ function ElectricTower.new()
 					bestIndex = energyOffers[index].from
 					--if we have gotten an offer of what we need
 					if maxOffer>energyNeed then
+						maxOffer = energyNeed
 						break
 					end
 				end
 			end
 			if bestIndex>0 then
-				comUnit:sendTo(bestIndex,"sendMeEnergy",{energyNeed=energyNeed>1 and energyNeed or 0,pos=this:getGlobalPosition()})
+				comUnit:sendTo(bestIndex,"sendMeEnergy",{energyNeed=energyNeed>1 and maxOffer or 0,pos=this:getGlobalPosition()})
 			end
 		end
 	end
@@ -248,7 +253,7 @@ function ElectricTower.new()
 	--recive information when a tower can lend some energy
 	local function someoneCanOfferEnergy(parameter, fromIndex)
 		energyOffers.size = energyOffers.size + 1
-		energyOffers[energyOffers.size] = {offer=parameter,from=fromIndex}
+		energyOffers[energyOffers.size] = {offer=parameter.canOffer, rechargeTimeLeft=parameter.rechargeTimeLeft, from=fromIndex}
 	end
 	local function recivingEnergy(parameter, fromIndex)
 		energy = energy + tonumber(parameter)
@@ -687,12 +692,13 @@ function ElectricTower.new()
 		end
 		--ask fo energy
 		lastEnergyRequest = lastEnergyRequest + Core.getDeltaTime()
-		if energy<energyMax*0.95 and lastEnergyRequest>(targetSelector.isAnyInRange() and 0.4 or 1.0) then--can ask 1/s or 2/s if there is any enemies in range
+		if energy<energyMax*0.9 and lastEnergyRequest>(targetSelector.isAnyInRange() and 0.5 or 1.0) then--can ask 1/s or 2/s if there is any enemies in range
 			lastEnergyRequest = 0.0
+			local rechargeTimeLeft = (energyMax-energy)/energyReg
 			if targetSelector.isAnyInRange() then
-				comUnit:broadCast(this:getGlobalPosition(),MAXTHEORETICALENERGYTRANSFERRANGE,"requestEnergy",{prio=true,deficit=(energyMax-energy),percentage=energy/energyMax})
+				comUnit:broadCast(this:getGlobalPosition(),MAXTHEORETICALENERGYTRANSFERRANGE,"requestEnergy",{prio=true,deficit=(energyMax-energy),rechargeTimeLeft=rechargeTimeLeft})
 			else
-				comUnit:broadCast(this:getGlobalPosition(),MAXTHEORETICALENERGYTRANSFERRANGE,"requestEnergy",{prio=false,deficit=(energyMax-energy),percentage=energy/energyMax})
+				comUnit:broadCast(this:getGlobalPosition(),MAXTHEORETICALENERGYTRANSFERRANGE,"requestEnergy",{prio=false,deficit=(energyMax-energy),rechargeTimeLeft=rechargeTimeLeft})
 			end
 			energyOffers.size=0
 			energyOffers.frameCounter=2
@@ -700,7 +706,7 @@ function ElectricTower.new()
 			--max energy (make a light show, to indicate that there is a link between the towers)
 			lastEnergyRequest = 0.0
 			energyLightShow = math.randomFloat(3.0,7.0)
-			comUnit:broadCast(this:getGlobalPosition(),MAXTHEORETICALENERGYTRANSFERRANGE,"requestEnergy",{prio=false,deficit=0,percentage=1.0})
+			comUnit:broadCast(this:getGlobalPosition(),MAXTHEORETICALENERGYTRANSFERRANGE,"requestEnergy",{prio=false,deficit=0,rechargeTimeLeft=0.0})
 			energyOffers.size=0
 			energyOffers.frameCounter=2
 		end

@@ -495,7 +495,12 @@ function ArrowTower.new()
 		if (billboard:getBool("isNetOwner") or targetSelector.getTargetIfAvailable()==0) then
 			if targetSelector.selectAllInRange() then
 				targetSelector.filterOutState(state.ignore)
-				if targetMode==1 then
+				if upgrade.getLevel("boost")>0 then
+					--density
+					targetSelector.scoreDensity(30)
+					targetSelector.scoreClosestToExit(15)
+					targetSelector.scoreRandom(20)
+				elseif targetMode==1 then
 					--priority targets
 					targetSelector.scoreHP(20)
 					targetSelector.scoreName("dino",10)
