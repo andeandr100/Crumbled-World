@@ -6,6 +6,7 @@ require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
+require("Game/soundManager.lua")
 --this = SceneNode()
 ElectricTower = {}
 function ElectricTower.new()
@@ -55,7 +56,8 @@ function ElectricTower.new()
 	local comUnitTable = {}
 	local billboardWaveStats
 	--sound
-	local soundAttack = SoundNode.new("electric_attack")
+	local attackSounds = {"electric_attack1", "electric_attack2", "electric_attack3", "electric_attack4"}
+	local soundManager = SoundManager.new(this)
 	--other
 	local isAnyInRange = {timer=0.0, isAnyInRange=false}
 	local syncTimer = 0.0 
@@ -575,7 +577,7 @@ function ElectricTower.new()
 			local targetPosition = targetSelector.getTargetPosition(target)
 			local ringCenterPos = ring[1]:getGlobalPosition()
 			--
-			soundAttack:play(0.6,false)
+			soundManager.play(attackSounds[math.randomInt(1,#attackSounds)], 1.0, false)
 			--
 			if targetSelector.getIndexOfShieldCovering(targetPosition)==targetSelector.getIndexOfShieldCovering(ringCenterPos) then
 				--direct hitt
@@ -760,9 +762,11 @@ function ElectricTower.new()
 		if particleEffectUpgradeAvailable then
 			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
 		end
-		--sound
-		soundAttack:setSoundPlayLimit(6)
-		soundAttack:setLocalSoundPLayLimit(4)
+		--sound limits
+		for i=1, #attackSounds do
+			local s1 = SoundNode.new(attackSounds[i])
+			s1:setSoundPlayLimit(2)
+		end
 	
 		--ComUnit
 		comUnit:setCanReceiveTargeted(true)
@@ -1060,8 +1064,6 @@ function ElectricTower.new()
 		this:addChild(electric2:toSceneNode())
 		pointLightAttack:setCutOff(0.05)
 		pointLightAttack:setVisible(false)
-		
-		this:addChild(soundAttack:toSceneNode())
 	
 		pointLight:setCutOff(0.05)
 		--pointLight = Core.getLight(LightType.point,Vec3(),Vec3(0.0,1.3,1.3),2.35)

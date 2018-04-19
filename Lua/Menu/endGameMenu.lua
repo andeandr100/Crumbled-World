@@ -2,6 +2,7 @@ require("Menu/MainMenu/mainMenuStyle.lua")
 require("Menu/graphDrawer.lua")
 require("Game/mapInfo.lua")
 require("Game/campaignData.lua")
+require("Game/soundManager.lua")
 --this = SceneNode()
 
 local data
@@ -18,6 +19,8 @@ local input = Core.getInput()
 local comUnitTable = {}
 local mapInfo = MapInfo.new()
 local isVictory
+
+local soundManager = SoundManager.new(nil)
 
 local campaignData = CampaignData.new()
 local files = campaignData.getMaps()
@@ -285,6 +288,13 @@ function initiate()
 		label2:setTextColor(Vec3(1))
 		--
 		MainMenuStyle.createBreakLine(form)
+		if scoreItem.index==5 then
+			soundManager.play("victory1-4", 1.0, false)
+		else
+			soundManager.play("victory5", 1.0, false)
+		end
+	else
+		soundManager.play("defeat", 1.0, false)
 	end
 	--
 	--	Section with all stats

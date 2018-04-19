@@ -228,12 +228,12 @@ function SwarmTower.new()
 		end
 		
 		--get all meshes that we will interact with later
-		if meshCrystal then
-			meshCrystal:removeChild( sparkCenter:toSceneNode() )
-		end
-		meshCrystal = model:getMesh( "crystal" )
-		meshCrystal:addChild( sparkCenter:toSceneNode() )
-		sparkCenter:activate(Vec3(0,0,1))
+--		if meshCrystal then
+--			meshCrystal:removeChild( sparkCenter:toSceneNode() )
+--		end
+--		meshCrystal = model:getMesh( "crystal" )
+--		meshCrystal:addChild( sparkCenter:toSceneNode() )
+--		sparkCenter:activate(Vec3(0,0,1))
 		local rangeMatrix
 		if meshRange then
 			rangeMatrix = meshRange:getLocalMatrix()
@@ -552,6 +552,10 @@ function SwarmTower.new()
 		if particleEffectUpgradeAvailable then
 			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
 		end
+		
+		meshCrystal = model:getMesh( "crystal" )
+		this:addChild( sparkCenter:toSceneNode() )
+		sparkCenter:activate(Vec3(0,1.7,0))
 	
 		--ComUnit
 		comUnit:setCanReceiveTargeted(true)

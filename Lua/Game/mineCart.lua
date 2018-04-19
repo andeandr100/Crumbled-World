@@ -161,7 +161,7 @@ function getNumNpcOnTheCart()
 end
 function updateDeathArea()
 	cartDeathPosition = cartDeathPosition or this:getGlobalPosition()
-	comUnit:broadCast(cartDeathPosition,1,"attack",tostring(1000000000))
+	comUnit:broadCast(cartDeathPosition,1.5,"attack",tostring(1000000000))
 	return true
 end
 function update()

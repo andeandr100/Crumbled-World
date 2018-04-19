@@ -6,6 +6,7 @@ require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
 require("Game/particleEffect.lua")
 require("Game/mapInfo.lua")
+require("Game/soundManager.lua")
 --this = SceneNode()
 
 QuakeTower = {}
@@ -56,10 +57,11 @@ function QuakeTower.new()
 	local electricBall		--electricStrike
 	local electricPointLight--electricStrike
 	local electrikStrike	--electricStrike
-	local soundAttack		--electricStrike
 	--stats
 	local mapName = MapInfo.new().getMapName()
 	--sound
+	local attackSounds = {"electric_attack1", "electric_attack2", "electric_attack3", "electric_attack4"}
+	local soundManager = SoundManager.new(this)
 	--other
 	local lastRestored = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
@@ -375,11 +377,9 @@ function QuakeTower.new()
 			if electricBall==nil then
 				electricBall = ParticleSystem.new(ParticleEffect.SparkSpirit)
 				electricPointLigth = PointLight.new(Vec3(0.0,1.5,1.5),3.0)
-				soundAttack = SoundNode.new("electric_attack")
 				electrikStrike = {token=0}
 				this:addChild( electricBall:toSceneNode() )
 				this:addChild( electricPointLigth:toSceneNode() )
-				this:addChild( soundAttack:toSceneNode() )
 				for i=1, 6 do
 					electrikStrike[i] = {effect=ParticleEffectElectricFlash.new("Lightning_D.tga"), light=PointLight.new(Vec3(0.0,1.0,1.0),2.5)}
 					this:addChild(electrikStrike[i].effect:toSceneNode())
@@ -470,6 +470,9 @@ function QuakeTower.new()
 			local targets = targetSelector.getAllTargets()
 			local fireCritDamage = upgrade.getValue("damage")*(1.0+upgrade.getValue("fireCrit"))
 			local damage = upgrade.getValue("damage")
+			--sounds
+			soundManager.play("quake_attack", 1.0, false)
+			--
 			for index,score in pairs(targets) do
 				if targetSelector.isTargetInState(index,state.burning) then
 					comUnit:sendTo(index,"attack",tostring(fireCritDamage))
@@ -494,9 +497,12 @@ function QuakeTower.new()
 			local slow = upgrade.getValue("slow")
 			local duration = upgrade.getValue("slowTimer")
 			local slowTab = {per=slow,time=duration,type="electric"}
+			--sounds
 			if #targets>0 then
-				soundAttack:play(0.6,false)
+				soundManager.play(attackSounds[math.randomInt(1,#attackSounds)], 1.0, false)
 			end
+			soundManager.play("quake_attack", 1.0, false)
+			--
 			for i=1, #targets do
 				electrikStrike.token = (electrikStrike.token%6) + 1
 				local item = electrikStrike[electrikStrike.token]
@@ -528,6 +534,9 @@ function QuakeTower.new()
 				quakeFlameBlast:activate(Vec3(0,0.6,0))
 				firePointLigth:pushRangeChange(3,1.0)
 				fireBall:setScale(0.0)
+				soundManager.play("fireFlash", 1.0, false)
+			else
+				soundManager.play("quake_attack", 1.0, false)
 			end
 			local targets = targetSelector.getAllTargets()
 			local fireDPS = upgrade.getValue("fireDPS")
@@ -689,6 +698,16 @@ function QuakeTower.new()
 		if particleEffectUpgradeAvailable then
 			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
 		end
+		
+		--sound limits
+		for i=1, #attackSounds do
+			local s1 = SoundNode.new(attackSounds[i])
+			s1:setSoundPlayLimit(2)
+		end
+		local s1 = SoundNode.new("quake_attack")
+		local s2 = SoundNode.new("fireFlash")
+		s1:setSoundPlayLimit(2)
+		s2:setSoundPlayLimit(2)
 	
 		--ComUnit
 		comUnit:setCanReceiveTargeted(true)

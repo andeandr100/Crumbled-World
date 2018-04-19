@@ -190,7 +190,7 @@ function update()
 	--Handle communication
 	while comUnit:hasMessage() do
 		local msg = comUnit:popMessage()
-		print("selectedMenu: msg="..msg.message)
+		--print("selectedMenu: msg="..msg.message)
 		if comUnitTable[msg.message]~=nil then
 		 	comUnitTable[msg.message](msg.parameter,msg.fromIndex)
 		end

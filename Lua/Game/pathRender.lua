@@ -242,7 +242,6 @@ function spawnSpirit()
 				usedPoints[id] = true
 				
 				id = nextId
-				print("Next id: "..id)
 			else
 				run = false
 			end

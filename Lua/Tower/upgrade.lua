@@ -539,7 +539,11 @@ function Upgrade.new()
 			--loop throgh all upgrades
 			for key, value in pairs(upgraded) do
 				if key ~= "version" and value.stats[stat] then
-					value.stats[stat][1](stat,value.stats[stat][2])
+					if type(value.stats[stat][1])=="function" then
+						value.stats[stat][1](stat,value.stats[stat][2])
+					else
+						error("bad")
+					end
 				end
 			end
 			--update billboard

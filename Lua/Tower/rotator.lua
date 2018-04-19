@@ -153,6 +153,17 @@ function Rotator.new()
 	function self.isReadyToFire()
 		return readyToFireCount==2--hor(+1) and ver(+1) in position then we can fire
 	end
+	function self.isReadyToFireIn()
+		local rotToDo = 0.0
+		--set max rotation that can be done
+		if targetNothingTimer>0.0 then
+			rotToDo = rotToDo + math.sin( targetNothingTimer )*Core.getDeltaTime()*0.05
+		end
+		if targetAt:length()>0.1 then
+			rotToDo = rotToDo - math.atan2((targetAt.x*aimAt.z)-(targetAt.z*aimAt.x),(targetAt.x*aimAt.x)+(targetAt.z*aimAt.z))
+		end
+		return math.abs(rotToDo/(speedHor+0.05))
+	end
 	function self.isAtHorizontalLimit()
 		if horLimits then
 			local rotLimitCheck = -math.atan2((targetAt.x*defaultAt.z)-(targetAt.z*defaultAt.x),(targetAt.x*defaultAt.x)+(targetAt.z*defaultAt.z))

@@ -5,7 +5,6 @@ function destroy()
 	npcBase.destroy()
 end
 function create()
-	print("Rat::create()")
 	npcBase = NpcBase.new()
 	npcBase.init("rat","npc_rat.mym",0.175,0.6,0.45,3.5)
 	local mat = npcBase.getModel():getLocalMatrix()

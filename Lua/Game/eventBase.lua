@@ -17,7 +17,7 @@ function EventBase.new()
 	
 	local currentState = 0
 	
-	local waveRestarted
+	local waveRestarted = false
 	local previousWaveCounter = 0			--smount of time that we has gone back in time
 	
 	
@@ -564,7 +564,8 @@ function EventBase.new()
 --		end
 		
 		if bilboardStats then
-			if bilboardStats:getInt("life") <= 0 and waveCount>STARTWAVE and waveRestarted==false and (Core.getGameTime()-restartTimer) > 4.0 then
+			--print("if "..tostring(bilboardStats:getInt("life")).."<=0 and "..tostring(waveCount)..">="..tostring(STARTWAVE).." and "..tostring(waveRestarted).."==false and "..tostring(Core.getGameTime()-restartTimer)..">4.0 then")
+			if bilboardStats:getInt("life") <= 0 and waveCount>=STARTWAVE and waveRestarted==false and (Core.getGameTime()-restartTimer) > 4.0 then
 				local highScoreBillBoard = Core.getGlobalBillboard("highScoreReplay")
 				local isAReplay = highScoreBillBoard:getBool("replay")
 				if not eventBaserunOnlyOnce and isAReplay == false then

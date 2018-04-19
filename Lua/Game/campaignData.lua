@@ -37,7 +37,7 @@ function CampaignData.new()
 		{file=File("Data/Map/Campaign/Spiral.map"),			statId="Spiral",		statIdOld="L7",		minScore=15000,	maxScore=34000,	type="Crystal",	sead=109723780,	waveCount=25},--? / 30000								--31k
 		{file=File("Data/Map/Campaign/Broken mine.map"),	statId="BrokenMine",						minScore=15000,	maxScore=34000,	type="Cart",	sead=104266217,	waveCount=25},--? / 33500[13k]							--30k
 		{file=File("Data/Map/Campaign/Town.map"),			statId="Town",			statIdOld="L8",		minScore=15000,	maxScore=34000,	type="Crystal",	sead=956148502,	waveCount=25},--? / 32000(2.65)[10K]					--30k	
-		{file=File("Data/Map/Campaign/Centeral.map"),		statId="Centeral",							minScore=15000,	maxScore=30000,	type="Crystal",	sead=187549817,	waveCount=25},--? /
+		{file=File("Data/Map/Campaign/Centeral.map"),		statId="Centeral",							minScore=15000,	maxScore=28000,	type="Crystal",	sead=187549817,	waveCount=25},--? /
 		{file=File("Data/Map/Campaign/Outpost.map"),		statId="Outpost",							minScore=15000,	maxScore=28000,	type="Crystal",	sead=342413641,	waveCount=25},--? / 28000(6)							--29k	
 		{file=File("Data/Map/Campaign/Plaza.map"),			statId="Plaza",			statIdOld="L9",		minScore=15000,	maxScore=35000,	type="Crystal",	sead=169366078,	waveCount=25},--? / 35000(2.5)							--
 		{file=File("Data/Map/Campaign/Long haul.map"),		statId="LongHaul",		statIdOld="L10",	minScore=15000,	maxScore=28000,	type="Cart",	sead=202469227,	waveCount=25},--? / 27695(2)[22k]						--

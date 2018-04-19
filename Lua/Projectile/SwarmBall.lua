@@ -55,6 +55,7 @@ function SwarmBall.new(pTargetSelector)
 	
 	--sound
 	local soundHitt = SoundNode.new("swarmBall_hitt")
+	soundHitt:setSoundPlayLimit(2)
 	node:addChild(soundHitt:toSceneNode())
 
 	--
@@ -300,7 +301,7 @@ function SwarmBall.new(pTargetSelector)
 						end
 						--
 						soundHitt:setLocalPosition(position)
-						soundHitt:play(2.0,false)
+						soundHitt:play(1.0,false)
 					end
 				else
 					comUnit:broadCast(position,detonationRange,"attack",tostring(damage))

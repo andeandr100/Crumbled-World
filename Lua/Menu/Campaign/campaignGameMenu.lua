@@ -234,9 +234,9 @@ function CampaignGameMenu.new(panel)
 	end
 	local function setLabelListItemColor(label,available)
 		if available>0 then
-			label:setTextColor(Vec3(0.7))
+			label:setTextColor(Vec4(0.7,0.7,0.7,1.0))
 		else
-			label:setTextColor(Vec3(0.3))
+			label:setTextColor(Vec4(0.5))
 		end
 	end
 	local function addMapsPanel(panel)

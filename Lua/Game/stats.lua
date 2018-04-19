@@ -463,7 +463,6 @@ end
 function handleNpcSpawnedWave(param)
 	local index,wave = string.match(param, "([^;]+);([^;]+)")
 	if currentWave==tonumber(wave) then
-		print("======== "..index.." spawned on wave "..wave)
 		billboard:setInt(index, tonumber(wave))
 	end
 end

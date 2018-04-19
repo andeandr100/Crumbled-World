@@ -154,7 +154,7 @@ function SpawnManager.new()
 			script:setScriptNetworkId(netName)
 			local billboard = script:getBillboard()
 			billboard:setDouble("pathOffset",npcPathOffset:randFloat()*2.0-1.0)
-			print("NPC->setNetName() == "..netName.."\n")
+			--print("NPC->setNetName() == "..netName.."\n")
 			--count down npcs to be spawned
 			currentWave[1].info[currentSpawn.npc].numEnemies = currentWave[1].info[currentSpawn.npc].numEnemies - 1
 			--

@@ -9,7 +9,9 @@ require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
+require("Game/soundManager.lua")
 --this = SceneNode()
+
 MinigunTower = {}
 function MinigunTower.new()
 	local self = {}
@@ -31,6 +33,10 @@ function MinigunTower.new()
 	--sound
 	local soundLaser = nil
 	local soundAttack = nil
+	local soundTarget = 0
+	local soundManager = SoundManager.new(this)
+	local attackCounter = 0
+	local attackCountMax = 1
 	--Mesh
 	local model
 	local engineMesh
@@ -282,6 +288,42 @@ function MinigunTower.new()
 			end
 		end
 	end
+	local function stopAllAttackSound(msg, doNotRest)
+	--latest version
+--		if not soundManager.isAllStopped() then
+--			print("STOP() - "..(msg and msg or ""))
+--			local attacksPerSec = (upgrade.getLevel("upgrade")==3 and 5 or 2.5)*(Core.getTimeSpeed()>1.5 and 3 or 1)
+--			soundManager.stopAll(1.0/attacksPerSec*0.5)
+--		end
+--		if not doNotRest then
+--			attackCounter = 0
+--		end
+	--old version
+--		soundAttack.active = nil
+--		soundAttack.target = 0
+--		for k,v in pairs(soundAttack) do
+--			if type(v)=="table" then
+--				for i=1, 2 do
+--					v.counter = v.totalAttackSounds-1
+--				end
+--			end
+--		end
+--		for k,v in pairs(soundAttack) do
+--			if type(v)=="table" then
+--				for i=1, 2 do
+--					if v[i].sound:isPlaying() and v[i].isPlaying then
+--						print("-- ["..tostring(k).."]["..tostring(i).."]")
+--						--stop the sound
+--						local attacksPerSec = 1.0/((upgrade.getLevel("upgrade")==3 and 5 or 2.5)*(Core.getTimeSpeed()>1.5 and 3 or 1))
+--						v[i].sound:stopFadeOut(attacksPerSec*1.5)
+--						v[i].isPlaying = false
+--					end
+--				end
+--				--make sure it is played again on next attack
+--				v.counter = v.totalAttackSounds-1
+--			end
+--		end
+	end
 	local function attack()
 		local target = targetSelector.getTarget()
 		if target>0 then
@@ -308,7 +350,7 @@ function MinigunTower.new()
 				comUnit:sendTo(index,"attack",tostring(dmg))
 				comUnit:sendTo(index,"addForceFieldEffect",tostring(bulletStartPos.x)..";"..bulletStartPos.y..";"..bulletStartPos.z..";"..targetPosition.x..";"..targetPosition.y..";"..targetPosition.z..";"..hitTime)
 			else
-				--nothing in the way do the attack
+				--nothing in the way do the attack	
 				if upgrade.getLevel("fireCrit")>0 and targetSelector.isTargetInState(state.burning) then
 					comUnit:sendTo(target,"attackPhysical",tostring(dmg*increasedDamageToFire))
 					comUnit:sendTo("SteamAchievement","CriticalStrike","")
@@ -323,7 +365,37 @@ function MinigunTower.new()
 			particleEffectTracer[activePipe]:activate(Vec3(0.0,-2.0,0.0),Vec3(0,-1,0))
 			--particleEffectHitt:activate( (this:getGlobalMatrix():inverseM()*targetPosition)+Vec3(0.0,0.45,0.0) )
 			--
-			soundAttack:play(0.4,false)
+--			attackCountMax = (upgrade.getLevel("upgrade")==3 and 8 or 3)*(Core.getTimeSpeed()>1.5 and 2 or 1)
+--			local currentSound = "minigun_attack_"..(upgrade.getLevel("upgrade")==3 and "5" or "2_5")..(Core.getTimeSpeed()>1.5 and "_3x" or "")
+--			attackCounter = attackCounter==attackCountMax and 1 or attackCounter + 1
+--			soundTarget = target
+--			if attackCounter==1 then
+--				stopAllAttackSound("ONLY ONE SOUD", true)
+--				soundManager.play(currentSound, 1.0, false)
+--				Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(-0.2,3.5,-0.2),0.1,Vec3(0,0,1))
+--			end
+			soundManager.play("minigun_attack", 1.0, false)
+--			if soundAttack.active~=currentSound and soundAttack.active then
+--				--we are swapping sound, so they all need to come to an end
+--				stopAllAttackSound("GAME SPEED")
+--				soundAttack.active = currentSound
+--			else
+--				soundAttack[currentSound].counter = soundAttack[currentSound].counter + 1
+--				print("ATTACK()")				
+--				if soundAttack[currentSound].counter==soundAttack[currentSound].totalAttackSounds then
+--					soundAttack[currentSound].counter = 1
+--					soundAttack.target = target
+--					soundManager.play(currentSound, 1.5, false)
+----					--soundAttack[currentSound][soundAttack.next].sound:stopFadeOut(0.2)
+----					soundAttack.next = soundAttack.next==5 and 1 or (soundAttack.next + 1)
+----					print("PLAY() "..tostring(soundAttack.next).." - "..currentSound)
+----					soundAttack[currentSound][soundAttack.next].sound:play(1.5,false)
+----					soundAttack[currentSound][soundAttack.next].isPlaying = true
+--					soundAttack.active = currentSound
+--				end
+--			end
+--			["2"]=	{	{sound=SoundNode.new("minigun_attack_2_5"),		counter=0,	totalAttackSounds=3},
+--						{sound=SoundNode.new("minigun_attack_2_5"),		counter=0,	totalAttackSounds=3}},
 		end
 	end
 	local function attackLaserBeam()
@@ -675,7 +747,7 @@ function MinigunTower.new()
 	--
 	local function init()
 		--this:setIsStatic(true)
-		Core.setUpdateHz(60.0)
+		--Core.setUpdateHz(60.0)
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
@@ -738,10 +810,58 @@ function MinigunTower.new()
 		soundLaser:setLocalSoundPLayLimit(4)
 		this:addChild(soundLaser:toSceneNode())
 		--Gun
-		soundAttack = SoundNode.new("minigunTower_attack")
-		soundAttack:setSoundPlayLimit(8)
-		soundAttack:setLocalSoundPLayLimit(4)
-		this:addChild(soundAttack:toSceneNode())
+--		soundAttack = {
+--			target=0,
+--			next=1,
+--			["2"]=	{	counter=3,
+--						totalAttackSounds=4,
+--						{sound=SoundNode.new("minigun_attack_2_5"), isPlaying=false},
+--						{sound=SoundNode.new("minigun_attack_2_5"), isPlaying=false},
+--						{sound=SoundNode.new("minigun_attack_2_5"), isPlaying=false},
+--						{sound=SoundNode.new("minigun_attack_2_5"), isPlaying=false},
+--						{sound=SoundNode.new("minigun_attack_2_5"), isPlaying=false}},
+--			["2_3x"]={	counter=6,
+--						totalAttackSounds=7,
+--						{sound=SoundNode.new("minigun_attack_2_5_3x"), isPlaying=false},
+--						{sound=SoundNode.new("minigun_attack_2_5_3x"), isPlaying=false},
+--						{sound=SoundNode.new("minigun_attack_2_5_3x"), isPlaying=false},
+--						{sound=SoundNode.new("minigun_attack_2_5_3x"), isPlaying=false},
+--						{sound=SoundNode.new("minigun_attack_2_5_3x"), isPlaying=false}},
+--			["5"]=	{	counter=8,
+--						totalAttackSounds=9,
+--						{sound=SoundNode.new("minigun_attack_5"), isPlaying=false},
+--						{sound=SoundNode.new("minigun_attack_5"), isPlaying=false}},
+--			["5_3x"]={	counter=16,
+--						totalAttackSounds=17,
+--						{sound=SoundNode.new("minigun_attack_5_3x"), isPlaying=false},
+--						{sound=SoundNode.new("minigun_attack_5_3x"), isPlaying=false}}
+--		}
+--		soundAttack["2"][1].sound:setSoundPlayLimit(5)
+--		soundAttack["2_3x"][1].sound:setSoundPlayLimit(5)
+--		soundAttack["5"][1].sound:setSoundPlayLimit(5)
+--		soundAttack["5_3x"][1].sound:setSoundPlayLimit(5)
+--		soundAttack["2"][1].sound:setLocalSoundPLayLimit(3)
+--		soundAttack["2_3x"][1].sound:setLocalSoundPLayLimit(3)
+--		soundAttack["5"][1].sound:setLocalSoundPLayLimit(3)
+--		soundAttack["5_3x"][1].sound:setLocalSoundPLayLimit(3)
+--		this:addChild(soundAttack["2"][1].sound:toSceneNode())
+--		this:addChild(soundAttack["2"][2].sound:toSceneNode())
+--		this:addChild(soundAttack["2_3x"][1].sound:toSceneNode())
+--		this:addChild(soundAttack["2_3x"][2].sound:toSceneNode())
+--		this:addChild(soundAttack["5"][1].sound:toSceneNode())
+--		this:addChild(soundAttack["5"][2].sound:toSceneNode())
+--		this:addChild(soundAttack["5_3x"][1].sound:toSceneNode())
+--		this:addChild(soundAttack["5_3x"][2].sound:toSceneNode())
+		local s0 = SoundNode.new("minigun_attack")
+		local s1 = SoundNode.new("minigun_attack_2_5")
+		local s2 = SoundNode.new("minigun_attack_2_5_3x")
+		local s3 = SoundNode.new("minigun_attack_5")
+		local s4 = SoundNode.new("minigun_attack_5_3x")
+		s0:setSoundPlayLimit(8)
+		s1:setSoundPlayLimit(3)
+		s2:setSoundPlayLimit(3)
+		s3:setSoundPlayLimit(3)
+		s4:setSoundPlayLimit(3)
 		
 		for i=1,2 do
 			local pipeMesh = model:getMesh( "pipe"..i )
@@ -1031,6 +1151,19 @@ function MinigunTower.new()
 		updateTarget()
 		updateSync()
 		
+		if not soundManager.isAllStopped() then
+			local attacksPerSec = ((upgrade.getLevel("upgrade")==3 and 5 or 2.5)*(Core.getTimeSpeed()>1.5 and 3 or 1))
+			if targetSelector.isTargetAvailable() then
+				if soundTarget~=targetSelector.getTarget() and rotator.isReadyToFireIn()>(1.0/attacksPerSec)*1.5 then
+					stopAllAttackSound("TARGET TO FAR AWAY")
+					soundTarget = targetSelector.getTarget()
+					--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0.2,3.5,0.2),1.0/attacksPerSec,Vec3(0,1,0))
+				end
+			else
+				stopAllAttackSound("NO TARGET")
+				--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),0,Vec3(1,0,0))
+			end
+		end
 		if overheated==false and targetSelector.getTargetIfAvailable()>0 then
 			local npcSize = 1.75--target:getNPCSize()
 			local targetAt = targetSelector.getTargetPosition()-engineMesh:getGlobalPosition()
