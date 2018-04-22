@@ -21,6 +21,10 @@ function MapInformation.setMapInfoLoadedFunction( aFunction )
 end
 
 function MapInformation.mapInfoLoaded()
+	if MapInformation.mapConfig == nil then
+		MapInformation.init()
+	end
+	local d1 = MapInformation.mapConfig
 	local mapConfig = MapInformation.mapConfig:get("data")
 	if mapConfig then
 		MapInformation.mapTables = mapConfig:getTable()
@@ -115,9 +119,6 @@ function MapInformation.getMapInfoFromFileName(fileName, filePath)
 			end
 		end		
 	end
---	if not (fileName=="Downloads" or fileName=="blackWorld" or fileName=="Campaign") then
---		abort()
---	end
 	return nil
 end
 

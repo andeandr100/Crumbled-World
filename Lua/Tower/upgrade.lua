@@ -29,6 +29,7 @@ function Upgrade.new()
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	local bilboardStats = Core.getBillboard("stats")
 	local ignoreUpgrade = true
+	local isInRestoreMode = false
 	local xpSystem
 
 	--real version:
@@ -166,6 +167,9 @@ function Upgrade.new()
 		}
 		return tab
 	end
+	function self.setRestoreMode(set)
+		isInRestoreMode = set
+	end
 	-- function:	mergeTables
 	-- purpose:		merges 2 tables
 	-- function:	combineTables
@@ -256,7 +260,7 @@ function Upgrade.new()
 			end
 			
 			if ignoreUpgrade == false then
-				if billboard:getBool("isNetOwner") then
+				if billboard:getBool("isNetOwner") and isInRestoreMode==false then
 					comUnit:sendTo("stats","removeGold",tostring(lCost))
 --					print("# upgrade: "..name)
 --					print("# cost: "..lCost)

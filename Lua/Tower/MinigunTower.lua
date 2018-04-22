@@ -122,10 +122,9 @@ function MinigunTower.new()
 		end
 	end
 	local function doDegrade(fromLevel,toLevel,callback)
-		while fromLevel>toLevel do
-			fromLevel = fromLevel - 1
-			callback(fromLevel)
-		end
+		upgrade.setRestoreMode(true)
+		callback(toLevel)
+		upgrade.setRestoreMode(false)
 	end
 	local function restoreWaveChangeStats( wave )
 --		print("restoreWaveChangeStats( "..wave.." )")
@@ -145,13 +144,13 @@ function MinigunTower.new()
 					xpManager.restoreWaveChangeStats(tab.xpTab)
 				end
 				--
-				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
-				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.upgradeRange)
-				doDegrade(upgrade.getLevel("fireCrit"),tab.fireCritLevel,self.upgradeGreaseBullet)
-				doDegrade(upgrade.getLevel("overCharge"),tab.overChargeLevel,self.upgradeOverCharge)
-				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
-				--
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+--				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
+--				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.upgradeRange)
+--				doDegrade(upgrade.getLevel("fireCrit"),tab.fireCritLevel,self.upgradeGreaseBullet)
+--				doDegrade(upgrade.getLevel("overCharge"),tab.overChargeLevel,self.upgradeOverCharge)
+--				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
+--				--
+--				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
@@ -506,6 +505,23 @@ function MinigunTower.new()
 	local function handleRetarget()
 		targetSelector.deselect()
 	end
+	function self.getCurrentIslandPlayerId()
+		local islandPlayerId = 0--0 is no owner
+		local island = this:findNodeByTypeTowardsRoot(NodeId.island)
+		if island then
+			islandPlayerId = island:getPlayerId()
+		end
+		--if islandPlayerId>0 then
+		networkSyncPlayerId = islandPlayerId
+		if type(networkSyncPlayerId)=="number" and Core.getNetworkClient():isPlayerIdInUse(networkSyncPlayerId)==false then
+			networkSyncPlayerId = 0
+		end
+		--end
+		return networkSyncPlayerId
+	end
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
 	function self.handleUpgrade(param)
 		if tonumber(param)>upgrade.getLevel("upgrade") then
 			upgrade.upgrade("upgrade")
@@ -514,7 +530,7 @@ function MinigunTower.new()
 		else
 			return--level unchanged
 		end
-		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
+		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 and canSyncTower() then
 			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
@@ -596,7 +612,7 @@ function MinigunTower.new()
 	function self.handleBoost(param)
 		if tonumber(param)>upgrade.getLevel("boost") then
 			upgrade.upgrade("boost")
-			if Core.isInMultiplayer() then
+			if Core.isInMultiplayer() and canSyncTower() then
 				comUnit:sendNetworkSyncSafe("upgrade2","1")
 			end
 			boostedOnLevel = upgrade.getLevel("upgrade")
@@ -623,7 +639,7 @@ function MinigunTower.new()
 		else
 			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
+		if Core.isInMultiplayer() and canSyncTower() then
 			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
 		if upgrade.getLevel("range")==0 then
@@ -670,7 +686,7 @@ function MinigunTower.new()
 		else
 			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
+		if Core.isInMultiplayer() and canSyncTower() then
 			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
 		if upgrade.getLevel("fireCrit")>0 then
@@ -691,7 +707,7 @@ function MinigunTower.new()
 		else
 			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
+		if Core.isInMultiplayer() and canSyncTower() then
 			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
 		if upgrade.getLevel("overCharge")==0 then
