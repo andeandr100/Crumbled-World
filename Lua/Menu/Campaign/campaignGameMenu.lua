@@ -501,10 +501,6 @@ function CampaignGameMenu.new(panel)
 		if windowShop.getVisible() then
 			windowShop.update()
 		end
-		
-		if Core.getInput():getKeyDown(Key.m) then
-			abort()
-		end
 	end
 	local function returnFromShopToCampaign()
 		mainPanel:setVisible(true)

@@ -208,7 +208,7 @@ function addRebuildTowerEvent(textData)
 --	print("---------------------------")
 --	print("---------------------------")
 --	print("\n\n")
-	print(tostring(towerBuildInfo))
+--	print(tostring(towerBuildInfo))
 --	print("\n\n")
 end
 
