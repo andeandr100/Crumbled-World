@@ -36,7 +36,7 @@ function SpawnManager.new()
 	local mapStatId = ""
 	local steamStatMinPlayedTime = 0.0
 	local cData = CampaignData.new()
-	local soundWind = Sound("wind1",SoundType.STEREO)
+	--local soundWind = Sound("wind1",SoundType.STEREO)
 	local spawnListPopulated = false
 	local spawnPattern = SPAWN_PATTERN.Random
 	local npcPathOffset

@@ -40,7 +40,7 @@ function EventBase.new()
 	local mapStatId = ""
 	local steamStatMinPlayedTime = 0.0
 	local cData = CampaignData.new()
-	local soundWind = Sound("wind1",SoundType.STEREO)
+	--local soundWind = Sound("wind1",SoundType.STEREO)
 	local spawnPattern = SPAWN_PATTERN.Random
 	--keybinds
 	local keyBinds = Core.getBillboard("keyBind")
@@ -250,7 +250,7 @@ function EventBase.new()
 		--
 		--
 		
-		soundWind:playSound(0.055,true)
+		--soundWind:playSound(0.055,true)
 		--
 		--Special case first wave
 		if mapInfo.getGameMode()~="training" then
