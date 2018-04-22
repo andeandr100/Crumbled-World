@@ -356,34 +356,38 @@ function CampaignGameMenu.new(panel)
 		levelInfo.setIsCampaign(true)
 		levelInfo.setGameMode(gameModeBox.getIndexText())
 		local mapFile = File(selectedFile)
-		local mNum = tonumber(string.match(selectedButton:getTag():toString(),"(.*):"))
-		levelInfo.setMapNumber(mNum)
-		levelInfo.setSead(files[mNum].sead)
-		levelInfo.setMapFileName(selectedFile)
-		levelInfo.setMapName(mapFile:getName())
-		if mapFile:isFile() then
-			mapLabel:setText( mapFile:getName() )
-			local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
-			if mapInfo then
-				levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
+		if mapFile:exist() then
+			local mNum = tonumber(string.match(selectedButton:getTag():toString(),"(.*):"))
+			levelInfo.setMapNumber(mNum)
+			levelInfo.setSead(files[mNum].sead)
+			levelInfo.setMapFileName(selectedFile)
+			levelInfo.setMapName(mapFile:getName())
+			if mapFile:isFile() then
+				mapLabel:setText( mapFile:getName() )
+				local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
+				if mapInfo then
+					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
+				end
+				if mapInfo then
+					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
+					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
+					levelInfo.setWaveCount(mapInfo.waveCount)
+				else
+					error("No map information was found")
+				end
+				levelInfo.setLevel(1)
+				local d1 = levelInfo.getDifficulty()
+				local d2 = levelInfo.getDifficultyIncreaser()
 			end
-			if mapInfo then
-				levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
-				levelInfo.setDifficultyBase(mapInfo.difficultyBase)
-				levelInfo.setWaveCount(mapInfo.waveCount)
-			else
-				error("No map information was found")
-			end
-			levelInfo.setLevel(1)
-			local d1 = levelInfo.getDifficulty()
-			local d2 = levelInfo.getDifficultyIncreaser()
+			--save default selection
+			menuPrevSelect:save()
+			--
+			Core.startMap(selectedFile)
+			local worker = Worker("Menu/loadingScreen.lua", true)
+			worker:start()
+		else
+			error("The map "..tostring(selectedFile).." does not exist")
 		end
-		--save default selection
-		menuPrevSelect:save()
-		--
-		Core.startMap(selectedFile)
-		local worker = Worker("Menu/loadingScreen.lua", true)
-		worker:start()
 	end
 	local function showShop()
 		windowShop.setVisible(true)
@@ -555,6 +559,7 @@ function CampaignGameMenu.new(panel)
 --		end
 		
 		MapInformation.setMapInfoLoadedFunction(mapInfoLoaded)
+				MapInformation.init()
 		
 		local setDefault = true
 		--set previous selected settings or a default setting
@@ -586,7 +591,6 @@ function CampaignGameMenu.new(panel)
 	--	Public functions
 	--
 	function self.isVisible()
-		MapInformation.init()
 	end
 	function self.getVisible()
 		return mainPanel:getVisible()
