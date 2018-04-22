@@ -328,8 +328,10 @@ function initiate()
 	end
 	--
 	if not isVictory then
-		restartWaveButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-0.5,-1), nil, language:getText("revert wave")))
+		restartWaveButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-(1.0/3.0),-1), nil, language:getText("restart last wave")))
 		restartWaveButton:addEventCallbackExecute(restartWave)
+		restartMapButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-0.5,-1), nil, language:getText("restart map")))
+		restartMapButton:addEventCallbackExecute(restartMap)
 	end
 	--
 	quitToMenuButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-1,-1), nil, language:getText("quit to menu")))

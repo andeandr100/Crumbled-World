@@ -341,6 +341,23 @@ function ElectricTower.new()
 			end
 		end
 	end
+	function self.getCurrentIslandPlayerId()
+		local islandPlayerId = 0--0 is no owner
+		local island = this:findNodeByTypeTowardsRoot(NodeId.island)
+		if island then
+			islandPlayerId = island:getPlayerId()
+		end
+		--if islandPlayerId>0 then
+		networkSyncPlayerId = islandPlayerId
+		if type(networkSyncPlayerId)=="number" and Core.getNetworkClient():isPlayerIdInUse(networkSyncPlayerId)==false then
+			networkSyncPlayerId = 0
+		end
+		--end
+		return networkSyncPlayerId
+	end
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
 	function self.handleUpgrade(param)
 		if tonumber(param)>upgrade.getLevel("upgrade") then
 			upgrade.upgrade("upgrade")
@@ -349,7 +366,7 @@ function ElectricTower.new()
 		else
 			return--level unchanged
 		end
-		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 then
+		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 and canSyncTower() then
 			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
 		end
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
@@ -379,7 +396,7 @@ function ElectricTower.new()
 	end
 	function self.handleBoost(param)
 		if tonumber(param)>upgrade.getLevel("boost") then
-			if Core.isInMultiplayer() then
+			if Core.isInMultiplayer() and canSyncTower() then
 				comUnit:sendNetworkSyncSafe("upgrade2","1")
 			end
 			boostedOnLevel = upgrade.getLevel("upgrade")
@@ -405,7 +422,7 @@ function ElectricTower.new()
 		else
 			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
+		if Core.isInMultiplayer() and canSyncTower() then
 			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
 		end
 		if upgrade.getLevel("range")>0 then
@@ -423,7 +440,7 @@ function ElectricTower.new()
 		else
 			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
+		if Core.isInMultiplayer() and canSyncTower() then
 			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
 		if upgrade.getLevel("ampedSlow")==0 then
@@ -444,7 +461,7 @@ function ElectricTower.new()
 		else
 			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
+		if Core.isInMultiplayer() and canSyncTower() then
 			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
 		end
 		if upgrade.getLevel("energyPool")>0 then
@@ -465,7 +482,7 @@ function ElectricTower.new()
 		else
 			return--level unchanged
 		end
-		if Core.isInMultiplayer() then
+		if Core.isInMultiplayer() and canSyncTower() then
 			comUnit:sendNetworkSyncSafe("upgrade6",tostring(param))
 		end
 		if upgrade.getLevel("energy")>0 then
