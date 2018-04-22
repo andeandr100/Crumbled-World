@@ -12,6 +12,11 @@ function restore(data)
 	
 end
 
+function destroy()
+	if music.source then
+                music.source:stopFadeOut(3.0)
+        end
+end
 
 function create()
 	
