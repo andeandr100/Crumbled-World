@@ -65,6 +65,11 @@ function ArrowTower.new()
 	--stats
 	local mapName = MapInfo.new().getMapName()
 	--
+	
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
+	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
 			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
@@ -172,7 +177,9 @@ function ArrowTower.new()
 				billboard:setDouble("DamagePreviousWave",dmgDone)
 				billboard:setDouble("DamagePreviousWavePassive",dmgDoneMarkOfDeath)
 				billboard:setDouble("DamageTotal",billboard:getDouble("DamageTotal")+dmgDone)
-				comUnit:sendTo("stats", "addTotalDmg", dmgDone+dmgDoneMarkOfDeath )
+				if canSyncTower() then
+					comUnit:sendTo("stats", "addTotalDmg", dmgDone+dmgDoneMarkOfDeath )
+				end
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -302,9 +309,6 @@ function ArrowTower.new()
 		end
 		--end
 		return networkSyncPlayerId
-	end
-	local function canSyncTower()
-		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
 	function self.handleUpgrade(param)
 		if tonumber(param)>upgrade.getLevel("upgrade") then

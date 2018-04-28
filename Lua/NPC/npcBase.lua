@@ -418,15 +418,18 @@ function NpcBase.new()
 				comUnit:sendTo("stats","goldInterest",0.67)--allways full interest
 				comUnit:sendTo("stats","addGold", (value*mul*0.67)+soul.getGoldGainAdd() )
 				comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;"..soul.getGoldGainAdd())
+				if canSyncNPC() then
+					comUnit:sendTo("stats","addKill","")
+				end
 			else
 				comUnit:sendTo("stats","goldInterest",1.0)--allways full interest
 				--gold from the killing
 				local killValue = (value*mul)+soul.getGoldGainAdd()
 				comUnit:sendTo("stats","addGold", killValue )
 				comUnit:sendTo("stats","addBillboardDouble","goldGainedFromKills;"..tostring(killValue))
+				comUnit:sendTo("stats","addKill","")
 			end
 		end
-				comUnit:sendTo("stats","addKill","")
 	end
 	--removed from soulmanager, so we can't be targeted
 	function self.deathCleanup()

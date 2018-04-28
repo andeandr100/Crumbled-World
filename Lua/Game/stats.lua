@@ -620,10 +620,19 @@ function waveChanged()
 			table.remove(waveDamages,1)
 		end
 		averageDamage = 0
-		for i=1, #waveDamages do
-			averageDamage = averageDamage + waveDamages[i]
+		local last3WaveDamage = 1
+		local count = 0
+		local i=#waveDamages
+		while waveDamages[i] and count~=3 do
+			last3WaveDamage = last3WaveDamage + waveDamages[i]
+			count = count + 1
+			i = i - 1
 		end
-		averageDamage = math.round(averageDamage / #waveDamages)
+		if count>=1 then
+			averageDamage = last3WaveDamage/count
+		else
+			averageDamage = 0
+		end
 	end
 end
 function updateTimerStr()
@@ -668,6 +677,7 @@ function update()
 			local dataTab = { name = Core.getNetworkClient():getUserName(),
 							clientId = Core.getNetworkClient():getClientId(),
 							gold = billboard:getInt("gold"),
+							goldTotal = billboard:getInt("goldGainedTotal"),
 							totalDamage = math.round(totalDamage),
 							averageDamage = math.round(averageDamage),
 							speed = billboard:exist("speed") and billboard:getInt("speed") or 1,		

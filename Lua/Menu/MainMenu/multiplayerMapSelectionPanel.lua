@@ -1,5 +1,6 @@
 require("Menu/MainMenu/mapListPanel.lua")
 require("Menu/MainMenu/settingsCombobox.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 
 MultiplayerMapSelectionPanel = {}
@@ -118,7 +119,7 @@ function MultiplayerMapSelectionPanel.new(panel, inServerListPanel, inLobbyMenu)
 		
 		--Game Mode
 		local gameModePanel = addTableRow( infoPanel, "game mode" )
-		local gameModeOptions = {"rush", "attack", "normal", "survival"}
+		local gameModeOptions = MapInfo.new().getGameModesMultiPlayer()
 		comboBoxGameMode = SettingsComboBox.new(gameModePanel, PanelSize(Vec2(-1)), gameModeOptions, "game mode", gameModeOptions[3], nil )
 		gameModeLabel = gameModePanel:add(Label(PanelSize(Vec2(-1),Vec2(4.5,1)), "Co-op", Vec3(0.7)))
 		

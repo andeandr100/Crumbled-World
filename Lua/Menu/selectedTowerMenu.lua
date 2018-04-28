@@ -156,7 +156,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	
 	
 	local function init()
-		
 		--keybinds
 		keyBinds = Core.getBillboard("keyBind");
 		keyBindUpgradeBuilding = keyBinds:getKeyBind("Upgrade")
@@ -184,7 +183,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			comUnit:sendTo( buildNode:getScriptByName("BuilderScript"):getIndex(), netMessage, data)	
 		end
 	end
-
 	
 	local function getTowerCost(towerId)
 		local towerNode = buildingNodeBillboard:getSceneNode(tostring(towerId).."Node")
@@ -192,7 +190,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		if towerNode then
 			local buildingScript = towerNode:getScriptByName("tower")
 			--get the cost of the new tower
-			return buildingScript:getBillboard():getFloat("cost")
+			return buildingScript:getBillboard():getInt("cost")
 		end
 		return 0
 	end
@@ -714,6 +712,17 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		header:setText(Text("<b>") + language:getText(currentTowerName) + levelText)
 	end
 	
+	local function costToShortString(cost)
+		local cost = tonumber(cost)
+		if cost<1000 then
+			return tostring(cost)
+		elseif cost>1000 then
+			return "1K+"
+		else
+			return "1K"
+		end
+	end
+	
 	local function updateButton(name, inText)
 		print("\n=== updateButton ===")
 		print("Name "..name)
@@ -763,7 +772,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				end
 				
 				if buttoninfo.cost ~= nil and buttoninfo.costLabel and tonumber(buttoninfo.cost.value) > 0 then
-					local text = Text(tostring(buttoninfo.cost.value))
+					local text = Text(costToShortString(buttoninfo.cost.value))
 					buttoninfo.costLabel:setPanelSize(PanelSize(Vec2(-1),Vec2(2,1)))
 					buttoninfo.costLabel:setText( text )
 					--update tag
@@ -893,7 +902,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				local costIconSprite = nil
 				
 				costPanel = Panel(PanelSize(Vec2(-1)))
-				local text = Text( buttoninfo.cost~=nil and tostring(buttoninfo.cost.value) or "" )
+				local text = Text( buttoninfo.cost~=nil and costToShortString(buttoninfo.cost.value) or "" )
 				costLabel = Label(PanelSize(Vec2(-1),Vec2(2,1)), text, Vec4(1))
 				costLabel:setTextHeight(-0.75)
 				requireLabel = Label(PanelSize(Vec2(-1)), "Lvl2", Vec4(0.8,0.2,0.2,1))

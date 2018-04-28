@@ -14,8 +14,8 @@ end
 
 function destroy()
 	if music.source then
-                music.source:stopFadeOut(3.0)
-        end
+				music.source:stopFadeOut(3.0)
+		end
 end
 
 function create()
@@ -54,6 +54,12 @@ function create()
 		
 		buildingBillboard = Core.getBillboard("buildings")
 		billboardStats = Core.getBillboard("stats")
+		
+		local mapInfo = Core.getBillboard("MapInfo")
+		if mapInfo then
+			local mapSize = math.sqrt(math.pow(mapInfo:getInt("sizeX"),2)+math.pow(mapInfo:getInt("sizeY"),2))
+			ZOOM_LEVEL_MAX = math.max(ZOOM_LEVEL_MAX, mapSize*0.5)
+		end
 		
 		updatePosition = true
 		

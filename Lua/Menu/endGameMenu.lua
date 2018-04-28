@@ -105,6 +105,7 @@ function startNextMap()
 				mapInfo.setAddPerLevel(mapInformation.difficultyIncreaseMax)
 				mapInfo.setDifficultyBase(mapInformation.difficultyBase)
 				mapInfo.setWaveCount(mapInformation.waveCount)
+                                mapInfo.setMapSize(mapInformation.mapSize)
 				mapInfo.setLevel(1)
 				--changing default selected map
 				menuPrevSelect = Config("menuPrevSelect")

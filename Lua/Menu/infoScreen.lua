@@ -10,6 +10,15 @@ function InfoScreen.new(camera)
 	local otherClientConnectionIssue = {}
 	local startTime = Core.getTime()
 	
+	local icons = {
+		green = 	{startPos=Vec2(0.375,0.375),	endPos=Vec2(0.5, 0.4375)},
+		yellow = 	{startPos=Vec2(0.375,0.3125),	endPos=Vec2(0.5, 0.375)},
+		red = 		{startPos=Vec2(0.5,0.3125),		endPos=Vec2(0.625, 0.375)},
+		ping =		{startPos=Vec2(0.125,0.375),	endPos=Vec2(0.25,0.4375)},
+		avgDmgWave ={startPos=Vec2(0.375,0.5625),	endPos=Vec2(0.5,0.625)},
+		goldTotal =	{startPos=Vec2(0.5,0.5625),		endPos=Vec2(0.625,0.625)}
+	}
+	
 	local players = {}
 	
 	function self.update()
@@ -21,20 +30,21 @@ function InfoScreen.new(camera)
 					if Core.getTime()-startTime<=30.0 then
 						--User is probably in loading screen
 						local labels = labelTab[tab.listPos]
-						labels.icon:setUvCoord(Vec2(0.5,0.625),Vec2(0.62,0.75))
+						labels.icon:setUvCoord(icons.yellow.startPos, icons.yellow.endPos)
 						labels.ping:setText("Loading")
 					else
 						--user is losing connection
 						local labels = labelTab[tab.listPos]
-						labels.icon:setUvCoord(Vec2(0.375,0.625),Vec2(0.5,0.75))
+						labels.icon:setUvCoord(icons.red.startPos, icons.red.endPos)
 						labels.ping:setText(tostring(math.floor(Core.getTime()-players[clientId].lastUpdated)).."s" )
 					end
 				end
 			else
 				local labels = labelTab[tab.listPos]
-				labels.icon:setUvCoord(Vec2(0.5,0.625),Vec2(0.62,0.75))
+				labels.icon:setUvCoord(icons.yellow.startPos, icons.yellow.endPos)
 				labels.name:setText(tab.name)
 				labels.gold:setText("-")
+				labels.goldTotal:setText("-")
 				labels.kills:setText("-")
 				labels.totalDamage:setText("-")
 				labels.damage:setText("-")
@@ -42,6 +52,7 @@ function InfoScreen.new(camera)
 				labels.ping:setText("-")
 				labels.name:setTextColor(Vec4(1,1,1,0.2))
 				labels.gold:setTextColor(Vec4(1,1,1,0.2))
+				labels.goldTotal:setTextColor(Vec4(1,1,1,0.2))
 				labels.kills:setTextColor(Vec4(1,1,1,0.2))
 				labels.totalDamage:setTextColor(Vec4(1,1,1,0.2))
 				labels.damage:setTextColor(Vec4(1,1,1,0.2))
@@ -99,7 +110,7 @@ function InfoScreen.new(camera)
 		local tab = client:getConnected()
 		local index = 1
 		while tab[index] do
-			players[tab[index].clientId] = {ping=tab[index].ping, totalDamage=0.0, damage=0.0, gold=0.0, speed=0, name=tab[index].name, playerId=tab[index].playerId}
+			players[tab[index].clientId] = {ping=tab[index].ping, totalDamage=0.0, damage=0.0, gold=0.0, goldTotal=0.0, speed=0, name=tab[index].name, playerId=tab[index].playerId}
 			index = index + 1
 		end
 	end
@@ -121,7 +132,7 @@ function InfoScreen.new(camera)
 			labels.averageDamage = tonumber(dataTab.averageDamage)
 			labels.totalDamageValue = tonumber(dataTab.totalDamage)
 		end
-		
+			
 		--get sum of total damage and sum of average damage
 		local sumTotalAverageDamage = 1
 		local sumTotalDamage = 1
@@ -138,9 +149,10 @@ function InfoScreen.new(camera)
 		if players[tonumber(clientId)] then
 			players[tonumber(clientId)].lastUpdated = Core.getTime()
 			local labels = labelTab[players[tonumber(clientId)].listPos]			
-			labels.icon:setUvCoord(Vec2(0.375,0.75),Vec2(0.5,0.875))
+			labels.icon:setUvCoord(icons.green.startPos, icons.green.endPos)
 			labels.name:setText(dataTab.name)
 			labels.gold:setText(tostring(dataTab.gold))
+			labels.goldTotal:setText(tostring(dataTab.goldTotal))
 			labels.kills:setText(tostring(dataTab.kills))
 			
 --			print("------------------------")
@@ -162,11 +174,12 @@ function InfoScreen.new(camera)
 		client = Core.getNetworkClient()
 		
 		
-		local weight = {-0.35}
-		for i=1, 6 do
-			weight[i+1] = -1.0/(7-i)
+		local weight = {-0.25}
+		for i=1, 7 do
+			weight[i+1] = -1.0/(8-i)
 		end
 		weight[5] = weight[5] * 1.4
+		weight[6] = weight[6] * 1.4
 		
 		updateConnectedUsers()
 		
@@ -208,20 +221,28 @@ function InfoScreen.new(camera)
 		--
 		local damagePanel = headerPanel:add(Panel(PanelSize(Vec2(weight[4], -1))))--language:getText("Average damage")
 		local icon = damagePanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
-		icon:setUvCoord(Vec2(0.25,0.0),Vec2(0.375,0.0625))
-		icon:setToolTip(Text("Average damge per wave"))
+		icon:setUvCoord(icons.avgDmgWave.startPos,icons.avgDmgWave.endPos)
+		icon:setToolTip(Text("Average damage over the past 3 waves"))
 		--
 		local goldPanel = headerPanel:add(Panel(PanelSize(Vec2(weight[5], -1))))--language:getText("gold")
 		local icon = goldPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
 		icon:setUvCoord(Vec2(0,0),Vec2(0.125,0.0625))
+		icon:setToolTip(Text("Available gold"))
 		--
-		local speedPanel = headerPanel:add(Panel(PanelSize(Vec2(weight[6], -1))))
+		local goldTotalPanel = headerPanel:add(Panel(PanelSize(Vec2(weight[6], -1))))--language:getText("gold")
+		local icon = goldTotalPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
+		icon:setUvCoord(icons.goldTotal.startPos, icons.goldTotal.endPos)
+		icon:setToolTip(Text("All earned gold"))
+		--
+		local speedPanel = headerPanel:add(Panel(PanelSize(Vec2(weight[7], -1))))
 		local icon = speedPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
 		icon:setUvCoord(Vec2(0.375,0.25),Vec2(0.5,0.3125))
+		icon:setToolTip(Text("Active speed modifier"))
 		--
-		local pingPanel = headerPanel:add(Panel(PanelSize(Vec2(weight[7], -1))))--language:getText("ping")
+		local pingPanel = headerPanel:add(Panel(PanelSize(Vec2(weight[8], -1))))--language:getText("ping")
 		local icon = pingPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga") ))
-		icon:setUvCoord(Vec2(0.125,0.375),Vec2(0.25,0.4375))
+		icon:setUvCoord(icons.ping.startPos, icons.ping.endPos)
+		icon:setToolTip(Text("ping"))
 		--
 		--
 		--
@@ -244,8 +265,9 @@ function InfoScreen.new(camera)
 			labels.totalDamage =line:add(Label(PanelSize(Vec2(weight[3], -1)), "0%", Vec3(0.95)))--language:getText("score")
 			labels.damage = 	line:add(Label(PanelSize(Vec2(weight[4], -1)), "0%", Vec3(0.95)))--language:getText("score")
 			labels.gold = 		line:add(Label(PanelSize(Vec2(weight[5], -1)), tostring(tab.gold), Vec3(0.95)))--language:getText("gold")
-			labels.speed = 		line:add(Label(PanelSize(Vec2(weight[6], -1)), tostring(tab.speed), Vec3(0.95)))
-			labels.ping = 		line:add(Label(PanelSize(Vec2(weight[7], -1)), tostring(tab.ping), Vec3(0.95)))--language:getText("ping")
+			labels.goldTotal = 	line:add(Label(PanelSize(Vec2(weight[6], -1)), tostring(tab.goldTotal), Vec3(0.95)))--language:getText("goldTotal")
+			labels.speed = 		line:add(Label(PanelSize(Vec2(weight[7], -1)), tostring(tab.speed), Vec3(0.95)))
+			labels.ping = 		line:add(Label(PanelSize(Vec2(weight[8], -1)), tostring(tab.ping), Vec3(0.95)))--language:getText("ping")
 		end
 	end
 	init()

@@ -12,6 +12,12 @@ function MapInfo.new()
 	local addPerLevel = 0.0
 	local difficultyBase = 0.0
 
+	function self.getGameModesSinglePlayer()
+		return {"default", "survival", "leveler"}
+	end
+	function self.getGameModesMultiPlayer()
+		return {"default", "leveler"}
+	end
 	function self.setLevel(level,notSave)
 		--1 = 0.70
 		--2 = 0.75
@@ -81,6 +87,11 @@ function MapInfo.new()
 	function self.setWaveCount(num)
 		billboard:setInt("waveCount",tonumber(num))
 	end
+	function self.setMapSize(sizeStr)
+		local xStr,yStr = string.match(sizeStr, "(.*)x(.*)")
+		billboard:setInt("sizeX",tonumber(xStr))
+		billboard:setInt("sizeY",tonumber(yStr))
+	end
 	function self.setPlayerCount(num)
 		billboard:setInt("PlayerCount",tonumber(num))
 	end
@@ -140,6 +151,7 @@ function MapInfo.new()
 						self.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 						self.setDifficultyBase(mapInfo.difficultyBase)
 						self.setWaveCount(mapInfo.waveCount)
+						self.setMapSize(mapInfo.mapSize)
 						--
 						ret = true
 					end

@@ -25,7 +25,7 @@ function CampaignGameMenu.new(panel)
 	local mainPanel
 	local rewardLabel
 	--Game modes
-	local gameModes = {"default", "survival", "leveler"}--"rush", "training"
+	local gameModes = levelInfo.getGameModesSinglePlayer()
 	local optionsTooltip = {"default tooltip", "survival tooltip", "rush tooltip", "training tooltip", "leveler tooltip"}
 	--Select
 	local menuPrevSelect	--menuPrevSelect=Config()
@@ -198,6 +198,7 @@ function CampaignGameMenu.new(panel)
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 					levelInfo.setWaveCount(mapInfo.waveCount)
+                                        levelInfo.setMapSize(mapInfo.mapSize)
 					levelInfo.setLevel(1)
 					--changing default selected map
 					menuPrevSelect:get("campaign"):get("selectedMap"):setString(filePath)
@@ -372,6 +373,7 @@ function CampaignGameMenu.new(panel)
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 					levelInfo.setWaveCount(mapInfo.waveCount)
+                                        levelInfo.setMapSize(mapInfo.mapSize)
 				else
 					error("No map information was found")
 				end
