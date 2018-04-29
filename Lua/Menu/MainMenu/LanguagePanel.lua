@@ -392,6 +392,8 @@ function LanguagePanel.createLanguageOptions(panel)
 	
 	--game
 	addLanguageHeader("Game")
+	
+	addLanguageRow("cursor")
 	addLanguageRow("game")
 	addLanguageRow("island smoke")
 	addLanguageRow("floating stones")

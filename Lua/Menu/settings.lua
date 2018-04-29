@@ -347,6 +347,28 @@ function Settings.modelDensity.getValue()
 end
 
 
+
+Settings.cursor = {}
+Settings.cursor.options = {"system cursor", "default", "default X2"}
+Settings.cursor.configName = "cursor"
+function Settings.cursor.getSettings()
+	return Settings.config:get(Settings.cursor.configName, "default"):getString()
+end
+function Settings.cursor.getValue()
+	local settings = Settings.cursor.getSettings()
+	for i=1, #Settings.cursor.options do
+		if Settings.cursor.options[i] == settings then
+			return i
+		end
+	end
+	return 1
+end
+
+function Settings.cursor.setValue(value)
+	Settings.config:get(Settings.cursor.configName, "default"):setString(value)
+	Settings.config:save()
+end
+
 --#######################################################################
 --#######################################################################
 --#######################################################################

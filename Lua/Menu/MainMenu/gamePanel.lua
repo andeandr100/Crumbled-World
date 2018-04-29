@@ -6,7 +6,7 @@ require("Menu/settings.lua")
 
 GamePanel = {}
 GamePanel.labels = {}
-GamePanel.labelsText =  { "game", "health bar", "death animation", "corpse timer", "tower menu", "player", "name", "3", "4"}
+GamePanel.labelsText =  { "game", "health bar", "death animation", "corpse timer", "tower menu", "player", "name", "cursor", "4"}
 GamePanel.optionsBoxes = {}
 
 function GamePanel.create(mainPanel)
@@ -54,6 +54,19 @@ function GamePanel.changedSettingsInt(tag, index, items)
 	settingsListener:pushEvent("Changed")
 end
 
+function GamePanel.changedCursor(tag, index, items)
+	
+	if index == 1 then
+		Core.setCursor("")
+	elseif index == 3 then
+		Core.setCursor("Data/Images/cursor64x64.bmp")
+	else
+		Core.setCursor("Data/Images/cursor32x32.bmp")
+	end
+	
+	Settings.cursor.setValue(items[index])
+end
+
 function GamePanel.changedSettingsString(textField)
 	
 	local value = textField:getText():toString()
@@ -71,6 +84,9 @@ function GamePanel.createGameOptions(panel)
 	labels[1] = OptionsMenuStyle.addOptionsHeader( panel, "Game" )
 		
 	
+	rowPanel, labels[8] = OptionsMenuStyle.addRow(panel, "cursor")
+	conf = Settings.cursor
+	GamePanel.optionsBoxes[5] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedCursor )
 	
 	rowPanel, labels[2] = OptionsMenuStyle.addRow(panel, "Health bar")
 	conf = Settings.healthBar
