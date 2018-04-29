@@ -349,7 +349,7 @@ end
 
 
 Settings.cursor = {}
-Settings.cursor.options = {"system cursor", "default", "default X2"}
+Settings.cursor.options = {"system cursor", "default 16", "default 24", "default 32", "default 48", "default 64"}
 Settings.cursor.configName = "cursor"
 function Settings.cursor.getSettings()
 	return Settings.config:get(Settings.cursor.configName, "default"):getString()
@@ -361,11 +361,11 @@ function Settings.cursor.getValue()
 			return i
 		end
 	end
-	return 1
+	return 2
 end
 
 function Settings.cursor.setValue(value)
-	Settings.config:get(Settings.cursor.configName, "default"):setString(value)
+	Settings.config:get(Settings.cursor.configName, "default 24"):setString(value)
 	Settings.config:save()
 end
 

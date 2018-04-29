@@ -58,10 +58,16 @@ function GamePanel.changedCursor(tag, index, items)
 	
 	if index == 1 then
 		Core.setCursor("")
+	elseif index == 2 then
+		Core.setCursor("Data/Images/cursor16x16.bmp")
 	elseif index == 3 then
-		Core.setCursor("Data/Images/cursor64x64.bmp")
-	else
+		Core.setCursor("Data/Images/cursor24x24.bmp")
+	elseif index == 4 then
 		Core.setCursor("Data/Images/cursor32x32.bmp")
+	elseif index == 5 then
+		Core.setCursor("Data/Images/cursor48x48.bmp")
+	else
+		Core.setCursor("Data/Images/cursor64x64.bmp")
 	end
 	
 	Settings.cursor.setValue(items[index])
