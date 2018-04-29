@@ -56,6 +56,10 @@ function SwarmTower.new()
 	local lastRestored = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
+	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
 			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
@@ -147,7 +151,9 @@ function SwarmTower.new()
 		if waveCount>=lastRestored then
 			if not xpManager then
 				billboard:setDouble("DamagePreviousWave", dmgDone)
-				comUnit:sendTo("stats", "addTotalDmg", dmgDone )
+				if canSyncTower() then
+					comUnit:sendTo("stats", "addTotalDmg", dmgDone )
+				end
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -356,9 +362,6 @@ function SwarmTower.new()
 		end
 		--end
 		return networkSyncPlayerId
-	end
-	local function canSyncTower()
-		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
 	function self.handleUpgrade(param)
 		if tonumber(param)>upgrade.getLevel("upgrade") then

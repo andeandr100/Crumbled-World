@@ -60,6 +60,10 @@ function SwarmTower.new()
 	--lastGlobalPosition used for crash safty when tower nodes is destroyed before script is
 	local lastGlobalPosition = Vec3()
 	
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
+	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
 			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
@@ -146,7 +150,9 @@ function SwarmTower.new()
 				billboard:setDouble("DamagePreviousWavePassive",dmgDoneMarkOfDeath)
 				billboard:setDouble("goldEarnedPreviousWave",goldEarned)
 				billboard:setDouble("goldEarned",billboard:getDouble("goldEarned")+goldEarned)
-				comUnit:sendTo("stats", "addTotalDmg", dmgDoneMarkOfDeath )
+				if canSyncTower() then
+					comUnit:sendTo("stats", "addTotalDmg", dmgDoneMarkOfDeath )
+				end
 			else
 				xpManager.payStoredXp(waveCount)
 				--update billboard
@@ -264,9 +270,6 @@ function SwarmTower.new()
 		end
 		--end
 		return networkSyncPlayerId
-	end
-	local function canSyncTower()
-		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
 	-- function:	handleUpgrade
 	-- purpose:		upgrades the tower and all the meshes and stats for the new level
@@ -648,6 +651,8 @@ function SwarmTower.new()
 								cooldown = 3,
 								order = 10,
 								icon = 68,
+								value1 = 15,
+								value2 = 80,
 								stats =	{}
 							} )
 		-- RANGE

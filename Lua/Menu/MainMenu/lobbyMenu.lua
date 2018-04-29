@@ -167,6 +167,9 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 				print(" - is a client")
 				self.setIsHost(false)
 			end
+			if serverName~=DEFAULT_SERVER_NAME then
+				serverNameLabel:setText(Text("Server: ")+serverName)
+			end
 			
 			--Update buttons based on we are the server
 			if isServer then
@@ -263,6 +266,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 					mapInfo.setAddPerLevel(mapInfoData.difficultyIncreaseMax)
 					mapInfo.setDifficultyBase(mapInfoData.difficultyBase)
 					mapInfo.setWaveCount(mapInfoData.waveCount)
+                                        mapInfo.setMapSize(mapInfoData.mapSize)
 				end
 			end
 			
@@ -351,8 +355,8 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		
 		--Game mode difficulty
 		rowPanel = addTableRow( infoPanel, "game mode" )
-		local gameModeOptions = {"rush", "attack", "normal", "survival"}
-		comboBoxGameMode = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-1)), gameModeOptions, "game mode", gameModeOptions[3], clickedChangeGameMode )
+		local gameModeOptions = mapInfo.getGameModesMultiPlayer()
+		comboBoxGameMode = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-1)), gameModeOptions, "game mode", gameModeOptions[1], clickedChangeGameMode )
 		gameModeLabel = rowPanel:add(Label(PanelSize(Vec2(-1),Vec2(4.5,1)), "Co-op", Vec3(0.7)))
 		
 		--Map difficulty
@@ -468,6 +472,8 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 			client:writeSafe("GameMode:".. ( gameModeLabel:getVisible() and "-1" or comboBoxGameMode.getIndex()) )
 			--difficulty
 			client:writeSafe("Difficulty:"..comboBoxDifficutyBox.getIndex())
+			--server name
+			client:writeSafe("ServerName:"..serverName:toString())
 			--max players
 			local maxPlayer = (mapData.players and (mapData.players == 1 and 4 or mapData.players) or "1")
 			client:writeSafe("MaxPlayers:"..maxPlayer)
@@ -547,10 +553,15 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 						--settings has changed, player is not ready
 						lobbyUserPanel.settingsChanged()
 					end
-				elseif tag == GameMode then
-					
+				elseif tag == "GameMode" then
+					--not implemented
 				elseif tag == "Players" then
 					playersLabel:setText(data)
+				elseif tag == "ServerName" then
+					serverName = Text(tostring(data))
+					if serverName~=DEFAULT_SERVER_NAME then
+						serverNameLabel:setText(Text("Server: ")+serverName)
+					end
 				elseif tag=="StartGame" then
 					if mapFile then
 						local clientIds = {}
@@ -648,6 +659,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 	end
 	function self.setIsHost(set)
 		isHost = set
+		comboBoxGameMode.setEnabled(isHost)
 		comboBoxDifficutyBox.setEnabled(isHost)
 		lobbyUserPanel.setIsHost(set)
 	end
@@ -657,7 +669,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		customeGamePanel = panel:add(Panel(PanelSize(Vec2(-1))))
 		customeGamePanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 		--Top menu button panel
-		customeGamePanel:add(Label(PanelSize(Vec2(-1,0.04)), "Lobby", Vec3(0.94), Alignment.MIDDLE_CENTER))
+		serverNameLabel = customeGamePanel:add(Label(PanelSize(Vec2(-1,0.04)), "Lobby", Vec3(0.94), Alignment.MIDDLE_CENTER))
 		
 		--Add BreakLine
 		local breakLinePanel = customeGamePanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))

@@ -206,6 +206,8 @@ function SwarmBall.new(pTargetSelector)
 		pathList:setSpeed(speed)
 		
 		node:setVisible(true)
+		
+		manageIfTargetIsNotAvailable()
 			
 		local length = basicLengthEstimation(position)
 		--print("Length="..length.."\n")
@@ -266,6 +268,9 @@ function SwarmBall.new(pTargetSelector)
 			if (position-towerPosition):length()>range then
 				--we are out of range from the tower, try to find a new target
 				targetIndex = 0
+			elseif (position-towerPosition):length()>range*1.5 then
+				--failed, hide issue ;-)
+				endLife()
 			end
 			if pathList:willReachEnd() then
 				manageIfTargetIsNotAvailable()

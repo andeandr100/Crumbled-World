@@ -59,7 +59,9 @@ function EventBase.new()
 	local function sendNetworkSyncSafe(msg,param)
 		local tab = Core.getNetworkClient():getConnected()
 		for index=1, Core.getNetworkClient():getConnectedPlayerCount() do
-			comUnit:sendNetworkSyncSafeTo("Event"..tostring(tab[index].clientId),msg,param)
+			if tab[index] then
+				comUnit:sendNetworkSyncSafeTo("Event"..tostring(tab[index].clientId),msg,param)
+			end
 		end
 	end
 	
