@@ -164,7 +164,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 
 		
 		towerInfo = {}
-		statsOrder =  {"damage", "dmg","RPS", "ERPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range"}
+		statsOrder =  {"damage", "dmg","RPS", "ERPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range","supportDamage","SupportRange","supportWeaken","weakenValue","supportGold"}
 		keyBindTable = {keyBindUpgradeBuilding, keyBindBoostBuilding}
 		
 		billboardStats = Core.getBillboard("stats")
@@ -474,6 +474,16 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			return Vec2(0.125,0.25),Vec2(0.25,0.3125), language:getText("blade speed")
 		elseif name=="dmg_range" then
 			return Vec2(0.875,0.25),Vec2(1.0,0.3125), language:getText("damage range")
+		elseif name=="supportDamage" then
+			return Vec2(0.0,0.5),Vec2(0.125,0.5625), language:getText("support damage")
+		elseif name=="SupportRange" then
+			return Vec2(0.125,0.5),Vec2(0.25,0.5625), language:getText("support range")
+		elseif name=="weakenValue" then
+			return Vec2(0.625,0.4375),Vec2(0.75,0.5), language:getText("selectedTower weaken")	
+		elseif name=="supportWeaken" then
+			return Vec2(0.25,0.5),Vec2(0.375,0.5625), language:getText("support weaken")
+		elseif name=="supportGold" then
+			return Vec2(0.375,0.5),Vec2(0.5,0.5625), language:getText("support gold")
 		else
 			return Vec2(0.0,0.25),Vec2(0.125,0.3125), Text("")
 		end

@@ -127,7 +127,7 @@ function SwarmTower.new()
 	-- function:	sendSupporUpgrade
 	-- purpose:		broadcasting what upgrades the towers close by should use
 	local function sendSupporUpgrade()
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getLevel("range")==0 and TOWERRANGE*2.0 or TOWERRANGEMAX,"supportRange",upgrade.getLevel("range"))
+		comUnit:broadCast(this:getGlobalPosition(),upgrade.getLevel("range")==0 and TOWERRANGE*2.0 or TOWERRANGEMAX,"SupportRange",upgrade.getLevel("range"))
 		comUnit:broadCast(this:getGlobalPosition(),upgrade.getLevel("damage")==0 and TOWERRANGE*2.0 or TOWERRANGEMAX,"supportDamage",upgrade.getLevel("damage"))
 	end
 	local function restartWave(param)
@@ -613,9 +613,11 @@ function SwarmTower.new()
 	
 		upgrade.setBillboard(billboard)
 		upgrade.addDisplayStats("range")
-		upgrade.addBillboardStats("weaken")
+		upgrade.addDisplayStats("supportDamage")
+		upgrade.addDisplayStats("SupportRange")
+		upgrade.addDisplayStats("supportWeaken")
+		upgrade.addDisplayStats("supportGold")
 		upgrade.addBillboardStats("weakenTimer")
-		
 
 		upgrade.addUpgrade( {	cost = 200,
 								name = "upgrade",
@@ -624,6 +626,7 @@ function SwarmTower.new()
 								icon = 56,
 								value1 = 1,
 								stats ={range =				{ upgrade.add, TOWERRANGE},
+										supportDamage =		{ upgrade.add, 10},
 										model = 			{ upgrade.set, "tower_support_l1.mym"} }
 							} )
 		upgrade.addUpgrade( {	cost = 300,
@@ -633,6 +636,7 @@ function SwarmTower.new()
 								icon = 56,
 								value1 = 2,
 								stats ={range =				{ upgrade.add, TOWERRANGE},
+										supportDamage =		{ upgrade.add, 20},
 										model = 			{ upgrade.set, "tower_support_l2.mym"}}
 							},0 )
 		upgrade.addUpgrade( {	cost = 400,
@@ -642,6 +646,7 @@ function SwarmTower.new()
 								icon = 56,
 								value1 = 3,
 								stats ={range =				{ upgrade.add, TOWERRANGE},
+										supportDamage =		{ upgrade.add, 30},
 										model = 			{ upgrade.set, "tower_support_l3.mym"}}
 							},0 )
 		upgrade.addUpgrade( {	cost = 0,
@@ -663,7 +668,8 @@ function SwarmTower.new()
 								icon = 65,
 								value1 = 10,
 								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
-								stats = {SupportRange =			{ upgrade.add, 1}}
+								stats = {SupportRangeLevel =	{ upgrade.add, 1},
+										 SupportRange =			{ upgrade.add, 10}}
 							} )
 		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 100 or 200,
 								name = "range",
@@ -672,7 +678,8 @@ function SwarmTower.new()
 								icon = 65,
 								value1 = 20,
 								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
-								stats = {SupportRange =			{ upgrade.add, 2}}
+								stats = {SupportRangeLevel =	{ upgrade.add, 2},
+										 SupportRange =			{ upgrade.add, 20}}
 							} )
 		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 200 or 300,
 								name = "range",
@@ -681,7 +688,8 @@ function SwarmTower.new()
 								icon = 65,
 								value1 = 30,
 								levelRequirement = cTowerUpg.getLevelRequierment("range",3),
-								stats = {SupportRange =			{ upgrade.add, 3}}
+								stats = {SupportRangeLevel =	{ upgrade.add, 3},
+										 SupportRange =			{ upgrade.add, 30}}
 							} )
 		-- Damage
 		upgrade.addUpgrade( {	cost = 0,
@@ -692,7 +700,7 @@ function SwarmTower.new()
 								value1 = 10,
 								hidden = true,
 								levelRequirement = cTowerUpg.getLevelRequierment("damage",1),
-								stats = {supportDamage =		{ upgrade.add, 1}}
+								stats = {supportDamageLevel =		{ upgrade.add, 1}}
 							} )
 		upgrade.addUpgrade( {	cost = 0,
 								name = "damage",
@@ -702,7 +710,7 @@ function SwarmTower.new()
 								value1 = 20,
 								hidden = true,
 								levelRequirement = cTowerUpg.getLevelRequierment("damage",2),
-								stats = {supportDamage =		{ upgrade.add, 2}}
+								stats = {supportDamageLevel =		{ upgrade.add, 2}}
 							} )
 		upgrade.addUpgrade( {	cost = 0,
 								name = "damage",
@@ -712,7 +720,7 @@ function SwarmTower.new()
 								value1 = 30,
 								hidden = true,
 								levelRequirement = cTowerUpg.getLevelRequierment("damage",3),
-								stats = {supportDamage =		{ upgrade.add, 3}}
+								stats = {supportDamageLevel =		{ upgrade.add, 3}}
 							} )
 		-- weaken
 		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("weaken",1) and 0 or 100,
@@ -723,6 +731,7 @@ function SwarmTower.new()
 								value1 = 8,
 								levelRequirement = cTowerUpg.getLevelRequierment("weaken",1),
 								stats = {weaken =		{ upgrade.add, 0.08},
+										 supportWeaken ={ upgrade.add, 8},
 										 weakenTimer =	{ upgrade.add, 1} }
 							} )
 		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("weaken",1) and 100 or 200,
@@ -733,6 +742,7 @@ function SwarmTower.new()
 								value1 = 16,
 								levelRequirement = cTowerUpg.getLevelRequierment("weaken",2),
 								stats = {weaken =		{ upgrade.add, 0.16},
+										 supportWeaken ={ upgrade.add, 16},
 										 weakenTimer =	{ upgrade.add, 1} }
 							} )
 		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("weaken",1) and 200 or 300,
@@ -743,6 +753,7 @@ function SwarmTower.new()
 								value1 = 24,
 								levelRequirement = cTowerUpg.getLevelRequierment("weaken",3),
 								stats = {weaken =		{ upgrade.add, 0.24},
+										 supportWeaken ={ upgrade.add, 24},
 										 weakenTimer =	{ upgrade.add, 1} }
 							} )
 		-- gold
@@ -801,7 +812,7 @@ function SwarmTower.new()
 	end
 	init()
 	function self.destroy()
-		comUnit:broadCast(lastGlobalPosition,TOWERRANGE*2.0,"supportRange",0)
+		comUnit:broadCast(lastGlobalPosition,TOWERRANGE*2.0,"SupportRange",0)
 		comUnit:broadCast(lastGlobalPosition,TOWERRANGE*2.0,"supportDamage",0)
 	end
 	--

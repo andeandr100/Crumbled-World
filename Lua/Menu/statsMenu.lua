@@ -319,6 +319,8 @@ function init()
 		local topPanel = MainMenuStyle.createTopMenu(form, PanelSize(Vec2(1,0.019),PanelSizeType.WindowPercentBasedOnX))
 		topPanel:getPanelSize():setMinSize(PanelSize(Vec2(1,0.022),PanelSizeType.WindowPercent))
 		topPanel:setPadding(BorderSize(Vec4(0.0015),true))
+		topPanel:setBackground(Gradient(Vec4(0,0,0,1), Vec4(0,0,0,1)))
+
 		
 		--filler Panel
 		local mainPanel = form:add(Panel(PanelSize(Vec2(-1))))

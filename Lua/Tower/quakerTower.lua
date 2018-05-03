@@ -764,6 +764,7 @@ function QuakeTower.new()
 		upgrade.addDisplayStats("damage")
 		upgrade.addDisplayStats("RPS")
 		upgrade.addDisplayStats("range")
+		upgrade.addDisplayStats("slow")
 		
 		
 		--AUHpR = 1.6

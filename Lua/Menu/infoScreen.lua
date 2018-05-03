@@ -98,6 +98,14 @@ function InfoScreen.new(camera)
 	function self.isVisible()
 		return isVisible
 	end
+	function self.setVisible(set)
+		if self.isAnyClientLosingConnection() then
+			isVisible = true
+		else
+			isVisible = set
+		end
+		mainForm:setVisible(isVisible)
+	end
 	function self.togleVisible()
 		if self.isAnyClientLosingConnection() then
 			isVisible = true

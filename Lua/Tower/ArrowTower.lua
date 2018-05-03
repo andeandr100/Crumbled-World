@@ -793,7 +793,7 @@ function ArrowTower.new()
 		--upgrade.addDisplayStats("fireDPS")
 		--upgrade.addDisplayStats("burnTime")
 		upgrade.addDisplayStats("range")
-		upgrade.addDisplayStats("weaken")
+		upgrade.addDisplayStats("weakenValue")
 		upgrade.addBillboardStats("weakenTimer")
 		upgrade.addBillboardStats("detonationRange")
 		upgrade.addBillboardStats("targetAngle")
@@ -924,6 +924,7 @@ function ArrowTower.new()
 								value1 = 8,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",1),
 								stats ={weaken =		{ upgrade.add, 0.08, ""},
+										weakenValue =	{ upgrade.add, 8, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -934,6 +935,7 @@ function ArrowTower.new()
 								value1 = 16,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",2),
 								stats ={weaken =		{ upgrade.add, 0.16, ""},
+										weakenValue =	{ upgrade.add, 16, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
@@ -944,6 +946,7 @@ function ArrowTower.new()
 								value1 = 24,
 								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",3),
 								stats ={weaken =		{ upgrade.add, 0.24, ""},
+										weakenValue =	{ upgrade.add, 24, ""},
 										weakenTimer =	{ upgrade.add, 5.0, ""} }
 							} )
 --		-- SMART TARGETING

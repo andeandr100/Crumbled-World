@@ -53,8 +53,7 @@ function create()
 	end
 	--
 	if Core.isInMultiplayer() then
-		--event.spawnUnitsPattern(SPAWN_PATTERN.Clone)
-		event.getSpawnManager().spawnUnitsPattern(SPAWN_PATTERN.Grouped)
+		event.getSpawnManager().spawnUnitsPattern(SPAWN_PATTERN.Clone)
 	else
 		event.getSpawnManager().spawnUnitsPattern(SPAWN_PATTERN.Grouped)
 	end

@@ -138,6 +138,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		serverListPanel:setVisible(true)
 		self.setVisible(false)
 		lobbyUserPanel.leveLobby()
+		client.disconnect()
 	end
 	
 	
@@ -266,7 +267,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 					mapInfo.setAddPerLevel(mapInfoData.difficultyIncreaseMax)
 					mapInfo.setDifficultyBase(mapInfoData.difficultyBase)
 					mapInfo.setWaveCount(mapInfoData.waveCount)
-                                        mapInfo.setMapSize(mapInfoData.mapSize)
+										mapInfo.setMapSize(mapInfoData.mapSize)
 				end
 			end
 			
@@ -474,6 +475,8 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 			client:writeSafe("Difficulty:"..comboBoxDifficutyBox.getIndex())
 			--server name
 			client:writeSafe("ServerName:"..serverName:toString())
+			--server name
+			client:writeSafe("GameVersion:"..GAME_VERSION)
 			--max players
 			local maxPlayer = (mapData.players and (mapData.players == 1 and 4 or mapData.players) or "1")
 			client:writeSafe("MaxPlayers:"..maxPlayer)
@@ -561,6 +564,11 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 					serverName = Text(tostring(data))
 					if serverName~=DEFAULT_SERVER_NAME then
 						serverNameLabel:setText(Text("Server: ")+serverName)
+					end
+				elseif tag == "GameVersion" then
+					local serverVersion = tostring(data)
+					if serverVersion~=GAME_VERSION then
+						quitLobby()
 					end
 				elseif tag=="StartGame" then
 					if mapFile then

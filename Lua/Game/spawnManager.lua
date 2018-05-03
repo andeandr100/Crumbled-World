@@ -2,9 +2,9 @@ require("Game/mapInfo.lua")
 require("Game/campaignData.lua")
 --this = SceneNode()
 SPAWN_PATTERN = {
-	Random = 1,
-	Clone = 2,
-	Grouped = 3
+	Random = 1,	--enemies comes out of a random game
+	Clone = 2,	--enemies comes out of all gates
+	Grouped = 3	--eneims comes out of gate1 then gate2 then gate3 then gate1...	(default)
 }
 SpawnManager = {}
 function SpawnManager.new()
@@ -38,7 +38,7 @@ function SpawnManager.new()
 	local cData = CampaignData.new()
 	--local soundWind = Sound("wind1",SoundType.STEREO)
 	local spawnListPopulated = false
-	local spawnPattern = SPAWN_PATTERN.Random
+	local spawnPattern = Core.isInMultiplayer() and SPAWN_PATTERN.Clone or SPAWN_PATTERN.Grouped
 	local npcPathOffset
 	--keybinds
 	local keyBinds = Core.getBillboard("keyBind")
@@ -792,7 +792,7 @@ function SpawnManager.new()
 				--
 				local hardestGroupThatCanSpawn = startSpawnWindow + math.min( #groupCompOriginal-startSpawnWindow, math.floor(i*1.75)) + 1--hardestGroupThatCanSpawn (+1) is for bad algorithm and added dummy spawn
 				--this is the total health points that can be sent out this wave
-				local totalSpawnHP = spawnHealthPerSecond*totalSpawnTime*unitBypassMultiplyer*(isInMultiplayer and 1.5 or 1.0)
+				local totalSpawnHP = spawnHealthPerSecond*totalSpawnTime*unitBypassMultiplyer
 				local usedSpawnHP = 0.0
 				--over stepping is easier, due to that it will take longer time before next spawn giving the user a time gap to kill the spawned units
 				local bufferSpawnHP = 0.1
@@ -870,7 +870,7 @@ function SpawnManager.new()
 				waveInfo[i] = {}
 				--
 				local function addGroupSplitter()
-					waveDetails[itemCount] = {npc="none",delay=(isInMultiplayer and 1.5 or timerAddBetweenWaves)}--add dead time after a group (groups are the peak spawn several times the average hp/s)
+					waveDetails[itemCount] = {npc="none",delay=math.max(1.75, timerAddBetweenWaves*(isInMultiplayer and 0.85 or 1.0))}--add dead time after a group (groups are the peak spawn several times the average hp/s)
 					itemCount = itemCount + 1
 				end
 				local function addSelectedGroupToWave(group)

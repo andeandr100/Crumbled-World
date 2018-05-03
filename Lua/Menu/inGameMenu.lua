@@ -464,8 +464,12 @@ function update()
 	
 	--info screen when pressing tab in multiplayer
 	if infoScreen then
-		if keyBindInfo:getPressed() then
-			infoScreen.togleVisible()
+		if keyBindInfo:getHeld() then
+			if infoScreen.isVisible()==false then
+				infoScreen.setVisible(true)
+			end
+		elseif infoScreen.isVisible() then
+			infoScreen.setVisible(false)
 		end
 		if infoScreen.isVisible() then
 			infoScreen.update()
