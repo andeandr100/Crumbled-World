@@ -9,6 +9,7 @@ function CutterBlade.new(pTargetSelector)
 	local self = {}
 	local sparkCenter
 	local pointLight
+	local pointLightHeat
 	local attacked = {}
 	local speed = 8.0
 	local RANGE = 1.35
@@ -106,6 +107,20 @@ function CutterBlade.new(pTargetSelector)
 		targetSelector.setPosition(thePosition+(atVec*(length*0.5)))
 		targetSelector.setRange(length*0.55)
 		
+		if masterBladeHeat>0.01 then
+			if not pointLightHeat then
+				pointLightHeat = PointLight.new(Vec3(0,0,0),Vec3(0.625,0,0),3.0)
+				pointLightHeat:setVisible(false)
+				model:addChild(pointLightHeat:toSceneNode())
+			end
+			pointLightHeat:setRange(1.5+(3.5*masterBladeHeat))
+			pointLightHeat:setCutOff(0.15)
+			pointLightHeat:setVisible(true)
+		else
+			if pointLightHeat then
+				pointLightHeat:setVisible(false)
+			end
+		end
 		if billboard:getInt("electricBlade")>0 then
 			if not sparkCenter then
 				sparkCenter = {}
@@ -186,13 +201,10 @@ function CutterBlade.new(pTargetSelector)
 		if shieldAreaIndex~=targetSelector.getIndexOfShieldCovering(currentPos) then
 			--forcefield hitt
 			shieldAreaIndex = shieldAreaIndex>0 and shieldAreaIndex or targetSelector.getIndexOfShieldCovering(currentPos)
-			if stateDamageMul>1.0 then
-				comUnit:sendTo(shieldAreaIndex,"attack",tostring(damage*stateDamageMul))
-				damageDone = damageDone + damage*stateDamageMul
-			else
-				comUnit:sendTo(shieldAreaIndex,"attack",tostring(damage))
-				damageDone = damageDone + damage
-			end
+
+			comUnit:sendTo(shieldAreaIndex,"attack",tostring(damage))
+			damageDone = damageDone + damage
+				
 			local oldPosition = currentPos - atVec
 			local futurePosition = currentPos + atVec
 			local hitTime = tostring(0.75)

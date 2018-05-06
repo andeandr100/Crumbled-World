@@ -37,6 +37,7 @@ function NpcBase.new()
 	local idName
 	local useDeathAnimationOrPhysic = true
 	local retargetForHighPpriorityTarget = 0.0
+	local RETARGET_FOR_HIGH_PRIORITY_TARGET_EVERY = 1.0
 	--stats
 	local npcAge = 0.0
 	local npcIsDestroyed = false
@@ -416,10 +417,13 @@ function NpcBase.new()
 				--0.66 = 1 / (1+0.5)
 				--with some lying for interest rate
 				comUnit:sendTo("stats","goldInterest",0.67)--allways full interest
-				comUnit:sendTo("stats","addGold", (value*mul*0.67)+soul.getGoldGainAdd() )
-				comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;"..soul.getGoldGainAdd())
 				if canSyncNPC() then
+					comUnit:sendTo("stats","addGold", (value*mul*0.67)+soul.getGoldGainAdd() )
+					comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;"..soul.getGoldGainAdd())
 					comUnit:sendTo("stats","addKill","")
+				else
+					comUnit:sendTo("stats","addGold", (value*mul*0.67) )
+					comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;")
 				end
 			else
 				comUnit:sendTo("stats","goldInterest",1.0)--allways full interest
@@ -589,7 +593,7 @@ function NpcBase.new()
 		end
 		
 		--if is high priority target make towers close by attack you
-		if lstate==state.highPriority and Core.getGameTime()-retargetForHighPpriorityTarget>2.5 then
+		if lstate==state.highPriority and Core.getGameTime()-retargetForHighPpriorityTarget>RETARGET_FOR_HIGH_PRIORITY_TARGET_EVERY then
 			comUnit:broadCast(this:getGlobalPosition(),7.5,"Retarget","")
 			retargetForHighPpriorityTarget = Core.getGameTime()
 		end

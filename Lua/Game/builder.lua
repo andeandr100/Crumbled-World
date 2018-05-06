@@ -836,6 +836,9 @@ function restartWave(wave)
 	
 	--update wave time
 	waveTime = Core.getGameTime()
+	--
+	local restartWaveListener = Listener("RestartWaveBuilder")
+	restartWaveListener:pushEvent("restartWaveBuilder",wave)
 end
 
 function  isAtowerBuildEvent(index, netName)

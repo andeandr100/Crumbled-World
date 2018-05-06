@@ -496,7 +496,7 @@ function MinigunTower.new()
 					targetSelector.scoreName("skeleton_cb",-20)
 					targetSelector.scoreClosestToExit(10)
 				end
-				targetSelector.scoreState(state.highPriority,30)
+				targetSelector.scoreState(state.highPriority,40)
 			end
 			targetSelector.selectTargetAfterMaxScore()
 			local newTarget = targetSelector.getTarget()

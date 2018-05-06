@@ -28,7 +28,7 @@ ShopFunction.towerUpgInfo = { ["Tower/MinigunTower.lua"]={
 		["Tower/BladeTower.lua"]={
 			{text="Arrow tower range",[1]={["value1"]="10.5"},[2]={["value1"]="12"},[3]={["value1"]="13.5"}, permaUppgrade=true, iconIndex=59, name="range" },
 			{text="blade tower attackSpeed",[1]={["value1"]="15"},[2]={["value1"]="30"},[3]={["value1"]="45"}, permaUppgrade=true, iconIndex=58, name="attackSpeed"},
-			{text="blade tower firecrit",[1]={["value1"]="20"},[2]={["value1"]="40"},[3]={["value1"]="60"}, permaUppgrade=true, iconIndex=36, name="masterBlade"},
+			{text="blade tower firecrit",[1]={["value1"]="25"},[2]={["value1"]="50"},[3]={["value1"]="75"}, permaUppgrade=true, iconIndex=36, name="masterBlade"},
 			{text="blade tower slow",[1]={["value1"]="20"},[2]={["value1"]="36"},[3]={["value1"]="49"}, permaUppgrade=true, iconIndex=55, name="electricBlade"},
 			{text="blade tower shield", [1]={}, permaUppgrade=true, iconIndex=40, name="shieldBreaker"}
 		},

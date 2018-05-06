@@ -12,7 +12,7 @@ function create()
 	
 	--Protection in multiplayer environment where multiple instances of this script is loaded
 	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
-	if not DEBUG or ( node == nil and this:getSceneName() ~= "Stats menu" ) or ( node and node:getClientId() ~= 0 ) then
+	if ( node == nil and this:getSceneName() ~= "Stats menu" ) or ( node and node:getClientId() ~= 0 ) then
 		return false
 	end
 	

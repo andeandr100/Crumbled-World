@@ -952,27 +952,27 @@ function BladeTower.new()
 								info = "blade tower firecrit",
 								order = 3,
 								icon = 36,
-								value1 = 20,
+								value1 = 25,
 								levelRequirement = cTowerUpg.getLevelRequierment("masterBlade",1),
-								stats ={stateDamageMul ={ upgrade.add, 1.20} }
+								stats ={stateDamageMul ={ upgrade.add, 1.25} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "masterBlade",
 								info = "blade tower firecrit",
 								order = 3,
 								icon = 36,
-								value1 = 40,
+								value1 = 50,
 								levelRequirement = cTowerUpg.getLevelRequierment("masterBlade",2),
-								stats ={stateDamageMul ={ upgrade.add, 1.40} }
+								stats ={stateDamageMul ={ upgrade.add, 1.50} }
 							} )
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
 								name = "masterBlade",
 								info = "blade tower firecrit",
 								order = 3,
 								icon = 36,
-								value1 = 60,
+								value1 = 75,
 								levelRequirement = cTowerUpg.getLevelRequierment("masterBlade",3),
-								stats ={stateDamageMul ={ upgrade.add, 1.60} }
+								stats ={stateDamageMul ={ upgrade.add, 1.75} }
 							} )
 		-- electricBlade
 		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
