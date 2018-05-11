@@ -45,6 +45,10 @@ function CreateNewMap.newMap()
 	local script = grassNode:loadLuaScript("Enviromental/grass.lua")	--Enable grass to be loaded and edited
 	script:update()
 	
+	local navmeshDirectionNode = playerNode:addChild(SceneNode.new("Navmesh direction node"))
+	local NavmhesDirectionscript = navmeshDirectionNode:loadLuaScript("Enviromental/navmeshDirection.lua")	--Enable navmesh direction to be loaded and edited
+	NavmhesDirectionscript:update()
+	
 	local pathNode = playerNode:addChild(SceneNode.new("Path node"))
 	local pathScript = pathNode:loadLuaScript("MapEditor/pathNode.lua")	--Path node system. keeps inforamtion about spawn, end crystal waypoints, paths and mine cart path.
 	pathScript:update()

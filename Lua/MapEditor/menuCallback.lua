@@ -129,7 +129,13 @@ function setPathTool(panel)
 	end
 end
 
-
+function setPathDirectionTool(panel)
+	hideAllSettingsPanel()
+	toolManager = this:getRootNode():findNodeByTypeTowardsLeafe(NodeId.toolManager)
+	if toolManager then
+		toolManager:setToolScript("MapEditor/Tools/navMeshDirectionTool.lua")
+	end
+end
 
 
 function setRailroadTool(panel)

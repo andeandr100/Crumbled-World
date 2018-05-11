@@ -55,7 +55,7 @@ function load(message)
 	if Core.isInEditor() then
 		return
 	end
-	print("Island message: "..message.."\n")
+--	print("Island message: "..message.."\n")
 	islandTable = totable(message)
 	meshImporter = IslandMeshImporter.new()
 	

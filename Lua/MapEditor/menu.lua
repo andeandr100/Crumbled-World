@@ -188,6 +188,7 @@ function createSubMenues()
 	MenuStyle.addToolButton(textureToolPanel,Vec2(0.75,0.5), setGrassTool, "Grass tool")
 	MenuStyle.addToolButton(textureToolPanel,Vec2(0.0,0.375), setRailroadTool, "Railroad tool")
 	MenuStyle.addToolButton(textureToolPanel,Vec2(0.25,0.375), setPathTool, "Path tool")
+	MenuStyle.addToolButton(textureToolPanel,Vec2(0.25,0.375), setPathDirectionTool, "Path direction tool")
 end
 
 function addSceneNodeToTreeView( treeViewPanel, sceneNode )

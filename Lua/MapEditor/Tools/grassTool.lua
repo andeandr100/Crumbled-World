@@ -341,7 +341,7 @@ function loadedMap()
 	local playerNode = this:getRootNode():findNodeByType(NodeId.playerNode) 
 	local grassNode = playerNode:findNodeByName("Grass node")
 	if not grassNode then
-		local grassNode = playerNode:addChild(SceneNode("Grass node"))
+		local grassNode = playerNode:addChild(SceneNode.new("Grass node"))
 		local script = grassNode:loadLuaScript("Enviromental/grass.lua")
 		script:update()
 	end

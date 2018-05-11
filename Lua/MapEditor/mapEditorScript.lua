@@ -25,6 +25,9 @@ function create()
 		toolManager:loadToolScript("MapEditor/Tools/pathTool.lua")
 		--load and set the scene select tool as default tool
 		toolManager:setToolScript("MapEditor/Tools/SceneSelectTool.lua")
+		
+		toolManager:setToolScript("MapEditor/Tools/navMeshDirectionTool.lua")
+		
 	else
 		print("\no tool manager\n\n")
 		abort()
