@@ -35,7 +35,6 @@ function ArrowTower.new()
 	local model
 	local rotaterMesh
 	local crossbowMesh
-	local defaultPlatformRotMeshMatrix
 	local defaultRotaterMeshMatrix
 	--Sound
 	local soundNode
@@ -105,6 +104,7 @@ function ArrowTower.new()
 	end
 	local function restoreWaveChangeStats( wave )
 		if isThisReal and wave>0 then
+			Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,4,0)+math.randomVec3(),2.0,Vec3(1,0,0))
 			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
@@ -125,7 +125,7 @@ function ArrowTower.new()
 				doDegrade(upgrade.getLevel("markOfDeath"),tab.markOfDeath,self.handleWeakenTarget)
 				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
 				--
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				--upgrade.restoreWaveChangeStats(tab.upgradeTab)
 				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
@@ -134,8 +134,8 @@ function ArrowTower.new()
 				self.SetTargetMode(tab.currentTargetMode)
 				billboard:setMatrix("TargetAreaOffset",tab.currentTargetAreaOffset)
 				self.setRotateTarget(tab.currentGlobalVec)
-				rotaterMesh:setLocalMatrix(tab.rotaterMatrix)
-				crossbowMesh:setLocalMatrix(tab.crossbowMatrix)
+--				rotaterMesh:setLocalMatrix(tab.rotaterMatrix)
+--				crossbowMesh:setLocalMatrix(tab.crossbowMatrix)
 				boostedOnLevel = tab.boostedOnLevel
 			end
 		end
@@ -219,7 +219,6 @@ function ArrowTower.new()
 		crossbowMesh = model:getMesh( "crossbow" )
 		crossbowMesh:setLocalPosition(Vec3(0.0,0.0,0.44))
 		
-		defaultPlatformRotMeshMatrix = defaultPlatformRotMeshMatrix or model:getMesh( "rotaterBase" ):getGlobalMatrix()
 		defaultRotaterMeshMatrix = defaultRotaterMeshMatrix or rotaterMesh:getLocalMatrix()
 	
 		--init the crossbow (instant reload)
@@ -258,7 +257,7 @@ function ArrowTower.new()
 		local tab = totable(tabStr)
 		billboard:setMatrix("TargetAreaOffset", tab.mat)
 	end
-	function self.setRotateTarget(globalVec)
+	function self.setRotateTarget(globalVec, isWaveRestart)
 		currentGlobalVec = globalVec
 		if globalVec:sub(1,1)==":" then
 			globalVec = globalVec:sub(2)
@@ -284,6 +283,7 @@ function ArrowTower.new()
 		local rotMeshParentGIMatrix = rotMeshParent:getGlobalMatrix():inverseM()
 		local vector = rotMeshParentGIMatrix * Vec4( tonumber(x),0,tonumber(z), 0)
 		globalMat:createMatrix( Vec3(0,0,1), Vec3(-vector.x, vector.z, 0) )
+		local defaultPlatformRotMeshMatrix = model:getMesh( "tower" ):getGlobalMatrix()
 		--set matrix for platform
 		rotMesh:setLocalMatrix(rotMeshParentGIMatrix * (defaultPlatformRotMeshMatrix * globalMat))
 		--set matrix for rotater on platform
@@ -720,6 +720,8 @@ function ArrowTower.new()
 		
 		restartListener = Listener("RestartWave")
 		restartListener:registerEvent("restartWave", restartWave)
+		restartListener2 = Listener("RestartWaveBuilder")
+		restartListener2:registerEvent("restartWaveBuilder", restartWave)
 	
 		model = Core.getModel("tower_crossbow_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
@@ -771,7 +773,6 @@ function ArrowTower.new()
 		comUnitTable["dmgDealtMarkOfDeath"] = dmgDealtMarkOfDeath
 		comUnitTable["dmgLost"] = damageLost
 		comUnitTable["waveChanged"] = waveChanged
-		comUnitTable["retargeted"] = retargeted
 		comUnitTable["upgrade1"] = self.handleUpgrade
 		comUnitTable["upgrade2"] = self.handleBoost
 		comUnitTable["upgrade3"] = self.handleUpgradeScope
@@ -991,6 +992,7 @@ function ArrowTower.new()
 		cTowerUpg.addUpg("hardArrow",self.handleHardArrow)
 		cTowerUpg.addUpg("markOfDeath",self.handleWeakenTarget)
 		cTowerUpg.fixAllPermBoughtUpgrades()
+		
 		return true
 	end
 	init()

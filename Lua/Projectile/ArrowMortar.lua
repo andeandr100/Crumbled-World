@@ -116,7 +116,6 @@ function ArrowMortar.new()
 					if lengthLeft<1.0 then
 						lengthLeft=frameMovment--just insta hitt instead of doing strange movments
 					end
-					comUnit:sendTo(LUA_INDEX,"retargeted","")
 				end
 			else
 				prevAtVec = atVec

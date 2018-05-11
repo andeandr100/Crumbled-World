@@ -10,6 +10,7 @@ function Spear.new(pTargetSelector)
 	local attacked = {}
 	local sparkCenter
 	local pointLight
+	local pointLightHeat
 	local speed = 8.0
 	local range = 1.25
 	local damage = 0
@@ -95,15 +96,29 @@ function Spear.new(pTargetSelector)
 		slowTimer = billboard:getFloat("slowTimer")
 		shieldBypass = billboard:getFloat("shieldBypass")
 		stateDamageMul = billboard:getFloat("stateDamageMul")
-		masterBladeLevel = billboard:getInt("masterBladeLevel")
+		masterBladeHeat = billboard:getFloat("masterBladeHeat")
 		shieldAreaIndex = targetSelector.getIndexOfShieldCovering(thePosition)
-		spear:setUniform(spear:getShader(), "heat", masterBladeLevel>0 and masterBladeLevel/3.0 or 0.0)
+		spear:setUniform(spear:getShader(), "heat", masterBladeHeat)
 		damageDone = 0.0
 		npcHitt = 0
 		
 		targetSelector.setPosition(thePosition+(atVec*(length*0.5)))
 		targetSelector.setRange(length*0.55)
 		
+		if masterBladeHeat>0.01 then
+			if not pointLightHeat then
+				pointLightHeat = PointLight.new(Vec3(0,0,0),Vec3(0.625,0,0),3.0)
+				pointLightHeat:setVisible(false)
+				model:addChild(pointLightHeat:toSceneNode())
+			end
+			pointLightHeat:setRange(1.5+(3.5*masterBladeHeat))
+			pointLightHeat:setCutOff(0.15)
+			pointLightHeat:setVisible(true)
+		else
+			if pointLightHeat then
+				pointLightHeat:setVisible(false)
+			end
+		end
 		if billboard:getFloat("electricBlade")>0 then
 			if not parkCenter then
 				sparkCenter = ParticleSystem.new(ParticleEffect.SparkSpirit)
@@ -148,13 +163,10 @@ function Spear.new(pTargetSelector)
 		if shieldAreaIndex~=targetSelector.getIndexOfShieldCovering(currentPos) then
 			--forcefield hitt
 			shieldAreaIndex = shieldAreaIndex>0 and shieldAreaIndex or targetSelector.getIndexOfShieldCovering(currentPos)
-			if stateDamageMul>1.0 then
-				comUnit:sendTo(shieldAreaIndex,"attack",tostring(damage*stateDamageMul))
-				damageDone = damageDone + damage*stateDamageMul
-			else
-				comUnit:sendTo(shieldAreaIndex,"attack",tostring(damage))
-				damageDone = damageDone + damage
-			end
+			
+			comUnit:sendTo(shieldAreaIndex,"attack",tostring(damage))
+			damageDone = damageDone + damage
+				
 			local oldPosition = currentPos - atVec
 			local futurePosition = currentPos + atVec
 			local hitTime = tostring(0.75)
