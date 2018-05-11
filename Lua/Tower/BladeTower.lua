@@ -710,7 +710,7 @@ function BladeTower.new()
 					blade:setVisible(upgrade.getLevel("boost")==0)
 					spear:setVisible(upgrade.getLevel("boost")==1)
 					--play sound
-					soundRelease:play(0.75,false)
+					soundRelease:play(1.0,false)
 				else
 					reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
 				end
