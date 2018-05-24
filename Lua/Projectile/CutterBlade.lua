@@ -46,6 +46,24 @@ function CutterBlade.new(pTargetSelector)
 
 	--targetingSystem
 	local targetSelector = pTargetSelector
+	
+	function self.getCurrentIslandPlayerId()
+		local islandPlayerId = 0--0 is no owner
+		local island = this:findNodeByTypeTowardsRoot(NodeId.island)
+		if island then
+			islandPlayerId = island:getPlayerId()
+		end
+		--if islandPlayerId>0 then
+		networkSyncPlayerId = islandPlayerId
+		if type(networkSyncPlayerId)=="number" and Core.getNetworkClient():isPlayerIdInUse(networkSyncPlayerId)==false then
+			networkSyncPlayerId = 0
+		end
+		--end
+		return networkSyncPlayerId
+	end
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
 
 	local function attack(target,startPos)
 		--ParticleEffectElectricFlash.new("Lightning_D.tga")
@@ -55,7 +73,9 @@ function CutterBlade.new(pTargetSelector)
 			attacked[target]=true
 			if stateDamageMul>1.0 and targetSelector.isTargetInState(target,state.burning) then
 				comUnit:sendTo(target,"attackBlade",tostring(damage*stateDamageMul).."")
-				comUnit:sendTo("SteamAchievement","CriticalStrike","")
+				if canSyncTower() then
+					comUnit:sendTo("SteamAchievement","CriticalStrike","")
+				end
 				damageDone = damageDone + damage*stateDamageMul
 			else
 				comUnit:sendTo(target,"attackBlade",tostring(damage).."")

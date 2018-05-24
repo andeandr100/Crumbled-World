@@ -63,6 +63,11 @@ function SwarmTower.new()
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
+	local function achievementUnlocked(whatAchievement)
+		if canSyncTower() then
+			comUnit:sendTo("SteamAchievement",whatAchievement,"")
+		end
+	end
 	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
@@ -208,7 +213,7 @@ function SwarmTower.new()
 		sendSupporUpgrade()
 		--achievment
 		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("damage")==3 and upgrade.getLevel("weaken")==3 and upgrade.getLevel("gold")==3 then
-			comUnit:sendTo("SteamAchievement","MaxedSupportTower","")
+			achievementUnlocked("MaxedSupportTower")
 		end
 	end
 	-- function:	initModel
@@ -289,7 +294,7 @@ function SwarmTower.new()
 		local level = upgrade.getLevel("upgrade")
 		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
 		if upgrade.getLevel("upgrade")==3 then
-			comUnit:sendTo("SteamAchievement","Upgrader","")
+			achievementUnlocked("Upgrader")
 		end
 		--
 		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
@@ -321,7 +326,7 @@ function SwarmTower.new()
 			--
 			comUnit:broadCast(this:getGlobalPosition(),TOWERRANGEMAX,"supportBoost",1)
 			--Achievement
-			comUnit:sendTo("SteamAchievement","Boost","")
+			achievementUnlocked("Boost")
 		elseif upgrade.getLevel("boost")>tonumber(param) then
 			upgrade.degrade("boost")
 			upgrade.clearCooldown()
@@ -355,7 +360,7 @@ function SwarmTower.new()
 			end
 			--Acievement
 			if upgrade.getLevel("range")==3 then
-				comUnit:sendTo("SteamAchievement","UpgradeSupportRange","")
+				achievementUnlocked("UpgradeSupportRange")
 			end
 		else
 			meshRange = nil
@@ -381,7 +386,7 @@ function SwarmTower.new()
 			doMeshUpgradeForLevel("damage","dmg")
 			--Achievement
 			if upgrade.getLevel("damage")==3 then
-				comUnit:sendTo("SteamAchievement","UpgradeSupportDamage","")
+				achievementUnlocked("UpgradeSupportDamage")
 			end
 		end
 		setCurrentInfo()
@@ -440,7 +445,7 @@ function SwarmTower.new()
 			end
 			--Acievement
 			if upgrade.getLevel("weaken")==3 then
-				comUnit:sendTo("SteamAchievement","UpgradeSupportMarkOfDeath","")
+				achievementUnlocked("UpgradeSupportMarkOfDeath")
 			end
 		end
 		setCurrentInfo()
@@ -469,7 +474,7 @@ function SwarmTower.new()
 		end
 		--Acievement
 		if upgrade.getLevel("gold")==3 then
-			comUnit:sendTo("SteamAchievement","UpgradeSupportGold","")
+			achievementUnlocked("UpgradeSupportGold")
 		end
 	end
 	-- function:	Updates all tower what upgrades that is available

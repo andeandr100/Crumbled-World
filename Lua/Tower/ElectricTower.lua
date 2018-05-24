@@ -76,6 +76,11 @@ function ElectricTower.new()
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
+	local function achievementUnlocked(whatAchievement)
+		if canSyncTower() then
+			comUnit:sendTo("SteamAchievement",whatAchievement,"")
+		end
+	end
 	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
@@ -276,7 +281,7 @@ function ElectricTower.new()
 		--
 		if not LinkAchievement then
 			LinkAchievement = true
-			comUnit:sendTo("SteamAchievement","Link","")
+			achievementUnlocked("Link")
 		end
 	end
 	local function updateStats()
@@ -301,7 +306,7 @@ function ElectricTower.new()
 		updateStats()
 		--achievment
 		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("energyPool")==3 and upgrade.getLevel("ampedSlow")==3 and upgrade.getLevel("energy")==3 and upgrade.getLevel("range")==3 then
-			comUnit:sendTo("SteamAchievement","ElectricMaxed","")
+			achievementUnlocked("ElectricMaxed")
 		end
 	end
 	local function initModel()
@@ -375,7 +380,7 @@ function ElectricTower.new()
 		local level = upgrade.getLevel("upgrade")
 		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
 		if upgrade.getLevel("upgrade")==3 then
-			comUnit:sendTo("SteamAchievement","Upgrader","")
+			achievementUnlocked("Upgrader")
 		end
 		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
 			local matrixList = {}
@@ -405,7 +410,7 @@ function ElectricTower.new()
 			model:getMesh("boost"):setVisible(true)
 			setCurrentInfo()
 			--Achievement
-			comUnit:sendTo("SteamAchievement","Boost","")
+			achievementUnlocked("Boost")
 		elseif upgrade.getLevel("boost")>tonumber(param) then
 			upgrade.degrade("boost")
 			model:getMesh("boost"):setVisible( false )
@@ -448,7 +453,7 @@ function ElectricTower.new()
 			doMeshUpgradeForLevel("ampedSlow","slow")
 			--Achievement
 			if upgrade.getLevel("ampedSlow")==3 then
-				comUnit:sendTo("SteamAchievement","Slow","")
+				achievementUnlocked("Slow")
 			end
 		end
 		setCurrentInfo()
@@ -469,7 +474,7 @@ function ElectricTower.new()
 			doMeshUpgradeForLevel("energyPool","range")--this is just reusing the same model
 			--Achievement
 			if upgrade.getLevel("energyPool")==3 then
-				comUnit:sendTo("SteamAchievement","EnergyBatery","")
+				achievementUnlocked("EnergyBatery")
 			end
 		end
 		setCurrentInfo()
@@ -835,7 +840,7 @@ function ElectricTower.new()
 		upgrade.addDisplayStats("damage")
 		upgrade.addDisplayStats("RPS")
 		upgrade.addDisplayStats("range")
-		upgrade.addDisplayStats("slow")
+		upgrade.addDisplayStats("slow", 100.0, 0, "%")
 		upgrade.addDisplayStats("energyPool")
 		upgrade.addDisplayStats("ERPS")
 		upgrade.addBillboardStats("energyMax")
