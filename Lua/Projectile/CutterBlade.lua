@@ -265,8 +265,10 @@ function CutterBlade.new(pTargetSelector)
 		if projectileIsDead or movment>length then
 			--reached end of line/ or hit a physical shield
 			self.stop()--makes it invisible
-			comUnit:sendTo("SteamStats","BladeMaxHittCount",npcHitt)
-			comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+			if canSyncTower() then
+				comUnit:sendTo("SteamStats","BladeMaxHittCount",npcHitt)
+				comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+			end
 			return false
 		end
 		model:rotateAroundPoint(Vec3(0,1,0),Vec3(),-Core.getDeltaTime()*math.pi*3.0)

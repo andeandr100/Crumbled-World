@@ -80,7 +80,9 @@ function update()
 			labelPing:setText(math.floor(client:getPing()*1000).."ping")
 		end
 	end
-	form:update()
+	if form then
+		form:update()
+	end
 	
 	if Core.getInput():getKeyPressed(Key.F1) then
 		setGameSpeed(2.0)

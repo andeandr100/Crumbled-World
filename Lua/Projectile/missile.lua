@@ -63,6 +63,24 @@ function Missile.new()
 	node:addChild(soundExplosion:toSceneNode())
 	node:addChild(soundMissile:toSceneNode())
 
+	function self.getCurrentIslandPlayerId()
+		local islandPlayerId = 0--0 is no owner
+		local island = this:findNodeByTypeTowardsRoot(NodeId.island)
+		if island then
+			islandPlayerId = island:getPlayerId()
+		end
+		--if islandPlayerId>0 then
+		networkSyncPlayerId = islandPlayerId
+		if type(networkSyncPlayerId)=="number" and Core.getNetworkClient():isPlayerIdInUse(networkSyncPlayerId)==false then
+			networkSyncPlayerId = 0
+		end
+		--end
+		return networkSyncPlayerId
+	end
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
+
 	-- function:	Tries to find a new target, if the current has died
 	local function manageIfTargetIsNotAvailable()
 		if targetIndex>1 and targetSelector.isTargetAlive(targetIndex)==false then
@@ -249,8 +267,10 @@ function Missile.new()
 					attackSingleTarget(index,1.0)
 				end
 				--Steam stats
-				comUnit:sendTo("SteamStats","MissileMaxHittCount",targetSelector.getAllTargetCount())
-				comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+				if canSyncTower() then
+					comUnit:sendTo("SteamStats","MissileMaxHittCount",targetSelector.getAllTargetCount())
+					comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+				end
 				--Particle effects
 				if billboard:getDouble("fireDPS")>1.0 and fireStorm then
 					fireStorm.activate(billboard:getDouble("burnTime"),position,billboard:getDouble("fireDPS"),billboard:getDouble("slow"),detonationRange)
@@ -322,11 +342,13 @@ function Missile.new()
 					local target = targetSelector.getTarget()
 					local targetInsideShield = insideShieldIndex>0
 					local targets = targetSelector.getAllTargets()
-					comUnit:sendTo("SteamStats","MissileMaxHittCount",targetSelector.getAllTargetCount())
 					for index,score in pairs(targets) do
 						attackSingleTarget(index,1.0)
 					end
-					comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+					if canSyncTower() then
+						comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+						comUnit:sendTo("SteamStats","MissileMaxHittCount",targetSelector.getAllTargetCount())
+					end
 					--hitt effect
 					local oldPosition = position - direction
 					local futurePosition = position + direction

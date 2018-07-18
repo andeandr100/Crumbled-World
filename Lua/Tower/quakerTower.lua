@@ -580,8 +580,10 @@ function QuakeTower.new()
 		end
 		--steam stats
 		targetSelector.selectAllInRange()
-		comUnit:sendTo("SteamStats","QuakeMaxHittCount",targetSelector.getAllTargetCount())
-		comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+		if canSyncTower() then
+			comUnit:sendTo("SteamStats","QuakeMaxHittCount",targetSelector.getAllTargetCount())
+			comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+		end
 	end
 	local function dropp()
 		towerState = DROPPING

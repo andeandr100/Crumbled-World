@@ -1,8 +1,9 @@
 require("Menu/settings.lua")
 --this = Camera()
 
-local ZOOM_LEVEL_MIN = 9.5
-local ZOOM_LEVEL_MAX = 30.0
+local ZOOM_LEVEL_MIN 		= 9.5
+local ZOOM_LEVEL_MAX 		= 30.0
+local ZOOM_LEVEL_DEFAULT 	= 18.0
 --Achievements
 
 
@@ -14,8 +15,8 @@ end
 
 function destroy()
 	if music.source then
-				music.source:stopFadeOut(3.0)
-		end
+		music.source:stopFadeOut(3.0)
+	end
 end
 
 function create()
@@ -97,6 +98,7 @@ function create()
 			cameraCenterPos = MapSettings["camera"..Core.getPlayerId().."CenterPos"] and MapSettings["camera"..Core.getPlayerId().."CenterPos"] or cameraCenterPos
 			cameraRotation = MapSettings["camera"..Core.getPlayerId().."Rotation"] and MapSettings["camera"..Core.getPlayerId().."Rotation"] or cameraRotation
 		end
+		cameraLocalPos.y = ZOOM_LEVEL_DEFAULT
 		
 		this:setLocalMatrix(localCameraNode:getGlobalMatrix())
 		

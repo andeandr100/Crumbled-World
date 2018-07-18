@@ -132,7 +132,7 @@ function SwarmTower.new()
 	-- function:	sendSupporUpgrade
 	-- purpose:		broadcasting what upgrades the towers close by should use
 	local function sendSupporUpgrade()
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getLevel("range")==0 and TOWERRANGE*2.0 or TOWERRANGEMAX,"SupportRange",upgrade.getLevel("range"))
+		comUnit:broadCast(this:getGlobalPosition(),upgrade.getLevel("range")==0 and TOWERRANGE*2.0 or TOWERRANGEMAX,"supportRange",upgrade.getLevel("range"))
 		comUnit:broadCast(this:getGlobalPosition(),upgrade.getLevel("damage")==0 and TOWERRANGE*2.0 or TOWERRANGEMAX,"supportDamage",upgrade.getLevel("damage"))
 	end
 	local function restartWave(param)
@@ -189,8 +189,10 @@ function SwarmTower.new()
 		goldEarned = goldEarned + goldGained
 		totalGoaldEarned = totalGoaldEarned + goldGained
 		billboard:setDouble("goldEarnedCurrentWave",goldEarned)
-		comUnit:sendTo("SteamStats","MaxGoldEarnedFromSingleSupportTower",totalGoaldEarned)
-		comUnit:sendTo("stats","addBillboardDouble","goldGainedFromSupportTowers;"..tostring(goldGained))
+		if canSyncTower() then
+			comUnit:sendTo("SteamStats","MaxGoldEarnedFromSingleSupportTower",totalGoaldEarned)
+			comUnit:sendTo("stats","addBillboardDouble","goldGainedFromSupportTowers;"..tostring(goldGained))
+		end
 	end
 	
 	-- function:	setCurrentInfo

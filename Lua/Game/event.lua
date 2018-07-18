@@ -5,7 +5,7 @@ function create()
 	local mapInfo = MapInfo.new()
 	local numWaves = mapInfo.getWaveCount()						--how many waves must be beaten to win
 	local goldEstimationEarnedPerWave = 500+(numWaves*5)
-	local startGold = 3000									--how much gold to start with
+	local startGold = 1000									--how much gold to start with
 	local goldMultiplayerOnKills = 1.0
 	local interestMultiplyerOnKill = 1.0						--how much gold percentage gained on killing an npc
 	local startLives = 20										--how many npc you can have slip by without losing
@@ -36,6 +36,8 @@ function create()
 	elseif mapInfo.getGameMode()=="leveler" then
 		startGold = 1000
 		interestMultiplyerOnKill = 0
+	elseif mapInfo.getGameMode()=="circle" then
+		--nothing
 	end
 	--
 	if Core.isInMultiplayer() then
