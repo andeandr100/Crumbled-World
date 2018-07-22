@@ -249,6 +249,7 @@ function NpcBase.new()
 	end
 		
 	function self.reachedWaypointCallback(position)
+		print("self.reachedWaypointCallback( "..tostring(position).." )")
 		if soul.getHp()>0 then
 			position = this:getGlobalPosition()
 --			if type(position)=="string" then

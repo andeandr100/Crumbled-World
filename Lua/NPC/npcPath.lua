@@ -13,7 +13,7 @@ function NpcPath.new()
 	local restoreMeshData = {}
 	local resetTime = 0
 	
-	local function wayPointReached()
+	function self.wayPointReached()
 		local lastId = lastPointIdAdded
 		local groupId = groupId
 		local posibleTargetLocation = paths[groupId][lastPointIdAdded]
@@ -24,8 +24,8 @@ function NpcPath.new()
 		end
 	end
 	
-	function self.findPath(nodeMover, model)
-		nodeMover = nodeMover
+	function self.findPath(inNodeMover, model)
+		nodeMover = inNodeMover
 		local bilboard = Core.getBillboard("Paths")
 		if bilboard then
 			resetTime = Core.getGameTime() + 5
@@ -141,7 +141,7 @@ function NpcPath.new()
 			
 			lastPointIdAdded = id
 			if usedPoints[id] then
-				nodeMover:addCallbackWayPointReached(wayPointReached)
+				nodeMover:addCallbackWayPointReached(self.wayPointReached)
 			end
 			
 			
