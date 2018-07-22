@@ -44,6 +44,24 @@ function Spear.new(pTargetSelector)
 	local targetSelector = pTargetSelector
 	targetSelector.setPosition(this:getGlobalPosition())
 	targetSelector.setRange(range)
+	
+	function self.getCurrentIslandPlayerId()
+		local islandPlayerId = 0--0 is no owner
+		local island = this:findNodeByTypeTowardsRoot(NodeId.island)
+		if island then
+			islandPlayerId = island:getPlayerId()
+		end
+		--if islandPlayerId>0 then
+		networkSyncPlayerId = islandPlayerId
+		if type(networkSyncPlayerId)=="number" and Core.getNetworkClient():isPlayerIdInUse(networkSyncPlayerId)==false then
+			networkSyncPlayerId = 0
+		end
+		--end
+		return networkSyncPlayerId
+	end
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
 
 	function self.stop()
 		if sparkCenter then
@@ -180,8 +198,10 @@ function Spear.new(pTargetSelector)
 		--
 		if movment>length then
 			self.stop()
-			comUnit:sendTo("SteamStats","BladeMaxHittCount",npcHitt)
-			comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+			if canSyncTower() then
+				comUnit:sendTo("SteamStats","BladeMaxHittCount",npcHitt)
+				comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+			end
 			return false
 		end
 		model:rotateAroundPoint(Vec3(0,0,1),Vec3(),-Core.getDeltaTime()*math.pi*3.0)

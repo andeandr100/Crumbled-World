@@ -68,6 +68,11 @@ function ArrowTower.new()
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
+	local function achievementUnlocked(whatAchievement)
+		if canSyncTower() then
+			comUnit:sendTo("SteamAchievement",whatAchievement,"")
+		end
+	end
 	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
@@ -250,7 +255,7 @@ function ArrowTower.new()
 		updateStats()
 		--achivment
 		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("hardArrow")==3 and upgrade.getLevel("markOfDeath")==3 then
-			comUnit:sendTo("SteamAchievement","CrossbowMaxed","")
+			achievementUnlocked("CrossbowMaxed")
 		end
 	end
 	function self.setTargetAreaOffset(tabStr)
@@ -326,7 +331,7 @@ function ArrowTower.new()
 		local level = upgrade.getLevel("upgrade")
 		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
 		if upgrade.getLevel("upgrade")==3 then
-			comUnit:sendTo("SteamAchievement","Upgrader","")
+			achievementUnlocked("Upgrader")
 		end
 		--
 		
@@ -371,7 +376,7 @@ function ArrowTower.new()
 			resetModel()
 			setCurrentInfo()
 			--Achievement
-			comUnit:sendTo("SteamAchievement","Boost","")
+			achievementUnlocked("Boost")
 		elseif upgrade.getLevel("boost")>tonumber(param) then
 			upgrade.degrade("boost")
 			resetModel()
@@ -406,7 +411,7 @@ function ArrowTower.new()
 			end			
 			--Acievement
 			if upgrade.getLevel("range")==3 then
-				comUnit:sendTo("SteamAchievement","Range","")
+				achievementUnlocked("Range")
 			end
 		end
 		setCurrentInfo()
@@ -428,7 +433,7 @@ function ArrowTower.new()
 			--no mesh in use
 			--Achievement
 			if upgrade.getLevel("hardArrow")==3 then
-				comUnit:sendTo("SteamAchievement","HardArrow","")
+				achievementUnlocked("HardArrow")
 			end
 		end
 		setCurrentInfo()
@@ -459,7 +464,7 @@ function ArrowTower.new()
 			end
 			model:getMesh("markForDeath"..upgrade.getLevel("markOfDeath")):setVisible(true)
 			if upgrade.getLevel("markOfDeath")==3 then
-				comUnit:sendTo("SteamAchievement","MarkOfDeath","")
+				achievementUnlocked("MarkOfDeath")
 			end
 		end
 		setCurrentInfo()

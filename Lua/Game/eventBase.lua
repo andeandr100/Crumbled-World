@@ -7,13 +7,14 @@ function EventBase.new()
 	
 	local spawnManager = SpawnManager.new()
 	
-	local EVENT_WAIT_FOR_TOWER_TO_BE_BUILT =		1
-	local EVENT_WAIT_FOR_START_BUTTON_BUILT =		2
-	local EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD =	3
-	local EVENT_CHANGE_WAVE =						4
-	local EVENT_START_SPAWN =						5 
-	local EVENT_END_GAME =							6
-	local EVENT_END_MENU =							7
+	local EVENT_WAIT_FOR_TOWER_TO_BE_BUILT =			1
+	local EVENT_WAIT_FOR_START_BUTTON_BUILT =			2
+	local EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD =		3
+	local EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_SPAWNED =	4
+	local EVENT_CHANGE_WAVE =							10
+	local EVENT_START_SPAWN =							11
+	local EVENT_END_GAME =								12
+	local EVENT_END_MENU =								13
 	
 	local currentState = 0
 	
@@ -78,6 +79,10 @@ function EventBase.new()
 	
 	function self.getSpawnManager()
 		return spawnManager
+	end
+	function self.getEnemiesAliveCount()
+		local bill = Core.getBillboard("SoulManager")
+		return bill and bill:getInt("npcsAlive") or -1
 	end
 	
 	--Gold options
@@ -346,6 +351,12 @@ function EventBase.new()
 					currentState = EVENT_CHANGE_WAVE
 					waveRestarted = false
 				end
+			elseif currentState == EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_SPAWNED then
+				spawnManager.spawnUnits()
+				if spawnManager.isAnythingSpawning()==false then
+					currentState = EVENT_CHANGE_WAVE
+					waveRestarted = false
+				end
 			elseif currentState == EVENT_CHANGE_WAVE then
 				if changeWave() then
 					spawnManager.changeWave(waveCount)
@@ -370,7 +381,11 @@ function EventBase.new()
 			elseif currentState == EVENT_START_SPAWN then
 				--diff
 				spawnManager.spawnWave(waveRestarted)
-				currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD
+				if mapInfo.getGameMode()~="circle" then
+					currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD
+				else
+					currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_SPAWNED
+				end
 			elseif currentState == EVENT_END_GAME then
 				if this:getPlayerNode() then
 					victoryDefeatProcedure()

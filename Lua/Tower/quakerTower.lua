@@ -69,6 +69,11 @@ function QuakeTower.new()
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
+	local function achievementUnlocked(whatAchievement)
+		if canSyncTower() then
+			comUnit:sendTo("SteamAchievement",whatAchievement,"")
+		end
+	end
 	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
@@ -191,7 +196,7 @@ function QuakeTower.new()
 		targetSelector.setRange(upgrade.getValue("range"))
 		--achievment
 		if upgrade.getLevel("upgrade")==3 and (upgrade.getLevel("fireCrit")==3 or upgrade.getLevel("fireStrike")==3 or upgrade.getLevel("electricStrike")==3) then
-			comUnit:sendTo("SteamAchievement","QuakeMaxed","")
+			achievementUnlocked("QuakeMaxed")
 		end
 	end
 	local function fixModel(setDefault)
@@ -259,7 +264,7 @@ function QuakeTower.new()
 		local level = upgrade.getLevel("upgrade")
 		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
 		if upgrade.getLevel("upgrade")==3 then
-			comUnit:sendTo("SteamAchievement","Upgrader","")
+			achievementUnlocked("Upgrader")
 		end
 		--
 		--clear out the old data
@@ -291,7 +296,7 @@ function QuakeTower.new()
 			model:getMesh("boost"):setVisible(true)
 			setCurrentInfo()
 			--Achievement
-			comUnit:sendTo("SteamAchievement","Boost","")
+			achievementUnlocked("Boost")
 		elseif upgrade.getLevel("boost")>tonumber(param) then
 			upgrade.degrade("boost")
 			model:getMesh("boost"):setVisible( false )
@@ -326,7 +331,7 @@ function QuakeTower.new()
 			model:getMesh("blaster"..upgrade.getLevel("fireCrit")):setVisible(true)
 			--Acievement
 			if upgrade.getLevel("fireCrit")==3 then
-				comUnit:sendTo("SteamAchievement","QuakeFireCrit","")
+				achievementUnlocked("QuakeFireCrit")
 			end
 		end
 		setCurrentInfo()
@@ -367,7 +372,7 @@ function QuakeTower.new()
 			model:getMesh("elementSmasher"):setVisible(true)
 			--Acievement
 			if upgrade.getLevel("fireStrike")==3 then
-				comUnit:sendTo("SteamAchievement","FireWall","")
+				achievementUnlocked("FireWall")
 			end
 		end
 		setCurrentInfo()
@@ -416,7 +421,7 @@ function QuakeTower.new()
 			model:getMesh("elementSmasher"):setVisible(true)
 			--Acievement
 			if upgrade.getLevel("electricStrike")==3 then
-				comUnit:sendTo("SteamAchievement","ElectricStorm","")
+				achievementUnlocked("ElectricStorm")
 			end
 		end
 		setCurrentInfo()
@@ -497,7 +502,7 @@ function QuakeTower.new()
 				if targetSelector.isTargetInState(index,state.burning) then
 					comUnit:sendTo(index,"attack",tostring(fireCritDamage))
 					comUnit:sendTo(index,"clearFire","")
-					comUnit:sendTo("SteamAchievement","CriticalStrike","")
+					achievementUnlocked("CriticalStrike")
 					damageDone = damageDone + fireCritDamage
 				else
 					comUnit:sendTo(index,"attack",tostring(damage))
@@ -575,8 +580,10 @@ function QuakeTower.new()
 		end
 		--steam stats
 		targetSelector.selectAllInRange()
-		comUnit:sendTo("SteamStats","QuakeMaxHittCount",targetSelector.getAllTargetCount())
-		comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+		if canSyncTower() then
+			comUnit:sendTo("SteamStats","QuakeMaxHittCount",targetSelector.getAllTargetCount())
+			comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+		end
 	end
 	local function dropp()
 		towerState = DROPPING
@@ -764,7 +771,7 @@ function QuakeTower.new()
 		upgrade.addDisplayStats("damage")
 		upgrade.addDisplayStats("RPS")
 		upgrade.addDisplayStats("range")
-		upgrade.addDisplayStats("slow")
+		upgrade.addDisplayStats("slow", 100.0, 0, "%")
 		
 		
 		--AUHpR = 1.6

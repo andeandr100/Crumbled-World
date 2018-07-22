@@ -628,7 +628,9 @@ function NpcBase.new()
 					else
 						--multiplayer
 						goldOnDeath(1.0/Core.getNetworkClient():getConnectedPlayerCount())
-						soul.fixGoldEarned()
+						if canSyncNPC() then
+							soul.fixGoldEarned()
+						end
 					end
 					if canSyncNPC() then
 						comUnit:sendNetworkSyncSafe("Net-death","byTower")

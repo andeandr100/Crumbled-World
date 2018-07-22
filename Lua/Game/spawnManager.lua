@@ -528,6 +528,9 @@ function SpawnManager.new()
 			local timerAddBetweenWaves = 5+math.max(-0.5,5.5*(1.0-difficultBase))
 			local npcDelayAfterFirstTowerBuilt = 15.0							--delay for first wave
 			local npcDelayBetweenWaves = math.clamp(8.0-((difficultBase-0.75)/0.35*5),3.0,8.0)	--delay for all other waves
+			if mapInfo.getGameMode()=="circle" then
+				npcDelayBetweenWaves = npcDelayBetweenWaves*1.5
+			end
 			--
 			comUnit:sendTo("stats", "setWave", mapInfo.getStartWave())
 			comUnit:sendTo("stats", "setMaxWave", numWaves)

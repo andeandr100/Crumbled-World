@@ -54,6 +54,11 @@ function MissileTower.new()
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
+	local function achievementUnlocked(whatAchievement)
+		if canSyncTower() then
+			comUnit:sendTo("SteamAchievement",whatAchievement,"")
+		end
+	end
 	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
@@ -229,7 +234,7 @@ function MissileTower.new()
 		reloadMissiles()
 		--achievment
 		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("shieldSmasher")==1 and upgrade.getLevel("fuel")==3 and upgrade.getLevel("Blaster")==3 then
-			comUnit:sendTo("SteamAchievement","MissileMaxed","")
+			achievementUnlocked("MissileMaxed")
 		end
 	end
 	function restartWave(param)
@@ -315,7 +320,7 @@ function MissileTower.new()
 		local level = upgrade.getLevel("upgrade")
 		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
 		if upgrade.getLevel("upgrade")==3 then
-			comUnit:sendTo("SteamAchievement","Upgrader","")
+			achievementUnlocked("Upgrader")
 		end
 		--
 		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
@@ -338,7 +343,7 @@ function MissileTower.new()
 			model:getMesh( "boost" ):setVisible(true)
 			setCurrentInfo()
 			--Achievement
-			comUnit:sendTo("SteamAchievement","Boost","")
+			achievementUnlocked("Boost")
 		elseif upgrade.getLevel("boost")>tonumber(param) then
 			upgrade.degrade("boost")
 			model:getMesh("boost"):setVisible( false )
@@ -364,7 +369,7 @@ function MissileTower.new()
 			doMeshUpgradeForLevel("fuel","pipe")
 			--Acievement
 			if upgrade.getLevel("fuel")==3 then
-				comUnit:sendTo("SteamAchievement","FireStorm","")
+				achievementUnlocked("FireStorm")
 			end
 		end
 		setCurrentInfo()
@@ -384,7 +389,7 @@ function MissileTower.new()
 		if upgrade.getLevel("range")>0 then
 			--Acievement
 			if upgrade.getLevel("range")==3 then
-				comUnit:sendTo("SteamAchievement","Range","")
+				achievementUnlocked("Range")
 			end
 		end
 		setCurrentInfo()
@@ -404,7 +409,7 @@ function MissileTower.new()
 		if upgrade.getLevel("Blaster")>0 then
 			--Acievement
 			if upgrade.getLevel("Blaster")==3 then
-				comUnit:sendTo("SteamAchievement","Blaster","")
+				achievementUnlocked("Blaster")
 			end
 		end
 		setCurrentInfo()
@@ -422,7 +427,7 @@ function MissileTower.new()
 			comUnit:sendNetworkSyncSafe("upgrade6",tostring(param))
 		end
 		if upgrade.getLevel("shieldSmasher")>0 then
-			comUnit:sendTo("SteamAchievement","forcefieldSmasher","")
+			achievementUnlocked("forcefieldSmasher")
 		end
 		setCurrentInfo()
 	end

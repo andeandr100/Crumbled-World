@@ -79,6 +79,11 @@ function BladeTower.new()
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
+	local function achievementUnlocked(whatAchievement)
+		if canSyncTower() then
+			comUnit:sendTo("SteamAchievement",whatAchievement,"")
+		end
+	end
 	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
@@ -276,7 +281,7 @@ function BladeTower.new()
 		attackLine = Line3D(this:getGlobalPosition(),this:getGlobalPosition()+(pipeAt*upgrade.getValue("range")))
 		--achievment
 		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("electricBlade")==3 and upgrade.getLevel("shieldBreaker")==1 and upgrade.getLevel("masterBlade")==3 then
-			comUnit:sendTo("SteamAchievement","BladeMaxed","")
+			achievementUnlocked("BladeMaxed")
 		end
 	end
 	local function setHeatShader(mesh)
@@ -449,7 +454,7 @@ function BladeTower.new()
 		local level = upgrade.getLevel("upgrade")
 		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
 		if upgrade.getLevel("upgrade")==3 then
-			comUnit:sendTo("SteamAchievement","Upgrader","")
+			achievementUnlocked("Upgrader")
 		end
 		--
 		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
@@ -490,7 +495,7 @@ function BladeTower.new()
 			upgrade.upgrade("boost")
 			setCurrentInfo()
 			--Achievement
-			comUnit:sendTo("SteamAchievement","Boost","")
+			achievementUnlocked("Boost")
 		elseif upgrade.getLevel("boost")>tonumber(param) then
 			upgrade.degrade("boost")
 			setCurrentInfo()
@@ -518,7 +523,7 @@ function BladeTower.new()
 			end
 			--Achievement
 			if upgrade.getLevel("attackSpeed")==3 then
-				comUnit:sendTo("SteamAchievement","BladeSpeed","")
+				achievementUnlocked("BladeSpeed")
 			end
 		end
 		setCurrentInfo()
@@ -551,7 +556,7 @@ function BladeTower.new()
 			model:getMesh( "showSpear" ):setUniform(model:getMesh( "showSpear" ):getShader(), "heat", percentage)
 			--Achievement
 			if upgrade.getLevel("masterBlade")==3 then
-				comUnit:sendTo("SteamAchievement","MasterBlade","")
+				achievementUnlocked("MasterBlade")
 			end
 		end
 		setCurrentInfo()
@@ -582,10 +587,10 @@ function BladeTower.new()
 			comUnit:sendNetworkSyncSafe("upgrade7",tostring(param))
 		end
 		setCurrentInfo()
---		--Acievement
---		if upgrade.getLevel("range")==3 then
---			comUnit:sendTo("SteamAchievement","Range","")
---		end
+		--Acievement
+		if upgrade.getLevel("range")==3 then
+			achievementUnlocked("Range")
+		end
 	end
 	function self.handleElectrified(param)
 		if tonumber(param)>upgrade.getLevel("electricBlade") and tonumber(param)<=upgrade.getLevel("upgrade") then
@@ -644,7 +649,7 @@ function BladeTower.new()
 			sparkCenter2:setScale( upgradeElectricScale )
 			--Achievement
 			if upgrade.getLevel("electricBlade")==3 then
-				comUnit:sendTo("SteamAchievement","ElectricBlade","")
+				achievementUnlocked("ElectricBlade")
 			end
 		end
 		setCurrentInfo()
@@ -850,7 +855,7 @@ function BladeTower.new()
 		upgrade.addDisplayStats("damage")
 		upgrade.addDisplayStats("RPS")
 		upgrade.addDisplayStats("range")
-		upgrade.addBillboardStats("slow")
+		upgrade.addDisplayStats("slow", 100.0, 0, "%")
 		upgrade.addBillboardStats("slowTimer")
 		upgrade.addBillboardStats("stateDamageMul")
 		upgrade.addBillboardStats("shieldBypass")

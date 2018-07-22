@@ -294,7 +294,13 @@ function languageChanged()
 end
 
 function toogleSpeed()
-	gameSpeed = gameSpeed<=1.5 and 3.0 or 1.0
+	if gameSpeed>=2.0 then
+		gameSpeed = 0.5
+	elseif gameSpeed>=0.75 then
+		gameSpeed = 3.0
+	else
+		gameSpeed = 1.0;
+	end
 	updateGameSpeed()
 end
 

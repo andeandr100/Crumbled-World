@@ -16,7 +16,7 @@ function Upgrade.new()
 	local valueEfficiency = 1.0	--(0.75 if used)how much you will get back upon selling this tower
 	--local value = 0			--cost for everything with valueEfficiency used
 	local totalCost = 0			--cost for only "upgrade"
-	local displayStat = {}		--displayStat[1]="damage"
+	local displayStat = {}		--displayStat[1]={stat="damage", multiplier=100}
 	local displayOrder = {}		--displayOrder["upgrade"]=1
 	local subUpgradeCount = 0
 	local subUpgradeCountTotal = 0
@@ -136,8 +136,8 @@ function Upgrade.new()
 	end
 	-- function:	addDisplayStats
 	-- purpose:		stats that will be displayed in the "selected tower menu"
-	function self.addDisplayStats( stat )
-		displayStat[#displayStat+1] = stat
+	function self.addDisplayStats( stat, multiplier, decimalLimit, postfix )
+		displayStat[#displayStat+1] = { stat=stat, multiplier=multiplier, decimalLimit=decimalLimit , postfix=postfix}
 		statsToBillboard[#statsToBillboard+1] = stat
 	end
 	-- function:	addBillboardStats
@@ -522,7 +522,7 @@ function Upgrade.new()
 	-- purpose:
 	function self.saveDisplayStatsIn( tab )
 		for key, value in ipairs(displayStat) do
-			tab[value] = (type(stats[value])=="function") and stats[value]() or stats[value]
+			tab[value.stat] = (type(stats[value.stat])=="function") and stats[value.stat]() or stats[value.stat]
 		end
 	end
 	-- function:	calculateStats
@@ -532,7 +532,7 @@ function Upgrade.new()
 		--recalculate all stats, because functions may have unknow dependencies
 		local allToBeUpdated = {}
 		for key, value in pairs(displayStat) do 
-			allToBeUpdated[value] = 1
+			allToBeUpdated[value.stat] = 1
 		end
 		for key, value in pairs(upgradesAvailable[name][1].stats) do
 			allToBeUpdated[key] = 1
@@ -559,14 +559,15 @@ function Upgrade.new()
 	end
 	-- function:	valueToString
 	-- purpose:
-	local function valueToString(value)
+	local function valueToString(value, decimalLimit)
 		--could use math.floor(math.log10) to get the 10^x but why complicate a simple issue
 		--2 significants are to little, 3 is almost to much
-		if math.abs(value)<0 then
+		decimalLimit = decimalLimit or 3
+		if math.abs(value)<0 and decimalLimit>=3 then
 			return string.format("%.3f",value)
-		elseif math.abs(value)<10 then
+		elseif math.abs(value)<10 and decimalLimit>=2 then
 			return string.format("%.2f",value)
-		elseif math.abs(value)<100 then
+		elseif math.abs(value)<100 and decimalLimit>=1 then
 			return string.format("%.1f",value)
 		else
 			return string.format("%.0f",value)
@@ -583,26 +584,51 @@ function Upgrade.new()
 		local str = ""
 		--loop all stats that can be displayed and are in use
 		for index, value in ipairs(displayStat) do
-			if stats[value] then
-				if beforeStats[value] then
+			if stats[value.stat] then
+				if beforeStats[value.stat] then
 					--if we have an earlier version of the stat, calulate the differens and use that
-					local val = self.getValue(value)
+					local val = self.getValue(value.stat)
 					if type(val)=="number" then
-						if (val-beforeStats[value])~=0 then
-							str = str..value.."="..valueToString(val-beforeStats[value])..";"
+						if value.multiplier then
+							if (val-beforeStats[value.stat])~=0 then
+								str = str..(value.stat).."="..valueToString( (val-beforeStats[value.stat])*value.multiplier, value.decimalLimit )
+							end
+						else
+							if (val-beforeStats[value.stat])~=0 then
+								str = str..(value.stat).."="..valueToString(val-beforeStats[value.stat], value.decimalLimit)
+							end
 						end
-					elseif name and type(upgradesAvailable[name][1].stats[value])=="table" then
-						str = str..value.."=\""..val.."\";"
+						if value.postfix then
+							str = str..tostring(value.postfix)
+						end
+					elseif name and type(upgradesAvailable[name][1].stats[value.stat])=="table" then
+						if value.postfix then
+							str = str..(value.stat).."=\""..val..tostring(value.postfix).."\""
+						else
+							str = str..(value.stat).."=\""..val.."\""
+						end
 					end
 				else
 					--no history just add it to string
-					local val = self.getValue(value)
+					local val = self.getValue(value.stat)
 					if type(val)=="number" then
-						str = str..value.."="..valueToString(val)..";"
+						if value.multiplier then
+							str = str..value.stat.."="..valueToString(val*value.multiplier, value.decimalLimit)
+						else
+							str = str..value.stat.."="..valueToString(val, value.decimalLimit)
+						end
+						if value.postfix then
+							str = str..tostring(value.postfix)
+						end
 					else
-						str = str..value.."=\""..val.."\";"
+						if value.postfix then
+							str = str..(value.stat).."=\""..val..tostring(value.postfix).."\""
+						else
+							str = str..(value.stat).."=\""..val.."\""
+						end
 					end
 				end
+				str = str..";"
 			end
 		end
 		return str

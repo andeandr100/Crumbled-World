@@ -44,6 +44,24 @@ function ArrowMortar.new()
 	node:addChild(pointLight:toSceneNode())
 	
 	
+	function self.getCurrentIslandPlayerId()
+		local islandPlayerId = 0--0 is no owner
+		local island = this:findNodeByTypeTowardsRoot(NodeId.island)
+		if island then
+			islandPlayerId = island:getPlayerId()
+		end
+		--if islandPlayerId>0 then
+		networkSyncPlayerId = islandPlayerId
+		if type(networkSyncPlayerId)=="number" and Core.getNetworkClient():isPlayerIdInUse(networkSyncPlayerId)==false then
+			networkSyncPlayerId = 0
+		end
+		--end
+		return networkSyncPlayerId
+	end
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
+	
 	function self.init()
 		targetSelector.setPosition(this:getGlobalPosition())
 		targetSelector.setRange(billboard:getFloat("range")+1.0)
@@ -136,7 +154,6 @@ function ArrowMortar.new()
 				targetSelector.selectAllInRange()
 				local targets = targetSelector.getAllTargets()
 				targetSelector.restoreSettings()
-				comUnit:sendTo("SteamStats","ArrowMortarMaxHittCount",targetSelector.getAllTargetCount())
 				for index,score in pairs(targets) do
 					comUnit:sendTo(index,"markOfDeath",{per=weaken,timer=weakenTimer,type="area"})
 					comUnit:sendTo(index,"attack",tostring(damage*0.25))
@@ -145,7 +162,10 @@ function ArrowMortar.new()
 				end
 				--
 				comUnit:broadCast(lastLocationOnTarget,detonationRange,"physicPushIfDead",currentPos-(atVec * (frameMovment+0.25)))
-				comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+				if canSyncTower() then
+					comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
+					comUnit:sendTo("SteamStats","ArrowMortarMaxHittCount",targetSelector.getAllTargetCount())
+				end
 				state = 1
 			elseif shieldAreaIndex~=targetSelector.getIndexOfShieldCovering(currentPos) then
 				--shield hitt

@@ -84,7 +84,9 @@ end
 
 function create()
 	
-	this:loadLuaScript("Enviromental/waterMelon.lua")
+	if Core.isInEditor()==false then
+		this:loadLuaScript("Enviromental/waterMelon.lua")
+	end
 	
 	islandTimeOffset = math.randomFloat(0,32)
 	timeOffset = 0

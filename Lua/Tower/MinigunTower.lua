@@ -96,6 +96,11 @@ function MinigunTower.new()
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
+	local function achievementUnlocked(whatAchievement)
+		if canSyncTower() then
+			comUnit:sendTo("SteamAchievement",whatAchievement,"")
+		end
+	end
 	--
 	
 	local function storeWaveChangeStats( waveStr )
@@ -221,7 +226,7 @@ function MinigunTower.new()
 		end
 		--achivment
 		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("overCharge")==3 and upgrade.getLevel("fireCrit")==3 then
-			comUnit:sendTo("SteamAchievement","MinigunMaxed","")
+			achievementUnlocked("MinigunMaxed")
 		end
 	end
 	local function damageDealt(param)
@@ -341,7 +346,7 @@ function MinigunTower.new()
 				--nothing in the way do the attack	
 				if upgrade.getLevel("fireCrit")>0 and targetSelector.isTargetInState(state.burning) then
 					comUnit:sendTo(target,"attackPhysical",tostring(dmg*increasedDamageToFire))
-					comUnit:sendTo("SteamAchievement","CriticalStrike","")
+					achievementUnlocked("CriticalStrike")
 				else
 					comUnit:sendTo(target,"attackPhysical",tostring(dmg))
 				end
@@ -535,7 +540,7 @@ function MinigunTower.new()
 		--Achievements
 		comUnit:sendTo("stats","addBillboardInt","level"..upgrade.getLevel("upgrade")..";1")
 		if upgrade.getLevel("upgrade")==3 then
-			comUnit:sendTo("SteamAchievement","Upgrader","")
+			achievementUnlocked("Upgrader")
 		end
 		--
 
@@ -619,7 +624,7 @@ function MinigunTower.new()
 			initModel()
 			setCurrentInfo()
 			--Achievement
-			comUnit:sendTo("SteamAchievement","Boost","")
+			achievementUnlocked("Boost")
 		elseif upgrade.getLevel("boost")>tonumber(param) then
 			upgrade.degrade("boost")
 			upgrade.clearCooldown()
@@ -660,7 +665,7 @@ function MinigunTower.new()
 			model:getMesh( "lasersight"..upgrade.getLevel("range") ):addChild(particleEffectBeam:toSceneNode())
 			--Acievement
 			if upgrade.getLevel("range")==3 then
-				comUnit:sendTo("SteamAchievement","Range","")
+				achievementUnlocked("Range")
 			end
 		end
 		setCurrentInfo()
