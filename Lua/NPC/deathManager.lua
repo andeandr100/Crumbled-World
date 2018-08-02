@@ -390,7 +390,9 @@ function DeathManager.new()
 			local body = bodyTable[index]
 			body.physicBodyTimeOut = body.physicBodyTimeOut - deltaTime
 			body.lifeTime = body.lifeTime - deltaTime
+			
 			if body.lifeTime<0.0 then
+				Core.addDebugSphere(Sphere(body.physicBody:getGlobalPosition(),1.0),1,Vec3(1,0,0))
 				--this body part is dead, delete it
 				body.sceneNode:destroy()--getParent():removeChild(body.sceneNode)--body.sceneNode:setParent(nil)
 				if index<bodyTableSize then
@@ -402,6 +404,7 @@ function DeathManager.new()
 			else
 				--this body part is still alive
 				if body.physicBody:getPhysicEnable() then
+					Core.addDebugSphere(Sphere(body.physicBody:getGlobalPosition(),(body.lifeTime-deadBodyPhysicTimeOut)*0.2),0,Vec3(0,1,0))
 					--if physic is active wait for time out or stop in motion
 					if body.physicBodyTimeOut < deadBodyPhysicTimeOut then
 						local globalPos = body.physicBody:getGlobalPosition()
@@ -446,25 +449,24 @@ function DeathManager.new()
 							end
 						end
 					elseif body.physicBody:getVelocity() < 0.1 then
+						Core.addDebugSphere(Sphere(body.physicBody:getGlobalPosition(),2),1,Vec3(1))
 						--soft body is moving to slow save physic calculation by force stop the body
 						body.physicBodyTimeOut = deadBodyPhysicTimeOut
 					end
 				end
 				--decay away the dead bodies
 				if body.lifeTime < self.getDeadBodyDecayTime() then
+					Core.addDebugSphere(Sphere(body.physicBody:getGlobalPosition(),body.lifeTime*0.2),0,Vec3(1,1,0))
 					--we do not want remaining(falling)) softbody to surface
 					if body.physicBody:getPhysicEnable() or not body.groundTestNode then
 						--something is wrong, destroy the issue
-						--Core.addDebugLine(pos,pos+Vec3(0,4,0),1.5,Vec3(1,0,0))
 						body.lifeTime = -1
 					else
 						--body.groundTest not needed as body should be stationary
 						if body.type==BodyType.rigidBody or body.groundTestNode:getNodeType()~=NodeId.ropeBridge then
 							--on an island
 							deathAnimation(body)
-							--Core.addDebugLine(globalPos,globalPos+Vec3(0,2,0),1.5,Vec3(1,1,1))
 						else
-							--Core.addDebugLine(globalPos,globalPos+Vec3(0,3,0),0.05,Vec3(1,1,0))
 							--on a bridge
 							--fade the model away with alpha
 							fadeOut(body,deltaTime,"normal")
@@ -500,6 +502,7 @@ function DeathManager.new()
 			if enableSelfDestruct then
 				this:destroy()
 			end
+			Core.addDebugSphere(Sphere(Vec3(),5),1.0,Vec3(1))
 			return false
 		end
 		return true

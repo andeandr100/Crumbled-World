@@ -27,12 +27,14 @@ function create()
 	return true
 end
 function genereateSoftBody()
-	local softBody = SoftBody(npcBase.getModel():getMesh(0))
+	local d1 = npcBase.getModel()
+	local d2 = npcBase.getModel():getMesh(0)
+	local softBody = SoftBody(d2:toSceneNode())
 
 	softBody:setKDF( 2.0 )  --Dynamic friction coefficient [0,1]
 	softBody:setKDG( 5.0 ) --Drag coefficient [0,+inf]
 	softBody:setKLF( 0.05 ) --Lift coefficient [0,+inf]
-	softBody:setKPR( 1.0 )
+	softBody:setKPR( 1.0 )SoftBody
 	softBody:setKVC( 2.0 )--Volume conversation coefficient [0,+inf]
 	softBody:setKMT( 0.01 ) --Pose matching coefficient [0,1]	
 	softBody:setKDP( 0.01 )  --Damping coefficient [0,1]

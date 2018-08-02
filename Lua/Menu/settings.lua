@@ -297,28 +297,31 @@ end
 
 
 Settings.DeathAnimation = {}
-Settings.DeathAnimation.options = {"enabled", "fast", "disabled"}
+Settings.DeathAnimation.options = {"Physic", "Animated", "Disabled"}
 Settings.DeathAnimation.configName = "DeathAnimation"
 function Settings.DeathAnimation.getSettings()
-	return Settings.config:get(Settings.DeathAnimation.configName, "fast"):getString()
+	return Settings.config:get(Settings.DeathAnimation.configName, "Animated"):getString()
 end
 function Settings.DeathAnimation.getValue()
-	return Settings.config:get(Settings.DeathAnimation.configName, "fast"):getString()
+	return Settings.config:get(Settings.DeathAnimation.configName, "Animated"):getString()
 end
 
 Settings.corpseTimer = {}
-Settings.corpseTimer.options = {"long", "medium", "short", "none"}
+Settings.corpseTimer.options = {"High", "Normal", "Low", "None"}
 Settings.corpseTimer.optionsInt = {High=8, Normal=3, Low=1, None=0}
 Settings.corpseTimer.configName = "corpseTimer"
 function Settings.corpseTimer.getSettings()
-	return Settings.config:get(Settings.corpseTimer.configName, "medium"):getString()
+	return Settings.config:get(Settings.corpseTimer.configName, "Low"):getString()
 end
 function Settings.corpseTimer.getValue()
-	return Settings.config:get(Settings.corpseTimer.configName, "medium"):getString()
+	return Settings.config:get(Settings.corpseTimer.configName, "Low"):getString()
 end
 function Settings.corpseTimer.getInt()
 	local str = Settings.corpseTimer.getValue()
-	return Settings.corpseTimer.optionsInt[str] or 1
+	if Settings.corpseTimer.optionsInt[str]==null then
+		error("Corpse timer settings is not leagal")
+	end
+	return Settings.corpseTimer.optionsInt[str]
 end
 
 
@@ -349,23 +352,25 @@ end
 
 
 Settings.cursor = {}
-Settings.cursor.options = {"system cursor", "default 16", "default 24", "default 32", "default 48", "default 64"}
+Settings.cursor.options = {"System cursor", "Cursor 16", "Cursor 24", "Cursor 32", "Cursor 48", "Cursor 64"}
 Settings.cursor.configName = "cursor"
+Settings.cursor.default = 3
+local function cursorGetActive(setting)
+	local strNum = string.match(setting, "%d+")
+	local tab = {["16"]=2, ["24"]=3, ["32"]=4, ["48"]=5, ["64"]=6}
+	return tab[strNum] or 1
+end
 function Settings.cursor.getSettings()
-	return Settings.config:get(Settings.cursor.configName, "default"):getString()
+	local num = cursorGetActive(Settings.config:get(Settings.cursor.configName, Settings.cursor.options[3]):getString())	
+	return Settings.cursor.options[num]
 end
 function Settings.cursor.getValue()
-	local settings = Settings.cursor.getSettings()
-	for i=1, #Settings.cursor.options do
-		if Settings.cursor.options[i] == settings then
-			return i
-		end
-	end
-	return 2
+	local str = Settings.config:get(Settings.cursor.configName, Settings.cursor.options[3]):getString()
+	return str.len==0 and Settings.cursor.default or cursorGetActive(str)
 end
 
 function Settings.cursor.setValue(value)
-	Settings.config:get(Settings.cursor.configName, "default 24"):setString(value)
+	Settings.config:get(Settings.cursor.configName, Settings.cursor.options[Settings.cursor.default]):setString(value)
 	Settings.config:save()
 end
 

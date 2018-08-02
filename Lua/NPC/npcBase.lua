@@ -284,7 +284,6 @@ function NpcBase.new()
 			for i=0, subMeshList:size()-1, 1 do
 				local rigidBody = RigidBody(this:findNodeByType(NodeId.island), subMeshList:item(i), mover:getCurrentVelocity())
 				deathManager.addRigidBody(rigidBody)
-				--deadBodyManger:addRigidBody(rigidBody)
 			end
 		else
 			rigidBodyExplosion()
@@ -301,7 +300,6 @@ function NpcBase.new()
 	--add physical rigid body to be managed on npc death
 	function self.addDeathRigidBody()
 		deathRigidBodyFunc = rigidBody
-		--deathRigidBodyFunc = rigidBodyExplosion
 	end
 	--add physical soft body to be managed on npc death
 	function self.addDeathSoftBody(softBodyFunc)
@@ -444,16 +442,28 @@ function NpcBase.new()
 		
 		comUnit:sendTo("SoulManager","remove","")
 	end
+	function throwGoldOnDeath(coins)
+--		for i=1, coins or 0 do
+--			--physic
+--			local coinModel=Core.getModel("gold_coin.mym")
+--			coinModel:setLocalPosition(centerOffset)
+--			this:addChild(coinModel:toSceneNode())
+--			
+--			local atVec = math.randomVec3()
+--			atVec = Vec3(1.0,4.0,1.0)
+--			deathManager.addRigidBody(RigidBody(this:findNodeByType(NodeId.island),coinModel:getMesh("gold_coin"),atVec))
+--		end
+	end
 	--start the death animations/physic/effect
 	function self.createDeadBody()
 		if Settings.DeathAnimation.getSettings()~="Disabled" and useDeathAnimationOrPhysic then
 			--death animations is enabled
 			local otherOptions = false
-			if Settings.DeathAnimation.getSettings()=="Enabled" and Settings.corpseTimer.getInt()>0 and (deathSoftBodyFunc or deathRigidBodyFunc) then
+			if Settings.DeathAnimation.getSettings()=="Physic" and Settings.corpseTimer.getInt()>0 and (deathSoftBodyFunc or deathRigidBodyFunc) then
 				--physic can be used
 				otherOptions=true
 			end
-			local useAnimation = deathAnimationTable and #deathAnimationTable>0
+			local useAnimation = false--deathAnimationTable and #deathAnimationTable>0
 			--if we have animations and other options the best course of action may still be physic
 			if useAnimation and otherOptions then
 				--we can do animation and physic, if there is a bridge then we can use physic
@@ -479,13 +489,17 @@ function NpcBase.new()
 			--use animation, can be aborted
 			if useAnimation then
 				deathAnimation()
+				throwGoldOnDeath(5)	
 			else
 				if deathSoftBodyFunc then
-					deathManager.addSoftBody(deathSoftBodyFunc())
+					local d1 = deathSoftBodyFunc()
+					deathManager.addSoftBody(d1)
 					this:removeChild(model:toSceneNode())
+					throwGoldOnDeath(5)
 				elseif deathRigidBodyFunc then
 					deathRigidBodyFunc()
 					this:removeChild(model:toSceneNode())
+					throwGoldOnDeath(5)
 				end
 			end
 		end

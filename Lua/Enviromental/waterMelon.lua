@@ -17,19 +17,18 @@ function create()
 end
 
 function update()
-	
-	
-	if Core.getInput():getMousePressed(MouseKey.left) and camera then	
-		local cameraLine = camera:getWorldLineFromScreen(Core.getInput():getMousePos())
-		local collisionMesh = this:collisionTree(cameraLine)
-		if collisionMesh then
-			print( "collision mesh name: "..collisionMesh:getSceneName().."\n")
+	if not deathManagerUpdate then
+		if Core.getInput():getMousePressed(MouseKey.left) and camera then	
+			local cameraLine = camera:getWorldLineFromScreen(Core.getInput():getMousePos())
+			local collisionMesh = this:collisionTree(cameraLine)
+			if collisionMesh then
+				print( "collision mesh name: "..collisionMesh:getSceneName().."\n")
+			end
+			if collisionMesh and collisionMesh:getSceneName()=="watermelon" then
+				destroyWatermelon(collisionMesh)
+			end
 		end
-		if collisionMesh and collisionMesh:getSceneName()=="watermelon" then
-			destroyWatermelon(collisionMesh)
-		end
-	end
-	if deathManagerUpdate then
+	else
 		deathManagerUpdate = deathManager.update()
 	end
 	
@@ -44,7 +43,7 @@ function destroyWatermelon(watermelonNode)
 	local model=Core.getModel("watermelonCracked.mym")
 	model:setLocalMatrix(watermelonNode:getLocalMatrix())
 	watermelonNode:getParent():addChild(model:toSceneNode())
-	model:setVisible(false)
+	--model:setVisible(false)
 	for i=1, 24 do
 		--local atVec = model:getMesh("watermelon"..i):getLocalPosition():normalizeV()
 		local atVec = math.randomVec3()
