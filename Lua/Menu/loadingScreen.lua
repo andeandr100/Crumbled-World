@@ -16,14 +16,7 @@ function create()
 	
 	texture = Core.getTexture("Black")
 	if #files > 0 then
-		local file = nil
-		for i=1, 5 do
-			file = files[math.randomInt(1,#files)]
-			if file:isFile() then
-				--break
-				i=6
-			end
-		end
+		local file = files[math.randomInt(1,#files)]
 		if file:isFile() then
 			texture = Core.getTexture(file:getPath())
 		end
@@ -33,7 +26,9 @@ function create()
 	
 	background = Sprite(texture)
 	borderTop = Sprite(Vec3(0))
+	borderTopLine = Sprite(Vec3(1))
 	borderBottom = Sprite(Vec3(0))
+	borderBottomLine = Sprite(Vec3(1))
 
 
 	movingObj = Sprite(Core.getTexture("icon_table"))
@@ -62,7 +57,9 @@ function create()
 	local scene = Scene2DNode()
 	scene:addChild( background )
 	scene:addChild( borderTop )
+	scene:addChild( borderTopLine )
 	scene:addChild( borderBottom )
+	scene:addChild( borderBottomLine )
 	scene:addChild( movingObj )
 --	scene:addChild( textNode )
 	camera:add2DScene(scene)
@@ -87,9 +84,14 @@ function resize()
 	
 	--ether set border height to 14% of render resolution or to remainging size after backgrounden is remomed
 	local borderHeight = math.max( (winResolution.y-backgroundSize.y) * 0.5, winResolution.y * 0.14)
+	local lineHeight = 2
 	
 	borderTop:setLocalPosition(Vec2())
 	borderTop:setSize(Vec2(winResolution.x, borderHeight))
+	borderTopLine:setLocalPosition(Vec2(0.0, borderHeight))
+	borderTopLine:setSize(Vec2(winResolution.x, lineHeight))
+	borderBottomLine:setLocalPosition(Vec2(0.0, winResolution.y - borderHeight - lineHeight))
+	borderBottomLine:setSize(Vec2(winResolution.x, lineHeight))
 	borderBottom:setLocalPosition(Vec2(0.0, winResolution.y - borderHeight))
 	borderBottom:setSize(Vec2(winResolution.x, borderHeight))
 	
