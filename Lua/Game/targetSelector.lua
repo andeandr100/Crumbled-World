@@ -246,6 +246,21 @@ function TargetSelector.new(pteam)
 		local soul = soulTable[target or currentTarget]
 		return soul and toBits(soul.state)[binaryNumPos[state]]==1
 	end
+	-- function:	isTargetInState
+	-- purpose:		returns state value used in the lifebar
+	function self.getTargetStateValue(target)
+		local soul = soulTable[target or currentTarget]
+		local value = 0.0
+		if soul then
+			value = value + ( toBits(soul.state)[binaryNumPos[state.markOfGold]]==1 and state.markOfGold or 0 )
+			value = value + ( toBits(soul.state)[binaryNumPos[state.ignore]]==1 and state.ignore or 0 )
+			value = value + ( toBits(soul.state)[binaryNumPos[state.highPriority]]==1 and state.highPriority or 0 )
+			value = value + ( toBits(soul.state)[binaryNumPos[state.markOfDeath]]==1 and state.markOfDeath or 0 )
+			value = value + ( toBits(soul.state)[binaryNumPos[state.electrecuted]]==1 and state.electrecuted or 0 )
+			value = value + ( toBits(soul.state)[binaryNumPos[state.burning]]==1 and state.burning or 0 )
+		end
+		return value
+	end
 	-- function:	isTargetNamed
 	-- purpose:		returns true if target is named name
 	function self.isTargetNamed(name)
