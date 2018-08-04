@@ -138,7 +138,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		serverListPanel:setVisible(true)
 		self.setVisible(false)
 		lobbyUserPanel.leveLobby()
-		client.disconnect()
+		client:disconnect()
 	end
 	
 	
