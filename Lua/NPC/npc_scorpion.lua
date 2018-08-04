@@ -27,7 +27,7 @@ function create()
 	return true
 end
 function genereateSoftBody()
-	local softBody = SoftBody(npcBase.getModel():getMesh(0))
+	local softBody = SoftBody.new(npcBase.getModel():getMesh(0))
 
 	softBody:setKDF( 2.0 )  --Dynamic friction coefficient [0,1]
 	softBody:setKDG( 5.0 ) --Drag coefficient [0,+inf]

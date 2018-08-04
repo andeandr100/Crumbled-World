@@ -34,7 +34,7 @@ function create()
 	positionList = {}
 	
 	for i=1, 120 do
-		normalList[i] = Vec3(0)
+		normalList[i] = Vec4(0)
 		positionList[i] = Vec4( 0, -1, 0, 0 )
 	end
 
@@ -85,13 +85,13 @@ function update()
 			for i=1, souls do
 				local soul = soulList[i]
 				positionList[i] = Vec4( soul.position + positionOffset,soul.hp/soul.hpMax)
-				normalList[i] = Vec3(soul.isIgnored and 1.0 or 0.0,soul.isHighPrio and 1.0 or 0.0,showDamageValue)
+				normalList[i] = Vec4(soul.isIgnored and 1.0 or 0.0,soul.isHighPrio and 1.0 or 0.0,showDamageValue,64.0)
 				indexList[i] = i - 1
 			end
 
 
 			nodeMesh:setPositionsVec4(positionList)
-			nodeMesh:setNormals(normalList)
+			nodeMesh:setColors(normalList)
 			nodeMesh:setIndices(indexList)
 			
 			

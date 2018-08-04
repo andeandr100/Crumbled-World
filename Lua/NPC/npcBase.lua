@@ -272,7 +272,7 @@ function NpcBase.new()
 			local rVec = math.randomVec3()
 			rVec = ((npcCenterPos-physicDeathInfo.pos):normalizeV()+rVec):normalizeV()
 			rVec = Vec3(rVec.x*2.5,math.abs(rVec.y)*4,rVec.z*2.5)
-			local rigidBody = RigidBody(this:findNodeByType(NodeId.island), subMeshList:item(i), rVec)
+			local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island), subMeshList:item(i), rVec)
 			deathManager.addRigidBody(rigidBody)
 			--deadBodyManger:addRigidBody(rigidBody)
 		end
@@ -283,7 +283,7 @@ function NpcBase.new()
 			local subMeshList = meshSplitter:splitMesh(model:getMesh(0))
 			--local playerNode = this:getPlayerNode()
 			for i=0, subMeshList:size()-1, 1 do
-				local rigidBody = RigidBody(this:findNodeByType(NodeId.island), subMeshList:item(i), mover:getCurrentVelocity())
+				local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island), subMeshList:item(i), mover:getCurrentVelocity())
 				deathManager.addRigidBody(rigidBody)
 				--deadBodyManger:addRigidBody(rigidBody)
 			end
@@ -454,7 +454,7 @@ function NpcBase.new()
 				--physic can be used
 				otherOptions=true
 			end
-			local useAnimation = deathAnimationTable and #deathAnimationTable>0
+			local useAnimation = false--deathAnimationTable and #deathAnimationTable>0
 			--if we have animations and other options the best course of action may still be physic
 			if useAnimation and otherOptions then
 				--we can do animation and physic, if there is a bridge then we can use physic

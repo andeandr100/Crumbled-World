@@ -141,7 +141,7 @@ function destroyCrystal()
 		for i=1, 24 do
 			local atVec = model:getMesh("crystal"..i):getLocalPosition()-Vec3(0.0,0.3,0.0)
 			atVec = Vec3(atVec.x*6,atVec.y*4,atVec.z*6)
-			rigidBodies[#rigidBodies+1] = RigidBody(this:findNodeByType(NodeId.island),model:getMesh("crystal"..i),atVec)
+			rigidBodies[#rigidBodies+1] = RigidBody.new(this:findNodeByType(NodeId.island),model:getMesh("crystal"..i),atVec)
 		end
 		this:getChildNode(0):setVisible(false)
 		--this:setVisible(false)

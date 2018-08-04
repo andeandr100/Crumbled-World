@@ -49,7 +49,7 @@ function destroyWatermelon(watermelonNode)
 		--local atVec = model:getMesh("watermelon"..i):getLocalPosition():normalizeV()
 		local atVec = math.randomVec3()
 		atVec = Vec3(atVec.x,math.abs(atVec.y)+0.2,atVec.z)*3.0
-		deathManager.addRigidBody(RigidBody(this:findNodeByType(NodeId.island),model:getMesh("watermelon"..i),atVec))
+		deathManager.addRigidBody(RigidBody.new(this:findNodeByType(NodeId.island),model:getMesh("watermelon"..i),atVec))
 	end
 	watermelonNode:getParent():removeChild(watermelonNode)
 end

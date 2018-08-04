@@ -190,7 +190,7 @@ function CutterBlade.new(pTargetSelector)
 		
 		local globalPos = model:getGlobalPosition()
 		
-		local rigidBody = RigidBody(this,Box(globalPos - Vec3(0.5,0.2,0.5), globalPos + Vec3(0.5,0.2,0.5)),outVector*3)
+		local rigidBody = RigidBody.new(this,Box(globalPos - Vec3(0.5,0.2,0.5), globalPos + Vec3(0.5,0.2,0.5)),outVector*3)
 		rigidBody:addChild(lmodel:toSceneNode())
 		--set rotation from model blade
 		lmodel:setLocalMatrix( model:getGlobalMatrix():inverseM() * lmodel:getGlobalMatrix() )

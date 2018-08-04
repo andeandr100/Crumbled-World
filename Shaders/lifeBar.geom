@@ -1,7 +1,7 @@
 #version 150
 
 in vec4 pos[];
-in vec3 lifeBarValues[];
+in vec4 lifeBarValues[];
 in float value[];
 
 layout (points) in;
@@ -181,4 +181,34 @@ void main( void )
 
 		EndPrimitive();
 	}
+
+
+
+	float iconValue = lifeBarValues[0].w;
+	if(iconValue > 32.0)
+	{
+		iconValue = iconValue - 64.0;
+		//background
+		spriteColor = vec4(0,0,0,0);
+		
+		tc = vec2(0.625,0.0625);
+		gl_Position = pos[0].xyzw+projMat*vec4(h,h,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.625,0);
+		gl_Position = pos[0].xyzw+projMat*vec4(h,-h,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.5,0.0625);
+		gl_Position = pos[0].xyzw+projMat*vec4(-h,h,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.5,0);
+		gl_Position = pos[0].xyzw+projMat*vec4(-h,-h,0.0,0.0);
+		EmitVertex();
+
+		EndPrimitive();
+	}
+
+	//64,32,16,8,4,2
 }
