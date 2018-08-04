@@ -315,6 +315,9 @@ function ArrowTower.new()
 		--end
 		return networkSyncPlayerId
 	end
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
 	function self.handleUpgrade(param)
 		if tonumber(param)>upgrade.getLevel("upgrade") then
 			upgrade.upgrade("upgrade")

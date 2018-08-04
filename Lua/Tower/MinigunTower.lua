@@ -154,13 +154,13 @@ function MinigunTower.new()
 					xpManager.restoreWaveChangeStats(tab.xpTab)
 				end
 				--
-				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
-				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.upgradeRange)
-				doDegrade(upgrade.getLevel("fireCrit"),tab.fireCritLevel,self.upgradeGreaseBullet)
-				doDegrade(upgrade.getLevel("overCharge"),tab.overChargeLevel,self.upgradeOverCharge)
-				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
-				--
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
+--				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
+--				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.upgradeRange)
+--				doDegrade(upgrade.getLevel("fireCrit"),tab.fireCritLevel,self.upgradeGreaseBullet)
+--				doDegrade(upgrade.getLevel("overCharge"),tab.overChargeLevel,self.upgradeOverCharge)
+--				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
+--				--
+--				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
@@ -523,6 +523,9 @@ function MinigunTower.new()
 		end
 		--end
 		return networkSyncPlayerId
+	end
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
 	function self.handleUpgrade(param)
 		print("handleUpgrade("..tostring(param)..")")
