@@ -9,5 +9,8 @@ out vec4 FragColor;
 void main( void )
 {
 	FragColor = spriteColor + texture2D(diffuseMap, tc);
+
+	if( FragColor.a < 0.9 )
+		discard;
 }
 

@@ -5,7 +5,7 @@ in vec4 lifeBarValues[];
 in float value[];
 
 layout (points) in;
-layout (triangle_strip, max_vertices = 20) out;
+layout (triangle_strip, max_vertices = 32) out;
 
 out vec4 spriteColor;
 out vec2 tc;
@@ -135,7 +135,7 @@ void main( void )
 	}else{
 		xOffset = -h * 2.0;
 	}
-	if(lifeBarValues[0].x > 0.5)
+	/*if(lifeBarValues[0].x > 0.5)
 	{
 		//background
 		spriteColor = vec4(0,0,0,0);
@@ -180,35 +180,199 @@ void main( void )
 		EmitVertex();
 
 		EndPrimitive();
+	}*/
+
+
+
+	const float yOffset = -h * 4.0;
+	const float iconWidth = h * 3.0;
+	xOffset = -w;
+	float iconValue = lifeBarValues[0].w;
+
+	float gold = 0;
+	if(iconValue > 511.0){
+		gold = 512.0;
+		iconValue -= 512.0;
 	}
 
-
-
-	float iconValue = lifeBarValues[0].w;
-	if(iconValue > 32.0)
+	//ignore
+	if(iconValue > 255.0)
 	{
-		iconValue = iconValue - 64.0;
+		iconValue -= 256.0;
 		//background
 		spriteColor = vec4(0,0,0,0);
 		
 		tc = vec2(0.625,0.0625);
-		gl_Position = pos[0].xyzw+projMat*vec4(h,h,0.0,0.0);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset + iconWidth,0.0,0.0);
 		EmitVertex();
 
 		tc = vec2(0.625,0);
-		gl_Position = pos[0].xyzw+projMat*vec4(h,-h,0.0,0.0);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset,0.0,0.0);
 		EmitVertex();
 
 		tc = vec2(0.5,0.0625);
-		gl_Position = pos[0].xyzw+projMat*vec4(-h,h,0.0,0.0);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset + iconWidth,0.0,0.0);
 		EmitVertex();
 
 		tc = vec2(0.5,0);
-		gl_Position = pos[0].xyzw+projMat*vec4(-h,-h,0.0,0.0);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset,0.0,0.0);
 		EmitVertex();
 
 		EndPrimitive();
+
+
+		xOffset += iconWidth + h * 0.5;
+	}
+	//high prio target
+	else if(iconValue > 127.0)
+	{
+		iconValue -= 128.0;
+		//background
+		spriteColor = vec4(0,0,0,0);
+		
+		tc = vec2(0.875,0.5);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset + iconWidth,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.875,0.4375);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.75,0.5);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset + iconWidth,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.75,0.4375);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset,0.0,0.0);
+		EmitVertex();
+
+		EndPrimitive();
+
+
+		xOffset += iconWidth + h * 0.5;
 	}
 
-	//64,32,16,8,4,2
+	//mark of death
+	if(iconValue > 7.0)
+	{
+		iconValue -= 8.0;
+		//background
+		spriteColor = vec4(0,0,0,0);
+		
+		tc = vec2(0.75,0.5);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset + iconWidth,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.75,0.4375);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.625,0.5);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset + iconWidth,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.625,0.4375);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset,0.0,0.0);
+		EmitVertex();
+
+		EndPrimitive();
+
+
+		xOffset += iconWidth + h * 0.5;
+	}
+
+
+	float lightning = 0;
+	if(iconValue > 3.0){
+		lightning = 4.0;
+		iconValue -= 4.0;
+	}
+
+
+	//burning
+	if(iconValue > 1.0)
+	{
+		iconValue -= 2.0;
+		//background
+		spriteColor = vec4(0,0,0,0);
+		
+		tc = vec2(0.875,0.3125);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset + iconWidth,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.875,0.25);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.75,0.3125);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset + iconWidth,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.75,0.25);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset,0.0,0.0);
+		EmitVertex();
+
+		EndPrimitive();
+
+
+		xOffset += iconWidth + h * 0.5;
+	}
+
+
+	//Lightning
+	if(lightning > 3.0)
+	{
+		//background
+		spriteColor = vec4(0,0,0,0);
+		
+		tc = vec2(0.375,0.375);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset + iconWidth,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.375,0.4375);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.25,0.375);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset + iconWidth,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.25,0.4375);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset,0.0,0.0);
+		EmitVertex();
+
+		EndPrimitive();
+
+
+		xOffset += iconWidth + h * 0.5;
+	}
+
+
+	//gold
+	if(gold > 500)
+	{
+		//background
+		spriteColor = vec4(0,0,0,0);
+		
+		tc = vec2(0.125,0.0);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset + iconWidth,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.125,0.0625);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset + iconWidth, yOffset,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.0,0.0);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset + iconWidth,0.0,0.0);
+		EmitVertex();
+
+		tc = vec2(0.0,0.0625);
+		gl_Position = pos[0].xyzw+projMat*vec4(xOffset, yOffset,0.0,0.0);
+		EmitVertex();
+
+		EndPrimitive();
+
+		xOffset += iconWidth + h * 0.5;
+	}
+
 }

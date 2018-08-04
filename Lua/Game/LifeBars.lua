@@ -85,7 +85,7 @@ function update()
 			for i=1, souls do
 				local soul = soulList[i]
 				positionList[i] = Vec4( soul.position + positionOffset,soul.hp/soul.hpMax)
-				normalList[i] = Vec4(soul.isIgnored and 1.0 or 0.0,soul.isHighPrio and 1.0 or 0.0,showDamageValue,64.0)
+				normalList[i] = Vec4(soul.isIgnored and 1.0 or 0.0,soul.isHighPrio and 1.0 or 0.0,showDamageValue,targetSelector.getTargetStateValue(soul.index))
 				indexList[i] = i - 1
 			end
 
