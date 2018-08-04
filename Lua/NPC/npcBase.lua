@@ -277,6 +277,13 @@ function NpcBase.new()
 			--deadBodyManger:addRigidBody(rigidBody)
 		end
 	end
+	local function goldExplosion()
+		local gModel=Core.getModel("gold_coin.mym")
+		this:addChild(gModel:toSceneNode())
+		local atVec = math.randomVec3()
+		atVec = Vec3(atVec.x*1.5,(math.abs(atVec.y)+0.3)*3,atVec.z*1.5)
+		deathManager.addRigidBody(RigidBody.new(this:findNodeByType(NodeId.island),gModel:getMesh("gold_coin"),atVec))
+	end
 	local function rigidBody()
 		if not (physicDeathInfo and physicDeathInfo.time+0.1>Core.getGameTime()) then
 			local meshSplitter = MeshSplitter()
@@ -430,6 +437,9 @@ function NpcBase.new()
 				comUnit:sendTo("stats","goldInterest",1.0)--allways full interest
 				--gold from the killing
 				local killValue = (value*mul)+soul.getGoldGainAdd()
+				for i=1, killValue do
+					goldExplosion()
+				end
 				comUnit:sendTo("stats","addGold", killValue )
 				comUnit:sendTo("stats","addBillboardDouble","goldGainedFromKills;"..tostring(killValue))
 				comUnit:sendTo("stats","addKill","")
@@ -454,7 +464,7 @@ function NpcBase.new()
 				--physic can be used
 				otherOptions=true
 			end
-			local useAnimation = false--deathAnimationTable and #deathAnimationTable>0
+			local useAnimation = deathAnimationTable and #deathAnimationTable>0
 			--if we have animations and other options the best course of action may still be physic
 			if useAnimation and otherOptions then
 				--we can do animation and physic, if there is a bridge then we can use physic

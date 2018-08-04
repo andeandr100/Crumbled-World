@@ -278,6 +278,9 @@ function SwarmTower.new()
 		--end
 		return networkSyncPlayerId
 	end
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
 	-- function:	handleUpgrade
 	-- purpose:		upgrades the tower and all the meshes and stats for the new level
 	function self.handleUpgrade(param)

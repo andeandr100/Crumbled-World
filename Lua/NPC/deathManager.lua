@@ -4,7 +4,7 @@ DeathManager = {}
 function DeathManager.new()
 	local self = {}
 	
-	local BodyType = {animation=1,softBody=2,rigidBody=3}
+	local BodyType = {animation=1,softBody=2,rigidBody=3,gold=4}
 	
 	local debugActiveDeathTimer =	0.0
 	
@@ -14,6 +14,8 @@ function DeathManager.new()
 	local deadBodyPhysicTimeOut =	2
 	local bodyTable = 				{}
 	local bodyTableSize = 			0
+	local goldTable =				{}
+	local goldTableSize =			0
 	local enableSelfDestruct = 		true
 	local groundTestEvery = 		0.1
 	--data
@@ -80,6 +82,19 @@ function DeathManager.new()
 			color =				rigidBody:getRenderMesh() and rigidBody:getRenderMesh():getColor() or Vec4(),
 			higthOverGround =	-1
 		}
+	end
+	function self.throwGold(amount)
+		for i=1, amount do
+			goldTableSize = goldTableSize + 1
+			goldTable[goldTableSize] = {
+				type =				BodyType.gold,
+				model =				Core.getModel("gold_coin.mym"),
+				position =			Vec3(),
+				atVec =				Vec3(math.randomFloat()*0.25,math.randomFloat()*2.0,math.randomFloat()*0.25),
+				bounce =			0
+			}
+			this:addChild(goldTable[goldTableSize].model:toSceneNode())
+		end
 	end
 	function self.addParticleEffect(pEffect,deathTimer)
 		effectList.size = effectList.size + 1
@@ -477,6 +492,40 @@ function DeathManager.new()
 		return true
 	end
 	
+	function manageGold(deltaTime)
+--		goldTableSize = goldTableSize + 1
+--		goldTable[goldTableSize] = {
+--			type =				BodyType.gold,
+--			model =				Core.getModel("gold_coin.mym"),
+--			position =			Vec3(),
+--			atVec =				Vec3(math.randomFloat()*0.25,math.randomFloat()*2.0,math.randomFloat()*0.25)
+--			bounce =			0
+--		}
+		local index=1
+		local gFactor = 5.0
+		local dragFactor = 0.1
+		while index<=goldTableSize do
+			local coin = goldTable[index]
+			--gravity
+			coin.atVec = coin.atVec + Vec3(0,gFactor*deltaTime,0)
+			--air friction
+			coin.atVec = coin.atVec * (1.0-dragFactor*deltaTime)
+			coin.position = coin.position + (coin.atVec*deltaTime)
+			if coin.position.y<=0.0 then
+				bounce = bounce + 1
+				if bounce<3 then
+					coin.atVec.y = math.abs(coin.atVec.y)
+					--bounce cost
+					coin.atVec = coin.atVec * 0.5
+				else
+					coin.atVec = Vec3()
+				end
+			end
+			coin.model:setLocalPosition(coin.position)
+			index = index + 1
+		end
+	end
+	
 	function self.setEnableSelfDestruct(boolSet)
 		enableSelfDestruct = boolSet
 	end
@@ -490,6 +539,7 @@ function DeathManager.new()
 		manageDeathLights(deltaTime)
 		manageDeathAnimations(deltaTime)
 		manageDeathPhysic(deltaTime)
+		manageGold(deltaTime)
 --		if not manageDeathAnimations(deltaTime) or not manageDeathPhysic(deltaTime) then
 --			return false
 --		end
