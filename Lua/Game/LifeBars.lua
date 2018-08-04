@@ -61,7 +61,7 @@ function update()
 			local isHighPrio = targetSelector.isTargetInState(soul.index, state.highPriority)
 			if soul.hp==soul.hpMax and isIgnored == false and isHighPrio == false then
 				--nothing to display. Remove it from the display list
-				if showOnlyDamagedNpcs then
+				if showOnlyDamagedNpcs and targetSelector.getTargetStateValue(soul.index) < 1.0 then
 					soulList[i] = soulList[soulList.count]
 					soulList[soulList.count] = nil
 					soulList.count = soulList.count - 1
@@ -85,7 +85,7 @@ function update()
 			for i=1, souls do
 				local soul = soulList[i]
 				positionList[i] = Vec4( soul.position + positionOffset,soul.hp/soul.hpMax)
-				normalList[i] = Vec4(soul.isIgnored and 1.0 or 0.0,soul.isHighPrio and 1.0 or 0.0,showDamageValue,targetSelector.getTargetStateValue(soul.index))
+				normalList[i] = Vec4(0.0,0.0,showDamageValue,targetSelector.getTargetStateValue(soul.index))
 				indexList[i] = i - 1
 			end
 

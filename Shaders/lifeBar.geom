@@ -21,6 +21,8 @@ void main( void )
 	spriteColor = vec4(0,0,0,1);
 	tc = vec2(0,0);
 	float xOffset = h * 0.2;
+
+
 	if(value[0] != 1.0 || lifeBarValues[0].z > 0.5 )
 	{
 		xOffset += w;
@@ -135,6 +137,9 @@ void main( void )
 	}else{
 		xOffset = -h * 2.0;
 	}
+
+
+
 	/*if(lifeBarValues[0].x > 0.5)
 	{
 		//background
