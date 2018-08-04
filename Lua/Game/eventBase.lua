@@ -199,6 +199,14 @@ function EventBase.new()
 			currentState = EVENT_CHANGE_WAVE
 		end
 	end
+	local function requestWaveRestart()
+		--try to restart wave
+		if (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="training") then
+			if  (not Core.isInMultiplayer()) then
+				self.doRestartWave()
+			end
+		end
+	end
 	function self.init(pStartGold,pWaveFinishedBonus,pInterestMulOnKill,pLives,pLevel)
 		--make sure that only one event script is running
 		if Core.getScriptOfNetworkName("Event"..(Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-")) then
@@ -210,7 +218,8 @@ function EventBase.new()
 		
 		restartListener = Listener("Restart")
 		restartListener:registerEvent("restart", restartMapCalledFromTheOutSide)
-		
+		restartListener:registerEvent("requestWaveRestart", requestWaveRestart)
+
 		comUnitTable["ChangeWave"] = syncChangeWave
 		comUnitTable["EventBaseRestartWave"] = doRestartMap
 		spawnManager.init(comUnitTable, pWaveFinishedBonus)

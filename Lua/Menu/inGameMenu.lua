@@ -341,7 +341,7 @@ end
 -- function:	getBetween
 -- purpose:
 function restartWave()
-	restartListener:pushEvent("EventBaseRestartWave")
+	restartListener:pushEvent("requestWaveRestart")
 end
 -- function:	getBetween
 -- purpose:

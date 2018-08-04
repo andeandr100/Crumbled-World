@@ -791,7 +791,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					if name ~= "sell" then
 						local enable = tonumber(buttoninfo.cost.value) <= billboardStats:getDouble("gold")
 						buttoninfo.button:setEnabled( enable )
-						buttoninfo.costLabel:setTextColor( enable and Vec4(1) or Vec4(0.8,0.2,0.2,1))
+						buttoninfo.costLabel:setTextColor( enable and Vec4(1) or Vec4(4.0,1,1,1))
 						buttoninfo.costIconSprite:setColor(enable and Vec4(1) or Vec4(Vec3(0.7),1))
 						buttoninfo.costIcon:setBackground(buttoninfo.costIconSprite)
 						
@@ -1457,7 +1457,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			end
 			local enable = buildingBillBoard:getBool("isNetOwner") and upgradeBuildCost <= billboardStats:getDouble("gold")
 			wallTowerButtons[i]:setEnabled(enable)
-			wallTowerCostLabels[i]:setTextColor(enable and Vec4(1) or Vec4(0.8,0.2,0.2,1))
+			wallTowerCostLabels[i]:setTextColor(enable and Vec4(1) or Vec4(4,1,1,1))
 		end
 	end
 	
