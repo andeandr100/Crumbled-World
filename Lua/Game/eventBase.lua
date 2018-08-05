@@ -283,6 +283,8 @@ function EventBase.new()
 		setGold(pStartGold)
 	end
 	function self.doRestartWave(restartedFromTheOutSide)
+		LOG("doRestartWave("..tostring(restartedFromTheOutSide)..")")
+		LOG("if "..tostring(waveCount)..">="..tostring(STARTWAVE+1)..") then")
 		if waveCount>=(STARTWAVE+1) then
 			waveRestarted = true
 			restartTimer = Core.getGameTime()
@@ -356,15 +358,15 @@ function EventBase.new()
 				end
 			elseif currentState == EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD then
 				spawnManager.spawnUnits()
+				waveRestarted = false
 				if spawnManager.isAnythingSpawning()==false and spawnManager.isAnyEnemiesAlive()==false then
 					currentState = EVENT_CHANGE_WAVE
-					waveRestarted = false
 				end
 			elseif currentState == EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_SPAWNED then
 				spawnManager.spawnUnits()
+				waveRestarted = false
 				if spawnManager.isAnythingSpawning()==false then
 					currentState = EVENT_CHANGE_WAVE
-					waveRestarted = false
 				end
 			elseif currentState == EVENT_CHANGE_WAVE then
 				if changeWave() then

@@ -16,7 +16,7 @@ function SoulManager.new()
 	local comUnitTable = {}
 	local soulTable = {}
 	local shieldGenerators = {}
-	local binaryNumPos = {[1]=1,[2]=2,[4]=3,[8]=4,[16]=5,[32]=6,[64]=7,[128]=8,[256]=9}
+	local binaryNumPos = {[1]=1,[2]=2,[4]=3,[8]=4,[16]=5,[32]=6,[64]=7,[128]=8,[256]=9,[512]=10,[1024]=11,[2048]=12}
 	local shieldStateNumPos = binaryNumPos[state.shieldGenerator]
 	local minX = -1
 	local maxX = 1
@@ -168,9 +168,18 @@ function SoulManager.new()
 --				end
 				--DEBUG END
 				local grid = soulTableStr[x][y]
-				grid[#grid+1] = {index,
-					soul.position.x,soul.position.y,soul.position.z,
-					soul.distanceToExit,soul.hp,soul.hpMax,soul.team,soul.state,soul.name}
+				grid[#grid+1] = {index,		--	1
+					soul.position.x,		--	2
+					soul.position.y,		--	3
+					soul.position.z,		--	4
+					soul.distanceToExit,	--	5
+					soul.hp,				--	6
+					soul.hpMax,				--	7
+					soul.team,				--	8
+					soul.state,				--	9
+					soul.name,				--	10
+					soul.defaultState		--	11
+				}
 				count = count + 1
 			end
 		end
@@ -197,7 +206,8 @@ function SoulManager.new()
 								name=param.name,
 								team=param.team,
 								aimHeight=param.aimHeight or Vec3(0),
-								state=0}
+								state=0,
+								defaultState=0}
 		self.update(param.hpMax,fromIndex)
 	end
 	-- function:	updateSoul
@@ -233,6 +243,13 @@ function SoulManager.new()
 					updateShieldGenTable()
 				end
 			end
+		end
+	end
+	-- function:	updateDefaultState
+	-- purpose:		updates an existing souls defaultState on the table
+	function self.updateDefaultState(param, fromIndex)
+		if soulTable[fromIndex] then
+			soulTable[fromIndex].defaultState = param
 		end
 	end
 	-- function:	remove
@@ -300,6 +317,7 @@ function SoulManager.new()
 		comUnitTable["addSoul"] = self.addSoul
 		comUnitTable["update"] = self.updateSoul
 		comUnitTable["setState"] = self.updateState 
+		comUnitTable["setDefaultState"] = self.updateDefaultState
 		comUnitTable["remove"] = self.remove
 		--
 		restartListener = Listener("Restart")

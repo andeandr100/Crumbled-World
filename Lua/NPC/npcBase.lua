@@ -538,6 +538,7 @@ function NpcBase.new()
 	end
 	function self.setDefaultState(state)
 		defaultState = state
+		comUnit:sendTo("SoulManager","setDefaultState",state)
 	end
 	function self.setState(param)
 		local lstate,bool = string.match(param, "(.*);(.*)")
