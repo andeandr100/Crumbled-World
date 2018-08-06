@@ -153,7 +153,8 @@ function TargetSelector.new(pteam)
 						team=input[i][8],
 						state=input[i][9],
 						name=input[i][10],
-						index=input[i][1]
+						index=input[i][1],
+						defaultState=input[i][11]
 					}
 				end
 			end
@@ -245,6 +246,27 @@ function TargetSelector.new(pteam)
 	function self.isTargetInState(target, state)
 		local soul = soulTable[target or currentTarget]
 		return soul and toBits(soul.state)[binaryNumPos[state]]==1
+	end
+	-- function:	isTargetInState
+	-- purpose:		returns true if soul is in state but not by default
+	function isInStateNoneDefault(soul,state)
+		local bPos = binaryNumPos[state]
+		return toBits(soul.state)[bPos]==1 and toBits(soul.defaultState)[bPos]==0
+	end
+	-- function:	isTargetInState
+	-- purpose:		returns state value used in the lifebar
+	function self.getTargetStateValue(target)
+		local soul = soulTable[target or currentTarget]
+		local value = 0.0
+		if soul then
+			value = value + ( isInStateNoneDefault(soul,state.markOfGold) and state.markOfGold or 0 )
+			value = value + ( isInStateNoneDefault(soul,state.ignore) and state.ignore or 0 )
+			value = value + ( isInStateNoneDefault(soul,state.highPriority) and state.highPriority or 0 )
+			value = value + ( isInStateNoneDefault(soul,state.markOfDeath) and state.markOfDeath or 0 )
+			value = value + ( isInStateNoneDefault(soul,state.electrecuted) and state.electrecuted or 0 )
+			value = value + ( isInStateNoneDefault(soul,state.burning) and state.burning or 0 )
+		end
+		return value
 	end
 	-- function:	isTargetNamed
 	-- purpose:		returns true if target is named name

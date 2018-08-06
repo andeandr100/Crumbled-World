@@ -309,7 +309,6 @@ function MultiplayerMenuServerList.new(panel)
 			for i=1, #mainMenuButton do
 				if lobbyMenu.inLobby() then
 					mainMenuButton[i]:setEnabled(false)
-					mainMenuButton[i]:setTextColor(Vec3(0.33))
 				else
 					mainMenuButton[i]:setEnabled(true)
 					mainMenuButton[i]:setTextColor(Vec3(0.7))

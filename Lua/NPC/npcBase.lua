@@ -249,6 +249,7 @@ function NpcBase.new()
 	end
 		
 	function self.reachedWaypointCallback(position)
+		print("self.reachedWaypointCallback( "..tostring(position).." )")
 		if soul.getHp()>0 then
 			position = this:getGlobalPosition()
 --			if type(position)=="string" then
@@ -271,7 +272,7 @@ function NpcBase.new()
 			local rVec = math.randomVec3()
 			rVec = ((npcCenterPos-physicDeathInfo.pos):normalizeV()+rVec):normalizeV()
 			rVec = Vec3(rVec.x*2.5,math.abs(rVec.y)*4,rVec.z*2.5)
-			local rigidBody = RigidBody(this:findNodeByType(NodeId.island), subMeshList:item(i), rVec)
+			local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island), subMeshList:item(i), rVec)
 			deathManager.addRigidBody(rigidBody)
 			--deadBodyManger:addRigidBody(rigidBody)
 		end
@@ -282,7 +283,7 @@ function NpcBase.new()
 			local subMeshList = meshSplitter:splitMesh(model:getMesh(0))
 			--local playerNode = this:getPlayerNode()
 			for i=0, subMeshList:size()-1, 1 do
-				local rigidBody = RigidBody(this:findNodeByType(NodeId.island), subMeshList:item(i), mover:getCurrentVelocity())
+				local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island), subMeshList:item(i), mover:getCurrentVelocity())
 				deathManager.addRigidBody(rigidBody)
 			end
 		else
@@ -442,18 +443,6 @@ function NpcBase.new()
 		
 		comUnit:sendTo("SoulManager","remove","")
 	end
-	function throwGoldOnDeath(coins)
---		for i=1, coins or 0 do
---			--physic
---			local coinModel=Core.getModel("gold_coin.mym")
---			coinModel:setLocalPosition(centerOffset)
---			this:addChild(coinModel:toSceneNode())
---			
---			local atVec = math.randomVec3()
---			atVec = Vec3(1.0,4.0,1.0)
---			deathManager.addRigidBody(RigidBody(this:findNodeByType(NodeId.island),coinModel:getMesh("gold_coin"),atVec))
---		end
-	end
 	--start the death animations/physic/effect
 	function self.createDeadBody()
 		if Settings.DeathAnimation.getSettings()~="Disabled" and useDeathAnimationOrPhysic then
@@ -489,17 +478,14 @@ function NpcBase.new()
 			--use animation, can be aborted
 			if useAnimation then
 				deathAnimation()
-				throwGoldOnDeath(5)	
 			else
 				if deathSoftBodyFunc then
 					local d1 = deathSoftBodyFunc()
 					deathManager.addSoftBody(d1)
 					this:removeChild(model:toSceneNode())
-					throwGoldOnDeath(5)
 				elseif deathRigidBodyFunc then
 					deathRigidBodyFunc()
 					this:removeChild(model:toSceneNode())
-					throwGoldOnDeath(5)
 				end
 			end
 		end
@@ -541,6 +527,7 @@ function NpcBase.new()
 	end
 	function self.setDefaultState(state)
 		defaultState = state
+		comUnit:sendTo("SoulManager","setDefaultState",state)
 	end
 	function self.setState(param)
 		local lstate,bool = string.match(param, "(.*);(.*)")

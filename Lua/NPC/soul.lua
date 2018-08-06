@@ -274,7 +274,7 @@ function TheSoul.new()
 			for i=1, #meshList do
 				local subMesh = meshList[i]:splitMeshByBoneName("shield")
 				if subMesh  then	
-					local body = RigidBody(this:findNodeByType(NodeId.island),subMesh,mover and mover:getCurrentVelocity() or Vec3())
+					local body = RigidBody.new(this:findNodeByType(NodeId.island),subMesh,mover and mover:getCurrentVelocity() or Vec3())
 					body:setTimeOut(30)
 				end
 			end

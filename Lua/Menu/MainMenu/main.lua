@@ -3,33 +3,35 @@ require("Menu/settings.lua")
 --this = SceneNode()
 function create()
 	
-	print("1")
+	LOG("=== LOAD LANGUAGE ===")
 	local language = Language()
 	language:setGlobalLanguage(Settings.Language.getSettings())
 
-	print("2")
+	LOG("=== LOAD SETTINGS ===")
 	this:loadLuaScriptAndRunOnce("settings.lua")
 	
-	print("3")
+	LOG("=== FIX SOUND SETTINGS ===")
 	Core.setSounMasterGain(Settings.soundMasterGain.getGain())
 	Core.setSounEffectGain(Settings.soundEffectGain.getGain())
 	Core.setSoundMusicGain(Settings.soundMusicGain.getGain())
-	print("4")
+	LOG("=== FIX SOUND SETTINGS ===")
 	--load main menu world
 	this:loadScene("Data/Map/hidden/menuWorld.map")
-	print("5")
+	LOG("=== FIX MAIN MENU CAMERA ===")
 	
 	--load main menu camera
 	this:loadLuaScript("Camera/mainMenuCamera.lua")
 	
-	print("6")
+	LOG("=== CREATE MAIN SCENENODE ===")
 	local mainMenuNode = this:addChild(SceneNode.new())
 	mainMenuNode:createWork()
 	
-	print("7")
+	LOG("=== LOAD MENU ===")
 		
 	mainMenuNode:loadLuaScript("Menu/MainMenu/mainMenu.lua")
 	mainMenuNode:loadLuaScript("Menu/MainMenu/version.lua")
+	
+	LOG("=== DONE ===")
 
 	--shut down script
 	return false

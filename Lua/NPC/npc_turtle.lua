@@ -112,7 +112,7 @@ function handleAddForceFieldEffect(param,fromIndex)
 	end
 end
 function genereateSoftBody()
-	local softBody = SoftBody(npcBase.getModel():getMesh(0))
+	local softBody = SoftBody.new(npcBase.getModel():getMesh(0))
 	softBody:setKDF( 1.0 )  --Dynamic friction coefficient [0,1]
 	softBody:setKDG( 0.0 ) --Drag coefficient [0,+inf]
 	softBody:setKLF( 0.0 ) --Lift coefficient [0,+inf]
