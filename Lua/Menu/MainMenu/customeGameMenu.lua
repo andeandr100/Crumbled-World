@@ -144,8 +144,8 @@ function CustomeGameMenu.new(panel)
 			levelInfo.setIsCartMap(mapInfo and mapInfo.gameMode=="Cart" or false)
 			levelInfo.setWaveCount(mapInfo and mapInfo.waveCount or 25)
 			levelInfo.setPlayerCount(mapInfo and mapInfo.players or 1)
-                        levelInfo.setMapSize(mapInfo.mapSize)
 			if mapInfo then
+				levelInfo.setMapSize(mapInfo.mapSize)
 				levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 				levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 			end
@@ -218,8 +218,8 @@ function CustomeGameMenu.new(panel)
 				local texture = Core.getTexture(imageName and imageName or "noImage")
 				levelInfo.setIsCartMap(mapInfo and mapInfo.gameMode=="Cart" or false)
 				levelInfo.setWaveCount(mapInfo and mapInfo.waveCount or 25)
-                                levelInfo.setMapSize(mapInfo.mapSize)
 				if mapInfo then
+					levelInfo.setMapSize(mapInfo.mapSize)
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 				end

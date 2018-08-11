@@ -45,6 +45,7 @@ function restartMap()
 	--
 	billboard:setInt("alive enemies", 0)
 	billboard:setInt("wave", 0)
+	billboard:setBool("waveRestarted",false)
 	billboard:setInt("killedLessThan5m",0)
 	billboard:setString("timerStr","0s")
 	billboard:setInt("killCount",0)
@@ -86,6 +87,7 @@ function restartWave(wave)
 		billboard:setDouble("waveGold", item["waveGold"])--the amount of gold that can be erarned as xp in the "leveler" game mode
 		billboard:setDouble("totalHp", item["totalHp"])--the total amount of hp that will spawn this wave, in the "leveler" game mode
 		billboard:setDouble("score", item["score"])--your highscore
+		billboard:setBool("waveRestarted", true)
 		billboard:setInt("wave", wave)--the current wave number
 		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])--achivemenet
 		billboard:setInt("towersSold", item["towersSold"])

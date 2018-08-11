@@ -100,7 +100,7 @@ function EventBase.new()
 		--go back one wave (this will restart the map)
 		self.doRestartWave(true)
 	end
-	function doRestartMap()
+	function handleDoRestartWave()
 		--set to first wave
 		--waveCount = STARTWAVE+1
 		--go back one wave (this will restart the map)
@@ -221,7 +221,7 @@ function EventBase.new()
 		restartListener:registerEvent("requestWaveRestart", requestWaveRestart)
 
 		comUnitTable["ChangeWave"] = syncChangeWave
-		comUnitTable["EventBaseRestartWave"] = doRestartMap
+		comUnitTable["EventBaseRestartWave"] = handleDoRestartWave
 		spawnManager.init(comUnitTable, pWaveFinishedBonus)
 		--
 		mapFinishingLevel = pLevel
@@ -371,7 +371,7 @@ function EventBase.new()
 			elseif currentState == EVENT_CHANGE_WAVE then
 				if changeWave() then
 					spawnManager.changeWave(waveCount)
-					comUnit:sendTo("SteamStats",mapStatId.."LaunchedCount",1.0)
+					--comUnit:sendTo("SteamStats",mapStatId.."LaunchedCount",1.0)
 					steamStatMinPlayedTime = Core.getTime()
 					--
 					local timeDiff = (Core.getTime()-steamStatMinPlayedTime)/60.0
@@ -430,26 +430,6 @@ function EventBase.new()
 							--
 							-- Achievements
 							--
-							--game modes
-							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="default" then
-								comUnit:sendTo("SteamAchievement","BeatDefaultInsane","")
-							end
-							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="training" then
-								comUnit:sendTo("SteamAchievement","BeatTrainingInsane","")
-							end
-							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="leveler" then
-								comUnit:sendTo("SteamAchievement","BeatLevelerInsane","")
-							end
-							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="only interest" then
-								comUnit:sendTo("SteamAchievement","BeatInflationInsane","")
-							end
-							--Flawless game
-							if mapInfo.getLevel()>=5 then
-								comUnit:sendTo("SteamStats","MaxLifeAtEndOfMapOnInsane",bilboardStats:getInt("life"))
-							end
-							--over powered game (beat insane and not using any restarts
-							if mapInfo.getLevel()>=5 and mapInfo.getGameMode()=="default" and previousWaveCounter==0 then
-							end
 							--purity
 							local minigunBuilt = bilboardStats:exist("minigunTowerBuilt")
 							local arrowBuilt = bilboardStats:exist("arrowTowerBuilt")
@@ -498,78 +478,6 @@ function EventBase.new()
 							--
 							if waveCount==20 and towerBuilt<=5 then
 								comUnit:sendTo("SteamAchievement","TinySystem","")
-							end
-							if mapInfo.getLevel()>=3 then
-								print("Map: "..mapInfo.getMapName())
-								if mapInfo.getMapName()=="Beginning" then
-									comUnit:sendTo("SteamAchievement","MapBeginning","")
-								elseif mapInfo.getMapName()=="Blocked path" then
-									comUnit:sendTo("SteamAchievement","MapBlockedPath","")
-								elseif mapInfo.getMapName()=="Bridges" then
-									comUnit:sendTo("SteamAchievement","MapBridges","")
-								elseif mapInfo.getMapName()=="Crossroad" then
-									comUnit:sendTo("SteamAchievement","MapCrossroad","")
-								elseif mapInfo.getMapName()=="Divided" then
-									comUnit:sendTo("SteamAchievement","MapDivided","")
-								elseif mapInfo.getMapName()=="Dock" then
-									comUnit:sendTo("SteamAchievement","MapDock","")
-								elseif mapInfo.getMapName()=="Expansion" then
-									comUnit:sendTo("SteamAchievement","MapExpansion","")
-								elseif mapInfo.getMapName()=="Intrusion" then
-									comUnit:sendTo("SteamAchievement","MapIntrusion","")
-								elseif mapInfo.getMapName()=="Long haul" then
-									comUnit:sendTo("SteamAchievement","MapLongHaul","")
-								elseif mapInfo.getMapName()=="Mine" then
-									comUnit:sendTo("SteamAchievement","MapMine","")
-								elseif mapInfo.getMapName()=="Nature" then
-									comUnit:sendTo("SteamAchievement","MapNature","")
-								elseif mapInfo.getMapName()=="Paths" then
-									comUnit:sendTo("SteamAchievement","MapPaths","")
-								elseif mapInfo.getMapName()=="Plaza" then
-									comUnit:sendTo("SteamAchievement","MapPlaza","")
-								elseif mapInfo.getMapName()=="Repair station" then
-									comUnit:sendTo("SteamAchievement","MapRepairStation","")
-								elseif mapInfo.getMapName()=="Rifted" then
-									comUnit:sendTo("SteamAchievement","MapRifted","")
-								elseif mapInfo.getMapName()=="Spiral" then
-									comUnit:sendTo("SteamAchievement","MapSpiral","")
-								elseif mapInfo.getMapName()=="Stockpile" then
-									comUnit:sendTo("SteamAchievement","MapStockpile","")
-								elseif mapInfo.getMapName()=="The end" then
-									comUnit:sendTo("SteamAchievement","MapTheEnd","")
-								elseif mapInfo.getMapName()=="The line" then
-									comUnit:sendTo("SteamAchievement","MapTheLine","")
-								elseif mapInfo.getMapName()=="Town" then
-									comUnit:sendTo("SteamAchievement","MapTown","")
-								elseif mapInfo.getMapName()=="Train station" then
-									comUnit:sendTo("SteamAchievement","MapTrainStation","")
-								elseif mapInfo.getMapName()=="Square" then
-									comUnit:sendTo("SteamAchievement","MapSquare","")
-								elseif mapInfo.getMapName()=="Co-op Crossfire" then
-									comUnit:sendTo("SteamAchievement","MapCo-opCrossfire","")
-								elseif mapInfo.getMapName()=="Co-op Hub world" then
-									comUnit:sendTo("SteamAchievement","	MapCo-opHubWorld","")
-								elseif mapInfo.getMapName()=="Co-op Outpost" then
-									comUnit:sendTo("SteamAchievement","MapCo-opOutpost","")
-								elseif mapInfo.getMapName()=="Co-op Survival beginnings" then
-									comUnit:sendTo("SteamAchievement","MapCo-opSurvivalBeginnings","")
-								elseif mapInfo.getMapName()=="Co-op Survival frontline" then
-									comUnit:sendTo("SteamAchievement","MapCo-opSurvivalFrontline","")
-								elseif mapInfo.getMapName()=="Co-op The road" then
-									comUnit:sendTo("SteamAchievement","MapCo-opTheRoad","")
-								elseif mapInfo.getMapName()=="Co-op The tiny road" then
-									comUnit:sendTo("SteamAchievement","MapCo-opTheTinyRoad","")
-								elseif mapInfo.getMapName()=="Co-op Triworld" then
-									comUnit:sendTo("SteamAchievement","MapCo-opTriworld","")
-								elseif mapInfo.getMapName()=="Broken mine" then
-									comUnit:sendTo("SteamAchievement","MapBrokenMine","")
-								elseif mapInfo.getMapName()=="Dump station" then
-									comUnit:sendTo("SteamAchievement","MapDumpStation","")
-								elseif mapInfo.getMapName()=="Desperado" then
-									comUnit:sendTo("SteamAchievement","MapDesperado","")
-								elseif mapInfo.getMapName()=="West river" then
-									comUnit:sendTo("SteamAchievement","MapWestRiver","")
-								end
 							end
 							--
 							if not endGameMenuScreen then
