@@ -36,6 +36,9 @@ function MapInfo.new()
 		if billboard:exist("isCart")==false then
 			billboard:setBool("isCart",false)
 		end
+		if billboard:exist("isCircle")==false then
+			billboard:setBool("isCircle",false)
+		end
 	end
 	function self.getReward()
 		local cData = CampaignData.new()
@@ -51,6 +54,10 @@ function MapInfo.new()
 	function self.setIsCartMap(isCart)
 		print("setIsCartMap("..tostring(isCart)..")\n")
 		billboard:setBool("isCart",isCart)
+	end
+	function self.setIsCircleMap(isCircle)
+		print("SetIsCircle("..tostring(isCircle)..")\n")
+		billboard:setBool("isCircle",isCircle)
 	end
 	function self.setAddPerLevel(amount)
 		amount = amount or 0
@@ -148,6 +155,7 @@ function MapInfo.new()
 					local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
 					if mapInfo then
 						self.setIsCartMap(mapInfo.gameMode=="Cart")
+						self.setIsCircleMap(mapInfo.gameMode=="Circle")
 						self.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 						self.setDifficultyBase(mapInfo.difficultyBase)
 						self.setWaveCount(mapInfo.waveCount)
@@ -162,6 +170,9 @@ function MapInfo.new()
 	end
 	function self.isCartMap()
 		return billboard:getBool("isCart")
+	end
+	function self.isCricleMap()
+		return billboard:getBool("isCircle")
 	end
 	function self.getStartWave()
 		return self.getGameMode()=="training" and self.getWaveCount()-5 or 0

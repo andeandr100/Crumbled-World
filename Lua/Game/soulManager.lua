@@ -13,6 +13,7 @@ function SoulManager.new()
 	local self = {}
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
+	local bilboardStats = Core.getBillboard("stats")
 	local comUnitTable = {}
 	local soulTable = {}
 	local shieldGenerators = {}
@@ -32,6 +33,7 @@ function SoulManager.new()
 	end
 	
 	local function toBits(num)
+		assert(type(num)=="number","toBits(num), num is expected to be number, but is "..tostring(type(num)))
 		local t={}
 		while num>0 do
 			rest=math.fmod(num,2)
@@ -146,6 +148,7 @@ function SoulManager.new()
 	local function updateSoulsTable()
 		local str = ""
 		local count = 0
+		local spawnedCount = 0
 		
 		--clear local soulTable
 		for x=minX, maxX do
@@ -161,6 +164,10 @@ function SoulManager.new()
 				--make sure the table is big enough
 				expand(EXPANDX,x)
 				expand(EXPANDY,y)
+				--
+				if toBits(soul.state)[binaryNumPos[state.spawned]]==1 then
+					spawnedCount = spawnedCount + 1
+				end
 				--DEBUG BEG
 --				if debug then
 --					local sPos = soul.position
@@ -185,6 +192,11 @@ function SoulManager.new()
 		end
 		--publish the soulTable to the world
 		billboard:setInt("npcsAlive",count)
+		if bilboardStats:getBool("gameEnded")==false then
+			comUnit:sendTo("stats","setAliveEnemies",count-spawnedCount)
+		else
+			comUnit:sendTo("stats","setAliveEnemies",50)--it will show 0
+		end
 		for x=minX, maxX do
 			for y=minY, maxY do
 				if soulTableStr[x][y] then

@@ -244,7 +244,7 @@ function SpawnManager.new()
 	end
 	function self.spawnUnits()
 		bilboardStats = bilboardStats or Core.getBillboard("stats")
-		if bilboardStats:getInt("life")>=0 then
+		if bilboardStats:getInt("life")>0 then
 			local i=1
 			while i<=#currentWaves do
 				local current = currentWaves[i]

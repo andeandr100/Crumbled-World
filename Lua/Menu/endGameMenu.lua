@@ -208,6 +208,9 @@ function initiate()
 	local maxScore = endWaveData[#endWaveData][9]
 	local scoreItem = ScoreCalculater.getScoreItemOnScore(maxScore)
 	local crystalReward = (mapInfo.getReward()<=1 and 1 or mapInfo.getReward()) + math.max(scoreItem.index-1,0)
+	--
+	comUnit:sendTo("stats","setGameEnded",true)
+	--
 	
 	index = 1
 	indexMax = #data+0.9999					--+0.9999 because it is not real indexes 20 wave games have 20.96 indexes
@@ -472,6 +475,7 @@ end
 -- function:	update
 -- purpose:		updates the script every frame
 function endScript()
+	comUnit:sendTo("stats","setGameEnded",false)
 	return false
 end
 function update()

@@ -1,7 +1,9 @@
 require("Game/particleEffect.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 local waveData = {}
 local statsBilboard = Core.getBillboard("stats")
+local mapInfo = MapInfo.new()
 
 local CRYSTAL_STATUS_ALIVE		= 1
 local CRYSTAL_STATUS_DETONATED	= 2
@@ -57,7 +59,6 @@ end
 -- function:	defeated
 -- purpose:
 function create()
-	--comUnit
 	rigidBodies = {}
 	model = nil
 	
@@ -73,7 +74,7 @@ function create()
 	this:addChild(particleNode)
 	
 	--spirits
-	TOTAL_SPIRIT_COUNT = 20
+	TOTAL_SPIRIT_COUNT = mapInfo.isCricleMap() and 50 or 20
 	spiritCount = TOTAL_SPIRIT_COUNT
 	spirits = {}
 	for i=1, spiritCount do
@@ -88,11 +89,22 @@ function create()
 
 	return true
 end
+function getSpiritsAlive()
+	statsBilboard = statsBilboard or Core.getBillboard("stats")
+	if statsBilboard then
+		if mapInfo.isCricleMap() then
+			return math.max(0, TOTAL_SPIRIT_COUNT-statsBilboard:getInt("aliveEnemies"))
+		else
+			return statsBilboard:getInt("life")
+		end
+	end
+	return TOTAL_SPIRIT_COUNT
+end
 -- function:	update
 -- purpose:		updates the script every frame
 function update()
 	if crystalStatus == CRYSTAL_STATUS_DETONATED then
-		local count = (statsBilboard and statsBilboard:getInt("life")) or TOTAL_SPIRIT_COUNT
+		local count = getSpiritsAlive()
 		if count>0 then
 			cleanUpDestroyedCrystal()
 			this:setLocalPosition(localPos)
@@ -102,7 +114,7 @@ function update()
 	end
 	if crystalStatus == CRYSTAL_STATUS_ALIVE then
 		statsBilboard = statsBilboard or Core.getBillboard("stats")
-		local count = (statsBilboard and statsBilboard:getInt("life")) or TOTAL_SPIRIT_COUNT
+		local count = getSpiritsAlive()
 		--manage if spirit count have changed
 		if count~=spiritCount then
 			if count==0 and spiritCount>0 then

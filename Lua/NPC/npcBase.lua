@@ -2,6 +2,7 @@ require("NPC/soul.lua")
 require("NPC/deathManager.lua")
 require("NPC/npcPath.lua")
 require("Game/targetSelector.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 --timer = StopWatch()
 NpcBase = {}
@@ -19,6 +20,7 @@ function NpcBase.new()
 	local NETSpeedMod = 0.0
 	local mover
 	local stateOfSoul
+	local mapInfo = MapInfo.new()
 	--
 	local billboard
 	local statsBilboard = Core.getBillboard("stats")
@@ -603,9 +605,11 @@ function NpcBase.new()
 		npcPath.update()
 		
 		if launcWave ~= statsBilboard:getInt("wave") then
-			syncConfirmedDeath = true
-			useDeathAnimationOrPhysic = false
-			self.setGainGoldOnDeath(false)
+			if mapInfo.isCricleMap()==false then
+				syncConfirmedDeath = true
+				useDeathAnimationOrPhysic = false
+				self.setGainGoldOnDeath(false)
+			end
 		end
 
 		if (syncConfirmedDeath or soul.getHp()<=0) then--and soul.canDie() then

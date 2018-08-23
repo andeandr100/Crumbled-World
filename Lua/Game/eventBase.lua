@@ -392,7 +392,7 @@ function EventBase.new()
 			elseif currentState == EVENT_START_SPAWN then
 				--diff
 				spawnManager.spawnWave(waveRestarted)
-				if mapInfo.getGameMode()~="circle" then
+				if mapInfo.isCricleMap()==false then
 					currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD
 				else
 					currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_SPAWNED

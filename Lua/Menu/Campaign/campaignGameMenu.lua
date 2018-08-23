@@ -190,6 +190,7 @@ function CampaignGameMenu.new(panel)
 				local texture = Core.getTexture(imageName and imageName or "noImage")
 				if mapInfo then
 					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
+					levelInfo.setIsCircleMap(mapInfo.gameMode=="Circle")
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 					levelInfo.setWaveCount(mapInfo.waveCount)
@@ -363,6 +364,7 @@ function CampaignGameMenu.new(panel)
 				local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
 				if mapInfo then
 					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
+					levelInfo.setIsCircleMap(mapInfo.gameMode=="Circle")
 				end
 				if mapInfo then
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
