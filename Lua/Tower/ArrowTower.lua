@@ -109,7 +109,7 @@ function ArrowTower.new()
 	end
 	local function restoreWaveChangeStats( wave )
 		if isThisReal and wave>0 then
-			Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,4,0)+math.randomVec3(),2.0,Vec3(1,0,0))
+			--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,4,0)+math.randomVec3(),2.0,Vec3(1,0,0))
 			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 			lastRestored = wave
 			--we have gone back in time erase all tables that is from the future, that can never be used
@@ -130,7 +130,7 @@ function ArrowTower.new()
 				doDegrade(upgrade.getLevel("markOfDeath"),tab.markOfDeath,self.handleWeakenTarget)
 				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
 				--
-				--upgrade.restoreWaveChangeStats(tab.upgradeTab)
+				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 				--
 				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
 				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)

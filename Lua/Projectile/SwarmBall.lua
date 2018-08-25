@@ -132,20 +132,30 @@ function SwarmBall.new(pTargetSelector)
 	local function manageIfTargetIsNotAvailable()
 		if targetSelector.isTargetAlive(targetIndex)==false then
 			targetIndex = 0
+			--
+			--store towers default settings
+			--
 			targetSelector.storeSettings()
-			targetSelector.setPosition(calculatedFutherPosition)
+			--
+			--score target close to swarmball
+			targetSelector.setPosition(position)
 			targetSelector.setRange(range*1.5)--covers 75% in worst case scenario
 			targetSelector.selectAllInRange()
-			targetSelector.scoreClosest(5)--closest to the current position
+			targetSelector.scoreClosest(10)--closest to the current position
+			--score target close to tower
 			targetSelector.setPosition(towerPosition)--calculate value of closest target in comparison to the tower
 			targetSelector.scoreClosest(10)--closest to the tower
-			--if smartTargeting>0.5 then
+			--score target by interest
 			targetSelector.scoreName("fireSpirit",-100)
 			targetSelector.scoreState(state.burning,-15)--[burning==2]
-			--end
-			targetSelector.filterSphere(Sphere(towerPosition,range),false)--select only targets that is in range of the tower
+			--select only targets that is in range of the tower
+			targetSelector.filterSphere(Sphere(towerPosition,range),false)
 			targetIndex = targetSelector.selectTargetAfterMaxScore(-50)
+			--
+			--restor towers default setting
+			--
 			targetSelector.restoreSettings()
+			--
 			if targetIndex==0 then
 				endLife()
 			end

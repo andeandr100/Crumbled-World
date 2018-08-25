@@ -311,15 +311,17 @@ Settings.corpseTimer.options = {"High", "Normal", "Low", "None"}
 Settings.corpseTimer.optionsInt = {High=8, Normal=3, Low=1, None=0}
 Settings.corpseTimer.configName = "corpseTimer"
 function Settings.corpseTimer.getSettings()
-	return Settings.config:get(Settings.corpseTimer.configName, "Low"):getString()
+	return Settings.config:get(Settings.corpseTimer.configName, Settings.corpseTimer.options[2]):getString()
 end
 function Settings.corpseTimer.getValue()
-	return Settings.config:get(Settings.corpseTimer.configName, "Low"):getString()
+	return Settings.config:get(Settings.corpseTimer.configName, Settings.corpseTimer.options[2]):getString()
 end
 function Settings.corpseTimer.getInt()
 	local str = Settings.corpseTimer.getValue()
-	if Settings.corpseTimer.optionsInt[str]==null then
-		error("Corpse timer settings is not leagal")
+	if Settings.corpseTimer.optionsInt[str]==nil then
+		print("Corpse timer settings is not leagal")
+		Settings.config:get(Settings.corpseTimer.configName):set(Settings.corpseTimer.options[2])
+		str = Settings.corpseTimer.options[2]
 	end
 	return Settings.corpseTimer.optionsInt[str]
 end
