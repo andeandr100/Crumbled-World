@@ -13,6 +13,8 @@ function NpcPath.new()
 	local restoreMeshData = {}
 	local resetTime = 0
 	
+	--nodeMover = NodeMover()
+	
 	function self.wayPointReached()
 		local lastId = lastPointIdAdded
 		local groupId = groupId

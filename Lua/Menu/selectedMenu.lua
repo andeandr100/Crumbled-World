@@ -218,6 +218,7 @@ function update()
 		
 		if billboardStats == nil then
 			billboardStats = Core.getBillboard("stats")
+			
 		end
 		selectedCamera:render()
 		form:update()	

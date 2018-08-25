@@ -104,7 +104,7 @@ function CampaignGameMenu.new(panel)
 	local function updateHighScorePanel()
 		if mainPanel:getVisible() then 
 			scoreArea:clear()
-			Core.getHighScore():getHighScoreList(levelInfo.getMapName(),levelInfo.getLevel(),levelInfo.getGameMode(), highScoreCallback)
+			Core.getHighScore():getHighScoreList(levelInfo.getMapName(),1 ,levelInfo.getGameMode(), highScoreCallback)
 		end
 	end
 	
@@ -198,7 +198,7 @@ function CampaignGameMenu.new(panel)
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 					levelInfo.setWaveCount(mapInfo.waveCount)
-                                        levelInfo.setMapSize(mapInfo.mapSize)
+										levelInfo.setMapSize(mapInfo.mapSize)
 					levelInfo.setLevel(1)
 					--changing default selected map
 					menuPrevSelect:get("campaign"):get("selectedMap"):setString(filePath)
@@ -373,7 +373,7 @@ function CampaignGameMenu.new(panel)
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 					levelInfo.setWaveCount(mapInfo.waveCount)
-                                        levelInfo.setMapSize(mapInfo.mapSize)
+										levelInfo.setMapSize(mapInfo.mapSize)
 				else
 					error("No map information was found")
 				end

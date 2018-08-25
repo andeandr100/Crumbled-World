@@ -645,6 +645,8 @@ function towerUpgrade(param)
 		print("NOT supported")
 	end
 	
+	buildingBillboard:setInt("towerUpgradedFrame",Core.getFrameNumber())
+	
 	towerUpgradefunc(tab)
 end
 

@@ -18,6 +18,9 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local leftMainPanel = inLeftMainPanel
 	local towerImagePanel = inTowerImagePanel
 	
+	local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
+	tutorialBillboard:setPanel("selectedTowerPanel", inForm)
+	
 	--local variabels
 	local keyBinds
 	local keyBindUpgradeBuilding
@@ -106,8 +109,15 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		damageInfoBar = towerPanel:add(ProgressBar(PanelSize(Vec2(-1),Vec2(9,1)), Text(""), 0))
 		
 		
+		
+		
 
 		local infoPanelMain = towerPanel:add(Panel(PanelSize(Vec2(-1))))
+		
+
+		local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
+		tutorialBillboard:setPanel("damageInfoBar", damageInfoBar)
+		tutorialBillboard:setPanel("upgradePanel", buttonPanel)
 	
 		infoPanel = infoPanelMain:add(Panel(PanelSize(Vec2(-0.5,-1))))
 		infoPanel:setLayout(GridLayout(5,1))
@@ -1000,6 +1010,9 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 						
 						MainButtonPanel:add(Panel(PanelSize(Vec2(-1))))
 						MainButtonCostPanel:add(Panel(PanelSize(Vec2(-1))))
+					else
+						local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
+						tutorialBillboard:setPanel("upgradeTowerButton", button)
 					end
 					local buttonHidePanel = Panel(PanelSize(Vec2(-1)))
 					MainButtonPanel:add(buttonHidePanel)
@@ -1465,6 +1478,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		print("initSelectedMenu")
 		buttonPanel:clear()
 		towerInfo = {}
+		local builBilboard = Core.getBillboard("buildings")
+		
 		
 		storedNumStats = 0
 		storedShowText = ""
@@ -1479,6 +1494,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			if buildingScript then
 				buildingBillBoard = buildingScript:getBillboard()
 				
+				
 				currentTowerName = string.lower( buildingBillBoard:getString("Name") )
 				
 --				print("building bilboard: ".. buildingBillBoard:toString())
@@ -1487,6 +1503,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				form:setVisible(false)
 				form:setVisible(true)
 				if currentTowerName == "wall tower" then
+					
+					builBilboard:setBool("isTowerSelected",false)
 					selectedBuildingType = 2
 					header:setText(Text("<b>")+language:getText(currentTowerName))
 					initWallTower()
@@ -1505,6 +1523,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					print("Change panelSize to tower size")
 					updateTowerName(nil)
 					--this panel is hidden when not in use
+					builBilboard:setBool("isTowerSelected",true)
 					local sizeDiff = buildingBillBoard:getString("targetMods") ~= "" and 0 or (1.0/9.0)
 					leftMainPanel:setPanelSize(PanelSize(Vec2(-1),Vec2(1,1.4 - sizeDiff)))
 					wallTowerPanel:setVisible(false)
@@ -1521,6 +1540,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					
 					updateText()
 					updateButtons()
+					
+					
 				end
 				
 				updateUpgradeInfoIcons()
@@ -1543,6 +1564,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			end
 			
 			selectedCamera:setFrameBufferSize(contentSize * 2)
+		else
+			builBilboard:setBool("isTowerSelected",false)
 		end
 	end
 	

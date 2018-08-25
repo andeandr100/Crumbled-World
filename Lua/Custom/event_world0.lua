@@ -3,7 +3,7 @@ require("Game/eventBase.lua")
 local event = EventBase.new()
 function create()
 	
-	--this:getPlayerNode():loadLuaScript("Custom/tutorial.lua")
+	this:getPlayerNode():loadLuaScript("Custom/tutorial.lua")
 	
 	local mapInfo = MapInfo.new()
 	local numWaves = mapInfo.getWaveCount()
