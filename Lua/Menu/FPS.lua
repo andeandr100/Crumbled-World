@@ -85,13 +85,13 @@ function update()
 	end
 	
 	if Core.getInput():getKeyPressed(Key.F1) then
-		setGameSpeed(2.0)
+		setGameSpeed(0.5)
 	elseif Core.getInput():getKeyPressed(Key.F2) then
 		setGameSpeed(1.0)
 	elseif Core.getInput():getKeyPressed(Key.F3) then
-		setGameSpeed(0.5)
+		setGameSpeed(2.0)
 	elseif Core.getInput():getKeyPressed(Key.F4) then
-		setGameSpeed(0.25)
+		setGameSpeed(3.0)
 	elseif Core.getInput():getKeyPressed(Key.kp_plus) then
 		setGameSpeed(Core.getTimeSpeed()*2.0)
 	elseif Core.getInput():getKeyPressed(Key.kp_minus) then
