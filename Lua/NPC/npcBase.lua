@@ -2,6 +2,7 @@ require("NPC/soul.lua")
 require("NPC/deathManager.lua")
 require("NPC/npcPath.lua")
 require("Game/targetSelector.lua")
+require("Game/mapInfo.lua")
 --this = SceneNode()
 --timer = StopWatch()
 NpcBase = {}
@@ -19,6 +20,7 @@ function NpcBase.new()
 	local NETSpeedMod = 0.0
 	local mover
 	local stateOfSoul
+	local mapInfo = MapInfo.new()
 	--
 	local billboard
 	local statsBilboard = Core.getBillboard("stats")
@@ -277,13 +279,6 @@ function NpcBase.new()
 			--deadBodyManger:addRigidBody(rigidBody)
 		end
 	end
-	local function goldExplosion()
-		local gModel=Core.getModel("gold_coin.mym")
-		this:addChild(gModel:toSceneNode())
-		local atVec = math.randomVec3()
-		atVec = Vec3(atVec.x*1.5,(math.abs(atVec.y)+0.3)*3,atVec.z*1.5)
-		deathManager.addRigidBody(RigidBody.new(this:findNodeByType(NodeId.island),gModel:getMesh("gold_coin"),atVec))
-	end
 	local function rigidBody()
 		if not (physicDeathInfo and physicDeathInfo.time+0.1>Core.getGameTime()) then
 			local meshSplitter = MeshSplitter()
@@ -292,7 +287,6 @@ function NpcBase.new()
 			for i=0, subMeshList:size()-1, 1 do
 				local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island), subMeshList:item(i), mover:getCurrentVelocity())
 				deathManager.addRigidBody(rigidBody)
-				--deadBodyManger:addRigidBody(rigidBody)
 			end
 		else
 			rigidBodyExplosion()
@@ -309,7 +303,6 @@ function NpcBase.new()
 	--add physical rigid body to be managed on npc death
 	function self.addDeathRigidBody()
 		deathRigidBodyFunc = rigidBody
-		--deathRigidBodyFunc = rigidBodyExplosion
 	end
 	--add physical soft body to be managed on npc death
 	function self.addDeathSoftBody(softBodyFunc)
@@ -437,9 +430,6 @@ function NpcBase.new()
 				comUnit:sendTo("stats","goldInterest",1.0)--allways full interest
 				--gold from the killing
 				local killValue = (value*mul)+soul.getGoldGainAdd()
-				for i=1, killValue do
-					goldExplosion()
-				end
 				comUnit:sendTo("stats","addGold", killValue )
 				comUnit:sendTo("stats","addBillboardDouble","goldGainedFromKills;"..tostring(killValue))
 				comUnit:sendTo("stats","addKill","")
@@ -460,11 +450,11 @@ function NpcBase.new()
 		if Settings.DeathAnimation.getSettings()~="Disabled" and useDeathAnimationOrPhysic then
 			--death animations is enabled
 			local otherOptions = false
-			if Settings.DeathAnimation.getSettings()=="Enabled" and Settings.corpseTimer.getInt()>0 and (deathSoftBodyFunc or deathRigidBodyFunc) then
+			if Settings.DeathAnimation.getSettings()=="Physic" and Settings.corpseTimer.getInt()>0 and (deathSoftBodyFunc or deathRigidBodyFunc) then
 				--physic can be used
 				otherOptions=true
 			end
-			local useAnimation = deathAnimationTable and #deathAnimationTable>0
+			local useAnimation = false--deathAnimationTable and #deathAnimationTable>0
 			--if we have animations and other options the best course of action may still be physic
 			if useAnimation and otherOptions then
 				--we can do animation and physic, if there is a bridge then we can use physic
@@ -492,7 +482,8 @@ function NpcBase.new()
 				deathAnimation()
 			else
 				if deathSoftBodyFunc then
-					deathManager.addSoftBody(deathSoftBodyFunc())
+					local d1 = deathSoftBodyFunc()
+					deathManager.addSoftBody(d1)
 					this:removeChild(model:toSceneNode())
 				elseif deathRigidBodyFunc then
 					deathRigidBodyFunc()
@@ -538,6 +529,7 @@ function NpcBase.new()
 	end
 	function self.setDefaultState(state)
 		defaultState = state
+		comUnit:sendTo("SoulManager","setDefaultState",state)
 	end
 	function self.setState(param)
 		local lstate,bool = string.match(param, "(.*);(.*)")
@@ -613,9 +605,11 @@ function NpcBase.new()
 		npcPath.update()
 		
 		if launcWave ~= statsBilboard:getInt("wave") then
-			syncConfirmedDeath = true
-			useDeathAnimationOrPhysic = false
-			self.setGainGoldOnDeath(false)
+			if mapInfo.isCricleMap()==false then
+				syncConfirmedDeath = true
+				useDeathAnimationOrPhysic = false
+				self.setGainGoldOnDeath(false)
+			end
 		end
 
 		if (syncConfirmedDeath or soul.getHp()<=0) then--and soul.canDie() then

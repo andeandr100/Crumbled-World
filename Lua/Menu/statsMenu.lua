@@ -380,7 +380,7 @@ function init()
 		end
 		toolTipsIndexScore = #toolTips
 --			--Enemies
---			numEnemies = statsBilboard:getInt("alive enemies")
+--			numEnemies = statsBilboard:getInt("aliveEnemies")
 --			numEnemiesLabel = createStat(Vec2(0.25,0.0),Vec2(0.375,0.0625), tostring(numEnemies), "enemies remaining")
 		--money
 		money = statsBilboard:getInt("gold")
@@ -512,8 +512,8 @@ function updateReal()
 		comUnit:sendTo("SteamAchievement","Speed","")
 	end
 	
---	if numEnemies ~= statsBilboard:getInt("alive enemies") then
---		numEnemies = statsBilboard:getInt("alive enemies")
+--	if numEnemies ~= statsBilboard:getInt("aliveEnemies") then
+--		numEnemies = statsBilboard:getInt("aliveEnemies")
 --		numEnemiesLabel:setText(tostring(numEnemies))
 --	end
 	if life ~= statsBilboard:getInt("life") then

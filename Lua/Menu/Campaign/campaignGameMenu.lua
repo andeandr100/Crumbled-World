@@ -4,6 +4,7 @@ require("Menu/MainMenu/mapInformation.lua")
 require("Game/campaignData.lua")
 require("Menu/Campaign/shop.lua")
 require("Menu/MainMenu/settingsCombobox.lua")
+require("Game/scoreCalculater.lua")
 --this = SceneNode()
 
 CampaignGameMenu = {}
@@ -33,14 +34,6 @@ function CampaignGameMenu.new(panel)
 	local campaignList = {}
 	local diffNames = {}
 	local labels = {}
-	
-	local scoreLimits = {
-		{minPos=Vec2(0.25,0.75),	maxPos=Vec2(0.5,0.8125), 	color=Vec3(0.65,0.65,0.65)},
-		{minPos=Vec2(0.0,0.5625),	maxPos=Vec2(0.25,0.625), 	color=Vec3(0.86,0.63,0.38)},
-		{minPos=Vec2(0.0,0.625),	maxPos=Vec2(0.25,0.6875), 	color=Vec3(0.64,0.70,0.73)},
-		{minPos=Vec2(0.0,0.6875),	maxPos=Vec2(0.25,0.75), 	color=Vec3(0.93,0.73,0.13)},
-		{minPos=Vec2(0.0,0.75),		maxPos=Vec2(0.25,0.8125), 	color=Vec3(0.5,0.92,0.92)}
-	}
 	
 	function self.languageChanged()
 		for i=1, #labels do
@@ -84,9 +77,6 @@ function CampaignGameMenu.new(panel)
 		updateRewardInfo()
 	end
 	local function highScoreCallback(highScoreTable)
-		print("----------------------")
-		print("------ Callback ------")
-		print("----------------------")
 		scoreArea:clear()
 		print("highScoreTable type: "..type(highScoreTable))
 		print("table: "..tostring(highScoreTable))
@@ -95,8 +85,12 @@ function CampaignGameMenu.new(panel)
 			for i=1, math.min(9,#highScoreTable) do
 				print("add row: "..highScoreTable[i].name..", "..tostring(highScoreTable[i].score))
 				local row = scoreArea:add(Panel(PanelSize(Vec2(-1))))
-				row:add(Label(PanelSize(Vec2(-0.75,-1)), highScoreTable[i].name, labelColor))
-				row:add(Label(PanelSize(Vec2(-1,-1)), tostring(highScoreTable[i].score), labelColor))
+				row:add(Label(PanelSize(Vec2(-0.65,-1)), highScoreTable[i].name, labelColor))
+				row:add(Label(PanelSize(Vec2(-0.5,-1)), tostring(highScoreTable[i].score), labelColor))
+				local icon = Image(PanelSize(Vec2(-1), Vec2(2,1)), Text("icon_table.tga") )
+				local scoreItem = ScoreCalculater.getScoreItemOnScore(highScoreTable[i].score)
+				icon:setUvCoord(scoreItem.minPos,scoreItem.maxPos)
+				row:add(icon)
 			end
 		end
 	end
@@ -109,6 +103,7 @@ function CampaignGameMenu.new(panel)
 	end
 	
 	local function updateIcons()
+		local scoreLimits = ScoreCalculater.getScoreLimits()
 		for i=1, #files do
 			if campaignData.isMapAvailable(i)>0 then
 				if campaignData.hasMapBeenBeaten(i) then
@@ -195,6 +190,7 @@ function CampaignGameMenu.new(panel)
 				local texture = Core.getTexture(imageName and imageName or "noImage")
 				if mapInfo then
 					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
+					levelInfo.setIsCircleMap(mapInfo.gameMode=="Circle")
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 					levelInfo.setWaveCount(mapInfo.waveCount)
@@ -212,7 +208,7 @@ function CampaignGameMenu.new(panel)
 				local d1 = files
 				selectedButton = files[mNum].button
 				setSelectedButtonColor(files[mNum].button)
---				fillDificulty()
+				--Update hihgscore after map information is set
 				updateHighScorePanel()
 			else
 				--error or not available
@@ -368,6 +364,7 @@ function CampaignGameMenu.new(panel)
 				local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
 				if mapInfo then
 					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
+					levelInfo.setIsCircleMap(mapInfo.gameMode=="Circle")
 				end
 				if mapInfo then
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
@@ -460,8 +457,8 @@ function CampaignGameMenu.new(panel)
 		--add header
 		local scoreHeader = borderPanel:add(Panel(PanelSize(Vec2(-1,-0.1))))
 		local labelColor = Vec4(0.9,0.9,0.9,1.0)
-		scoreHeader:add(Label(PanelSize(Vec2(-0.75,-1)), language:getText("name"), labelColor))
-		scoreHeader:add(Label(PanelSize(Vec2(-1,-1)), language:getText("score"), labelColor))
+		scoreHeader:add(Label(PanelSize(Vec2(-0.65,-1)), language:getText("name"), labelColor))
+		scoreHeader:add(Label(PanelSize(Vec2(-0.5,-1)), language:getText("score"), labelColor))
 		local scoreLine = borderPanel:add(Panel(PanelSize(Vec2(-1,1),PanelSizeType.Pixel)))		
 		scoreLine:setBackground(Sprite(Vec3(0.3)))
 		scoreArea = borderPanel:add(Panel(PanelSize(Vec2(-1))))

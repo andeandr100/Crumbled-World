@@ -244,7 +244,7 @@ function SpawnManager.new()
 	end
 	function self.spawnUnits()
 		bilboardStats = bilboardStats or Core.getBillboard("stats")
-		if bilboardStats:getInt("life")>=0 then
+		if bilboardStats:getInt("life")>0 then
 			local i=1
 			while i<=#currentWaves do
 				local current = currentWaves[i]
@@ -663,7 +663,7 @@ function SpawnManager.new()
 				--((2*1000)+(6*450)+(2*800))/(((12/2)+(9*0.4))*455) == 1.442
 				{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="fireSpirit",delay=0.4},{npc="electroSpirit",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}},
 				--((1200*4)+(275*6))/(((12/2)+((3*0.75)+(6*0.25)))*455) == 1.454
-				{waveUseLimit=1,{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="rat",delay=3.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},
+				--{waveUseLimit=1,{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="rat",delay=3.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},
 				--(275*16)/(((12/4)+(16*0.2))*455) == 1.560
 				{groupSpawnDepthMin=1,{npc="rat",delay=0.0},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2}},
 				--A*B*C == ?

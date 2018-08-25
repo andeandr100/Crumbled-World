@@ -437,6 +437,9 @@ function ElectricTower.new()
 		if upgrade.getLevel("range")>0 then
 			--no mesh in use
 			--Acievement
+			if upgrade.getLevel("range")==3 then
+				achievementUnlocked("Range")
+			end
 		end
 		setCurrentInfo()
 	end
@@ -452,7 +455,7 @@ function ElectricTower.new()
 		if Core.isInMultiplayer() and canSyncTower() then
 			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
 		end
-		if upgrade.getLevel("ampedSlow")==0 then
+		if upgrade.getLevel("ampedSlow")>0 then
 			doMeshUpgradeForLevel("ampedSlow","slow")
 			--Achievement
 			if upgrade.getLevel("ampedSlow")==3 then

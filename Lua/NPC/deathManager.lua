@@ -405,6 +405,7 @@ function DeathManager.new()
 			local body = bodyTable[index]
 			body.physicBodyTimeOut = body.physicBodyTimeOut - deltaTime
 			body.lifeTime = body.lifeTime - deltaTime
+			
 			if body.lifeTime<0.0 then
 				--this body part is dead, delete it
 				body.sceneNode:destroy()--getParent():removeChild(body.sceneNode)--body.sceneNode:setParent(nil)
@@ -470,16 +471,13 @@ function DeathManager.new()
 					--we do not want remaining(falling)) softbody to surface
 					if body.physicBody:getPhysicEnable() or not body.groundTestNode then
 						--something is wrong, destroy the issue
-						--Core.addDebugLine(pos,pos+Vec3(0,4,0),1.5,Vec3(1,0,0))
 						body.lifeTime = -1
 					else
 						--body.groundTest not needed as body should be stationary
 						if body.type==BodyType.rigidBody or body.groundTestNode:getNodeType()~=NodeId.ropeBridge then
 							--on an island
 							deathAnimation(body)
-							--Core.addDebugLine(globalPos,globalPos+Vec3(0,2,0),1.5,Vec3(1,1,1))
 						else
-							--Core.addDebugLine(globalPos,globalPos+Vec3(0,3,0),0.05,Vec3(1,1,0))
 							--on a bridge
 							--fade the model away with alpha
 							fadeOut(body,deltaTime,"normal")

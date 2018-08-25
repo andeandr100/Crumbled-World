@@ -3,6 +3,7 @@ require("Game/mapInfo.lua")
 
 local timer = 0.0
 local interesetMultiplyerOnKill = 1.0
+local isCircleMap = false
 
 function restartMap()
 	local mapInfo = MapInfo.new()
@@ -27,6 +28,7 @@ function restartMap()
 	handleSetLife(billboard:getInt("maxLife"))
 	billboard:setDouble("score", 0.0)
 	billboard:setFloat("difficult", 1.0)
+	billboard:setBool("gameEnded",false)
 	--
 	billboard:setInt("towersSold", 0)
 	billboard:setInt("towersBuilt", 0)
@@ -43,8 +45,9 @@ function restartMap()
 	billboard:setInt("quakeTowerBuilt", 0)
 	billboard:setInt("supportTowerBuilt", 0)
 	--
-	billboard:setInt("alive enemies", 0)
+	billboard:setInt("aliveEnemies", 0)			--not counting spawned enemies
 	billboard:setInt("wave", 0)
+	billboard:setBool("waveRestarted",false)
 	billboard:setInt("killedLessThan5m",0)
 	billboard:setString("timerStr","0s")
 	billboard:setInt("killCount",0)
@@ -86,6 +89,7 @@ function restartWave(wave)
 		billboard:setDouble("waveGold", item["waveGold"])--the amount of gold that can be erarned as xp in the "leveler" game mode
 		billboard:setDouble("totalHp", item["totalHp"])--the total amount of hp that will spawn this wave, in the "leveler" game mode
 		billboard:setDouble("score", item["score"])--your highscore
+		billboard:setBool("waveRestarted", true)
 		billboard:setInt("wave", wave)--the current wave number
 		billboard:setInt("killedLessThan5m",item["killedLessThan5m"])--achivemenet
 		billboard:setInt("towersSold", item["towersSold"])
@@ -138,6 +142,7 @@ function create()
 	
 	waveHistory = {}
 	currentWave = mapInfo.getStartWave()
+	isCircleMap = mapInfo.isCricleMap()
 	
 	
 	restartListener = Listener("Restart")
@@ -154,7 +159,7 @@ function create()
 	--ComUnitCallbacks
 	comUnitTable = {}
 	comUnitTable["setInteresetMultiplyerOnKill"] = handleInteresetMultiplyerOnKill
-	comUnitTable["setLife"] = handleSetLife
+	comUnitTable["setLife"] = abort
 	comUnitTable["setGold"] = handleSetGold
 	comUnitTable["setStartGold"] = handleSetStartGold
 	comUnitTable["addGold"] = handleAddGold
@@ -183,9 +188,11 @@ function create()
 	comUnitTable["updateTowerValue"] = handleUpdateTowerValue
 	--
 	comUnitTable["npcReachedEnd"] = handleNpcReachedEnd
+	comUnitTable["setAliveEnemies"] = handleAliveEnemies
 	--
 	comUnitTable["setWave"] = handleSetwave
 	comUnitTable["setMaxWave"] = handleSetMaxwave
+	comUnitTable["setGameEnded"] = handleSetGameEnded
 	--
 	comUnitTable["setBillboardDouble"] = handleSetBillboardDouble
 	comUnitTable["setBillboardInt"] = handleSetBillboardInt
@@ -246,7 +253,7 @@ function handleSetLife(numLife)
 	if mapInfo.getGameMode()=="training" then
 		billboard:setDouble("activeInterestrate",0.0)	
 	else
-		if mapInfo.isCartMap() then
+		if mapInfo.isCartMap() or mapInfo.isCricleMap() then
 			billboard:setDouble("activeInterestrate",0.002)
 		else
 			billboard:setDouble("activeInterestrate",0.002*(billboard:getInt("life")/billboard:getInt("maxLife")))
@@ -259,6 +266,9 @@ function handleSetMaxLife()
 	if mapInfo.isCartMap() then
 		billboard:setInt("maxLife", 1)
 		handleSetLife(1)
+	elseif mapInfo.isCricleMap() then
+		billboard:setInt("maxLife", 50)
+		handleSetLife(50)
 	else
 		billboard:setInt("maxLife", tonumber(20))
 		handleSetLife(tonumber(20))
@@ -308,6 +318,12 @@ function handleRemoveGold(amount)
 end
 function handleSetMaxwave(inWave)
 	billboard:setInt("maxWave", inWave)
+end
+function handleSetGameEnded(set)
+	billboard:setBool("gameEnded",set)
+end
+function handleAliveEnemies(aliveCount)
+	billboard:setInt("aliveEnemies", aliveCount)
 end
 function handleSetwave(inWave)
 	billboard:setInt("wave", inWave)
@@ -660,6 +676,9 @@ function update()
 		end
 	end
 	updateTimerStr()
+	if isCircleMap then
+		handleSetLife(50-billboard:getInt("aliveEnemies"))
+	end
 	if netSyncTimer then
 		
 		--update wave damage, this can only be done after the towers has updated, this can take a 0.1 seconds

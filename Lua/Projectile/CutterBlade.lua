@@ -250,7 +250,7 @@ function CutterBlade.new(pTargetSelector)
 			local outVec = -((npcDir*bladeDir)*npcDir*2.0-bladeDir)
 			billboard:setVec3("bladeBlockedPos",Vec3(0,-1000000,0))
 			--
-			if Settings.DeathAnimation.getSettings()=="Enabled" then
+			if Settings.DeathAnimation.getSettings()=="Physic" then
 				generatePhysicalBlade(outVec)
 			end
 			--

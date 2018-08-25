@@ -142,10 +142,11 @@ function CustomeGameMenu.new(panel)
 		if mapFile:isFile() then
 			local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
 			levelInfo.setIsCartMap(mapInfo and mapInfo.gameMode=="Cart" or false)
+			levelInfo.setIsCircleMap(mapInfo and mapInfo.gameMode=="Circle" or false)
 			levelInfo.setWaveCount(mapInfo and mapInfo.waveCount or 25)
 			levelInfo.setPlayerCount(mapInfo and mapInfo.players or 1)
-                        levelInfo.setMapSize(mapInfo.mapSize)
 			if mapInfo then
+				levelInfo.setMapSize(mapInfo.mapSize)
 				levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 				levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 			end
@@ -217,9 +218,10 @@ function CustomeGameMenu.new(panel)
 				local imageName = mapInfo and mapInfo.icon or nil
 				local texture = Core.getTexture(imageName and imageName or "noImage")
 				levelInfo.setIsCartMap(mapInfo and mapInfo.gameMode=="Cart" or false)
+				levelInfo.setIsCircleMap(mapInfo and mapInfo.gameMode=="Circle" or false)
 				levelInfo.setWaveCount(mapInfo and mapInfo.waveCount or 25)
-                                levelInfo.setMapSize(mapInfo.mapSize)
 				if mapInfo then
+					levelInfo.setMapSize(mapInfo.mapSize)
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 				end

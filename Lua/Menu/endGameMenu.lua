@@ -3,6 +3,7 @@ require("Menu/graphDrawer.lua")
 require("Game/mapInfo.lua")
 require("Game/campaignData.lua")
 require("Game/soundManager.lua")
+require("Game/scoreCalculater.lua")
 --this = SceneNode()
 
 local data
@@ -24,21 +25,14 @@ local soundManager = SoundManager.new(nil)
 
 local campaignData = CampaignData.new()
 local files = campaignData.getMaps()
-local currentMapData = files[mapInfo.getMapNumber()]
-local diffPerLevelBase = math.floor( ((currentMapData.maxScore-currentMapData.minScore)*0.3)/1000 )
-diffPerLevelBase = math.clamp(diffPerLevelBase, 2, 8)
-local diffPerLevel = diffPerLevelBase*1000
-local scoreLimits = {
-	{score=0, 										index=1, minPos=Vec2(0.25,0.75),	maxPos=Vec2(0.5,0.8125), 	color=Vec3(0.65,0.65,0.65)},
-	{score=currentMapData.minScore, 				index=2, minPos=Vec2(0.0,0.5625),	maxPos=Vec2(0.25,0.625), 	color=Vec3(0.86,0.63,0.38)},
-	{score=currentMapData.maxScore-diffPerLevel,	index=3, minPos=Vec2(0.0,0.625),	maxPos=Vec2(0.25,0.6875), 	color=Vec3(0.64,0.70,0.73)},
-	{score=currentMapData.maxScore,					index=4, minPos=Vec2(0.0,0.6875),	maxPos=Vec2(0.25,0.75), 	color=Vec3(0.93,0.73,0.13)},
-	{score=currentMapData.maxScore+diffPerLevel,	index=5, minPos=Vec2(0.0,0.75),		maxPos=Vec2(0.25,0.8125), 	color=Vec3(0.5,0.92,0.92)}
-}
+
 
 -- function:	destroy
 -- purpose:		called on the destruction of this script
 function destroy()
+	if comUnit then
+		comUnit:sendTo("SteamStats","SaveStats","")
+	end
 	if form then
 		form:setVisible(false)
 		form:destroy()
@@ -62,15 +56,6 @@ end
 -- purpose:		called when another script has restarted a wave
 function waveRestartedElsewhere()
 	update = endScript
-end
-
-local function getScoreItem(score)
-	for i=#scoreLimits, 1, -1 do
-		if score>=scoreLimits[i].score then
-			return scoreLimits[i]
-		end
-	end
-	return nil
 end
 local function getMapIndex(filePath)
 	for i=1, #files do	
@@ -221,8 +206,11 @@ function initiate()
 	data = d1
 	local endWaveData = data[#data]
 	local maxScore = endWaveData[#endWaveData][9]
-	local scoreItem = getScoreItem(maxScore)
+	local scoreItem = ScoreCalculater.getScoreItemOnScore(maxScore)
 	local crystalReward = (mapInfo.getReward()<=1 and 1 or mapInfo.getReward()) + math.max(scoreItem.index-1,0)
+	--
+	comUnit:sendTo("stats","setGameEnded",true)
+	--
 	
 	index = 1
 	indexMax = #data+0.9999					--+0.9999 because it is not real indexes 20 wave games have 20.96 indexes
@@ -308,7 +296,7 @@ function initiate()
 	
 	setStatsLayout(statsPanel,true)
 	--setGraphLayout(graphPanel)
-	graph = #data>1 and GraphDrawer.new(graphPanel, bilboardStats:getInt("life"), SCOREPERLIFE, scoreLimits) or nil
+	graph = #data>1 and GraphDrawer.new(graphPanel, bilboardStats:getInt("life"), SCOREPERLIFE, ScoreCalculater.getScoreLimits()) or nil
 	
 	--
 	--	Bottom section with button options
@@ -321,6 +309,11 @@ function initiate()
 	form:add(Panel(PanelSize(Vec2(-0.9,0.002))))
 	
 	run = true
+	
+	--Acievements
+	if isVictory then
+		manageVictoryAchievement(scoreItem)
+	end
 	
 	--BUTTONS
 	if mapInfo.isCampaign() and isVictory then
@@ -384,9 +377,105 @@ local function waveIndexHasChanged(waveIndex)
 	index = waveIndex
 	updateAllMenuLabels()
 end
+function manageVictoryAchievement(scoreItem)
+	--game modes
+	if scoreItem.name=="dimond" and mapInfo.getGameMode()=="default" then
+		comUnit:sendTo("SteamAchievement","BeatDefaultInsane","")
+	end
+	if scoreItem.name=="dimond"and mapInfo.getGameMode()=="training" then
+		comUnit:sendTo("SteamAchievement","BeatTrainingInsane","")
+	end
+	if scoreItem.name=="dimond" and mapInfo.getGameMode()=="leveler" then
+		comUnit:sendTo("SteamAchievement","BeatLevelerInsane","")
+	end
+	if scoreItem.name=="dimond" and mapInfo.getGameMode()=="only interest" then
+		comUnit:sendTo("SteamAchievement","BeatInflationInsane","")
+	end
+	--Flawless game
+	if scoreItem.name=="dimond" then
+		comUnit:sendTo("SteamStats","MaxLifeAtEndOfMapOnInsane",bilboardStats:getInt("life"))
+	end
+	--over powered game (beat insane and not using any restarts
+	if scoreItem.name=="dimond" and mapInfo.getGameMode()=="default" and bilboardStats:getBool("waveRestarted") then
+	end
+	if scoreItem.name=="gold" then
+		print("Map: "..mapInfo.getMapName())
+		if mapInfo.getMapName()=="Beginning" then
+			comUnit:sendTo("SteamAchievement","MapBeginning","")
+		elseif mapInfo.getMapName()=="Blocked path" then
+			comUnit:sendTo("SteamAchievement","MapBlockedPath","")
+		elseif mapInfo.getMapName()=="Bridges" then
+			comUnit:sendTo("SteamAchievement","MapBridges","")
+		elseif mapInfo.getMapName()=="Crossroad" then
+			comUnit:sendTo("SteamAchievement","MapCrossroad","")
+		elseif mapInfo.getMapName()=="Divided" then
+			comUnit:sendTo("SteamAchievement","MapDivided","")
+		elseif mapInfo.getMapName()=="Dock" then
+			comUnit:sendTo("SteamAchievement","MapDock","")
+		elseif mapInfo.getMapName()=="Expansion" then
+			comUnit:sendTo("SteamAchievement","MapExpansion","")
+		elseif mapInfo.getMapName()=="Intrusion" then
+			comUnit:sendTo("SteamAchievement","MapIntrusion","")
+		elseif mapInfo.getMapName()=="Long haul" then
+			comUnit:sendTo("SteamAchievement","MapLongHaul","")
+		elseif mapInfo.getMapName()=="Mine" then
+			comUnit:sendTo("SteamAchievement","MapMine","")
+		elseif mapInfo.getMapName()=="Nature" then
+			comUnit:sendTo("SteamAchievement","MapNature","")
+		elseif mapInfo.getMapName()=="Paths" then
+			comUnit:sendTo("SteamAchievement","MapPaths","")
+		elseif mapInfo.getMapName()=="Plaza" then
+			comUnit:sendTo("SteamAchievement","MapPlaza","")
+		elseif mapInfo.getMapName()=="Repair station" then
+			comUnit:sendTo("SteamAchievement","MapRepairStation","")
+		elseif mapInfo.getMapName()=="Rifted" then
+			comUnit:sendTo("SteamAchievement","MapRifted","")
+		elseif mapInfo.getMapName()=="Spiral" then
+			comUnit:sendTo("SteamAchievement","MapSpiral","")
+		elseif mapInfo.getMapName()=="Stockpile" then
+			comUnit:sendTo("SteamAchievement","MapStockpile","")
+		elseif mapInfo.getMapName()=="The end" then
+			comUnit:sendTo("SteamAchievement","MapTheEnd","")
+		elseif mapInfo.getMapName()=="The line" then
+			comUnit:sendTo("SteamAchievement","MapTheLine","")
+		elseif mapInfo.getMapName()=="Town" then
+			comUnit:sendTo("SteamAchievement","MapTown","")
+		elseif mapInfo.getMapName()=="Train station" then
+			comUnit:sendTo("SteamAchievement","MapTrainStation","")
+		elseif mapInfo.getMapName()=="Square" then
+			comUnit:sendTo("SteamAchievement","MapSquare","")
+		elseif mapInfo.getMapName()=="Co-op Crossfire" then
+			comUnit:sendTo("SteamAchievement","MapCo-opCrossfire","")
+		elseif mapInfo.getMapName()=="Co-op Hub world" then
+			comUnit:sendTo("SteamAchievement","	MapCo-opHubWorld","")
+		elseif mapInfo.getMapName()=="Co-op Outpost" then
+			comUnit:sendTo("SteamAchievement","MapCo-opOutpost","")
+		elseif mapInfo.getMapName()=="Co-op Survival beginnings" then
+			comUnit:sendTo("SteamAchievement","MapCo-opSurvivalBeginnings","")
+		elseif mapInfo.getMapName()=="Co-op Survival frontline" then
+			comUnit:sendTo("SteamAchievement","MapCo-opSurvivalFrontline","")
+		elseif mapInfo.getMapName()=="Co-op The road" then
+			comUnit:sendTo("SteamAchievement","MapCo-opTheRoad","")
+		elseif mapInfo.getMapName()=="Co-op The tiny road" then
+			comUnit:sendTo("SteamAchievement","MapCo-opTheTinyRoad","")
+		elseif mapInfo.getMapName()=="Co-op Triworld" then
+			comUnit:sendTo("SteamAchievement","MapCo-opTriworld","")
+		elseif mapInfo.getMapName()=="Broken mine" then
+			comUnit:sendTo("SteamAchievement","MapBrokenMine","")
+		elseif mapInfo.getMapName()=="Dump station" then
+			comUnit:sendTo("SteamAchievement","MapDumpStation","")
+		elseif mapInfo.getMapName()=="Desperado" then
+			comUnit:sendTo("SteamAchievement","MapDesperado","")
+		elseif mapInfo.getMapName()=="West river" then
+			comUnit:sendTo("SteamAchievement","MapWestRiver","")
+		end
+	end
+	comUnit:sendTo("SteamStats","SaveStats","")
+end
 -- function:	update
 -- purpose:		updates the script every frame
 function endScript()
+	comUnit:sendTo("stats","setGameEnded",false)
 	return false
 end
 function update()

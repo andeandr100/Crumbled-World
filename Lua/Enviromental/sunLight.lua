@@ -157,7 +157,7 @@ function update()
 		end
 		ready = true
 		
-		local waveWeight = 1 - math.clamp((statsBilboard:getInt("alive enemies") + numNpcToSpawn - numNpcSpawned) / numNpcToSpawn, 0, 1 )
+		local waveWeight = 1 - math.clamp((statsBilboard:getInt("aliveEnemies") + numNpcToSpawn - numNpcSpawned) / numNpcToSpawn, 0, 1 )
 	
 		
 		

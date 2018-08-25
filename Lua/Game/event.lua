@@ -36,8 +36,12 @@ function create()
 	elseif mapInfo.getGameMode()=="leveler" then
 		startGold = 1000
 		interestMultiplyerOnKill = 0
-	elseif mapInfo.getGameMode()=="circle" then
-		--nothing
+	end
+	if mapInfo.isCricleMap() then
+		--rats can spawn in a number of upto 16 in 1 grouop
+		--and there difficulty comes from there speed, which does nnthing in this mode
+		event.getSpawnManager().disableUnit("rat")
+		event.getSpawnManager().disableUnit("rat_tank")
 	end
 	--
 	if Core.isInMultiplayer() then
