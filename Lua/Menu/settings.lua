@@ -319,7 +319,8 @@ end
 function Settings.corpseTimer.getInt()
 	local str = Settings.corpseTimer.getValue()
 	if Settings.corpseTimer.optionsInt[str]==null then
-		error("Corpse timer settings is not leagal")
+		print("Corpse timer settings is not leagal")
+		return Settings.corpseTimer.optionsInt[3]
 	end
 	return Settings.corpseTimer.optionsInt[str]
 end

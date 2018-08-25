@@ -103,8 +103,24 @@ function NpcPath.new()
 					nodeMover:followNode(endPoint.followNode)
 				elseif endPoint then
 					nodeMover:addMoveTo(endPoint.island, endPoint.position)
+				elseif #points > 0 then
+					print("Add closes point\n")
+					
+					local globalPos = nodeMover:getCurrentPosition()
+					local minDist = ( globalPos - points[1].island:getGlobalMatrix() * points[1].position ):length()
+					local point = points[1]
+					
+					for i=2, #points do
+						local tmpDist = ( globalPos - points[i].island:getGlobalMatrix() * points[i].position ):length()
+						if minDist > tmpDist then
+							minDist = tmpDist
+							point = points[i]
+						end
+					end
+					
+					nodeMover:addMoveTo(point.island, point.position)
 				else
-					print("No end where found on the map\n")
+					print("No point and no end was found")
 				end
 				return
 			end

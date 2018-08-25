@@ -331,8 +331,9 @@ function NpcBase.new()
 		return 2--space
 	end
 	--generate a string with the path this npc will take
-	local function getPathPointInStringFormat()
-		local pathPointTable = mover:getPathPoints()
+	local function getPathPointInStringFormat(SpawnedGlobalPosition)
+		local dropAllPointsWithinDist = (this:getGlobalPosition() - SpawnedGlobalPosition):length()
+		local pathPointTable = mover:getPathPoints(dropAllPointsWithinDist)
 		
 		local outString = ""
 		for i=1, #pathPointTable do
@@ -364,7 +365,7 @@ function NpcBase.new()
 				--
 				npc:update()
 				--path points
-				local pathInStr = getPathPointInStringFormat()
+				local pathInStr = getPathPointInStringFormat(globalPosition)
 				comUnit:sendTo(npcScript:getIndex(), "setPathPoints", pathInStr)
 				--add new npc to waypoints, that have been passed
 				if Core.isInMultiplayer() then
