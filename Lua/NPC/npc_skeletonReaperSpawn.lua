@@ -60,7 +60,8 @@ function setPathPoints(dataString)
 		pathPoints[i].islandId = tonumber(data[4])
 	end
 	npcBase.getMover():setPathPoints(pathPoints)
-
+	npcBase.getNpcPath().updateLastPoint()
+	
 end
 function reachedWaypointCallback(param)
 	npcBase.reachedWaypointCallback()

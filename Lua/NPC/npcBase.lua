@@ -190,6 +190,9 @@ function NpcBase.new()
 	function self.getMover()
 		return mover
 	end
+	function self.getNpcPath()
+		return npcPath
+	end
 	function self.getComUnit()
 		return comUnit
 	end
