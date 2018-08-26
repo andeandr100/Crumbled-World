@@ -13,7 +13,7 @@ local spawnTimeAddPerSpawn = 0.5
 local spawnTimeMax = 5.5
 local SpawnCount = 0
 local deathTimer
-
+local isACartMap = false
 
 function destroy()
 	npcBase.destroy()
@@ -26,6 +26,7 @@ end
 function create()
 	
 	
+	isACartMap =  Core.getBillboard("stats"):getBool("isACartMap")
 	npcBase = NpcBase.new()
 	soundReaperSpawn = SoundNode.new("reaper_spawn")
 	
@@ -58,9 +59,10 @@ function create()
 end
 
 function update()
+	print("isACartMap::" .. (isACartMap and "true" or "false"))
 	local ret = npcBase.update()
 	--npcBase.mover:getDistanceToExit() is far from a good method
-	if ret and npcBase.getSoul().getHp()>0.0 and npcBase.getMover():getDistanceToExit()>15.0 then
+	if ret and npcBase.getSoul().getHp()>0.0 and ( isACartMap or npcBase.getMover():getDistanceToExit()>15.0 ) then
 		nextSpawnIn = nextSpawnIn - Core.getDeltaTime()
 		if nextSpawnState==0 and nextSpawnIn<0.5 and nextSpawnIn>0.0 then
 			npcBase.getModel():getAnimation():blend("spawn",0.5,PlayMode.stopSameLayer)

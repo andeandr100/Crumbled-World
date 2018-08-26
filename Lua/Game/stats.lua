@@ -128,6 +128,7 @@ function create()
 		error("STATS.CREATE() failed because billboard name is used")
 		return false
 	end
+	
 	billboard = comUnit:getBillboard()
 	if Core.isInMultiplayer() then
 		netSyncTimer = Core.getTime()
@@ -263,6 +264,7 @@ function handleSetLife(numLife)
 end
 function handleSetMaxLife()
 	local mapInfo = MapInfo.new()
+	billboard:setBool("isACartMap", mapInfo.isCartMap())
 	if mapInfo.isCartMap() then
 		billboard:setInt("maxLife", 1)
 		handleSetLife(1)
