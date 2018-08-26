@@ -508,12 +508,21 @@ function SpawnManager.new()
 		mapStatId = fileName
 		return true
 	end
+	function wavesToGenerate(pNumWaves)
+		if Core.isInMultiplayer() then
+			if Core.getNetworkClient():isAdmin() then
+				return pNumWaves
+			end
+			return 2
+		end
+		return pNumWaves
+	end
 	function self.generateWaves(pNumWaves,difficultBase,difficultIncreaser,startSpawnWindow,pSeed)
 		--pNumWaves = 2
 		seed = pSeed
 		if seed then
 			npcPathOffset = Random(seed)
-			numWaves = pNumWaves
+			numWaves = wavesToGenerate(pNumWaves)
 			local isInMultiplayer = Core.isInMultiplayer()
 			local addPerLevel = mapInfo.getAddPerLevel()
 			local longestWave = 0.0
@@ -586,11 +595,7 @@ function SpawnManager.new()
 --				{{npc="stoneSpirit",delay=0.0}},
 --				{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
 --				{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
-				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
-				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
-				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
-				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},	
-				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
+--				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
 --				{{npc="turtle",delay=0.0}},
 --				{{npc="turtle",delay=0.0}},
 --				{{npc="turtle",delay=0.0}},

@@ -330,7 +330,6 @@ function handleSetwave(inWave)
 	currentWave = inWave
 	timer = inWave==1 and 0 or timer
 --	scoreHistory[inWave] = {}
-	statsPerKillTable[inWave] = {}
 	waveHistory[inWave] = {
 		life = billboard:getDouble("life"),
 		score = billboard:getDouble("score"),
@@ -504,6 +503,7 @@ function handleAddKill(param,index)
 end
 function setStatsPerKillTableOn(index)
 	if currentWave>=1 then
+		statsPerKillTable[currentWave] = statsPerKillTable[currentWave] or {}
 		statsPerKillTable[currentWave][index] = {
 			--GOLD
 			billboard:getDouble("gold"),
@@ -560,8 +560,8 @@ function handleSaveScore()
 		local writeToFile = true
 		if f1:exist() then
 			local table = totable(f1:getContent())
-			local lastWaveTab = table[#table]
-			local lastKillTab = lastWaveTab[#lastWaveTab]
+			local lastWaveTab = table[#table] and table[#table] or table[#table-1]
+			local lastKillTab = lastWaveTab[#lastWaveTab] and lastWaveTab[#lastWaveTab] or lastWaveTab[#lastWaveTab-1]
 			local lastScore = lastKillTab[9]
 			writeToFile = lastScore<billboard:getInt("score")
 		end

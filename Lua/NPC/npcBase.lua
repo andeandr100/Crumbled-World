@@ -8,6 +8,7 @@ require("Game/mapInfo.lua")
 NpcBase = {}
 function NpcBase.new()
 	local self = {}
+	local binaryNumPos = {[1]=1,[2]=2,[4]=3,[8]=4,[16]=5,[32]=6,[64]=7,[128]=8,[256]=9,[512]=10,[1024]=11,[2048]=12}
 	local deathManager = DeathManager.new()
 	local npcPath = NpcPath.new()
 	local soul = TheSoul.new()
@@ -43,6 +44,7 @@ function NpcBase.new()
 	--stats
 	local npcAge = 0.0
 	local npcIsDestroyed = false
+	local isHighPrioCollored = false
 	--debug
 	local startPos
 	local firstUpdate
@@ -536,7 +538,6 @@ function NpcBase.new()
 		local lstate,bool = string.match(param, "(.*);(.*)")
 		lstate = tonumber(lstate)
 		bool = tonumber(bool)
-		local binaryNumPos = {[1]=1,[2]=2,[4]=3,[8]=4,[16]=5,[32]=6,[64]=7,[128]=8,[256]=9,[512]=10,[1024]=11,[2048]=12}
 		if toBits(defaultState)[binaryNumPos[lstate]]~=bool then
 			defaultState = defaultState + (bool==0 and -lstate or lstate)
 			if bool==1 and lstate==state.highPriority then
@@ -597,9 +598,21 @@ function NpcBase.new()
 		end
 		
 		--if is high priority target make towers close by attack you
-		if lstate==state.highPriority and Core.getGameTime()-retargetForHighPpriorityTarget>RETARGET_FOR_HIGH_PRIORITY_TARGET_EVERY then
-			comUnit:broadCast(this:getGlobalPosition(),7.5,"Retarget","")
-			retargetForHighPpriorityTarget = Core.getGameTime()
+		if toBits(stateOfSoul)[binaryNumPos[state.highPriority]]==1 then
+--			if isHighPrioCollored==false then
+--				isHighPrioCollored = true
+--				if model then
+--					model:setColor( Vec3(1.5) )
+--				end
+--			end
+			if Core.getGameTime()-retargetForHighPpriorityTarget>RETARGET_FOR_HIGH_PRIORITY_TARGET_EVERY then
+				comUnit:broadCast(this:getGlobalPosition(),7.5,"Retarget","")
+				retargetForHighPpriorityTarget = Core.getGameTime()
+			end
+--		elseif isHighPrioCollored then
+--			if model then
+--				model:setColor( Vec3(1.0) )
+--			end
 		end
 		
 		--update npc path
@@ -620,7 +633,6 @@ function NpcBase.new()
 			--npc is dead
 			if canSyncNPC() or syncConfirmedDeath then
 				billboard:setBool("isAlive",false)
-				local binaryNumPos = {[1]=1,[2]=2,[4]=3,[8]=4,[16]=5,[32]=6,[64]=7,[128]=8,[256]=9,[512]=10,[1024]=11,[2048]=12}
 				self.getCurrentIslandPlayerId()
 				comUnit:sendTo("SteamStats","LongestLivingNPC",npcAge)
 				if not mover:isAtFinalDestination() then

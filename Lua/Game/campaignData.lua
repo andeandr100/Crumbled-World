@@ -180,7 +180,8 @@ function CampaignData.new()
 		return self.getMapModeBeatenLevel(number,mode)>=level
 	end
 	function self.setLevelCompleted(number,level,mode)
-		campaingDataConfig:get("mapsFinished"):get(files[number].statId):get(mode):setInt(level)
+		local befLevel = campaingDataConfig:get("mapsFinished"):get(files[number].statId):get(mode):getInt();
+		campaingDataConfig:get("mapsFinished"):get(files[number].statId):get(mode):setInt(math.max(befLevel,level))
 		campaignDataTable = campaingDataConfig:getTable()
 		campaingDataConfig:save()
 	end

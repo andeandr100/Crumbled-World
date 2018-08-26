@@ -31,6 +31,45 @@ ParticleEffect = {
 		emitterSpeedMultiplyer = 1,
 		gravity = 0.2,
 	},
+	MarkOfDeath =  {
+		WallboardParticle = true,
+		airResistance = 0,
+		color =  {
+			color1 =  {r = 1.10,g = 0.30,b = 0.10,a = 0.500,per = 0.0,size = 0.095},
+			color2 =  {r = 1.10,g = 0.40,b = 0.15,a = 0.375,per = 0.5,size = 0.14},
+			color3 =  {r = 1.10,g = 0.60,b = 0.20,a = 0.250,per = 1.0,size = 0.055},
+			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
+		},
+		emitterSpeedMultiplyer = 0,
+		gravity = 0,
+		lifeTime =  {
+			max = 1.5,
+			min = 0.75
+		},
+		spawn =  {
+			OffsetFromGroundPer = 0.75,
+			maxParticles = 6,
+			minParticles = 4,
+			pattern = "sphere",
+			patternData =  {
+				max = 1,
+				min = -1
+			},
+			spawnDuration = math.huge,
+			spawnRadius = 0.0375,
+			spawnRate = 6,
+			spawnSpeed = 0
+		},
+		texture =  {
+			countX = 1,
+			countY = 2,
+			lengthEqlWidthMul = 1,
+			startX = 0,
+			startY = 0.75,
+			widthX = 0.125,
+			widthY = 0.125
+		}
+	},
 	BoneSplatterSphere =  {
 		WallboardParticle = true,
 		color =  {
