@@ -18,6 +18,9 @@ function NpcPath.new()
 	function self.wayPointReached()
 		local lastId = lastPointIdAdded
 		local groupId = groupId
+		if paths[groupId] == nil or paths[groupId][lastPointIdAdded] == nil then
+			return
+		end
 		local posibleTargetLocation = paths[groupId][lastPointIdAdded]
 		if posibleTargetLocation then
 			local nextId = posibleTargetLocation[math.randomInt(1, #posibleTargetLocation)]
@@ -28,6 +31,8 @@ function NpcPath.new()
 	
 	function self.findPath(inNodeMover, model)
 		nodeMover = inNodeMover
+		nodeMover:addCallbackWayPointReached(self.wayPointReached)
+		
 		local bilboard = Core.getBillboard("Paths")
 		if bilboard then
 			resetTime = Core.getGameTime() + 5
@@ -37,9 +42,9 @@ function NpcPath.new()
 			ends = bilboard:getTable("ends")
 			local spawnPortals = bilboard:getTable("spawnPortals")
 			
-	--		print("Spawns: "..tostring(spawns).."\n")
-	--		print("points: "..tostring(points).."\n")
-	--		print("paths: "..tostring(paths).."\n")
+--			print("Spawns: "..tostring(spawns).."\n")
+--			print("points: "..tostring(points).."\n")
+--			print("paths: "..tostring(paths).."\n")
 			
 			local globalPosition = this:getGlobalPosition()
 			for i=1, #spawnPortals do
@@ -110,6 +115,7 @@ function NpcPath.new()
 					local minDist = ( globalPos - points[1].island:getGlobalMatrix() * points[1].position ):length()
 					local point = points[1]
 					
+					
 					for i=2, #points do
 						local tmpDist = ( globalPos - points[i].island:getGlobalMatrix() * points[i].position ):length()
 						if minDist > tmpDist then
@@ -118,7 +124,13 @@ function NpcPath.new()
 						end
 					end
 					
+					
+					groupId = point.groups[1]
+					lastPointIdAdded = point.id
 					nodeMover:addMoveTo(point.island, point.position)
+					
+					self.wayPointReached()
+					self.wayPointReached()
 				else
 					print("No point and no end was found")
 				end
@@ -158,14 +170,27 @@ function NpcPath.new()
 			end
 			
 			lastPointIdAdded = id
-			if usedPoints[id] then
-				nodeMover:addCallbackWayPointReached(self.wayPointReached)
-			end
+--			if usedPoints[id] then
+--				nodeMover:addCallbackWayPointReached(self.wayPointReached)
+--			end
 			
 			
 			
 		else
 			error("No path bilboard was found")
+		end
+	end
+	
+	function self.updateLastPoint()
+		local globalPoints = nodeMover:getPathPointsGlobalPosition()
+		if #globalPoints > 0 then
+			local targetNodePos = globalPoints[#globalPoints]
+			for i=1, #points do
+				if ( targetNodePos - points[i].island:getGlobalMatrix() * points[i].position ):length() < 1 then
+					groupId = points[i].groups[1]
+					lastPointIdAdded = points[i].id					
+				end
+			end			
 		end
 	end
 	
@@ -184,6 +209,9 @@ function NpcPath.new()
 			resetTime = Core.getGameTime() + 3600
 		end
 	end
+	
+	
+	
 	
 	return self
 end
