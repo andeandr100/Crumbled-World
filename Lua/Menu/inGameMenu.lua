@@ -219,7 +219,7 @@ function create()
 			optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("options")))
 			tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("tutorial"))) or nil
 			launchWavesButton = mapInfo.getGameMode()=="training" and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("launch waves"))) or nil
-			RestartWaveButton = (not Core.isInMultiplayer() and (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="survival") or mapInfo.getGameMode()=="training") and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("revert wave"))) or nil
+			RestartWaveButton = mapInfo.isRestartWaveEnabled() and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("revert wave"))) or nil
 			RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("restart"))) or nil
 			quitToMenuButton = nil
 			quitToEditorButton = nil

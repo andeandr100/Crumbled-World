@@ -315,16 +315,37 @@ function initiate()
 		manageVictoryAchievement(scoreItem)
 	end
 	
+	--
 	--BUTTONS
+	--
+	local buttonCount = 1
 	if mapInfo.isCampaign() and isVictory then
-		nextMapButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-0.5,-1), nil, "NextMap"))
+		buttonCount = buttonCount + 1
+	end
+	if not isVictory then
+		buttonCount = buttonCount + 1
+		if mapInfo.isRestartWaveEnabled() then
+			buttonCount = buttonCount + 1
+		end
+	end
+	local count = -1
+	local function calculateButtonSize()
+		count = count + 1
+		return Vec2( -1/(buttonCount-count), -1)
+	end
+	--
+	--
+	if mapInfo.isCampaign() and isVictory then
+		nextMapButton = buttonRow:add( MainMenuStyle.createButton( calculateButtonSize(), nil, "NextMap"))
 		nextMapButton:addEventCallbackExecute(startNextMap)
 	end
 	--
 	if not isVictory then
-		restartWaveButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-(1.0/3.0),-1), nil, language:getText("restart last wave")))
-		restartWaveButton:addEventCallbackExecute(restartWave)
-		restartMapButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-0.5,-1), nil, language:getText("restart map")))
+		if mapInfo.isRestartWaveEnabled() then
+			restartWaveButton = buttonRow:add( MainMenuStyle.createButton( calculateButtonSize(), nil, language:getText("restart last wave")))
+			restartWaveButton:addEventCallbackExecute(restartWave)
+		end
+		restartMapButton = buttonRow:add( MainMenuStyle.createButton( calculateButtonSize(), nil, language:getText("restart map")))
 		restartMapButton:addEventCallbackExecute(restartMap)
 	end
 	--

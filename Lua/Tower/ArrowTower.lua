@@ -62,6 +62,7 @@ function ArrowTower.new()
 	local lastRestored = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	--stats
+	local isCircleMap = MapInfo.new().isCricleMap()
 	local mapName = MapInfo.new().getMapName()
 	--
 	
@@ -527,8 +528,8 @@ function ArrowTower.new()
 				if upgrade.getLevel("boost")>0 then
 					--density
 					targetSelector.scoreDensity(30)
-					targetSelector.scoreClosestToExit(15)
-					targetSelector.scoreRandom(20)
+					targetSelector.scoreClosestToExit(10)
+					targetSelector.scoreRandom(15)
 				elseif targetMode==1 then
 					--priority targets
 					targetSelector.scoreHP(20)
@@ -540,29 +541,29 @@ function ArrowTower.new()
 					targetSelector.scoreName("skeleton_cb",-20)
 					
 					if upgrade.getLevel("markOfDeath")>0 then
-						targetSelector.scoreState(state.markOfDeath,-10)	--because we placed the mark, it is therefore better to mark another unit
+						targetSelector.scoreState(state.markOfDeath,-15)	--because we placed the mark, it is therefore better to mark another unit
 					else
-						targetSelector.scoreState(state.markOfDeath,10)		--attack marked unit for damage bonus
+						targetSelector.scoreState(state.markOfDeath,15)		--attack marked unit for damage bonus
 					end
 				elseif targetMode==2 then
-					--closest to exit
-					targetSelector.scoreClosestToExit(40)
-					targetSelector.scoreState(state.markOfDeath,10)
-					targetSelector.scoreHP(-10)
-				elseif targetMode==3 then
 					--attackWeakestTarget
 					targetSelector.scoreHP(-30)
 					targetSelector.scoreClosestToExit(20)
 					targetSelector.scoreName("skeleton_cf",-10)
 					targetSelector.scoreName("skeleton_cb",-10)
-					targetSelector.scoreState(state.markOfDeath,15)	
-				elseif targetMode==4 then
+					targetSelector.scoreState(state.markOfDeath,15)
+				elseif targetMode==3 then
 					--attackStrongestTarget
 					targetSelector.scoreHP(30)
 					targetSelector.scoreState(state.markOfDeath,10)
 					targetSelector.scoreName("reaper",15)
 					targetSelector.scoreName("skeleton_cf",-20)
 					targetSelector.scoreName("skeleton_cb",-20)
+				elseif targetMode==4 then
+					--closest to exit
+					targetSelector.scoreClosestToExit(40)
+					targetSelector.scoreState(state.markOfDeath,10)
+					targetSelector.scoreHP(-10)
 				end
 				
 				if upgrade.getLevel("hardArrow")>0 then
@@ -983,8 +984,13 @@ function ArrowTower.new()
 		--
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		billboard:setInt("currentTargetMode",1)
-		billboard:setString("targetMods","attackPriorityTarget;attackClosestToExit;attackWeakestTarget;attackStrongestTarget")
+		if isCircleMap then
+			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget")
+			billboard:setInt("currentTargetMode",1)
+		else
+			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget;attackClosestToExit")
+			billboard:setInt("currentTargetMode",1)
+		end
 		
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})
 	

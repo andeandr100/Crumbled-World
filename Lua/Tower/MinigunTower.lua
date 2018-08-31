@@ -76,6 +76,7 @@ function MinigunTower.new()
 	local comUnitTable = {}
 	local billboardWaveStats
 	--stats
+	local isCircleMap = MapInfo.new().isCricleMap()
 	local mapName = MapInfo.new().getMapName()
 	local machinegunActiveTimeWithoutOverheat = 0.0
 	--other
@@ -451,11 +452,10 @@ function MinigunTower.new()
 			local previousTarget = targetSelector.getTarget()
 			if targetSelector.selectAllInRange() then
 				targetSelector.filterOutState(state.ignore)
-				targetSelector.scoreState(state.markOfDeath,10)
 				if upgrade.getLevel("fireCrit")>0 then
-					targetSelector.scoreState(state.burning,6.66*upgrade.getLevel("fireCrit"))
+					targetSelector.scoreState(state.burning,7*upgrade.getLevel("fireCrit"))
 				end
-				if targetMode==1 then
+				if targetMode==4 then
 					--attack close to exit
 					--local pipeAt = -engineMesh:getGlobalMatrix():getUpVec()
 					targetSelector.scoreHP(-5)
@@ -463,7 +463,7 @@ function MinigunTower.new()
 					targetSelector.scoreName("skeleton_cf",-10)
 					targetSelector.scoreName("skeleton_cb",-10)
 					targetSelector.scoreClosestToExit(40)
-				elseif targetMode==2 then
+				elseif targetMode==1 then
 					--attack priority targets
 					targetSelector.scoreHP(10)
 					targetSelector.scoreSelectedTargets({previousTarget},10)
@@ -472,14 +472,14 @@ function MinigunTower.new()
 					targetSelector.scoreName("skeleton_cf",-20)
 					targetSelector.scoreName("skeleton_cb",-20)
 					targetSelector.scoreClosestToExit(15)
-				elseif targetMode==3 then
+				elseif targetMode==2 then
 					--attack the weakest unit
 					targetSelector.scoreHP(-30)
 					targetSelector.scoreSelectedTargets({previousTarget},10)
 					targetSelector.scoreName("skeleton_cf",-10)
 					targetSelector.scoreName("skeleton_cb",-10)
 					targetSelector.scoreClosestToExit(10)
-				elseif targetMode==4 then
+				elseif targetMode==3 then
 					--attackStrongestTarget
 					targetSelector.scoreHP(30)
 					targetSelector.scoreSelectedTargets({previousTarget},10)
@@ -487,6 +487,7 @@ function MinigunTower.new()
 					targetSelector.scoreName("skeleton_cb",-20)
 					targetSelector.scoreClosestToExit(10)
 				end
+				targetSelector.scoreState(state.markOfDeath,10)
 				targetSelector.scoreState(state.highPriority,40)
 			end
 			targetSelector.selectTargetAfterMaxScore()
@@ -1048,8 +1049,13 @@ function MinigunTower.new()
 		
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		billboard:setString("targetMods","attackClosestToExit;attackPriorityTarget;attackWeakestTarget;attackStrongestTarget")
-		billboard:setInt("currentTargetMode",1)
+		if isCircleMap then
+			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget")
+			billboard:setInt("currentTargetMode",2)
+		else
+			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget;attackClosestToExit")
+			billboard:setInt("currentTargetMode",4)
+		end
 	
 		--ComUnitCallbacks
 		comUnitTable["dmgDealt"] = damageDealt

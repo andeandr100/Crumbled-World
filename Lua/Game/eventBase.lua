@@ -347,7 +347,7 @@ function EventBase.new()
 		--
 		if spawnManager.isSpawnListPopulated() and currentState ~= EVENT_END_MENU then
 			--handle the event restart wave
-			if (mapInfo.getGameMode()=="default" or mapInfo.getGameMode()=="survival" or mapInfo.getGameMode()=="rush" or mapInfo.getGameMode()=="training") then
+			if mapInfo.isRestartWaveEnabled() then
 				if keyBindRevertWave:getPressed() and (not Core.isInMultiplayer()) then
 					self.doRestartWave()
 				end
@@ -395,7 +395,11 @@ function EventBase.new()
 				if mapInfo.isCricleMap()==false then
 					currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD
 				else
-					currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_SPAWNED
+					if waveCount==spawnManager.getNumWaves() then
+						currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_DEAD
+					else
+						currentState = EVENT_WAIT_UNTILL_ALL_ENEMIS_ARE_SPAWNED
+					end
 				end
 			elseif currentState == EVENT_END_GAME then
 				if this:getPlayerNode() then
