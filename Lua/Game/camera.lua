@@ -112,7 +112,7 @@ function create()
 
 		tmpUpdate = update
 		update = countDownUpdate
-		resetTime = 1
+		resetTime = 5
 		previousTargetIsland = nil
 		inShiftMode = false
 
