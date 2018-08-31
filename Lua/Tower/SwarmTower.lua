@@ -51,6 +51,7 @@ function SwarmTower.new()
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	--stats
+	local isCircleMap = MapInfo.new().isCricleMap()
 	local mapName = MapInfo.new().getMapName()
 	--other
 	local lastRestored = -1
@@ -307,7 +308,6 @@ function SwarmTower.new()
 	local function updateTarget()
 		if targetSelector.selectAllInRange() then
 			targetSelector.filterOutState(state.ignore)
-			targetSelector.scoreState(state.markOfDeath,5)
 			if targetMode==1 then
 				--target high prioriy
 				targetSelector.scoreHP(20)
@@ -318,26 +318,27 @@ function SwarmTower.new()
 				targetSelector.scoreState(state.burning,-10)
 				targetSelector.scoreSelectedTargets( targetHistory, -10 )
 			elseif targetMode==2 then
-				--attackClosestToExit
-				targetSelector.scoreClosestToExit(30)
-				targetSelector.scoreState(state.burning,-10)
-				targetSelector.scoreSelectedTargets( targetHistory, -5 )
-				targetSelector.scoreHP(10)
-			elseif targetMode==3 then
 				--target weakest unit
 				targetSelector.scoreHP(-25)
 				targetSelector.scoreClosestToExit(15)
 				targetSelector.scoreState(state.burning,-5)
 				targetSelector.scoreSelectedTargets( targetHistory, -5 )
-			elseif targetMode==4 then
+			elseif targetMode==3 then
 				--attackStrongestTarget
 				targetSelector.scoreHP(30)
 				targetSelector.scoreClosestToExit(20)
 				targetSelector.scoreState(state.burning,-5)
 				targetSelector.scoreSelectedTargets( targetHistory, -5 )
+			elseif targetMode==4 then
+				--attackClosestToExit
+				targetSelector.scoreClosestToExit(30)
+				targetSelector.scoreState(state.burning,-10)
+				targetSelector.scoreSelectedTargets( targetHistory, -5 )
+				targetSelector.scoreHP(10)
 			end
 			
 			targetSelector.scoreName("fireSpirit",-1000)
+			targetSelector.scoreState(state.markOfDeath,5)
 			targetSelector.scoreState(state.highPriority,30)
 			targetSelector.selectTargetAfterMaxScore(-500)
 				
@@ -823,8 +824,13 @@ function SwarmTower.new()
 		upgrade.upgrade("upgrade")
 		upgrade.upgrade("calculate")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		billboard:setString("targetMods","attackPriorityTarget;attackClosestToExit;attackWeakestTarget;attackStrongestTarget")
-		billboard:setInt("currentTargetMode",1)
+		if isCircleMap then
+			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget")
+			billboard:setInt("currentTargetMode",1)
+		else
+			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget;attackClosestToExit")
+			billboard:setInt("currentTargetMode",1)
+		end
 	
 		--soulManager
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})

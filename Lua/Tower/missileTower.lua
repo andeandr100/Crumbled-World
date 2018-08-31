@@ -49,6 +49,7 @@ function MissileTower.new()
 	--local soulManager
 	--local targetingSystem
 	--stats
+	local isCircleMap = MapInfo.new().isCricleMap()
 	local mapName = MapInfo.new().getMapName()
 	
 	local function canSyncTower()
@@ -519,25 +520,25 @@ function MissileTower.new()
 					end
 					targetSelector.selectTargetAfterMaxScore()
 				elseif targetMode==4 then
-					--closest to exit
-					targetSelector.scoreDensity(20)
-					targetSelector.scoreClosestToExit(25)
-					targetSelector.scoreRandom(10)
-					targetSelector.scoreSelectedTargets( targetHistory, -10 )
-					targetSelector.selectTargetAfterMaxScore()
-				elseif targetMode==5 then
 					--attackWeakestTarget
 					targetSelector.scoreHP(-30)
 					targetSelector.scoreSelectedTargets( targetHistory, -10 )
 					targetSelector.scoreDensity(10)
 					targetSelector.scoreClosestToExit(10)
 					targetSelector.selectTargetAfterMaxScore()
-				elseif targetMode==6 then
+				elseif targetMode==5 then
 					--attackStrongestTarget
 					targetSelector.scoreHP(30)
 					targetSelector.scoreSelectedTargets( targetHistory, -10 )
 					targetSelector.scoreDensity(10)
 					targetSelector.scoreClosestToExit(10)
+					targetSelector.selectTargetAfterMaxScore()
+				elseif targetMode==6 then
+					--closest to exit
+					targetSelector.scoreDensity(20)
+					targetSelector.scoreClosestToExit(25)
+					targetSelector.scoreRandom(10)
+					targetSelector.scoreSelectedTargets( targetHistory, -10 )
 					targetSelector.selectTargetAfterMaxScore()
 				end
 			end
@@ -884,8 +885,13 @@ function MissileTower.new()
 		
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		billboard:setString("targetMods","attackHighDensity;attackVariedTargets;attackPriorityTarget;attackClosestToExit;attackWeakestTarget;attackStrongestTarget")
-		billboard:setInt("currentTargetMode",1)
+		if isCircleMap then
+			billboard:setString("targetMods","attackHighDensity;attackVariedTargets;attackPriorityTarget;attackWeakestTarget;attackStrongestTarget")
+			billboard:setInt("currentTargetMode",1)
+		else
+			billboard:setString("targetMods","attackHighDensity;attackVariedTargets;attackPriorityTarget;attackWeakestTarget;attackStrongestTarget;attackClosestToExit")
+			billboard:setInt("currentTargetMode",1)
+		end
 		
 		--model
 		model = Core.getModel(upgrade.getValue("model"))

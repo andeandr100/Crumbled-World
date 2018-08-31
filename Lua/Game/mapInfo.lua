@@ -174,6 +174,9 @@ function MapInfo.new()
 	function self.isCricleMap()
 		return billboard:getBool("isCircle")
 	end
+	function self.isRestartWaveEnabled()
+		return self.isCricleMap()==false and Core.isInMultiplayer()==false
+	end
 	function self.getStartWave()
 		return self.getGameMode()=="training" and self.getWaveCount()-5 or 0
 	end

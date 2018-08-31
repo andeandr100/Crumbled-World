@@ -69,6 +69,7 @@ function ElectricTower.new()
 	local lastRestored = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	--stats
+	local isCircleMap = MapInfo.new().isCricleMap()
 	local mapName = MapInfo.new().getMapName()
 	--Achievements
 	--
@@ -556,32 +557,32 @@ function ElectricTower.new()
 			if targetSelector.selectAllInRange() then
 				targetSelector.filterOutState(state.ignore)
 				if targetMode==1 then
-					--closest to exit
-					targetSelector.scoreClosestToExit(20)
-					targetSelector.scoreState(state.markOfDeath,10)
-				elseif targetMode==2 then
 					--high priority
 					targetSelector.scoreHP(10)
 					targetSelector.scoreName("dino",10)
 					targetSelector.scoreName("reaper",25)
 					targetSelector.scoreName("skeleton_cf",25)
 					targetSelector.scoreName("skeleton_cb",25)
-				elseif targetMode==3 then
+				elseif targetMode==2 then
 					--density
 					targetSelector.scoreClosestToExit(10)
 					targetSelector.scoreDensity(25)
-				elseif targetMode==4 then
+				elseif targetMode==3 then
 					--attackWeakestTarget
 					targetSelector.scoreHP(-30)
-					targetSelector.scoreClosestToExit(20)
-				elseif targetMode==5 then
+					targetSelector.scoreClosestToExit(10)
+				elseif targetMode==4 then
 					--attackStrongestTarget
 					targetSelector.scoreHP(30)
 					targetSelector.scoreClosestToExit(20)
 					targetSelector.scoreName("reaper",20)
 					targetSelector.scoreName("skeleton_cf",20)
 					targetSelector.scoreName("skeleton_cb",20)
+				elseif targetMode==5 then
+					--closest to exit
+					targetSelector.scoreClosestToExit(20)
 				end
+				targetSelector.scoreState(state.markOfDeath,10)
 				targetSelector.scoreState(state.highPriority,30)
 				targetSelector.scoreName("electroSpirit",-1000)
 				targetSelector.selectTargetAfterMaxScore(-500)
@@ -1082,8 +1083,13 @@ function ElectricTower.new()
 		upgrade.upgrade("upgrade")
 		upgrade.upgrade("calculate")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		billboard:setString("targetMods","attackClosestToExit;attackPriorityTarget;attackHighDensity;attackWeakestTarget;attackStrongestTarget")
-		billboard:setInt("currentTargetMode",1)
+		if isCircleMap then
+			billboard:setString("targetMods","attackPriorityTarget;attackHighDensity;attackWeakestTarget;attackStrongestTarget")
+			billboard:setInt("currentTargetMode",3)
+		else
+			billboard:setString("targetMods","attackPriorityTarget;attackHighDensity;attackWeakestTarget;attackStrongestTarget;attackClosestToExit")
+			billboard:setInt("currentTargetMode",5)
+		end
 	
 		initModel()
 	

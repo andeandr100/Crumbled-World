@@ -51,6 +51,7 @@ function IslandMeshImporter.new()
 				print("add mesh\n")
 				
 				local file = fileNode:getFile(modelInfo[i].modelName)	
+				local fileName = file:getName()
 				
 				if file:exist() then
 				

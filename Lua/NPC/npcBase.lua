@@ -338,6 +338,7 @@ function NpcBase.new()
 	--generate a string with the path this npc will take
 	local function getPathPointInStringFormat(SpawnedGlobalPosition)
 		local dropAllPointsWithinDist = (this:getGlobalPosition() - SpawnedGlobalPosition):length()
+		local d1 = mover
 		local pathPointTable = mover:getPathPoints(dropAllPointsWithinDist)
 		
 		local outString = ""
@@ -459,6 +460,7 @@ function NpcBase.new()
 			if Settings.DeathAnimation.getSettings()=="Physic" and Settings.corpseTimer.getInt()>0 and (deathSoftBodyFunc or deathRigidBodyFunc) then
 				--physic can be used
 				otherOptions=true
+				abort()
 			end
 			local useAnimation = false--deathAnimationTable and #deathAnimationTable>0
 			--if we have animations and other options the best course of action may still be physic
