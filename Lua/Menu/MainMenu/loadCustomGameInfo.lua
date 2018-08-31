@@ -8,15 +8,9 @@ function create()
 	mapConfig = Config("mapsInfo")
 	maps = mapConfig:get("data"):getTable()
 	folders = {}
+	--print("loaded maps info")
+	--print("\n\n\n".."table = "..tostring(maps).."\n\n\n")
 	
-	print("------------------")
-	print("------------------")
-	print("loaded maps info")
-	print("------------------")
-	print("------------------")
-	print("\n\n\n".."table = "..tostring(maps).."\n\n\n")
-	print("------------------")
-	print("------------------")
 	folderIndex = 1
 	index = 1
 	updateCount = 1
@@ -128,8 +122,7 @@ function update()
 						
 						local tmpFile = File("Data/Dynamic/"..imageName)
 						if tmpFile:exist() then
-							--somthinge has gone wrong, that should not be posible
-							return false
+							abort()
 						end
 						
 						--print("save to file: ".."Data/Dynamic/"..imageName)
@@ -155,11 +148,9 @@ function update()
 					mapTable.waveCount = info.waveCount
 					
 					
-					print("--------------------")
-					print("  Loaded map data")
-					print("File table: table = "..tostring(mapTable))
-					print("File: "..file:getPath())
-					print("--------------------")
+					--print("File table: table = "..tostring(mapTable))
+					--print("File: "..file:getPath())
+					
 					maps = mapConfig:get("data"):getTable()
 					mapsFileTable = maps[fileName]
 					if not mapsFileTable then
@@ -170,9 +161,9 @@ function update()
 					mapsFileTable[#mapsFileTable + 1] = mapTable
 					
 					mapConfig:get("data"):setTable(maps)
-					mapConfig:save()
-					--else
-					--	print("no file found")
+				mapConfig:save()
+				--else
+				--	print("no file found")
 				end
 			end
 			
