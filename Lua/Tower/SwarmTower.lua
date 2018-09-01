@@ -826,9 +826,11 @@ function SwarmTower.new()
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		if isCircleMap then
 			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget")
+			targetMode = 1
 			billboard:setInt("currentTargetMode",1)
 		else
 			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget;attackClosestToExit")
+			targetMode = 1
 			billboard:setInt("currentTargetMode",1)
 		end
 	

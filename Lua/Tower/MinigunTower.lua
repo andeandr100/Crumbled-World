@@ -1051,9 +1051,11 @@ function MinigunTower.new()
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		if isCircleMap then
 			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget")
+			targetMode = 2
 			billboard:setInt("currentTargetMode",2)
 		else
 			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget;attackClosestToExit")
+			targetMode = 4
 			billboard:setInt("currentTargetMode",4)
 		end
 	

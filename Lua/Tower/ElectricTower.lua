@@ -1085,9 +1085,11 @@ function ElectricTower.new()
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		if isCircleMap then
 			billboard:setString("targetMods","attackPriorityTarget;attackHighDensity;attackWeakestTarget;attackStrongestTarget")
+			targetMode = 3
 			billboard:setInt("currentTargetMode",3)
 		else
 			billboard:setString("targetMods","attackPriorityTarget;attackHighDensity;attackWeakestTarget;attackStrongestTarget;attackClosestToExit")
+			targetMode = 5
 			billboard:setInt("currentTargetMode",5)
 		end
 	
