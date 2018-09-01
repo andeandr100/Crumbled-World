@@ -104,6 +104,9 @@ function DeathManager.new()
 		pointLigthList.size = pointLigthList.size + 1
 		pointLigthList[pointLigthList.size] = {pointLight=pPointLight, timer=deathTimer, startTimer=deathTimer, startRange=math.max(0.1,pPointLight:getRange())}
 	end
+	function self.hasDeathAnimation()
+		return animation~=nil
+	end
 	function self.closestTo(startFrame,endFrame,currentFrame,targets)
 		local closest = 1
 		local dist = endFrame-startFrame+1.0

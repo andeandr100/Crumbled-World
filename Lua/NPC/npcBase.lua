@@ -461,7 +461,7 @@ function NpcBase.new()
 				--physic can be used
 				otherOptions=true
 			end
-			local useAnimation = true--deathAnimationTable and #deathAnimationTable>0
+			local useAnimation = deathManager.hasDeathAnimation()--deathAnimationTable and #deathAnimationTable>0
 			--if we have animations and other options the best course of action may still be physic
 			if useAnimation and otherOptions then
 				--we can do animation and physic, if there is a bridge then we can use physic
