@@ -185,6 +185,8 @@ function NpcPath.new()
 		local globalPoints = nodeMover:getPathPointsGlobalPosition()
 		if #globalPoints > 0 then
 			local targetNodePos = globalPoints[#globalPoints]
+			local d0 = points[i]
+			local d1 = points[i].island
 			for i=1, #points do
 				if points[i] and ( targetNodePos - points[i].island:getGlobalMatrix() * points[i].position ):length() < 1 then
 					groupId = points[i].groups[1]
