@@ -9,49 +9,49 @@ function destroy()
 end
 
 function create()
-	
-	--Protection in multiplayer environment where multiple instances of this script is loaded
-	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
-	if ( node == nil and this:getSceneName() ~= "Stats menu" ) or ( node and node:getClientId() ~= 0 ) then
-		return false
-	end
-	
-	Core.setScriptNetworkId("FPS")
-	local rootNode = this:getRootNode();
-	local cameras = rootNode:findAllNodeByNameTowardsLeaf("MainCamera");
-
-	if #cameras == 1 then
-		local camera = ConvertToCamera(cameras[1]);
-		form = Form(camera, PanelSize(Vec2(-1,0.05), Vec2(7.5,1)), Alignment.TOP_RIGHT);
-		form:setName("FPS form")
-		form:setRenderLevel(1)
-		form:setLayout(FlowLayout());
-		form:getLayout():setPanelSpacing(PanelSize(Vec2(0.001)));
-		form:setFormOffset(PanelSize(Vec2(0.005,0.05)));
-		form:setVisible(true)
-		
-		local sizeX = Core.isInMultiplayer() and -0.33 or -0.5
-		
-		label = form:add(Label(PanelSize(Vec2(sizeX,-1)),"FPS"));
-		label:setTextColor(Vec3(1));
-		
-		labelMs = form:add(Label(PanelSize(Vec2(sizeX,-1)),"ms"));
-		labelMs:setTextColor(Vec3(1));
-		
-		if Core.isInMultiplayer() then
-			labelPing = form:add(Label(PanelSize(Vec2(-1,-1)),"ping"));
-			labelPing:setTextColor(Vec3(1));
-			client = Core.getNetworkClient()
-		end
-	else
-		print("ERROR To many cameras found\n")
-	end
-	
-	deltaTimeMs = math.floor(Core.getRealDeltaTime() * 100000)/100
-	updateTextTimer = 0.25
-	frameCount = 50.0
-	print("done\n")
-	return true
+	return false
+--	--Protection in multiplayer environment where multiple instances of this script is loaded
+--	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
+--	if ( node == nil and this:getSceneName() ~= "Stats menu" ) or ( node and node:getClientId() ~= 0 ) then
+--		return false
+--	end
+--	
+--	Core.setScriptNetworkId("FPS")
+--	local rootNode = this:getRootNode();
+--	local cameras = rootNode:findAllNodeByNameTowardsLeaf("MainCamera");
+--
+--	if #cameras == 1 then
+--		local camera = ConvertToCamera(cameras[1]);
+--		form = Form(camera, PanelSize(Vec2(-1,0.05), Vec2(7.5,1)), Alignment.TOP_RIGHT);
+--		form:setName("FPS form")
+--		form:setRenderLevel(1)
+--		form:setLayout(FlowLayout());
+--		form:getLayout():setPanelSpacing(PanelSize(Vec2(0.001)));
+--		form:setFormOffset(PanelSize(Vec2(0.005,0.05)));
+--		form:setVisible(true)
+--		
+--		local sizeX = Core.isInMultiplayer() and -0.33 or -0.5
+--		
+--		label = form:add(Label(PanelSize(Vec2(sizeX,-1)),"FPS"));
+--		label:setTextColor(Vec3(1));
+--		
+--		labelMs = form:add(Label(PanelSize(Vec2(sizeX,-1)),"ms"));
+--		labelMs:setTextColor(Vec3(1));
+--		
+--		if Core.isInMultiplayer() then
+--			labelPing = form:add(Label(PanelSize(Vec2(-1,-1)),"ping"));
+--			labelPing:setTextColor(Vec3(1));
+--			client = Core.getNetworkClient()
+--		end
+--	else
+--		print("ERROR To many cameras found\n")
+--	end
+--	
+--	deltaTimeMs = math.floor(Core.getRealDeltaTime() * 100000)/100
+--	updateTextTimer = 0.25
+--	frameCount = 50.0
+--	print("done\n")
+--	return true
 end
 
 local function setGameSpeed(speed)
