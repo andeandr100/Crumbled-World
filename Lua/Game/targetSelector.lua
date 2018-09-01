@@ -1,4 +1,5 @@
 require("NPC/state.lua")
+require("Game/mapInfo.lua")
 SHIELD_RANGE = 3.5
 
 TargetSelector = {}
@@ -14,6 +15,7 @@ function TargetSelector.new(pteam)
 	local binaryNumPos = {[1]=1,[2]=2,[4]=3,[8]=4,[16]=5,[32]=6,[64]=7,[128]=8,[256]=9,[512]=10,[1024]=11,[2048]=12}
 	local team = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
+	local isCircleMap = MapInfo.new().isCricleMap()
 	---
 	local soulTableLastUpdatedFrame = 0
 	local soulTable = {}
@@ -561,12 +563,14 @@ function TargetSelector.new(pteam)
 	-- function:	scoreClosestToExit
 	-- purpose:		add score based on how close they are to the exit 1*amount if litterly on the end and 0*amount if the furthest unit
 	function self.scoreClosestToExit(amount)
-		local maxDist = 0.0
-		for index,score in pairs(targetTable) do
-			maxDist = math.max(maxDist,soulTable[index].distanceToExit)
-		end
-		for index,score in pairs(targetTable) do
-			targetTable[index] = score + (1.0-(soulTable[index].distanceToExit/maxDist))*amount
+		if not isCircleMap then
+			local maxDist = 0.0
+			for index,score in pairs(targetTable) do
+				maxDist = math.max(maxDist,soulTable[index].distanceToExit)
+			end
+			for index,score in pairs(targetTable) do
+				targetTable[index] = score + (1.0-(soulTable[index].distanceToExit/maxDist))*amount
+			end
 		end
 	end
 	-- function:	scoreName

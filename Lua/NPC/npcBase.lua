@@ -454,15 +454,14 @@ function NpcBase.new()
 	end
 	--start the death animations/physic/effect
 	function self.createDeadBody()
-		if Settings.DeathAnimation.getSettings()~="Disabled" and useDeathAnimationOrPhysic then
+		if Settings.DeathAnimation.getSettings()~="Disabled" and useDeathAnimationOrPhysic and model then
 			--death animations is enabled
 			local otherOptions = false
 			if Settings.DeathAnimation.getSettings()=="Physic" and Settings.corpseTimer.getInt()>0 and (deathSoftBodyFunc or deathRigidBodyFunc) then
 				--physic can be used
 				otherOptions=true
-				abort()
 			end
-			local useAnimation = false--deathAnimationTable and #deathAnimationTable>0
+			local useAnimation = true--deathAnimationTable and #deathAnimationTable>0
 			--if we have animations and other options the best course of action may still be physic
 			if useAnimation and otherOptions then
 				--we can do animation and physic, if there is a bridge then we can use physic
@@ -483,7 +482,6 @@ function NpcBase.new()
 			--
 			-- DEBUG
 			--useAnimation = false
-			--
 			--
 			--use animation, can be aborted
 			if useAnimation then

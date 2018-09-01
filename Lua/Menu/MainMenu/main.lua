@@ -13,7 +13,7 @@ function create()
 	LOG("=== FIX SOUND SETTINGS ===")
 	Core.setSounMasterGain(Settings.soundMasterGain.getGain())
 	Core.setSounEffectGain(Settings.soundEffectGain.getGain())
-	Core.setSoundMusicGain(Settings.soundMusicGain.getGain())
+	Core.setSoundMusicGain(Settings.soundMusicGain.getGain()*0.4)
 	LOG("=== FIX SOUND SETTINGS ===")
 	--load main menu world
 	this:loadScene("Data/Map/hidden/menuWorld.map")

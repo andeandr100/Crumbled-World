@@ -34,7 +34,7 @@ function AudioPanel.changeGain(slider)
 		Core.setSounEffectGain(slider:getValue()/100.0)
 	elseif slider:getTag():toString() == "Music" then
 		Settings.soundMusicGain.setGain(slider:getValue()/100.0)
-		Core.setSoundMusicGain(slider:getValue()/100.0)
+		Core.setSoundMusicGain((slider:getValue()/100.0)*0.4)
 	end
 end
 

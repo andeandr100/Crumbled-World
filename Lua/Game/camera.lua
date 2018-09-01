@@ -31,11 +31,11 @@ function create()
 	if this:getNodeType() == NodeId.camera then
 		setRestoreData(true)
 		
-		local musicList = {"Music/Oceanfloor.wav","Music/Forward_Assault.wav","Music/Ancient_Troops_Amassing.wav","Music/Tower-Defense.wav"}
+		local musicList = {"Music/Alaskan-Moonrise.wav","Music/Distant-Mountains.wav","Music/Flurries.wav","Music/Hidden-Pond_Looping.wav","Music/River-in-Trouble_Looping.wav"}
 		for i=1, #musicList do
 			music[#music+1] = Sound(musicList[i],SoundType.STEREO)
 		end
-		music.token = 1
+		music.token = math.randomInt(1,#musicList)
 		
 		stateBillboard = Core.getGameSessionBillboard("state")
 		
@@ -375,12 +375,12 @@ function update()
 		if Core.getTime()-music.timer > 300.0 then
 			music.source:stopFadeOut(0.5)
 			music.token = music[music.token+1] and music.token+1 or 1
-			music.source = music[music.token]:playSound(0.075, true)
+			music.source = music[music.token]:playSound(0.01, true)
 			music.timer = Core.getTime()
 		end
 	else
 		music.token = 1
-		music.source = music[music.token]:playSound(0.075, true)
+		music.source = music[music.token]:playSound(0.01, true)
 		music.timer = Core.getTime()
 	end
 

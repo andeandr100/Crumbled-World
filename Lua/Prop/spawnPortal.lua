@@ -53,7 +53,7 @@ function create()
 	local soundPortal = SoundNode.new("spawnPortal")
 	soundPortal:setSoundRolloff(2)
 	this:addChild(soundPortal:toSceneNode())
-	soundPortal:play(0.5,true)
+	soundPortal:play(0.05,true)
 	
 	local meshList = this:findAllNodeByTypeTowardsLeaf(NodeId.mesh)	
 	for i=1, #meshList do

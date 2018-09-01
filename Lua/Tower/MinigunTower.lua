@@ -15,6 +15,7 @@ require("Game/soundManager.lua")
 MinigunTower = {}
 function MinigunTower.new()
 	local self = {}
+	local upgrade = Upgrade.new()
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	local projectiles = projectileManager.new()
@@ -23,7 +24,6 @@ function MinigunTower.new()
 	local smartTargetingRetargetTime = 0.0
 	local supportManager = SupportManager.new()
 	--Upgrade
-	local upgrade = Upgrade.new()
 	local cTowerUpg = CampaignTowerUpg.new("Tower/MinigunTower.lua",upgrade)
 	--XP
 	local xpManager = XpSystem.new(upgrade,"Tower/MinigunTower.lua")
@@ -378,7 +378,7 @@ function MinigunTower.new()
 					--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(-0.2,3.5,-0.2),0.1,Vec3(0,0,1))
 				end
 			else
-				soundGun:play(1.0,false)
+				soundGun:play(0.35,false)
 			end
 --			["2"]=	{	{sound=SoundNode.new("minigun_attack_2_5"),		counter=0,	totalAttackSounds=3},
 --						{sound=SoundNode.new("minigun_attack_2_5"),		counter=0,	totalAttackSounds=3}},
@@ -404,7 +404,7 @@ function MinigunTower.new()
 				particleEffectGunLaser[activePipe]:activate(Vec3(0.17-(activePipe*0.34), -0.45, 0.17), Vec3(0,-1,0))
 			end
 			--
-			soundLaser:play(0.35,false)
+			soundLaser:play(0.25,false)
 			--
 			projectiles.launch(LaserBullet,{target,bulletStartPos})
 		end

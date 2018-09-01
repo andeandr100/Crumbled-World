@@ -6,6 +6,27 @@ Settings.config = Config("settings")
 --#######################################################################
 --#######################################################################
 
+--
+--
+local function getActiveOptionStr(setting, pDefaultIndex)
+	--select default index
+	local defaultIndex = (pDefaultIndex>=1 and pDefaultIndex<=#setting.options) and pDefaultIndex or 1
+	--get currently selected option
+	local selectedStr = Settings.config:get(setting.configName, setting.options[defaultIndex]):getString()
+	--make sure it is selectable
+	for key,val in pairs(setting.options) do
+		if val==selectedStr then
+			return val
+		end
+	end
+	--if not selectable return default
+	return setting.options[defaultIndex]
+end
+--
+--
+
+
+
 Settings.fullscreen = {}
 Settings.fullscreen.options = {"fullscreen", "windowed"}
 Settings.fullscreen.configName = "fullscreen"
@@ -285,25 +306,24 @@ Settings.healthBar = {}
 Settings.healthBar.options = {"always", "when damaged", "hidden"}
 Settings.healthBar.configName = "healthBar"
 function Settings.healthBar.getSettings()
-	return Settings.config:get(Settings.healthBar.configName, "when damaged"):getString()
+	return getActiveOptionStr(Settings.healthBar, 2)
 end
 function Settings.healthBar.getIsVisibleOnlyWhenDamaged()
-	return Settings.config:get(Settings.healthBar.configName, "when damaged"):getString()=="when damaged"
+	return getActiveOptionStr(Settings.healthBar, 2)=="when damaged"
 end
 function Settings.healthBar.getIsVisible()
-	return Settings.config:get(Settings.healthBar.configName, "when damaged"):getString()~="hidden"
+	return getActiveOptionStr(Settings.healthBar, 2)~="hidden"
 end
-
 
 
 Settings.DeathAnimation = {}
 Settings.DeathAnimation.options = {"Physic", "Animated", "Disabled"}
 Settings.DeathAnimation.configName = "DeathAnimation"
 function Settings.DeathAnimation.getSettings()
-	return Settings.config:get(Settings.DeathAnimation.configName, "Animated"):getString()
+	return getActiveOptionStr(Settings.DeathAnimation, 2)
 end
 function Settings.DeathAnimation.getValue()
-	return Settings.config:get(Settings.DeathAnimation.configName, "Animated"):getString()
+	return getActiveOptionStr(Settings.DeathAnimation, 2)
 end
 
 Settings.corpseTimer = {}
@@ -332,7 +352,7 @@ Settings.modelDensity = {}
 Settings.modelDensity.options = {"100%", "80%", "60%", "40%", "20%"}
 Settings.modelDensity.configName = "modelDensity"
 function Settings.modelDensity.getSettings()
-	return Settings.config:get(Settings.modelDensity.configName, "100%"):getString()
+	return getActiveOptionStr(Settings.modelDensity, 1)
 end
 
 function Settings.modelDensity.getValue()

@@ -52,9 +52,11 @@ function CreditsMenu.createPage(creditPanel)
 	
 	--Music by Eric Matyas
 	local MusicByEricmatyasString = {"\"Ancient Troops\"",
-	"\"Forward Assault\"",
-	"\"Ocean Floor\"",
-	"\"Tower Defense\"",
+	"\"Alaskan Moonrise\"",
+	"\"Distant Mountains\"",
+	"\"Flurries\"",
+	"\"Hidden-Pond\"",
+	"\"River in Trouble\"",
 	"By Eric Matyas",
 	"www.soundImage.org",
 	""}
