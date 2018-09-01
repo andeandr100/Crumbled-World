@@ -186,7 +186,7 @@ function NpcPath.new()
 		if #globalPoints > 0 then
 			local targetNodePos = globalPoints[#globalPoints]
 			for i=1, #points do
-				if ( targetNodePos - points[i].island:getGlobalMatrix() * points[i].position ):length() < 1 then
+				if points[i] and ( targetNodePos - points[i].island:getGlobalMatrix() * points[i].position ):length() < 1 then
 					groupId = points[i].groups[1]
 					lastPointIdAdded = points[i].id					
 				end
