@@ -456,3 +456,44 @@ Settings.Language.configName = "Language"
 function Settings.Language.getSettings()
 	return Settings.config:get(Settings.Language.configName, "English"):getString()
 end
+
+
+--#######################################################################
+--#######################################################################
+--#######################################################################
+
+Settings.sendHighscore = {}
+Settings.sendHighscore.configName = "sendHighscore"
+function Settings.sendHighscore.getBoolValue()
+	if Settings.config:exist(Settings.sendHighscore.configName) then return Settings.config:get(Settings.sendHighscore.configName):getBool() else return nil end
+end
+
+function Settings.sendHighscore.setBoolValue(value)
+	Settings.config:get(Settings.sendHighscore.configName):setBool(value)
+	Settings.config:save()
+end
+
+
+
+Settings.sendCrashRepport = {}
+Settings.sendCrashRepport.configName = "sendCrashRepport"
+function Settings.sendCrashRepport.getBoolValue()
+	if Settings.config:exist(Settings.sendCrashRepport.configName) then return Settings.config:get(Settings.sendCrashRepport.configName):getBool() else return nil end
+end
+
+function Settings.sendCrashRepport.setBoolValue(value)
+	Settings.config:get(Settings.sendCrashRepport.configName):setBool(value)
+	Settings.config:save()
+end
+
+
+Settings.sendAnonymousStatistics = {}
+Settings.sendAnonymousStatistics.configName = "sendAnonymousStatistics"
+function Settings.sendAnonymousStatistics.getBoolValue()
+	if Settings.config:exist(Settings.sendAnonymousStatistics.configName) then return Settings.config:get(Settings.sendAnonymousStatistics.configName):getBool() else return nil end
+end
+
+function Settings.sendAnonymousStatistics.setBoolValue(value)
+	Settings.config:get(Settings.sendAnonymousStatistics.configName):setBool(value)
+	Settings.config:save()
+end

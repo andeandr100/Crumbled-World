@@ -31,6 +31,10 @@ function create()
 	mainMenuNode:loadLuaScript("Menu/MainMenu/mainMenu.lua")
 	mainMenuNode:loadLuaScript("Menu/MainMenu/version.lua")
 	
+	LOG("=== LOAD MENU ===")
+	
+	mainMenuNode:loadLuaScript("Menu/MainMenu/dataConsent.lua")
+	
 	LOG("=== DONE ===")
 
 	--shut down script
