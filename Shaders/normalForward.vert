@@ -10,6 +10,7 @@ layout (location = 4) in vec4 color;
 
 out vec2 textCoord;
 out vec4 outColor;
+out vec3 worldPos0;
 
 out vec3 outNormal;
 out vec3 outTagent;
@@ -26,5 +27,7 @@ void main()
 
 	textCoord = uvCoord;
 
-	gl_Position = projModelViewMat * modelMat * position;
+	vec4 worldPos = modelMat * position;
+	worldPos0 = worldPos.xyz;
+	gl_Position = projModelViewMat * worldPos0;
 }
