@@ -19,23 +19,19 @@ function callbackOk(button)
 	form:setVisible(false)
 end
 
+function OpenConsentWindow()
+	
+	form:setVisible(true)
+	
+end
+
 function create()
 	
-	if Settings.sendHighscore.getBoolValue() ~= nil and Settings.sendCrashRepport.getBoolValue() ~= nil and Settings.sendAnonymousStatistics.getBoolValue() ~= nil then
-		return false
-	end
-	
---	print("sendHighscore: ".. tostring(Settings.sendHighscore.getBoolValue() ))
---	print("sendCrashRepport: "..( Settings.sendCrashRepport.getBoolValue() == nil and "nil" or tostring(Settings.sendCrashRepport.getBoolValue() )))
---	print("sendAnonymousStatistics: "..( Settings.sendAnonymousStatistics.getBoolValue() == nil and "nil" or tostring(Settings.sendAnonymousStatistics.getBoolValue() )) )
---	print("\n")
---	print("sendHighscore: "..tostring((Settings.sendHighscore.getBoolValue() ~= nil ) and Settings.sendHighscore.getBoolValue() or true))
---	print("sendCrashRepport: "..tostring((Settings.sendCrashRepport.getBoolValue() ~= nil ) and Settings.sendCrashRepport.getBoolValue() or true))
---	print("sendAnonymousStatistics: "..tostring((Settings.sendAnonymousStatistics.getBoolValue() ~= nil ) and Settings.sendAnonymousStatistics.getBoolValue() or true))
-	
+
 	local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 	
---	abort()
+	settingsListener = Listener("Settings")
+	settingsListener:registerEvent("OpenConsentWindow", OpenConsentWindow)
 	
 	if camera then
 		form = Form( camera, PanelSize(Vec2(1)), Alignment.TOP_LEFT)
@@ -111,6 +107,10 @@ function create()
 		aText = Text("This allows anonymous statistics about game play to be send to our server.\nThis helps balance and optimize the game")
 		combobox3:setToolTip(aText);
 		aLabel:setToolTip(aText);
+	end
+	
+	if Settings.sendHighscore.getBoolValue() ~= nil and Settings.sendCrashRepport.getBoolValue() ~= nil and Settings.sendAnonymousStatistics.getBoolValue() ~= nil then
+		form:setVisible(false)
 	end
 
 	return true

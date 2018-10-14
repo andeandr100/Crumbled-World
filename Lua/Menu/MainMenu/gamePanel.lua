@@ -6,7 +6,7 @@ require("Menu/settings.lua")
 
 GamePanel = {}
 GamePanel.labels = {}
-GamePanel.labelsText =  { "game", "health bar", "death animation", "corpse timer", "tower menu", "player", "name", "cursor", "4"}
+GamePanel.labelsText =  { "game", "health bar", "death animation", "corpse timer", "tower menu", "player", "name", "cursor", "Consent", "4"}
 GamePanel.optionsBoxes = {}
 
 function GamePanel.create(mainPanel)
@@ -82,6 +82,12 @@ function GamePanel.changedSettingsString(textField)
 	settingsListener:pushEvent("Changed")
 end
 
+function GamePanel.openConsnetMenu(button)
+	
+	settingsListener:pushEvent("OpenConsentWindow")
+	
+end
+
 function GamePanel.createGameOptions(panel)
 	
 	local labels = GamePanel.labels
@@ -109,6 +115,13 @@ function GamePanel.createGameOptions(panel)
 	rowPanel, labels[5] = OptionsMenuStyle.addRow(panel, "tower menu")
 	conf = Settings.towerMenu
 	GamePanel.optionsBoxes[4] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
+	
+	--Consent Options
+	labels[6] = OptionsMenuStyle.addOptionsHeader( panel, "User Consent" )
+	rowPanel, labels[9] = OptionsMenuStyle.addRow(panel, "Consent")
+	local button = MainMenuStyle.createButton( Vec2(-0.45,-1), nil, "Change Consent")	
+	rowPanel:add(button)
+	button:addEventCallbackExecute(GamePanel.openConsnetMenu)
 	
 	--userName
 	labels[6] = OptionsMenuStyle.addOptionsHeader( panel, "Player" )
