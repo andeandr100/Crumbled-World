@@ -1,9 +1,11 @@
 require("Game/mapInfo.lua")
+require("Game/diffBalancer.lua")
 --this = SceneNode()
 
 local timer = 0.0
 local interesetMultiplyerOnKill = 1.0
 local isCircleMap = false
+local diffBalancer = DiffBalancer.new()
 
 function restartMap()
 	local mapInfo = MapInfo.new()
@@ -11,6 +13,7 @@ function restartMap()
 	waveHistory = {}
 	scoreHistory = {}
 	currentWave = mapInfo.getStartWave()
+	diffBalancer.waveRestarted(0)
 	billboard:erase("scoreHistory")
 	billboard:setDouble("gold", startGold or 1000)
 	billboard:setDouble("goldGainedTotal", startGold or 1000)
@@ -71,6 +74,7 @@ function restartWave(wave)
 	statsPerKillTable[currentWave] = {}
 	LOG("STATS.RESTARTWAVE("..tostring(wave)..")\n")
 	billboard:erase("scoreHistory")
+	diffBalancer.waveRestarted(wave)
 	if not item then
 		error("the wave must be cretated, to be able to restore it")
 	else
@@ -251,6 +255,7 @@ function handleSetLife(numLife)
 	assert(tonumber(numLife)<=billboard:getInt("maxLife"),"cant set more life than max")
 	local mapInfo = MapInfo.new()
 	billboard:setInt("life", tonumber(numLife))
+	billboard:setDouble("diffBalancer", diffBalancer.getHandicap(currentWave))
 	if mapInfo.getGameMode()=="training" then
 		billboard:setDouble("activeInterestrate",0.0)	
 	else
@@ -290,6 +295,8 @@ function handleAddGold(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")+tonumber(amount))
 	billboard:setDouble("goldGainedTotal", billboard:getDouble("goldGainedTotal")+tonumber(amount))
 	updateScore()
+	billboard:setDouble("diffBalancer", diffBalancer.getHandicap(currentWave))
+	print("W = "..tostring(diffBalancer.getHandicap(currentWave)))
 end
 function handleAddGoldNoScore(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")+tonumber(amount))
@@ -331,6 +338,8 @@ function handleSetwave(inWave)
 	billboard:setInt("wave", inWave)
 	currentWave = inWave
 	timer = inWave==1 and 0 or timer
+	diffBalancer.waveChanged(inWave)
+	billboard:setDouble("diffBalancer", diffBalancer.getHandicap(currentWave))
 --	scoreHistory[inWave] = {}
 	waveHistory[inWave] = {
 		life = billboard:getDouble("life"),
@@ -380,6 +389,8 @@ function handleSetwave(inWave)
 end
 function handleNpcReachedEnd(param)
 	handleSetLife(math.max(0,billboard:getInt("life")-tonumber(param)))
+	diffBalancer.lifeLost()
+	billboard:setDouble("diffBalancer", diffBalancer.getHandicap(currentWave))
 end
 function handleAddTowerSold()
 	billboard:setInt("towersSold", billboard:getInt("towersSold")+1)

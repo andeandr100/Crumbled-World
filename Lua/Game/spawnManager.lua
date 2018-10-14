@@ -532,8 +532,9 @@ function SpawnManager.new()
 			local totalGoldEarned = startGold
 			local theoreticalGold = startGold-350--start cost of wall towers
 			local theoreticalPaidHpPS = 0.0
-			local theoreticalGoldPaid = 0.0
 			local theoreticalMinimumScoreInterest = 0.0
+			local theoreticalGoldPaid = 0.0
+			local minimalScore = 0.0
 			local timerAddBetweenWaves = 5+math.max(-0.5,5.5*(1.0-difficultBase))
 			local npcDelayAfterFirstTowerBuilt = 15.0							--delay for first wave
 			local npcDelayBetweenWaves = math.clamp(8.0-((difficultBase-0.75)/0.35*5),3.0,8.0)	--delay for all other waves
@@ -1072,9 +1073,11 @@ function SpawnManager.new()
 			playTime = playTime - (hours*3600)
 			local minutes=math.floor(playTime/60)
 			--playTime = playTime - (minutes*60)
---			print("=== totalGoldEarned(guaranteed)="..totalGoldEarned)
---			print("=== theoreticalMinimumScoreInterest="..theoreticalMinimumScoreInterest)
---			print("=== minimalScore="..tostring(((totalGoldEarned+theoreticalMinimumScoreInterest)*0.75)+theoreticalMinimumScoreInterest+100))
+			print("=== totalGoldEarned(guaranteed)="..totalGoldEarned)
+			print("=== theoreticalMinimumScoreInterest="..theoreticalMinimumScoreInterest)
+			print("=== minimalScore(guaranteed)="..totalGoldEarned*0.75)
+			print("=== minimalScore="..tostring(((totalGoldEarned+theoreticalMinimumScoreInterest)*0.75)+theoreticalMinimumScoreInterest+100))
+			
 --			abort()
 --			LOG(tostring(waves))
 --			LOG("=== longestWave="..longestWave.."s")

@@ -1,9 +1,11 @@
+require("Game/scoreCalculater.lua")
+
 GraphDrawer = {}
 function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 	local self = {}
 	local panel = pPanel
-	local x = 0
-	local y = 0
+	local x = 0								--width of panel
+	local y = 0								--height of panel
 	local xPerWave = 0
 	local yPerScore = 0
 	local data
@@ -12,8 +14,8 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 	--
 	local scoreLimits = pScoreLimits
 	--
-	local leftMargin = 0
-	local bottomMargin = 0
+	local leftMargin = 0					--where the graph area begins
+	local bottomMargin = 0					--where the graph area begins
 	--
 	local textSizeY = math.floor(Core.getScreenResolution().y*0.012)
 	local lineMainWidth = 2	--4 in total
@@ -143,6 +145,37 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 		textNode:setLocalPosition(position-Vec2(0,4))
 	end
 	--
+	function getEstimatedGraph(index,func)
+		local line = {}
+		local maxWave = #data
+		local smothedY
+		local wave
+		for xPos=leftMargin, x do
+			wave = ((xPos-leftMargin)/(x-leftMargin)) * maxWave
+			line[#line+1] = Vec2(xPos,getGridY(func(index,wave)))
+		end
+		return line
+	end
+	function getScoreGraph(func)
+		local line = {}
+		local steps = #data/(x-leftMargin)
+		local max = #data+0.9999
+		local wave = 1
+		local smothedY
+		while true do
+			local xx = getGridX(wave)
+			wave = wave+steps
+			if wave>=max then
+				line[#line+1] = Vec2(xx,func(max))
+				return line
+			else
+				smothedY = smothedY and ((smothedY*0.75)+(func(wave)*0.25)) or func(wave)
+				line[#line+1] = Vec2(xx,smothedY)
+			end
+		end
+		return line
+	end
+	--
 	local function addGrid(node2DMesh)
 		local YMainSplitSize = topYValue>=20000 and 10000 or 5000
 		local YSubSplitSize = 1000
@@ -194,6 +227,10 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 				drawSingleLine(node2DMesh, {Vec2(xPos,textSizeY), Vec2(xPos,(y+textSizeY)-bottomMargin-lineMainWidth)}, lineSubWidth, Vec4(1,1,1,0.03), Vec4(1,1,1,0.02))
 			end
 		end
+		--
+		--	estimated copper silver gold dimond line
+		--
+		
 		
 		--
 		--	add text
@@ -229,25 +266,6 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 		
 	end
 	--
-	function drawScoreGraph(func)
-		local line = {}
-		local steps = #data/(x-leftMargin)
-		local max = #data+0.9999
-		local wave = 1
-		local smothedY
-		while true do
-			local xx = getGridX(wave)
-			wave = wave+steps
-			if wave>=max then
-				line[#line+1] = Vec2(xx,func(max))
-				return line
-			else
-				smothedY = smothedY and ((smothedY*0.75)+(func(wave)*0.25)) or func(wave)
-				line[#line+1] = Vec2(xx,smothedY)
-			end
-		end
-		return line
-	end
 	
 	function self.setCallbackOnDisplayIndexChange(func)
 		displayIndexChangeFunction = func
@@ -262,7 +280,7 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 			end
 			
 			node2DMesh:clearMesh()
-			drawLine(node2DMesh, drawScoreGraph(function(index)	return getGridY(getKill(index)["score"]) end), 1, Vec4(0.9), true)
+			drawLine(node2DMesh, getScoreGraph(function(index)	return getGridY(getKill(index)["score"]) end), 1, Vec4(0.9), true)
 			node2DMesh:compile()
 			
 			displayInfo:clearMesh()
@@ -315,8 +333,15 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 			panel:addRenderObject( displayInfo )
 			panel:addRenderObject( staticMesh )
 			
-			drawLine(staticMesh, drawScoreGraph(function(index)	return getGridY(getKill(index)["score"]-(20*pScorePerLife)) end), 1, Vec4(0.85,0.85,0.85,0.1))--getKill(index)["life"]
-			drawLine(staticMesh, drawScoreGraph(function(index)	return getGridY(getKill(index)["goldGainedFromInterest"]) end), 1, Vec4(0.85,0.85,0.85,0.1))
+			drawLine(staticMesh, getScoreGraph(function(index)	return getGridY(getKill(index)["score"]-(20*pScorePerLife)) end), 1, Vec4(0.85,0.85,0.85,0.1))--getKill(index)["life"]
+			drawLine(staticMesh, getScoreGraph(function(index)	return getGridY(getKill(index)["goldGainedFromInterest"]) end), 1, Vec4(0.85,0.85,0.85,0.1))
+			
+			for k,v in pairs(scoreLimits) do
+				if v.score>1 then
+					local newLine = getEstimatedGraph(k,ScoreCalculater.estimatedScoreForIndexOnWave)
+					drawLine(staticMesh, newLine, 1, Vec4(v.color,0.1))
+				end
+			end
 			addGrid(staticMesh)
 			
 			staticMesh:compile()

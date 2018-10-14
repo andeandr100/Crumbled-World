@@ -42,5 +42,16 @@ ScoreCalculater = {
 			end
 		end
 		return nil
+	end,
+	estimatedScoreForIndexOnWave = function(index,wave)
+--		y=egi*x*(1.05^x)
+--		25 silver = 31000 - 3000 = 29000
+--		29000 = egi*25*(1.075^25)
+--		egi = 29000 / (25*(1.075^25))
+--		3000 Score = 2000 from life + 1000 from gold
+		local scoreLimits = ScoreCalculater.getScoreLimits()
+		local wm = mapInfo.getWaveCount()
+		local egi = (scoreLimits[index].score-3000) / (wm*math.pow(1.075,wm))
+		return (egi*wave*math.pow(1.075,wave))+3000
 	end
 }
