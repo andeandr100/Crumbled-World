@@ -229,7 +229,7 @@ function EventBase.new()
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(false)
 	
-		--mapp setttings for initiating the waves
+		--mapp settings for initiating the waves
 		waveFinishedBonus = pWaveFinishedBonus
 		comUnit:sendTo("stats","setInteresetMultiplyerOnKill",tonumber(pInterestMulOnKill))
 		setGold(pStartGold)

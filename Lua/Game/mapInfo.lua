@@ -35,9 +35,10 @@ function MapInfo.new()
 		--
 		if billboard:exist("isCart")==false then
 			billboard:setBool("isCart",false)
-		end
-		if billboard:exist("isCircle")==false then
+		elseif billboard:exist("isCircle")==false then
 			billboard:setBool("isCircle",false)
+		elseif billboard:exist("isCrystal")==false then
+			billboard:setBool("isCrystal",false)
 		end
 	end
 	function self.getReward()
@@ -52,12 +53,13 @@ function MapInfo.new()
 		return reward
 	end
 	function self.setIsCartMap(isCart)
-		print("setIsCartMap("..tostring(isCart)..")\n")
 		billboard:setBool("isCart",isCart)
 	end
 	function self.setIsCircleMap(isCircle)
-		print("SetIsCircle("..tostring(isCircle)..")\n")
 		billboard:setBool("isCircle",isCircle)
+	end
+	function self.setIsCrystalMap(isCrystal)
+		billboard:setBool("isCrystal",isCrystal)
 	end
 	function self.setAddPerLevel(amount)
 		amount = amount or 0
@@ -156,6 +158,7 @@ function MapInfo.new()
 					if mapInfo then
 						self.setIsCartMap(mapInfo.gameMode=="Cart")
 						self.setIsCircleMap(mapInfo.gameMode=="Circle")
+						self.setIsCrystalMap(mapInfo.gameMode=="Crystal")
 						self.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 						self.setDifficultyBase(mapInfo.difficultyBase)
 						self.setWaveCount(mapInfo.waveCount)
@@ -173,6 +176,9 @@ function MapInfo.new()
 	end
 	function self.isCricleMap()
 		return billboard:getBool("isCircle")
+	end
+	function self.isCrystalMap()
+		return billboard:getBool("isCrystal")
 	end
 	function self.isRestartWaveEnabled()
 		return self.isCricleMap()==false and Core.isInMultiplayer()==false

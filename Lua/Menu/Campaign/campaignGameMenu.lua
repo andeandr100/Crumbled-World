@@ -191,6 +191,7 @@ function CampaignGameMenu.new(panel)
 				if mapInfo then
 					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
 					levelInfo.setIsCircleMap(mapInfo.gameMode=="Circle")
+					levelInfo.setIsCrystalMap(mapInfo.gameMode=="Crystal")
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 					levelInfo.setWaveCount(mapInfo.waveCount)
@@ -365,12 +366,13 @@ function CampaignGameMenu.new(panel)
 				if mapInfo then
 					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
 					levelInfo.setIsCircleMap(mapInfo.gameMode=="Circle")
+					levelInfo.setIsCrystalMap(mapInfo.gameMode=="Crystal")
 				end
 				if mapInfo then
 					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 					levelInfo.setWaveCount(mapInfo.waveCount)
-										levelInfo.setMapSize(mapInfo.mapSize)
+					levelInfo.setMapSize(mapInfo.mapSize)
 				else
 					error("No map information was found")
 				end
