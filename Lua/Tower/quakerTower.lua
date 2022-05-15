@@ -754,6 +754,7 @@ function QuakeTower.new()
 		billboard:setString("FileName", "Tower/quakerTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
+		billboard:setFloat("baseRange", 2.75)
 		--
 		billboard:setDouble("DamageCurrentWave",0)
 		billboard:setDouble("DamagePreviousWave",0)

@@ -51,10 +51,10 @@ end
 function setPathPoints(dataString)
 	local pathPoints = {}
 	--Split into pathpoints
-	local points = split(dataString,";")
-	for i=1, #points do
-		--split data into data points
-		local data = split(points[i],",")
+	local inPoints = split(dataString,";")
+	for i=1, #inPoints do
+		--split data into data points 
+		local data = split(inPoints[i],",")
 		pathPoints[i] = {}
 		pathPoints[i].localIslandPos = Vec3(tonumber(data[1]),tonumber(data[2]),tonumber(data[3]))
 		pathPoints[i].islandId = tonumber(data[4])

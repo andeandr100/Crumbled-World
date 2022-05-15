@@ -36,10 +36,10 @@ function NpcPath.new()
 		local bilboard = Core.getBillboard("Paths")
 		if bilboard then
 			resetTime = Core.getGameTime() + 5
-			spawns = bilboard:getTable("spawns")
-			points = bilboard:getTable("points")
-			paths = bilboard:getTable("paths")
-			ends = bilboard:getTable("ends")
+--			spawns = bilboard:getTable("spawns")
+--			points = bilboard:getTable("points")
+--			paths = bilboard:getTable("paths")
+--			ends = bilboard:getTable("ends")
 			local spawnPortals = bilboard:getTable("spawnPortals")
 			
 --			print("Spawns: "..tostring(spawns).."\n")
@@ -183,14 +183,35 @@ function NpcPath.new()
 	
 	function self.updateLastPoint()
 		local globalPoints = nodeMover:getPathPointsGlobalPosition()
+		local islands = nil
 		if #globalPoints > 0 then
 			local targetNodePos = globalPoints[#globalPoints]
+			--print("points")
+			--print("points:"..tostring(points))
+			
 			for i=1, #points do
-				local d0 = points[i]
-				local d1 = points[i].island
-				if points[i] and ( targetNodePos - points[i].island:getGlobalMatrix() * points[i].position ):length() < 1 then
-					groupId = points[i].groups[1]
-					lastPointIdAdded = points[i].id					
+				
+				if points[i] then
+
+					local island = points[i].island
+					--if island was not found do a heavy check to get the island
+					--TODO fix this bug where island was not sent from "MapEditor/pathNode.lua"
+					if island == nil then
+						if islands == nil then
+							islands = this:getPlayerNode():findAllNodeByTypeTowardsLeaf(NodeId.island)
+						end
+						for i=1, #islands do
+							if islands[i]:getIslandId() == id then
+								island = islands[i]
+							end
+						end
+						print("Warning island was not found from points data")
+					end
+					
+					if points[i] and ( targetNodePos - island:getGlobalMatrix() * points[i].position ):length() < 1 then
+						groupId = points[i].groups[1]
+						lastPointIdAdded = points[i].id					
+					end
 				end
 			end			
 		end
@@ -213,7 +234,16 @@ function NpcPath.new()
 	end
 	
 	
-	
+	local function init()
+		local bilboard = Core.getBillboard("Paths")
+		if bilboard then
+			spawns = bilboard:getTable("spawns")
+			points = bilboard:getTable("points")
+			paths = bilboard:getTable("paths")
+			ends = bilboard:getTable("ends")
+		end
+	end
+	init()
 	
 	return self
 end

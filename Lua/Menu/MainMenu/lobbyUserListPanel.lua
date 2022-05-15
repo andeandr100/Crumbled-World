@@ -134,9 +134,10 @@ function LobbyUserListPanel.new(panel, client)
 		client:requestPlayerId(requestPlayerid)
 		print("client:requestPlayerId "..requestPlayerid)
 		
---		if not isHost then
+		
+		--set ready if player is the host
 		self.setIsRead(isHost)
---		end
+
 		
 	end
 	

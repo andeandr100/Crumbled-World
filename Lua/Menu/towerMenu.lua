@@ -190,6 +190,8 @@ function create()
 		return false
 	end
 	
+	
+	
 	print("TOWERMENU:::Create()\n")
 	if this:getNodeType() == NodeId.playerNode then
 		
@@ -204,6 +206,7 @@ function create()
 		--this:removeScript(this:getCurrentScript():getName());
 		menuNode:loadLuaScript(this:getCurrentScript():getFileName());
 		print("TOWERMENU:::Create()->return=false\n")
+		menuNode:loadLuaScript("Menu/AbilitiesMenu.lua")
 		return false
 	else
 		statsOrder =  {"damage","rps","range","slow","fireDPS","burnTime","dmg_range"}
@@ -217,6 +220,7 @@ function create()
 		buildings[7] = {name="Missile tower", range=0,damage=0,dmg_range=-1,cost = 0}
 		buildings[8] = {name="Quake tower", range=0,damage=0,dmg_range=-1,cost = 0}
 		buildings[9] = {name="Support tower", range=0,cost = 0}
+		buildings[10] = {name="Bank tower", range=0,cost = 0}
 		
 		local keyBinds = Core.getBillboard("keyBind")
 		local keyBind = {}
@@ -325,7 +329,7 @@ function create()
 			print("No camera was ever found\n");
 		end
 		
-		for i=1, 9 do
+		for i=1, #buildings do
 			buildings[i].cost = getTowerInfo(i, "cost")
 			if i~=1 and i~= 6 then
 				buildings[i].range = getTowerInfo(i, "range")

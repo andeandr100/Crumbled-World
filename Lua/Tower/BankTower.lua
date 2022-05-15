@@ -1,15 +1,12 @@
 require("Tower/upgrade.lua")
 require("NPC/state.lua")
 require("Tower/xpSystem.lua")
-require("Projectile/projectileManager.lua")
-require("Projectile/SwarmBall.lua")
 require("Game/campaignTowerUpg.lua")
-require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 --this = SceneNode()
-SwarmTower = {}
-function SwarmTower.new()
+BankTower = {}
+function BankTower.new()
 	local TOWERRANGE = 2.8
 	local TOWERRANGEMAX = 3.0
 	--
@@ -21,12 +18,8 @@ function SwarmTower.new()
 	local upgrade = Upgrade.new()
 	local cTowerUpg = CampaignTowerUpg.new("Tower/SupportTower.lua",upgrade)
 	local range = 2.5
-	local boostedOnLevel = 0
-	--Weaken
-	local weakenPer
-	local weakeningArea
-	local weakenTimer
-	local weakenUpdateTimer
+
+	local supportGoldPerWave = 20
 	--Gold
 	local goldGainAmount = 0
 	local goldUpdateTimer
@@ -35,12 +28,9 @@ function SwarmTower.new()
 	--model
 	local model
 	local meshCrystal --meshCrystal = Mesh()
-	local meshRange
 	local timer = 0.0
 	--effects
-	sparkCenter = ParticleSystem.new(ParticleEffect.EndCrystal)
-	weakenEffects = {}
-	weakenPointLight = {}
+
 	--communication
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
@@ -80,11 +70,7 @@ function SwarmTower.new()
 					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
 					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
 					DamageTotal = billboard:getDouble("DamageTotal"),
-					boostedOnLevel = boostedOnLevel,
-					boostLevel = upgrade.getLevel("boost"),
 					upgradeLevel = upgrade.getLevel("upgrade"),
-					rangeLevel = upgrade.getLevel("range"),
-					weakenLevel = upgrade.getLevel("weaken"),
 					goldLevel = upgrade.getLevel("gold")
 				}
 				billboardWaveStats:setTable( waveStr, tab )
@@ -114,9 +100,6 @@ function SwarmTower.new()
 					xpManager.restoreWaveChangeStats(tab.xpTab)
 				end
 				--
-				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
-				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.handleUpgradeRange)
-				doDegrade(upgrade.getLevel("weaken"),tab.weakenLevel,self.handleUpgradeWeaken)
 				doDegrade(upgrade.getLevel("gold"),tab.goldLevel,self.handleUpgradegold)
 				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
 				--
@@ -132,8 +115,7 @@ function SwarmTower.new()
 	-- function:	sendSupporUpgrade
 	-- purpose:		broadcasting what upgrades the towers close by should use
 	local function sendSupporUpgrade()
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getLevel("range")==0 and TOWERRANGE*2.0 or TOWERRANGEMAX,"supportRange",upgrade.getLevel("range"))
-		comUnit:broadCast(this:getGlobalPosition(),upgrade.getLevel("damage")==0 and TOWERRANGE*2.0 or TOWERRANGEMAX,"supportDamage",upgrade.getLevel("damage"))
+		
 	end
 	local function restartWave(param)
 		restoreWaveChangeStats( tonumber(param) )
@@ -148,6 +130,14 @@ function SwarmTower.new()
 		local waveCountStr
 		name,waveCountStr = string.match(param, "(.*);(.*)")
 		waveCount = tonumber(waveCountStr)
+		
+		goldEarned = supportGoldPerWave
+		totalGoaldEarned = totalGoaldEarned + goldEarned
+		if canSyncTower() then
+			comUnit:sendTo("stats","addGold",tostring(goldEarned))
+			comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;"..tostring(goldEarned))
+		end
+		
 		--update and save stats only if we did not just restore this wave
 		if waveCount>=lastRestored then
 			if not xpManager then
@@ -172,16 +162,7 @@ function SwarmTower.new()
 		goldEarned = 0
 		dmgDoneMarkOfDeath = 0
 	end
-	-- function:	dmgDealtMarkOfDeath
-	-- purpose:		called when a unit has taken increased damage because of weaken
-	-- param:		the amount of damage increased
-	local function dmgDealtMarkOfDeath(param)
-		dmgDoneMarkOfDeath = dmgDoneMarkOfDeath + tonumber(param)
-		if xpManager then
-			xpManager.addXp(tonumber(param))
-		end
-		billboard:setDouble("DamageCurrentWavePassive",dmgDoneMarkOfDeath)
-	end
+
 	-- function:	handleGoldStats
 	-- purpose:		called when a unit has died with the effect active
 	local function handleGoldStats(param)
@@ -202,21 +183,9 @@ function SwarmTower.new()
 			xpManager.updateXpToNextLevel()
 		end
 
-		meshRange = upgrade.getLevel("range")==0 and nil or model:getMesh( "range"..upgrade.getLevel("range") )
-		if upgrade.getLevel("weaken")>0 then
-			weakenPer = upgrade.getValue("weaken")
-			weakenTimer = upgrade.getValue("weakenTimer")
-			weakenUpdateTimer = 0.0
-		else
-			weakenPer = nil
-		end
-		range = upgrade.getValue("range")
+		supportGoldPerWave = upgrade.getValue("supportGoldPerWave")
 		--manage support upgrades
 		sendSupporUpgrade()
-		--achievment
-		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("damage")==3 and upgrade.getLevel("weaken")==3 and upgrade.getLevel("gold")==3 then
-			achievementUnlocked("MaxedSupportTower")
-		end
 	end
 	-- function:	initModel
 	-- purpose:		to initialize the model and set the visibility flag for every mesh
@@ -227,33 +196,17 @@ function SwarmTower.new()
 		
 		--set visibility on all meshes
 		model:getMesh( "physic" ):setVisible(false)
-		model:getMesh( "weaken" ):setVisible(upgrade.getLevel("weaken")>0)
-		model:getMesh( "boost" ):setVisible(upgrade.getLevel("boost")>0)--set ambient map
+		model:getMesh( "weaken" ):setVisible(false)
+		model:getMesh( "boost" ):setVisible(false)
 		for index=0, model:getNumMesh()-1 do
 			local mesh = model:getMesh(index)
 			local shader = mesh:getShader()
-			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
+			local texture = Core.getTexture("towergroup_a")
 			mesh:setTexture(shader,texture,4)
 		end
 		for i=1, upgrade.getLevel("upgrade") do
-			model:getMesh( "range"..i ):setVisible(upgrade.getLevel("range")==i)
-			model:getMesh( "dmg"..i ):setVisible(upgrade.getLevel("damage")==i)
-		end
-		
-		--get all meshes that we will interact with later
---		if meshCrystal then
---			meshCrystal:removeChild( sparkCenter:toSceneNode() )
---		end
---		meshCrystal = model:getMesh( "crystal" )
---		meshCrystal:addChild( sparkCenter:toSceneNode() )
---		sparkCenter:activate(Vec3(0,0,1))
-		local rangeMatrix
-		if meshRange then
-			rangeMatrix = meshRange:getLocalMatrix()
-		end
-		meshRange = upgrade.getLevel("range")==0 and nil or model:getMesh( "range"..upgrade.getLevel("range") )
-		if rangeMatrix then
-			meshRange:setLocalMatrix(rangeMatrix)
+			model:getMesh( "range"..i ):setVisible(false)
+			model:getMesh( "dmg"..i ):setVisible(false)
 		end
 	end
 	-- function:	doMeshUpgradeForLevel
@@ -313,148 +266,10 @@ function SwarmTower.new()
 		end
 		upgrade.clearCooldown()
 		setCurrentInfo()
-		self.handleUpgradeDamage(param)
+
 	end
-	-- function:	handleBoost
-	-- purpose:		boost has been upgraded
-	function self.handleBoost(param)
-		if tonumber(param)>upgrade.getLevel("boost") then
-			if tonumber(param)<=upgrade.getLevel("boost") then
-				return
-			end
-			if Core.isInMultiplayer() and canSyncTower() then
-				comUnit:sendNetworkSyncSafe("upgrade2","1")
-			end
-			boostedOnLevel = upgrade.getLevel("upgrade")
-			upgrade.upgrade("boost")
-			setCurrentInfo()
-			--
-			comUnit:broadCast(this:getGlobalPosition(),TOWERRANGEMAX,"supportBoost",1)
-			--Achievement
-			achievementUnlocked("Boost")
-		elseif upgrade.getLevel("boost")>tonumber(param) then
-			upgrade.degrade("boost")
-			upgrade.clearCooldown()
-			--
-			setCurrentInfo()
-		end
-		initModel()
-	end
-	-- function:	handleUpgradeRange
-	-- purpose:		do all changes for upgrading the range
-	function self.handleUpgradeRange(param)
-		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("range")
-		elseif upgrade.getLevel("range")>tonumber(param) then
-			model:getMesh("range".. upgrade.getLevel("range")):setVisible(false)
-			upgrade.degrade("range")
-		else
-			setCurrentInfo()
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
-		end
-		if upgrade.getLevel("range")>0 then
-			if meshRange then
-				rangeMatrix = meshRange:getLocalMatrix()
-			end
-			doMeshUpgradeForLevel("range","range")
-			if rangeMatrix then
-				meshRange:setLocalMatrix(rangeMatrix)
-			end
-			--Acievement
-			if upgrade.getLevel("range")==3 then
-				achievementUnlocked("UpgradeSupportRange")
-			end
-		else
-			meshRange = nil
-			rangeMatrix = nil
-		end
-		setCurrentInfo()
-	end
-	-- function:	handleUpgradeDamage
-	-- purpose:		do all changes for upgrading the damage
-	function self.handleUpgradeDamage(param)
-		if tonumber(param)>upgrade.getLevel("damage") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("damage")
-		elseif upgrade.getLevel("damage")>tonumber(param) then
-			upgrade.degrade("damage")
-		else
-			setCurrentInfo()
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
-		end
-		if upgrade.getLevel("damage")>0 then
-			doMeshUpgradeForLevel("damage","dmg")
-			--Achievement
-			if upgrade.getLevel("damage")==3 then
-				achievementUnlocked("UpgradeSupportDamage")
-			end
-		end
-		setCurrentInfo()
-	end
-	-- function:	handleUpgradeWeaken
-	-- purpose:		do all changes for upgrading the weakening
-	function self.handleUpgradeWeaken(param)
-		if tonumber(param)>upgrade.getLevel("weaken") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("weaken")
-		elseif upgrade.getLevel("weaken")>tonumber(param) then
-			upgrade.degrade("weaken")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
-		end
-		if upgrade.getLevel("weaken")==0 then
-			model:getMesh("weaken"):setVisible(false)
-			if weakeningArea then
-				weakeningArea:deactivate()
-				for i=1, 4 do
-					weakenEffects[i]:deactivate()
-					weakenPointLight[i]:setVisible(false)
-				end
-			end
-		else
-			model:getMesh("weaken"):setVisible(true)
-			--loop all effects and create them
-			if not weakeningArea then
-				for i=1, 4 do
-					weakenEffects[i] = ParticleSystem.new(ParticleEffect.weakening)
-					weakenPointLight[i] = PointLight.new(Vec3(1.0,1.0,0.0), 1.0)
-					weakenPointLight[i]:setCutOff(0.05)
-					this:addChild( weakenEffects[i]:toSceneNode() )
-					this:addChild( weakenPointLight[i]:toSceneNode() )
-				end
-				weakeningArea = ParticleSystem.new(ParticleEffect.weakeningArea)
-				this:addChild(weakeningArea:toSceneNode())
-			end
-			weakenEffects[1]:activate(Vec3(-0.575,0.75,0.0))
-			weakenPointLight[1]:setLocalPosition(Vec3(-0.575,0.75,0.0))
-			weakenEffects[2]:activate(Vec3(0.575,0.75,0.0))
-			weakenPointLight[2]:setLocalPosition(Vec3(0.575,0.75,0.0))
-			weakenEffects[3]:activate(Vec3(0.0,0.75,0.575))
-			weakenPointLight[3]:setLocalPosition(Vec3(0.0,0.75,0.575))
-			weakenEffects[4]:activate(Vec3(0.0,0.75,-0.575))
-			weakenPointLight[4]:setLocalPosition(Vec3(0.0,0.75,-0.575))
-			weakeningArea:activate(Vec3(0,0.5,0))
-			weakeningArea:setSpawnRate( 0.4+(upgrade.getLevel("weaken")*0.2) )
-			--update the spawn rate on the 4 tower effects
-			for i=1, 4 do
-				weakenEffects[i]:setScale( 0.25+(upgrade.getLevel("weaken")*0.25) )
-				weakenPointLight[i]:setRange( 0.5+(upgrade.getLevel("weaken")*0.5) )
-				weakenPointLight[i]:setVisible(true)
-			end
-			--Acievement
-			if upgrade.getLevel("weaken")==3 then
-				achievementUnlocked("UpgradeSupportMarkOfDeath")
-			end
-		end
-		setCurrentInfo()
-	end
+
+	
 	-- function:	Upgrades the towers gold upgrade.
 	-- callback:	Is called when the tower has been upgraded
 	function self.handleUpgradegold(param)
@@ -495,10 +310,6 @@ function SwarmTower.new()
 			model:getMesh("boost"):setVisible( false )
 			setCurrentInfo()
 			initModel()
-			--if the tower was upgraded while boosted, then the boost should be available
-			if boostedOnLevel~=upgrade.getLevel("upgrade") then
-				upgrade.clearCooldown()
-			end
 		end
 		while comUnit:hasMessage() do
 			local msg = comUnit:popMessage()
@@ -511,28 +322,13 @@ function SwarmTower.new()
 		end
 		lastGlobalPosition = this:getGlobalPosition()
 		
-		--weaken aura
-		if weakenPer then
-			weakenUpdateTimer = weakenUpdateTimer - Core.getDeltaTime()
-			if weakenUpdateTimer<0.0 then
-				weakenUpdateTimer = 0.25
-				
-				comUnit:broadCast(lastGlobalPosition,TOWERRANGE,"markOfDeath",{per=weakenPer,timer=weakenTimer,type="area"})
-			end
-		end
 		--gold gain aura
 		if goldGainAmount>0 then
 			goldUpdateTimer = goldUpdateTimer - Core.getDeltaTime()
 			if goldUpdateTimer<0.0 then
 				goldUpdateTimer = 0.1
-				
 				comUnit:broadCast(lastGlobalPosition,TOWERRANGE,"markOfGold",{goldGain=goldGainAmount,timer=0.15,type="area"})
 			end
-		end
-		
-		--if range has been upgraded, then rotate the dishes
-		if meshRange then
-			meshRange:rotate(Vec3(0,0,1),Core.getDeltaTime()*0.1)
 		end
 		
 		--update the crystal animation
@@ -545,8 +341,7 @@ function SwarmTower.new()
 			visibleState = state			
 			Core.setUpdateHz( (state == 2) and 60.0 or (state == 1 and 30 or 10) )
 		end
-		
-		--model:render()
+
 		return true
 	end
 	
@@ -578,14 +373,10 @@ function SwarmTower.new()
 		model = Core.getModel("tower_support_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
-	
-		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
-		end
+
 		
 		meshCrystal = model:getMesh( "crystal" )
-		this:addChild( sparkCenter:toSceneNode() )
-		sparkCenter:activate(Vec3(0,1.7,0))
+
 	
 		--ComUnit
 		comUnit:setCanReceiveTargeted(true)
@@ -598,8 +389,8 @@ function SwarmTower.new()
 		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
 		billboard:setModel("tower",model)
 		billboard:setString("TargetArea","sphere")
-		billboard:setString("Name", "Support tower")
-		billboard:setString("FileName", "Tower/SupportTower.lua")
+		billboard:setString("Name", "Bank tower")
+		billboard:setString("FileName", "Tower/BankTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
 		billboard:setFloat("baseRange", TOWERRANGE)
@@ -609,168 +400,54 @@ function SwarmTower.new()
 		billboard:setDouble("goldEarnedPreviousWave",0)
 	
 		--ComUnitCallbacks
-		comUnitTable["dmgDealt"] = damageDealt
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = self.handleBoost
-		comUnitTable["upgrade3"] = self.handleUpgradeRange
-		comUnitTable["upgrade4"] = self.handleUpgradeDamage
-		comUnitTable["upgrade5"] = self.handleUpgradeWeaken
-		comUnitTable["upgrade6"] = self.handleUpgradegold
+		comUnitTable["upgrade3"] = self.handleUpgradegold
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["shockwave"] = handleShockwave
 		comUnitTable["extraGoldEarned"] = handleGoldStats
-		comUnitTable["dmgDealtMarkOfDeath"] = dmgDealtMarkOfDeath
+
 	
 		upgrade.setBillboard(billboard)
 		upgrade.addDisplayStats("range")
-		upgrade.addDisplayStats("supportDamage")
-		upgrade.addDisplayStats("SupportRange")
-		upgrade.addDisplayStats("supportWeaken")
-		upgrade.addDisplayStats("supportGold")
-		upgrade.addBillboardStats("weakenTimer")
+		upgrade.addDisplayStats("supportGoldPerWave")
+
 
 		upgrade.addUpgrade( {	cost = 200,
 								name = "upgrade",
-								info = "support tower level",
+								info = "Bank tower level",
 								order = 1,
 								icon = 56,
 								value1 = 1,
-								stats ={range =				{ upgrade.add, TOWERRANGE},
-										supportDamage =		{ upgrade.add, 10},
-										model = 			{ upgrade.set, "tower_support_l1.mym"} }
+								stats ={range =					{ upgrade.add, TOWERRANGE},
+										supportGoldPerWave =	{ upgrade.add, 30},
+										model = 				{ upgrade.set, "tower_support_l1.mym"} }
 							} )
 		upgrade.addUpgrade( {	cost = 300,
 								name = "upgrade",
-								info = "support tower level",
+								info = "Bank tower level",
 								order = 1,
 								icon = 56,
 								value1 = 2,
-								stats ={range =				{ upgrade.add, TOWERRANGE},
-										supportDamage =		{ upgrade.add, 20},
-										model = 			{ upgrade.set, "tower_support_l2.mym"}}
+								stats ={range =					{ upgrade.add, TOWERRANGE},
+										supportGoldPerWave =	{ upgrade.add, 75},
+										model = 				{ upgrade.set, "tower_support_l2.mym"}}
 							},0 )
-		upgrade.addUpgrade( {	cost = 400,
+		upgrade.addUpgrade( {	cost = 500,
 								name = "upgrade",
-								info = "support tower level",
+								info = "Bank tower level",
 								order = 1,
 								icon = 56,
 								value1 = 3,
-								stats ={range =				{ upgrade.add, TOWERRANGE},
-										supportDamage =		{ upgrade.add, 30},
-										model = 			{ upgrade.set, "tower_support_l3.mym"}}
+								stats ={range =					{ upgrade.add, TOWERRANGE},
+										supportGoldPerWave =	{ upgrade.add, 150},
+										model = 				{ upgrade.set, "tower_support_l3.mym"}}
 							},0 )
-		upgrade.addUpgrade( {	cost = 0,
-								name = "boost",
-								info = "support tower boost",
-								duration = 10,
-								cooldown = 3,
-								order = 10,
-								icon = 68,
-								value1 = 15,
-								value2 = 80,
-								stats =	{}
-							} )
-		-- RANGE
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,
-								name = "range",
-								info = "support tower range",
-								order = 2,
-								icon = 65,
-								value1 = 10,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
-								stats = {SupportRangeLevel =	{ upgrade.add, 1},
-										 SupportRange =			{ upgrade.add, 10}}
-							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 100 or 200,
-								name = "range",
-								info = "support tower range",
-								order = 2,
-								icon = 65,
-								value1 = 20,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
-								stats = {SupportRangeLevel =	{ upgrade.add, 2},
-										 SupportRange =			{ upgrade.add, 20}}
-							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 200 or 300,
-								name = "range",
-								info = "support tower range",
-								order = 2,
-								icon = 65,
-								value1 = 30,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",3),
-								stats = {SupportRangeLevel =	{ upgrade.add, 3},
-										 SupportRange =			{ upgrade.add, 30}}
-							} )
-		-- Damage
-		upgrade.addUpgrade( {	cost = 0,
-								name = "damage",
-								info = "support tower damage",
-								order = 3,
-								icon = 64,
-								value1 = 10,
-								hidden = true,
-								levelRequirement = cTowerUpg.getLevelRequierment("damage",1),
-								stats = {supportDamageLevel =		{ upgrade.add, 1}}
-							} )
-		upgrade.addUpgrade( {	cost = 0,
-								name = "damage",
-								info = "support tower damage",
-								order = 3,
-								icon = 64,
-								value1 = 20,
-								hidden = true,
-								levelRequirement = cTowerUpg.getLevelRequierment("damage",2),
-								stats = {supportDamageLevel =		{ upgrade.add, 2}}
-							} )
-		upgrade.addUpgrade( {	cost = 0,
-								name = "damage",
-								info = "support tower damage",
-								order = 3,
-								icon = 64,
-								value1 = 30,
-								hidden = true,
-								levelRequirement = cTowerUpg.getLevelRequierment("damage",3),
-								stats = {supportDamageLevel =		{ upgrade.add, 3}}
-							} )
-		-- weaken
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("weaken",1) and 0 or 100,
-								name = "weaken",
-								info = "support tower weaken",
-								order = 4,
-								icon = 66,
-								value1 = 8,
-								levelRequirement = cTowerUpg.getLevelRequierment("weaken",1),
-								stats = {weaken =		{ upgrade.add, 0.08},
-										 supportWeaken ={ upgrade.add, 8},
-										 weakenTimer =	{ upgrade.add, 1} }
-							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("weaken",1) and 100 or 200,
-								name = "weaken",
-								info = "support tower weaken",
-								order = 4,
-								icon = 66,
-								value1 = 16,
-								levelRequirement = cTowerUpg.getLevelRequierment("weaken",2),
-								stats = {weaken =		{ upgrade.add, 0.16},
-										 supportWeaken ={ upgrade.add, 16},
-										 weakenTimer =	{ upgrade.add, 1} }
-							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("weaken",1) and 200 or 300,
-								name = "weaken",
-								info = "support tower weaken",
-								order = 4,
-								icon = 66,
-								value1 = 24,
-								levelRequirement = cTowerUpg.getLevelRequierment("weaken",3),
-								stats = {weaken =		{ upgrade.add, 0.24},
-										 supportWeaken ={ upgrade.add, 24},
-										 weakenTimer =	{ upgrade.add, 1} }
-							} )
+		
 		-- gold
 		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("gold",1) and 0 or 100,
 								name = "gold",
-								info = "support tower gold",
+								info = "Bank tower gold",
 								order = 5,
 								icon = 67,
 								value1 = 1,
@@ -779,7 +456,7 @@ function SwarmTower.new()
 							} )
 		upgrade.addUpgrade( {	cost = 100,
 								name = "gold",
-								info = "support tower gold",
+								info = "Bank tower gold",
 								order = 5,
 								icon = 67,
 								value1 = 2,
@@ -788,7 +465,7 @@ function SwarmTower.new()
 							} )
 		upgrade.addUpgrade( {	cost = 100,
 								name = "gold",
-								info = "support tower gold",
+								info = "Bank tower gold",
 								order = 5,
 								icon = 67,
 								value1 = 3,
@@ -806,33 +483,27 @@ function SwarmTower.new()
 		--soulManager
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})
 		targetSelector.setPosition(this:getGlobalPosition())
-		targetSelector.setRange(upgrade.getValue("range"))
+		targetSelector.setRange(TOWERRANGE)
 	
 		initModel()
 		setCurrentInfo()
 		
-		cTowerUpg.addUpg("range",self.handleUpgradeRange)
-		cTowerUpg.addUpg("damage",self.handleUpgradeDamage)
-		cTowerUpg.addUpg("weaken",self.handleUpgradeWeaken)
 		cTowerUpg.addUpg("gold",self.handleUpgradegold)
 		cTowerUpg.fixAllPermBoughtUpgrades()
 	
-		--ParticleEffects
-		
 		return true
 	end
 	init()
 	function self.destroy()
-		comUnit:broadCast(lastGlobalPosition,TOWERRANGE*2.0,"SupportRange",0)
-		comUnit:broadCast(lastGlobalPosition,TOWERRANGE*2.0,"supportDamage",0)
+
 	end
 	--
 	return self
 end
 
 function create()
-	swarmTower = SwarmTower.new()
-	update = swarmTower.update
-	destroy = swarmTower.destroy
+	bankTower = BankTower.new()
+	update = bankTower.update
+	destroy = bankTower.destroy
 	return true
 end

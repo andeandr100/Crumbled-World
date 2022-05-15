@@ -92,10 +92,12 @@ function init()
 	
 	
 	print("railPaths: "..tostring(railPaths).."\n")
+	--print("playernode: "..tostring(this:getPlayerNode()))
 	local islands = this:getPlayerNode():findAllNodeByTypeTowardsLeaf(NodeId.island)
 	
 	local data = {pathData.spawnAreas, pathData.pathPoints, pathData.targetAreas, pathData.railPaths}
 	local maxId = 0
+	print("islands: "..tostring(islands).."\n")
 	print("local data = "..tostring(data).."\n")
 	print("size = "..#data.."\n")
 	for i=1, #data  do
@@ -103,14 +105,17 @@ function init()
 		print("local pointData = "..tostring(pointData).."\n")
 		print("size = "..#pointData.."\n")
 		for n=1, #pointData do
-			local island = getIslandFromId(islands, pointData[n].islandId)
-			if island == nil then
+			local islandPtr = getIslandFromId(islands, pointData[n].islandId)
+			if islandPtr == nil then
 				print("Island "..pointData[n].islandId.." not found\n")
 				print("Islands registerd: "..tostring(islands).."\n\n")	
+				--abort()
 				return false				
 			end
-			print("local island = "..tostring(island).."\n")
-			local point = { island = island, id = pointData[n].id, position = pointData[n].position, followNode = pointData[n].followNode }
+			
+			--print("local iskandId: "..islandPtr:getIslandId())
+			--print("local island: "..tostring(islandPtr).."\n")
+			local point = { island = islandPtr, islandId=islandPtr:getIslandId(), id = pointData[n].id, position = pointData[n].position, followNode = pointData[n].followNode }
 			points[point.id] = point
 			maxId = maxId > point.id and maxId or point.id
 			if i == 1 then
@@ -118,6 +123,10 @@ function init()
 			elseif i == 3 or i == 4 then
 				ends[#ends + 1] = point
 			end
+
+			--print("debug iskandId: "..point.island:getIslandId())
+			--print("debug point: "..tostring(point))
+			--abort()
 		end
 	end
 	--abort()
@@ -220,6 +229,7 @@ function init()
 	bilboard:setTable("railPaths", railPaths)
 	
 	print("\n==========================\n\n")
+
 	buildNode = this:getPlayerNode():findNodeByTypeTowardsLeafe(NodeId.buildNode)
 	if buildNode then
 		for groupId = 1, maxGroupId do

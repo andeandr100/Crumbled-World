@@ -816,6 +816,7 @@ function ElectricTower.new()
 		billboard:setVec3("GlobalPosition",this:getGlobalPosition())
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
+		billboard:setFloat("baseRange", 4)
 		--
 		billboard:setDouble("DamagePreviousWave",0)
 		billboard:setDouble("DamageCurrentWave",0)

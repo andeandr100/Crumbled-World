@@ -772,6 +772,7 @@ function ArrowTower.new()
 		billboard:setString("FileName", "Tower/ArrowTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
+		billboard:setFloat("baseRange", 9)
 		--
 		billboard:setDouble("DamagePreviousWave",0)
 		billboard:setDouble("DamagePreviousWavePassive",0)

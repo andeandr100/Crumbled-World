@@ -692,6 +692,7 @@ function MissileTower.new()
 		billboard:setString("FileName", "Tower/missileTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
+		billboard:setFloat("baseRange", 7.0)
 		--
 		billboard:setDouble("DamageCurrentWave",0)
 		billboard:setDouble("DamagePreviousWave",0)

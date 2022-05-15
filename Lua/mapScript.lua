@@ -4,7 +4,10 @@ function create()
 	this:loadLuaScript("Menu/towerMenu.lua")
 	this:loadLuaScript("Menu/statsMenu.lua")
 	this:loadLuaScript("Menu/selectedMenu.lua")
+	this:loadLuaScript("Menu/AbilitiesMenu.lua")
 	this:loadLuaScript("Menu/FPS.lua")
+	
+	abort()
 
 	local buildNode = this:addChild(BuildNode.new():toSceneNode())
 	buildNode:loadLuaScript("Game/builder.lua")

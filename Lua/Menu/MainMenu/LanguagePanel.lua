@@ -468,6 +468,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	addLanguageRow("missile tower")
 	addLanguageRow("quake tower")
 	addLanguageRow("support tower")
+	addLanguageRow("bank tower")
 	
 	--Tower information
 	addLanguageHeader("Tower info")
@@ -582,6 +583,11 @@ function LanguagePanel.createLanguageOptions(panel)
 	addLanguageRow("support manager damage")
 	addLanguageRow("support tower weaken")
 	addLanguageRow("support tower gold")
+	
+	addLanguageHeader("Bank tower")
+	addLanguageRow("bank tower level")
+	addLanguageRow("bank tower range")
+	addLanguageRow("bank tower gold")
 	
 	
 	addLanguageHeader("Default tower")

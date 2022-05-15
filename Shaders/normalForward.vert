@@ -29,5 +29,5 @@ void main()
 
 	vec4 worldPos = modelMat * position;
 	worldPos0 = worldPos.xyz;
-	gl_Position = projModelViewMat * worldPos0;
+	gl_Position = projModelViewMat * worldPos;
 }

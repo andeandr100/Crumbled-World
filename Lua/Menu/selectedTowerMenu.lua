@@ -1848,7 +1848,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		
 		
 		--show boostable towers
-		showAllTowerThatCanBeBoosted(keyBindBoostBuilding:getHeld())
+--		showAllTowerThatCanBeBoosted(keyBindBoostBuilding:getHeld())
 
 		if showBoostableTowers then	
 
@@ -1896,7 +1896,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			end
 		end
 		
-		if Core.getInput():getMouseDown(MouseKey.left) and not buildingNodeBillboard:getBool("inBuildMode") and buildingNodeBillboard:getBool("canBuildAndSelect") and isMouseInMainPanel() then
+		if Core.getInput():getMouseDown(MouseKey.left) and not buildingNodeBillboard:getBool("AbilitesBeingPlaced") and not buildingNodeBillboard:getBool("inBuildMode") and buildingNodeBillboard:getBool("canBuildAndSelect") and isMouseInMainPanel() then
 			local playerNode = this:findNodeByType(NodeId.playerNode)
 			local buildNode = playerNode:findNodeByType(NodeId.buildNode)
 			--buildNode = buildNode()
@@ -1910,12 +1910,12 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 						if keyBindUpgradeBuilding:getHeld() then
 							print("uppgrade tower")
 							upgradeTower(building)
-						elseif keyBindBoostBuilding:getHeld() then
-							print("boost tower")
-							boostTower(building)
-							setGlowColor( building, Vec3(0.05,0.15,0.05) )
-							updateBoostTimer[#updateBoostTimer + 1] = {time=Core.getGameTime() + 15, node = building}
-							setNodeNotBoostable(building)
+--						elseif keyBindBoostBuilding:getHeld() then
+--							print("boost tower")
+--							boostTower(building)
+--							setGlowColor( building, Vec3(0.05,0.15,0.05) )
+--							updateBoostTimer[#updateBoostTimer + 1] = {time=Core.getGameTime() + 15, node = building}
+--							setNodeNotBoostable(building)
 						else
 							print("Selected tower")
 							setVisibleClass(self)
@@ -1926,13 +1926,13 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					else
 						if keyBindUpgradeBuilding:getHeld() then
 							upgradeTower(buildingLastSelected)
-						elseif keyBindBoostBuilding:getHeld() then
-							boostTower(buildingLastSelected)
-							setGlowColor( buildingLastSelected, Vec3(0.05,0.15,0.05) )
-							if buildingLastSelected then
-								updateBoostTimer[#updateBoostTimer + 1] = {time=Core.getGameTime() + 15, node = buildingLastSelected}
-							end
-							setNodeNotBoostable(buildingLastSelected)
+--						elseif keyBindBoostBuilding:getHeld() then
+--							boostTower(buildingLastSelected)
+--							setGlowColor( buildingLastSelected, Vec3(0.05,0.15,0.05) )
+--							if buildingLastSelected then
+--								updateBoostTimer[#updateBoostTimer + 1] = {time=Core.getGameTime() + 15, node = buildingLastSelected}
+--							end
+--							setNodeNotBoostable(buildingLastSelected)
 						end
 					end
 				else
@@ -1957,14 +1957,14 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			if keyBindUpgradeBuilding:getPressed() then
 				upgradeTower()
 			end
-			if keyBindBoostBuilding:getPressed() then
-				setNodeNotBoostable(buildingLastSelected)
-				setGlowColor( buildingLastSelected, Vec3(0.05,0.15,0.05) )
-				if buildingLastSelected then
-					updateBoostTimer[#updateBoostTimer + 1] = {time=Core.getGameTime() + 15, node = buildingLastSelected}
-				end
-				boostTower()
-			end  
+--			if keyBindBoostBuilding:getPressed() then
+--				setNodeNotBoostable(buildingLastSelected)
+--				setGlowColor( buildingLastSelected, Vec3(0.05,0.15,0.05) )
+--				if buildingLastSelected then
+--					updateBoostTimer[#updateBoostTimer + 1] = {time=Core.getGameTime() + 15, node = buildingLastSelected}
+--				end
+--				boostTower()
+--			end  
 			
 			
 			if selectedBuildingType == 1 then

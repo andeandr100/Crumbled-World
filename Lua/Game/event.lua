@@ -39,7 +39,7 @@ function create()
 	end
 	if mapInfo.isCricleMap() then
 		--rats can spawn in a number of upto 16 in 1 grouop
-		--and there difficulty comes from there speed, which does nnthing in this mode
+		--and there difficulty comes from there speed, which does nothing in this mode
 		event.getSpawnManager().disableUnit("rat")
 		event.getSpawnManager().disableUnit("rat_tank")
 	end
@@ -81,6 +81,10 @@ function create()
 		goldMultiplayerOnKills = 0
 		interestMultiplyerOnKill = 0
 	end
+	
+	--Disable gold gain on kill
+	--this is due to the new bank tower
+	interestMultiplyerOnKill = 0
 	event.setDefaultGold(startGold,waveFinishedGold,interestMultiplyerOnKill,goldMultiplayerOnKills)
 	--
 	update = event.update

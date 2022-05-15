@@ -937,6 +937,10 @@ function rebuildSoldTower(tab)
 	end
 end
 
+function isMouseInMainPanel()
+	return Core.getBillboard("stats"):getPanel("MainPanel") == Core.getPanelWithMouseFocus()
+end
+
 function update()
 	if canBuildInThisWorld == false or Core.getBillboard("stats")==nil then
 		--update event from other players
@@ -1027,7 +1031,7 @@ function update()
 		
 		
 		local towerMatrix = this:getTargetIsland():getGlobalMatrix() * this:getLocalIslandMatrix()
-		if canBePlacedHere and keyUse and keyUse:getPressed(keyRotationLocked:getHeld()) and buildCost <= gold then
+		if canBePlacedHere and keyUse and keyUse:getPressed(keyRotationLocked:getHeld()) and buildCost <= gold and isMouseInMainPanel() then
 			building = this:TryToBuild()
 			if building then
 				local script = building:getScriptByName("tower")

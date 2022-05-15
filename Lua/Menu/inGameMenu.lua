@@ -426,7 +426,7 @@ end
 -- function:	getBetween
 -- purpose:
 function manageClientInfo(param)
-	print("manageClientInfo("..param..")")
+	--print("manageClientInfo("..param..")")
 	if infoScreen then
 		infoScreen.updateClientInfo(param)
 	end

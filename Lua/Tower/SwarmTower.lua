@@ -604,6 +604,7 @@ function SwarmTower.new()
 		billboard:setString("FileName", "Tower/SwarmTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)
+		billboard:setFloat("baseRange", 6.5)
 	
 		--ComUnitCallbacks
 		comUnitTable["dmgDealt"] = damageDealt

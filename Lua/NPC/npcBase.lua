@@ -248,10 +248,11 @@ function NpcBase.new()
 	end
 	function self.NETSyncMover(param)
 		local diff = mover:getDistanceToExit()-(param-mover:getCurrentSpeed()*Core.getNetworkClient():getPing()*2.0)
-		if math.abs(diff)>mover:getCurrentSpeed()*(0.5) then
+		if math.abs(diff) > (mover:getCurrentSpeed()*0.5) then
 			--npc are out of sync with over 0.5s
-			NETSpeedMod = 0.25*math.clamp(diff,-2,2)
-			mover:setWalkSpeed(speed+NETSpeedMod)
+			NETSpeedMod = 0.5*math.clamp(diff,-1.95,1.95)
+			print("syncing npc speed: " .. NETSpeedMod)
+			mover:setWalkSpeed(speed+(speed * NETSpeedMod))
 		end
 	end
 		
@@ -718,6 +719,7 @@ function NpcBase.new()
 			--npcAlive
 			if Core.isInMultiplayer() then
 				syncHealthTimer = syncHealthTimer + Core.getDeltaTime()
+				--sync the npc 3 times a second
 				if syncHealthTimer>0.33 and canSyncNPC() then
 					syncHealthTimer = syncHealthTimer - 0.33
 					comUnit:sendNetworkSync("Net-HP",tostring(soul.getHp()))

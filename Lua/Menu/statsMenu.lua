@@ -500,6 +500,10 @@ function updateReal()
 		end
 	end
 	
+	if gameSpeed < 0.0001 then
+		gameSpeed = 1;
+		updateGameSpeed();
+	end
 	
 	if keyBindSpeed:getPressed() then
 		toogleSpeed()

@@ -435,14 +435,14 @@ function EventBase.new()
 							-- Achievements
 							--
 							--purity
-							local minigunBuilt = bilboardStats:exist("minigunTowerBuilt")
-							local arrowBuilt = bilboardStats:exist("arrowTowerBuilt")
-							local swarmBuilt = bilboardStats:exist("swarmTowerBuilt")
-							local electricBuilt = bilboardStats:exist("electricTowerBuilt")
-							local bladeBuilt = bilboardStats:exist("bladeTowerBuilt")
-							local quakeBuilt = bilboardStats:exist("quakeTowerBuilt")
-							local missileBuilt = bilboardStats:exist("missileTowerBuilt")
-							local supportBuilt = bilboardStats:exist("supportTowerBuilt")
+							local minigunBuilt = bilboardStats:getInt("minigunTowerBuilt") ~= 0
+							local arrowBuilt = bilboardStats:getInt("arrowTowerBuilt") ~= 0
+							local swarmBuilt = bilboardStats:getInt("swarmTowerBuilt") ~= 0
+							local electricBuilt = bilboardStats:getInt("electricTowerBuilt") ~= 0
+							local bladeBuilt = bilboardStats:getInt("bladeTowerBuilt") ~= 0
+							local quakeBuilt = bilboardStats:getInt("quakeTowerBuilt") ~= 0
+							local missileBuilt = bilboardStats:getInt("missileTowerBuilt") ~= 0
+							local supportBuilt = bilboardStats:getInt("supportTowerBuilt") ~= 0
 							local soldTowers = bilboardStats:getInt("towersSold")
 							local towerBuilt = bilboardStats:getInt("minigunTowerBuilt") + bilboardStats:getInt("arrowTowerBuilt") + bilboardStats:getInt("swarmTowerBuilt") + bilboardStats:getInt("electricTowerBuilt") + bilboardStats:getInt("bladeTowerBuilt") + bilboardStats:getInt("quakeTowerBuilt") + bilboardStats:getInt("missileTowerBuilt") + bilboardStats:getInt("supportTowerBuilt") - soldTowers
 							if minigunBuilt and not (arrowBuilt or swarmBuilt or electricBuilt or quakeBuilt or bladeBuilt or missileBuilt or supportBuilt) then
@@ -540,16 +540,16 @@ function EventBase.new()
 --			script:setName("endGameMenuVictory")
 --		end
 		if DEBUG or true then
---		 	if Core.getInput():getKeyPressed(Key.p) then
---				comUnit:sendTo("log", "println", "cheat-addGold")
---				statsBilboard = Core.getBillboard("stats")
---				comUnit:sendTo("stats", "addGold", tostring(statsBilboard:getDouble("gold")+500.0))
---				saveStats = false
---				Core.getGlobalBillboard("highScoreReplay"):setBool("saveHighScore",saveStats)
---			end
-			if Core.getInput():getKeyPressed(Key.o) then
-				spawnNextGroup()
+		 	if Core.getInput():getKeyPressed(Key.p) then
+				comUnit:sendTo("log", "println", "cheat-addGold")
+				statsBilboard = Core.getBillboard("stats")
+				comUnit:sendTo("stats", "addGold", tostring(statsBilboard:getDouble("gold")+500.0))
+				saveStats = false
+				Core.getGlobalBillboard("highScoreReplay"):setBool("saveHighScore",saveStats)
 			end
+--			if Core.getInput():getKeyPressed(Key.o) then
+--				spawnNextGroup()
+--			end
 --			local a = 1
 --			if Core.getInput():getKeyPressed(Key.m) then
 --				for i=1, 50000000 do

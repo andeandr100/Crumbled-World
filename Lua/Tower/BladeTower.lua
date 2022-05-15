@@ -832,6 +832,8 @@ function BladeTower.new()
 		billboard:setVec3("bladeBlockedPos",Vec3(0,-1000000,0))
 		billboard:setVec3("bladeBlockedDir",Vec3(0,-1000000,0))
 		billboard:setInt("level", 1)
+		billboard:setFloat("baseRange", 10.0)
+		
 		--
 		billboard:setDouble("DamageCurrentWave",0)
 		billboard:setDouble("DamagePreviousWave",0)

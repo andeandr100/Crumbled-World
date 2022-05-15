@@ -7,6 +7,8 @@ require("Menu/MainMenu/LanguagePanel.lua")
 --this = SceneNode()
 
 OptionsMenu = {}
+OptionsMenu.bgSprite = nil
+OptionsMenu.offset = Vec2()
 
 function OptionsMenu.destroy()
 	VideoPanel.destroy()
@@ -23,6 +25,10 @@ function OptionsMenu.create(panel)
 	local breakLinePanel = optionsPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
 	local gradient = Gradient()
 	gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.66),Vec3(0.45)})
+	
+--	OptionsMenu.bgSprite = Sprite(Core.getTexture("gt_grass_d"), Vec2(), Vec2(1))
+--	optionsPanel:setBackground(OptionsMenu.bgSprite)
+	
 	breakLinePanel:setBackground(gradient)
 	
 
@@ -145,6 +151,10 @@ function OptionsMenu.createPages(optionsPanel)
 end
 
 function OptionsMenu.update()
+	
+--	OptionsMenu.offset = OptionsMenu.offset + Vec2(Core.getRealDeltaTime() * 0.05)
+--	OptionsMenu.bgSprite:setUvCoord(OptionsMenu.offset + Vec2(), OptionsMenu.offset + Vec2(1))
+	
 	InputPanel.update()
 	GamePanel.update()
 	VideoPanel.update()

@@ -606,8 +606,8 @@ function SpawnManager.new()
 --				{{npc="turtle",delay=0.0}},
 --				{{npc="turtle",delay=0.0}},
 				--{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
-		--		{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
-		--		{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
+--				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
+--				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
 				--{{npc="skeleton",delay=0.0},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="turtle",delay=0.4},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
 				--{{npc="rat",delay=0.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},--2000/2s <-> 1000ps
 				--{{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
@@ -1118,6 +1118,11 @@ function SpawnManager.new()
 					local tData = {index=i,wave=waves[i]}
 					sendNetworkSyncSafe("NetWaveData",tabToStrMinimal(tData))
 				end
+			elseif Core.isInMultiplayer() then
+				--Change back to correct amount of waves for secondary players
+				numWaves = pNumWaves
+				comUnit:sendTo("stats", "setWave", mapInfo.getStartWave())
+				comUnit:sendTo("stats", "setMaxWave", numWaves)
 			end
 		end
 	

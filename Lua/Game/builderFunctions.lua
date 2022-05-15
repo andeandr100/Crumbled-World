@@ -29,15 +29,15 @@ function BuilderFunctions.new(keyBinds, inCamera)
 				local addedRange = towerBilboard:getFloat("rangePerUpgrade")
 				numRangeUpgrades = (towerBilboard:getString("Name") == "Quake tower") and 0 or numRangeUpgrades
 				targetArea.setExtraRangeInfo( numRangeUpgrades, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
-				targetArea.changeModel("sphere", towerBilboard:getFloat("range"), 0, targetMatrix)
+				targetArea.changeModel("sphere", towerBilboard:getFloat("baseRange"), 0, targetMatrix)
 			elseif targetAreaName == "capsule" then
 				local addedRange = towerBilboard:getFloat("rangePerUpgrade")
 				targetArea.setExtraRangeInfo( numRangeUpgrades, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
-				targetArea.changeModel("capsule", towerBilboard:getFloat("range"), 0, targetMatrix)
+				targetArea.changeModel("capsule", towerBilboard:getFloat("baseRange"), 0, targetMatrix)
 			elseif targetAreaName == "cone" then
 				local addedRange = towerBilboard:getFloat("rangePerUpgrade")
 				targetArea.setExtraRangeInfo( numRangeUpgrades, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
-				targetArea.changeModel("sphere", towerBilboard:getFloat("range"), towerBilboard:getFloat("targetAngle"), targetMatrix)--coneSphere				
+				targetArea.changeModel("sphere", towerBilboard:getFloat("baseRange"), towerBilboard:getFloat("targetAngle"), targetMatrix)--coneSphere				
 			else
 				targetArea.hiddeTargetMesh()
 			end

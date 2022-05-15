@@ -27,14 +27,13 @@ end
 
 function create()
 	
-
-	local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
+	local camera = this:getRootNode():findNodeByName("MainCamera")
 	
 	settingsListener = Listener("Settings")
 	settingsListener:registerEvent("OpenConsentWindow", OpenConsentWindow)
 	
 	if camera then
-		form = Form( camera, PanelSize(Vec2(1)), Alignment.TOP_LEFT)
+		form = Form( ConvertToCamera(camera), PanelSize(Vec2(1)), Alignment.TOP_LEFT)
 		form:setName("Data Consent")
 		form:setRenderLevel(12)
 		form:setVisible(true)
@@ -107,6 +106,8 @@ function create()
 		aText = Text("This allows anonymous statistics about game play to be send to our server.\nThis helps balance and optimize the game")
 		combobox3:setToolTip(aText);
 		aLabel:setToolTip(aText);
+	else
+		return false
 	end
 	
 	if Settings.sendHighscore.getBoolValue() ~= nil and Settings.sendCrashRepport.getBoolValue() ~= nil and Settings.sendAnonymousStatistics.getBoolValue() ~= nil then

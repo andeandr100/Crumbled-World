@@ -335,7 +335,7 @@ end
 
 function countDownUpdate()
 	resetTime = resetTime - Core.getRealDeltaTime()
-	print("\ncamera pre update\n")
+	--print("\ncamera pre update\n")
 	--only render the world when it's ready to be shown, or when a a very long time has passed
 	if (resetTime < 0.0 and pathBilboard and pathBilboard:exist("spawnPortals")) or resetTime < -15 then
 		Core.setMainCamera(ConvertToCamera(this))
@@ -343,8 +343,8 @@ function countDownUpdate()
 		update = tmpUpdate
 	end
 	
-	print("DeltaTime: "..Core.getRealDeltaTime())
-	print("countDownUpdate: "..resetTime)
+	--print("DeltaTime: "..Core.getRealDeltaTime())
+	--print("countDownUpdate: "..resetTime)
 	return true
 end
 

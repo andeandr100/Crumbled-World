@@ -40,14 +40,14 @@ function destroyWatermelon(watermelonNode)
 	Core.getComUnit():sendTo("SteamStats","WatermelonsDestroyed",1)
 	deathManagerUpdate = true
 	--physic
-	local model=Core.getModel("watermelonCracked.mym")
-	model:setLocalMatrix(watermelonNode:getLocalMatrix())
-	watermelonNode:getParent():addChild(model:toSceneNode())
+	local watermelonModel=Core.getModel("watermelonCracked.mym")
+	watermelonModel:setLocalMatrix(watermelonNode:getLocalMatrix())
+	watermelonNode:getParent():addChild(watermelonModel:toSceneNode())
 	--model:setVisible(false)
 	for i=1, 24 do
 		--local atVec = model:getMesh("watermelon"..i):getLocalPosition():normalizeV()
 		local atVec = Vec3(math.randomFloat(-1,1),math.randomFloat(0.2,1.2),math.randomFloat(-1,1))*3.0
-		local rigidBody = RigidBody(this:findNodeByType(NodeId.island),model:getMesh("watermelon"..i),atVec)
+		local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island):toSceneNode(),watermelonModel:getMesh("watermelon"..i),atVec)
 		deathManager.addRigidBody(rigidBody)
 	end
 	watermelonNode:getParent():removeChild(watermelonNode)
