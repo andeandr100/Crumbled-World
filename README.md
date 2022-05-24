@@ -1,7 +1,7 @@
 # Crumbled-World Lua code
 
 This source code is open source under mit-license and can be freely used.
-To be able to run the code you have to buy the [Crumbled World](http://store.steampowered.com/app/542910/) or either build your own Lua environment with the same api specified at http://crumbledworld.com/wiki/index.php?title=Lua.
+To be able to run the code you have to buy the [Crumbled World](http://store.steampowered.com/app/542910/) or either build your own Lua environment with the same api specified at https://wiki.crumbledworld.com/index.php?title=Lua.
 
 ## Why open source?
 There is no need to keep this code under lock and key. With access to this code anyone can develop and update the game and creating new maps or mods.
