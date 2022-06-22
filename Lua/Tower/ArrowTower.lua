@@ -748,9 +748,9 @@ function ArrowTower.new()
 		--this:addChild(candle1)
 		--this:addChild(candle2)
 		
-		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
-		end
+--		if particleEffectUpgradeAvailable then
+--			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
+--		end
 	
 		--ComUnit
 		comUnit:setCanReceiveTargeted(true)
@@ -781,7 +781,7 @@ function ArrowTower.new()
 		--ComUnitCallbacks
 		comUnitTable["dmgDealt"] = damageDealt
 		comUnitTable["dmgDealtMarkOfDeath"] = dmgDealtMarkOfDeath
-		comUnitTable["dmgLost"] = damageLost
+		--comUnitTable["dmgLost"] = damageLost -- There is no function for this callback
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["upgrade1"] = self.handleUpgrade
 		comUnitTable["upgrade2"] = self.handleBoost

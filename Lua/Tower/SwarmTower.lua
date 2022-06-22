@@ -584,9 +584,9 @@ function SwarmTower.new()
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
 	
-		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
-		end
+--		if particleEffectUpgradeAvailable then
+--			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
+--		end
 	
 		--ComUnit
 		comUnit:setCanReceiveTargeted(true)

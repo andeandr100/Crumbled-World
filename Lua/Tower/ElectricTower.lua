@@ -791,9 +791,9 @@ function ElectricTower.new()
 		--this:handleTowerHullAndSpace(model)
 		this:addChild(model:toSceneNode())
 	
-		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
-		end
+--		if particleEffectUpgradeAvailable then
+--			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
+--		end
 		--sound limits
 		for i=1, #attackSounds do
 			local s1 = SoundNode.new(attackSounds[i])
@@ -823,7 +823,7 @@ function ElectricTower.new()
 	
 		--ComUnitCallbacks
 		comUnitTable["dmgDealt"] = damageDealt
-		comUnitTable["dmgLost"] = damageLost
+		--comUnitTable["dmgLost"] = damageLost --There is no code for this function
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["upgrade1"] = self.handleUpgrade
 		comUnitTable["upgrade2"] = self.handleBoost
@@ -926,7 +926,9 @@ function ElectricTower.new()
 							},0 )
 		--MDPSpG == RPS*DMG/cost = 3.2
 		--ADPSpG = RPS*damge/cost == (8/36)*2700/1400 = 0.42
-		function boostDamage() return upgrade.getStats("damage")*1.5*(waveCount/50+1.0) end
+		function boostDamage() 
+			return upgrade.getStats("damage")*1.5*(waveCount/50+1.0) 
+		end
 		--(total)	0=1.2x	25=2.4x	50=3.6x	(+ unlimited energy)
 		upgrade.addUpgrade( {	cost = 0,
 								name = "boost",

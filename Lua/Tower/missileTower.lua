@@ -650,9 +650,9 @@ function MissileTower.new()
 	local function init()
 		this:createBoundVolumeGroup()
 		this:setBoundingVolumeCanShrink(false)
-		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
-		end
+--		if particleEffectUpgradeAvailable then
+--			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
+--		end
 		
 		Core.setUpdateHz(24.0)--slow gates and a slow rise of an missile
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then

@@ -725,9 +725,9 @@ function QuakeTower.new()
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
 	
-		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
-		end
+--		if particleEffectUpgradeAvailable then
+--			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
+--		end
 		
 		--sound limits
 		for i=1, #attackSounds do

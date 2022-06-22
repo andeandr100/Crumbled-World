@@ -13,12 +13,14 @@ function create()
 	local camera = this.getRootNode(this):findNodeByName("MainCamera")
 	Core.setMaxFrameRate(60)
 	
+	
 	renderCount = 1
 	if camera then
 		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
 		form:setLayout(FlowLayout(PanelSize(Vec2(0.01,0.01))));
 		
 		textArea = form:add(TextArea(PanelSize(Vec2(-1,-1))));
+		--textArea = TextArea()
 
 		once = true
 		

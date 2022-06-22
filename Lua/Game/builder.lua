@@ -517,7 +517,7 @@ function clearGhostTower(param)
 end
 
 function addGhostModel(modelName, matrix, scale, renderLevel, color, island)
-
+	--island = Island()
 	local scaleMat = Matrix()
 	scaleMat:scale(scale)
 	local model = Core.getModel(modelName)
@@ -684,11 +684,7 @@ function netSellTower(paramNetworkName,doNotReturnMoney)
 				targetArea.hiddeTargetMesh()
 			end
 		else
-			if DEBUG then
-				error("Removing building failed!!!")
-			else
-				print("Removing building failed!!!")
-			end
+			print("Removing building failed!!!")
 		end
 	else
 		print("No script found for selected building, during remove")
@@ -762,7 +758,7 @@ function buildTowerNetworkCallback(tab)
 		
 		updateIsAllreadyToPlay()
 	else
-		error("failed to place building")
+		abort("failed to place building")
 	end
 	
 end
@@ -889,7 +885,7 @@ function rebuildWallTower(netName)
 			end
 		end
 	end
-	error("wall tower was newer restored")
+	abort("wall tower was newer restored")
 end
 
 function rebuildSoldTower(tab)

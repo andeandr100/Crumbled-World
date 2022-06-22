@@ -804,9 +804,9 @@ function BladeTower.new()
 		--
 		restartListener:registerEvent("restartWave", restartWave)
 		--
-		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
-		end
+--		if particleEffectUpgradeAvailable then
+--			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
+--		end
 	
 		--upgrade
 		

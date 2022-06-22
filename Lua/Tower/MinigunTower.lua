@@ -808,9 +808,9 @@ function MinigunTower.new()
 		particleEffectGunLaser[1] = ParticleSystem.new( ParticleEffect.MinigunLaserBlast )
 		particleEffectGunLaser[1]:setScale(0.80)
 		
-		if particleEffectUpgradeAvailable then
-			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
-		end
+--		if particleEffectUpgradeAvailable then
+--			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
+--		end
 	
 		particleEffectTracer[0] = ParticleSystem.new( ParticleEffect.TracerLine )
 		particleEffectTracer[1] = ParticleSystem.new( ParticleEffect.TracerLine )
