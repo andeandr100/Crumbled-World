@@ -43,11 +43,13 @@ function create()
 	createMouseBind("BuildHeader", "placment", "Place", -1, MouseKey.left);
 	createMouseBind("BuildHeader", "placment", "Deselect", -1, MouseKey.right);
 	createKeyboardBind("BuildHeader", "placment", "Locked rotation", -1, Key.lctrl);
-	
 	createKeyboardBind("BuildHeader", "placment", "Sell", -1, Key.delete);
-	
-	createKeyboardBind("BuildHeader", "upgrade", "Boost", -1, Key.b, Key.v);
 	createKeyboardBind("BuildHeader", "upgrade", "Upgrade", -1, Key.u, Key.y);
+	
+	createKeyboardBind("Abilities", "hotKey", "BoostAbility", -1, Key.b, Key.n);
+	createKeyboardBind("Abilities", "hotKey", "SlowAbility", -1, Key.v);
+	createKeyboardBind("Abilities", "hotKey", "AttackAbility", -1, Key.c);
+	
 	
 	createKeyboardBind("NPC input", "controll", "Ignore target", -1, Key.t);
 	createKeyboardBind("NPC input", "controll", "High priority", -1, Key.r);

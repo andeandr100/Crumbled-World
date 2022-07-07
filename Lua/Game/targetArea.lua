@@ -51,6 +51,7 @@ function TargetArea.new()
 	local function initTargetMesh()
 		--Sphere
 		mesh = NodeMesh.new()
+		mesh:setVisible(false)
 		mesh:setRenderLevel(6)
 		nodeArea:addChild(mesh:toSceneNode())
 		buildTargetAreaMesh(mesh)

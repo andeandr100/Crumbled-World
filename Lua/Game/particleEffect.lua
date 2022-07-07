@@ -1327,6 +1327,105 @@ ParticleEffect = {
 			widthY = 0.125
 		}
 	},
+	CometTrail =  {
+		WallboardParticle = true,
+		airResistance = 0,
+		color =  {
+			color1 =  {
+				a = 0.75,
+				b = 0.5,
+				g = 0.5,
+				per = 0,
+				r = 0.5,
+				size = 0.12
+			},
+			color2 =  {
+				a = 0.75,
+				b = 0.3,
+				g = 0.3,
+				per = 0.25,
+				r = 0.2,
+				size = 1.2
+			},
+			color3 =  {
+				a = 0.5,
+				b = 0.5,
+				g = 0.5,
+				per = 1,
+				r = 0.5,
+				size = 0.4
+			},
+			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA}
+		},
+		emitterSpeedMultiplyer = 1,
+		gravity = 0,
+		lifeTime =  {
+			max = 8.0,
+			min = 2.0
+		},
+		spawn =  {
+			OffsetFromGroundPer = 0.75,
+			maxParticles = 250,
+			minParticles = 0,
+			pattern = "sphere",
+			patternData =  {
+				max = 0,
+				min = 0
+			},
+			spawnDuration = math.huge,
+			spawnRadius = 0.25,
+			spawnRate = 40,
+			spawnSpeed = 0
+		},
+		texture =  {
+			countX = 2,
+			countY = 2,
+			lengthEqlWidthMul = 1,
+			startX = 0.25,
+			startY = 0,
+			widthX = 0.125,
+			widthY = 0.125
+		}
+	},
+	CometFireBall =  {
+		WallboardParticle = true,
+		airResistance = 0,
+		color =  {
+			color1 =  {r = 1.10,g = 0.30,b = 0.10,a = 0.500,per = 0.0,size = 0.38},
+			color2 =  {r = 1.10,g = 0.40,b = 0.15,a = 0.375,per = 0.5,size = 0.42},
+			color3 =  {r = 1.10,g = 0.60,b = 0.20,a = 0.250,per = 1.0,size = 0.22},
+			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
+		},
+		emitterSpeedMultiplyer = 0,
+		gravity = 0,
+		lifeTime =  {
+			max = 1.5,
+			min = 0.75
+		},
+		spawn =  {
+			OffsetFromGroundPer = 0.75,
+			maxParticles = 36,
+			minParticles = 4,
+			pattern = "sphere",
+			patternData =  {
+				max = 1,
+				min = -1
+			},
+			spawnDuration = math.huge,
+			spawnRadius = 0.15,
+			spawnRate = 36,
+			spawnSpeed = 0
+		},
+		texture =  {
+			countX = 1,
+			countY = 2,
+			lengthEqlWidthMul = 1,
+			startX = 0,
+			startY = 0.75,
+			widthX = 0.125,
+			widthY = 0.125
+		}
+	},
 	SparkSpirit =  {
 		WallboardParticle = true,
 		airResistance = 0.25,
