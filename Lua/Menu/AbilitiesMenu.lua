@@ -62,9 +62,9 @@ function AbilitesMenu.new()
 			--
 			-- Add buttons  for the 3 abbilities 
 			--
-			local towerTexture = Core.getTexture("icon_table.tga")
+			local towerTexture = Core.getTexture("abilities.tga")
 				
-			boostButton = posterForm:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0.125,0.4375), Vec2(0.25,0.5) ))
+			boostButton = posterForm:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0.5,0.0), Vec2(1,0.5) ))
 			--BoostButton:setBackground( Sprite( towerTexture ));
 			boostButton:setInnerColor(Vec4(0,0,0,0.15),Vec4(0.2,0.2,0.2,0.35), Vec4(0.1,0.1,0.1,0.3))
 			boostButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
@@ -75,7 +75,7 @@ function AbilitesMenu.new()
 			boostButton:setToolTip(Text("Boos tower, [<b>" .. boostAbility.getBoostKeyBind():getKeyBindName(0) .. "</b>]"))
 			boostButton:setTag("boost")
 			
-			slowButton = posterForm:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(), Vec2(1.0/3.0,1.0/3.0) ))
+			slowButton = posterForm:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0,0), Vec2(0.5,0.5) ))
 			slowButton:setInnerColor(Vec4(0,0,0,0.15),Vec4(0.2,0.2,0.2,0.35), Vec4(0.1,0.1,0.1,0.3))
 			slowButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
 			slowButton:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
@@ -85,7 +85,7 @@ function AbilitesMenu.new()
 			slowButton:setToolTip(Text("Slowfield, [<b>" .. slowfieldAbility.getSlowFieldKeyBind():getKeyBindName(0) .. "</b>]"))
 			slowButton:setTag("slow")
 			
-			attackButton = posterForm:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(), Vec2(1.0/3.0,1.0/3.0) ))
+			attackButton = posterForm:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0.5,0.5), Vec2(1,1) ))
 			attackButton:setInnerColor(Vec4(0,0,0,0.15),Vec4(0.2,0.2,0.2,0.35), Vec4(0.1,0.1,0.1,0.3))
 			attackButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
 			attackButton:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))	

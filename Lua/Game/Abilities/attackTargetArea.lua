@@ -42,14 +42,15 @@ function AttackArea.new()
 		--Sphere
 		mesh = NodeMesh.new()
 		mesh:setRenderLevel(6)
-		mesh:setVisible(false)
-		nodeArea:addChild(mesh:toSceneNode())
+		
 		buildTargetAreaMesh(mesh)
 		mesh:setShader(slowFieldShader)
 		mesh:setUniform(slowFieldShader, "ScreenSize", Core.getRenderResolution())
 		mesh:setUniform(slowFieldShader, "CenterPosition", Vec3(0,100,0))
 		mesh:setUniform(slowFieldShader, "Radius", 3)
 		mesh:setUniform(slowFieldShader, "effectColor", Vec3(1,0.1,0.1))
+		mesh:setVisible(false)
+		nodeArea:addChild(mesh:toSceneNode())
 		
 		--find main camera
 		local rootNode = this:getRootNode()

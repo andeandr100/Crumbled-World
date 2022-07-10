@@ -1331,30 +1331,10 @@ ParticleEffect = {
 		WallboardParticle = true,
 		airResistance = 0,
 		color =  {
-			color1 =  {
-				a = 0.75,
-				b = 0.5,
-				g = 0.5,
-				per = 0,
-				r = 0.5,
-				size = 0.12
-			},
-			color2 =  {
-				a = 0.75,
-				b = 0.3,
-				g = 0.3,
-				per = 0.25,
-				r = 0.2,
-				size = 1.2
-			},
-			color3 =  {
-				a = 0.5,
-				b = 0.5,
-				g = 0.5,
-				per = 1,
-				r = 0.5,
-				size = 0.4
-			},
+			color1 =  {	r = 0.4,g = 0.4,b = 0.4,a = 1.2,per = 0,size = 0.5},
+			color2 =  {	r = 0.3,g = 0.3,b = 0.3,a = 0.8,per = 0.33,size = 1.2},
+			color3 =  {	r = 0.2,g = 0.2,b = 0.2,a = 0.5,per = 0.66,size = 1.9},
+			color3 =  {	r = 0.1,g = 0.1,b = 0.1,a = 0.0,per = 1.00,size = 2.6},
 			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA}
 		},
 		emitterSpeedMultiplyer = 1,
@@ -1365,7 +1345,7 @@ ParticleEffect = {
 		},
 		spawn =  {
 			OffsetFromGroundPer = 0.75,
-			maxParticles = 250,
+			maxParticles = 200,
 			minParticles = 0,
 			pattern = "sphere",
 			patternData =  {
@@ -1374,7 +1354,7 @@ ParticleEffect = {
 			},
 			spawnDuration = math.huge,
 			spawnRadius = 0.25,
-			spawnRate = 40,
+			spawnRate = 20,
 			spawnSpeed = 0
 		},
 		texture =  {
@@ -1391,9 +1371,9 @@ ParticleEffect = {
 		WallboardParticle = true,
 		airResistance = 0,
 		color =  {
-			color1 =  {r = 1.10,g = 0.30,b = 0.10,a = 0.500,per = 0.0,size = 0.38},
-			color2 =  {r = 1.10,g = 0.40,b = 0.15,a = 0.375,per = 0.5,size = 0.42},
-			color3 =  {r = 1.10,g = 0.60,b = 0.20,a = 0.250,per = 1.0,size = 0.22},
+			color1 =  {r = 1.10,g = 0.30,b = 0.10,a = 0.250,per = 0.0,size = 0.57},
+			color2 =  {r = 1.10,g = 0.40,b = 0.15,a = 0.1375,per = 0.5,size = 0.63},
+			color3 =  {r = 1.10,g = 0.60,b = 0.20,a = 0.125,per = 1.0,size = 0.33},
 			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
 		},
 		emitterSpeedMultiplyer = 0,
@@ -1403,8 +1383,8 @@ ParticleEffect = {
 			min = 0.75
 		},
 		spawn =  {
-			OffsetFromGroundPer = 0.75,
-			maxParticles = 36,
+			OffsetFromGroundPer = 0,
+			maxParticles = 35,
 			minParticles = 4,
 			pattern = "sphere",
 			patternData =  {
@@ -1412,8 +1392,8 @@ ParticleEffect = {
 				min = -1
 			},
 			spawnDuration = math.huge,
-			spawnRadius = 0.15,
-			spawnRate = 36,
+			spawnRadius = 0.6,
+			spawnRate = 25,
 			spawnSpeed = 0
 		},
 		texture =  {

@@ -50,6 +50,9 @@ function slowFieldTargetArea.new()
 		mesh:setUniform(slowFieldShader, "Radius", 4)
 		mesh:setUniform(slowFieldShader, "effectColor", Vec3(0.1,0.1,1))
 		
+		nodeArea:setVisible(false)
+		mesh:setVisible(false)
+		
 		--find main camera
 		local rootNode = this:getRootNode()
 		rootNode:addChild(nodeArea:toSceneNode())

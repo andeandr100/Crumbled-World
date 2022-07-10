@@ -8,17 +8,26 @@ function AttackAbility.new(inCamera, inComUnit)
 	local camera = inCamera
 	local comUnit = inComUnit
 	local AttackArea = AttackArea.new()
-	local attackEffect = AttackEffect.new()
+	local activeTeam = 1
+	local targetSelector = TargetSelector.new(activeTeam)
+	local attackEffect = AttackEffect.new(camera, targetSelector, inComUnit)
 	local keyBindAbility = Core.getBillboard("keyBind"):getKeyBind("AttackAbility")
 	local abilityButtonPressed = false
 	local abilityHasBeenUsedThisWave = false
+	local statsBilboard = Core.getBillboard("stats")
 	
 	local lastSlowEffectSent = 0
 	local abilityLast = 12
 	local abilityTargetArea = 4
+	local abilityDetonationRange = 6
 	local abilitySlowPercentage = 0.4
 	local abilityActivated = 0
 	local abilityGlobalPosition = Vec3()
+	
+	
+	
+	--Reality check will fail due to this node being built on the player node instead of the islands
+	
 	
 	function self.getAttackHasBeenUsedThisWave()
 		return abilityHasBeenUsedThisWave
@@ -50,45 +59,77 @@ function AttackAbility.new(inCamera, inComUnit)
 		return false, Vec3();
 	end
 	
+	local function getDamage()
+		return statsBilboard:getInt("npc_scorpion_hp")	
+	end
+	
+	local function impact(shieldIndex)
+	
+		targetSelector.disableRealityCheck()
+		targetSelector.setPosition(abilityGlobalPosition)
+		targetSelector.setRange(abilityDetonationRange)
+		targetSelector.selectAllInRangeCalculateDisatance()
+		local targetTable = targetSelector.getAllTargets()
+		local abilityDamage = getDamage()
+		
+		if shieldIndex > 0 then
+			local shieldPosition = targetSelector.getShieldPositionFromShieldIndex(shieldIndex)
+			
+			for targetIndex,distance in pairs(targetTable) do
+				local targetPosition = targetSelector.getTargetPosition(targetIndex)
+				
+				--if the NPC is outside the shield then do damage calculation
+				if (shieldPosition-targetPosition):length() > SHIELD_RANGE then
+					comUnit:sendTo(targetIndex,"attack",tostring(abilityDamage * 1.2 * distance))
+					comUnit:sendTo(targetIndex,"physicPushIfDead",abilityGlobalPosition)
+				end
+			end
+		else
+			for targetIndex,distance in pairs(targetTable) do
+				comUnit:sendTo(targetIndex,"attack",tostring(abilityDamage * 1.2 * distance))
+				comUnit:sendTo(targetIndex,"physicPushIfDead",abilityGlobalPosition)
+			end
+		end
+	end
+	
 	function self.update()
 		
 		if Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) then
 			abilityButtonPressed = false
 		end
 		
-		if Core.getInput():getMouseDown(MouseKey.left) then
-			local collision, globalposition = worldCollision()
-			attackEffect.activate(globalposition)
-		else
-			attackEffect.update()
+		if attackEffect.update() then
+			if attackEffect.impactedShieldIndex() > 0 then
+				comUnit:sendTo(attackEffect.impactedShieldIndex(),"attack",tostring(getDamage() * 3))
+				impact(attackEffect.impactedShieldIndex())
+			else
+				impact(0)
+			end
 		end
 		
+--		if targetSelector.getIndexOfShieldCovering(attackEffect.getPosition()) > 0 then
+--			abort("shield collision")
+--		end
 		
 		local boostSelected = abilityButtonPressed or keyBindAbility:getHeld()
-		
 		if boostSelected and abilityHasBeenUsedThisWave == false then
 				
 			local collision, globalposition = worldCollision()
-			AttackArea.update(collision, globalposition)
 			
 			if collision and Core.getInput():getMouseDown(MouseKey.left) then
 				abilityActivated = Core.getGameTime()
 				abilityHasBeenUsedThisWave = true
 				abilityGlobalPosition = globalposition
 				abilityButtonPressed = false
-			end
-
-		else
-			if Core.getGameTime() - abilityActivated < 12 then
-				AttackArea.update(true, abilityGlobalPosition)
-				
-				if Core.getGameTime() - lastSlowEffectSent > 0.1 then
-					lastSlowEffectSent = Core.getGameTime()
-					comUnit:broadCast(abilityGlobalPosition,abilityTargetArea,"slow",{per=abilitySlowPercentage,time=0.25,type="electric"})
-				end
-			else
+				attackEffect.activate(globalposition)
 				AttackArea.update(false, Vec3())
+				
+				targetSelector.disableRealityCheck()
+			else
+				AttackArea.update(collision, globalposition)			
 			end
+		else
+			AttackArea.update(false, Vec3())
 		end
 	end
 	

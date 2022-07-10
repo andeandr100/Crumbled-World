@@ -117,7 +117,6 @@ function BoostAbility.new(inCamera, inComUnit)
 	
 	function self.update()
 		if buildingNodeBillboard:getBool("inBuildMode") == false then
-			print("boost ability not in build mode")
 			local boostSelected = boostButtonPressed or keyBindBoostBuilding:getHeld()
 			buildingNodeBillboard:setBool("AbilitesBeingPlaced", boostSelected)
 			showAllTowerThatCanBeBoosted(boostSelected and towerHasBeenBoostedThisWave==false)
@@ -131,7 +130,6 @@ function BoostAbility.new(inCamera, inComUnit)
 					
 					local building = buildNode:getBuldingFromLine(camera:getWorldLineFromScreen(Core.getInput():getMousePos()))
 					if building then
-						print("boost tower")
 						boostTower(building)
 						setGlowColor( building, Vec3(0.05,0.15,0.05) )
 						towerHasBeenBoostedThisWave = true
@@ -141,7 +139,6 @@ function BoostAbility.new(inCamera, inComUnit)
 			end
 		else
 			showAllTowerThatCanBeBoosted(false)
-			print("boost ability in build mode")
 		end
 		
 		if Core.getInput():getMouseDown(MouseKey.left) or Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) then

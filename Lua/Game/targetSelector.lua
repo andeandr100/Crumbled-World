@@ -231,6 +231,12 @@ function TargetSelector.new(pteam)
 		end
 		return 0
 	end
+	--
+	-- function:	getIndexOfShieldCovering
+	-- purpose:		returns one shiled that covers that area or returns 0 if no shield covers it
+	function self.getShieldPositionFromShieldIndex(shieldIndex)
+		return self.getTargetPosition(shieldIndex)
+	end
 	-- function:	isTargetAlive
 	-- purpose:		returns true if target npc is alive
 	function self.isTargetAlive(target)
@@ -344,6 +350,57 @@ function TargetSelector.new(pteam)
 		currentTarget = 0
 		return currentTarget
 	end
+	
+	
+--	local function isInRange(target)
+--		if self.isTargetAlive(target) then
+--			local effectiveRange = range + (self.isTargetInStateAShieldGenerator(target) and SHIELD_RANGE or 0.0)
+--			local pos = self.getTargetPosition(target)
+--			local inRange = (pos-position):length()<=effectiveRange
+--			if inRange and defaultAngleLimit<math.pi then
+--				local diff = pos-position
+--				local targetAt = Vec2(diff.x,diff.z)
+--				local angle = Vec2(defaultPipeAt.x,defaultPipeAt.z):angle(targetAt)
+--				return defaultAngleLimit>angle
+--			end
+--			return inRange
+--		end
+--		return false
+--	end
+
+	
+	--
+	--	Selecter functions
+	--
+	-- function:	selectAllInRange
+	-- purpose:		seleact all enemies in range
+	function self.selectAllInRangeCalculateDisatance()
+		local ret = false
+		--
+		updateTablesToUse(UPDATEIFNEEDED)
+		--print("soulTableNamesToUse == "..tostring(soulTableNamesToUse))
+		--clear old data
+		targetTable = {}
+		targetTableCount = 0
+		currentTarget = 0
+		--get all souls on the map
+		updateSoulsTable()
+		--go threw them all and test the range. if in range add to targetTable
+		for index,soul in pairs(soulTable) do
+			if soul.team~=team and self.isTargetAlive(index) then--hp does not matter(they are alive on this list), they can have close to 0 health and it will 
+				local pos = self.getTargetPosition(index)
+				local distance = (pos-position):length()
+				if distance < range then
+					targetTable[index] = math.max(0.1, 1-(distance/range))
+					targetTableCount = targetTableCount + 1
+					ret = true
+				end
+			end
+		end
+		return ret
+	end
+
+	
 	--
 	--	Selecter functions
 	--
