@@ -582,7 +582,7 @@ function SpawnManager.new()
 				--{{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15}},
 				--{{npc="scorpion",delay=0.0},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35}},
 				--{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
-				--{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}},
+--				{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}},
 				--{{npc="skeleton_cf",delay=1}},
 				--{{npc="reaper",delay=0.0}},
 				--{{npc="dino",delay=0.0}},
@@ -593,8 +593,8 @@ function SpawnManager.new()
 				--{{npc="turtle",delay=0.0}},
 --				{{npc="turtle",delay=0.0}},
 --				{{npc="turtle",delay=0.0}},
-				{{npc="stoneSpirit",delay=0.0}},
-				{{npc="stoneSpirit",delay=0.0}},
+--				{{npc="stoneSpirit",delay=0.0}},
+--				{{npc="stoneSpirit",delay=0.0}},
 --				{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
 --				{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
 --				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
@@ -612,8 +612,8 @@ function SpawnManager.new()
 				--{{npc="skeleton",delay=0.0},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="turtle",delay=0.4},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
 				--{{npc="rat",delay=0.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},--2000/2s <-> 1000ps
 				--{{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
-				--{{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1}},
-				--{{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1}},
+--				{{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1}},
+--				{{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1}},
 				--{{npc="scorpion",delay=0.0},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="turtle",delay=0.4},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35}},
 				--debug above
 				--default hp/s that can be killed on straight line is == (650*0.7) == 455

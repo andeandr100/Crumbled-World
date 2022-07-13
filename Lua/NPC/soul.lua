@@ -270,14 +270,14 @@ function TheSoul.new()
 	-- purpose:		destroys the shield if carried
 	local function handleDestroyShield(param,fromIndex)
 		if canBlockBlade then
-			local meshList = this:findAllNodeByTypeTowardsLeaf({NodeId.animatedMesh, NodeId.mesh})
-			for i=1, #meshList do
-				local subMesh = meshList[i]:splitMeshByBoneName("shield")
-				if subMesh  then	
-					local body = RigidBody.new(this:findNodeByType(NodeId.island),subMesh,mover and mover:getCurrentVelocity() or Vec3())
-					body:setTimeOut(30)
-				end
-			end
+--			local meshList = this:findAllNodeByTypeTowardsLeaf({NodeId.animatedMesh, NodeId.mesh})
+--			for i=1, #meshList do
+--				local subMesh = meshList[i]:splitMeshByBoneName("shield")
+--				if subMesh  then	
+--					local body = RigidBody.new(this:findNodeByType(NodeId.island),subMesh,mover and mover:getCurrentVelocity() or Vec3())
+--					body:setTimeOut(30)
+--				end
+--			end
 			canBlockBlade = false
 			shieldAngle = 0.0
 			--Achievement
