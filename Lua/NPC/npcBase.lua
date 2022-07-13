@@ -437,24 +437,22 @@ function NpcBase.new()
 		end
 		return true
 	end
-	--give gold and interest when dead
+	--give gold when dead
 	function goldOnDeath(mul)
 		if gainGoldOnDeath then
 			if Core.isInMultiplayer() then
 				--there is always a 50% increased spawn rate in multiplayer
 				--0.66 = 1 / (1+0.5)
 				--with some lying for interest rate
-				comUnit:sendTo("stats","goldInterest",0.67)--allways full interest
 				if canSyncNPC() then
 					comUnit:sendTo("stats","addGold", (value*mul*0.67)+soul.getGoldGainAdd() )
-					comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;"..soul.getGoldGainAdd())
+					--comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;"..soul.getGoldGainAdd())
 					comUnit:sendTo("stats","addKill","")
 				else
 					comUnit:sendTo("stats","addGold", (value*mul*0.67) )
-					comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;")
+					--comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;")
 				end
 			else
-				comUnit:sendTo("stats","goldInterest",1.0)--allways full interest
 				--gold from the killing
 				local killValue = (value*mul)+soul.getGoldGainAdd()
 				comUnit:sendTo("stats","addGold", killValue )

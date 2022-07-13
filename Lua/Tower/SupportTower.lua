@@ -231,9 +231,12 @@ function SwarmTower.new()
 		model:getMesh( "boost" ):setVisible(upgrade.getLevel("boost")>0)--set ambient map
 		for index=0, model:getNumMesh()-1 do
 			local mesh = model:getMesh(index)
+			local name = mesh:getName()
 			local shader = mesh:getShader()
-			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
-			mesh:setTexture(shader,texture,4)
+			if name~="crystal" then
+				local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
+				mesh:setTexture(shader,texture,4)
+			end
 		end
 		for i=1, upgrade.getLevel("upgrade") do
 			model:getMesh( "range"..i ):setVisible(upgrade.getLevel("range")==i)

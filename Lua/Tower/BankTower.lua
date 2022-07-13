@@ -12,23 +12,39 @@ function BankTower.new()
 	--
 	local self = {}
 	local waveCount = 0
-	local dmgDoneMarkOfDeath = 0
 	local goldEarned = 0
 	local cData = CampaignData.new()
 	local upgrade = Upgrade.new()
-	local cTowerUpg = CampaignTowerUpg.new("Tower/SupportTower.lua",upgrade)
-	local range = 2.5
+	local coins = {}
+	local cTowerUpg = CampaignTowerUpg.new("Tower/BankTower.lua",upgrade)
+	--local range = 2.5
 
-	local supportGoldPerWave = 20
+	local supportGoldPerWave = 0 -- This value name is replaced on init, upgrade or boost
 	--Gold
 	local goldGainAmount = 0
 	local goldUpdateTimer
-	--XP
-	local xpManager = XpSystem.new(upgrade)
 	--model
+	local pLight = PointLight.new(Vec3(2.0,0.4,0.0),3.5)
+	local crystalPosition = Vec3()
 	local model
 	local meshCrystal --meshCrystal = Mesh()
 	local timer = 0.0
+	--
+	for i=1, 16 do
+		coins[i] = {
+			time1=math.randomFloat()*16.0,
+			time2=math.randomFloat()*16.0,
+			timeMul1=math.randomFloat(0.60,1.0),
+			timeMul2=math.randomFloat(0.15,0.30),
+			mat1=Matrix(),
+			mat2=Matrix(),
+			axis=math.randomVec3(),
+			posVec=math.randomVec3()*0.78,
+			model=Core.getModel("Data/Models/props/gold_coin.mym")
+		}
+		coins[i].mat1:createMatrix(math.randomVec3(),math.randomVec3())
+		coins[i].mat2:createMatrix(math.randomVec3(),math.randomVec3())
+	end
 	--effects
 
 	--communication
@@ -65,13 +81,11 @@ function BankTower.new()
 			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
 			if billboardWaveStats:exist( waveStr )==false then
 				local tab = {
-					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
 					upgradeTab = upgrade.storeWaveChangeStats(),
-					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-					DamageTotal = billboard:getDouble("DamageTotal"),
 					upgradeLevel = upgrade.getLevel("upgrade"),
-					goldLevel = upgrade.getLevel("gold")
+					goldLevel = upgrade.getLevel("gold"),
+					goldEarnedPreviousWave = billboard:getDouble("goldEarnedPreviousWave"),
+					goldEarned = billboard:getDouble("goldEarned")
 				}
 				billboardWaveStats:setTable( waveStr, tab )
 			end
@@ -96,32 +110,20 @@ function BankTower.new()
 			--restore the stats from the wave
 			local tab = billboardWaveStats:getTable( tostring(wave) )
 			if tab then
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
-				end
 				--
 				doDegrade(upgrade.getLevel("gold"),tab.goldLevel,self.handleUpgradegold)
 				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
 				--
 				upgrade.restoreWaveChangeStats(tab.upgradeTab)
 				--
-				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
-				billboard:setDouble("DamageTotal", tab.DamageTotal)
+				billboard:setDouble("goldEarnedPreviousWave",tab.goldEarnedPreviousWave)
+				billboard:setDouble("goldEarned", tab.goldEarned)
 			end
 		end
 	end
-	-- function:	sendSupporUpgrade
-	-- purpose:		broadcasting what upgrades the towers close by should use
-	local function sendSupporUpgrade()
-		
-	end
 	local function restartWave(param)
 		restoreWaveChangeStats( tonumber(param) )
-		sendSupporUpgrade()
 		goldEarned = 0
-		dmgDoneMarkOfDeath = 0
 	end
 	-- function:	waveChanged
 	-- purpose:		called on wavechange. updates the towers stats
@@ -131,45 +133,30 @@ function BankTower.new()
 		name,waveCountStr = string.match(param, "(.*);(.*)")
 		waveCount = tonumber(waveCountStr)
 		
-		goldEarned = supportGoldPerWave
-		totalGoaldEarned = totalGoaldEarned + goldEarned
+		goldEarned = goldEarned + supportGoldPerWave
+		totalGoaldEarned = totalGoaldEarned + supportGoldPerWave
 		if canSyncTower() then
-			comUnit:sendTo("stats","addGold",tostring(goldEarned))
-			comUnit:sendTo("stats","addBillboardInt", "totalGoldSupportEarned;"..tostring(goldEarned))
+			comUnit:sendTo("stats","addGold",tostring(supportGoldPerWave))
+			comUnit:sendTo("stats","addBillboardDouble", "goldGainedFromSupportTowers;"..tostring(supportGoldPerWave))
 		end
 		
 		--update and save stats only if we did not just restore this wave
 		if waveCount>=lastRestored then
-			if not xpManager then
-				billboard:setDouble("DamagePreviousWave",0)
-				billboard:setDouble("DamagePreviousWavePassive",dmgDoneMarkOfDeath)
-				billboard:setDouble("goldEarnedPreviousWave",goldEarned)
-				billboard:setDouble("goldEarned",billboard:getDouble("goldEarned")+goldEarned)
-				if canSyncTower() then
-					comUnit:sendTo("stats", "addTotalDmg", dmgDoneMarkOfDeath )
-				end
-			else
-				xpManager.payStoredXp(waveCount)
-				--update billboard
-				upgrade.fixBillboardAndStats()
-			end
+			billboard:setDouble("goldEarnedPreviousWave",goldEarned)
+			billboard:setDouble("goldEarned", totalGoaldEarned)
 			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(waveCount+1) )
 		end
-		--tell every tower how it realy is
-		sendSupporUpgrade()
 		--
 		goldEarned = 0
-		dmgDoneMarkOfDeath = 0
 	end
-
 	-- function:	handleGoldStats
 	-- purpose:		called when a unit has died with the effect active
 	local function handleGoldStats(param)
 		local goldGained = tonumber(param)
 		goldEarned = goldEarned + goldGained
 		totalGoaldEarned = totalGoaldEarned + goldGained
-		billboard:setDouble("goldEarnedCurrentWave",goldEarned)
+		billboard:setDouble("goldEarned", totalGoaldEarned)
 		if canSyncTower() then
 			comUnit:sendTo("SteamStats","MaxGoldEarnedFromSingleSupportTower",totalGoaldEarned)
 			comUnit:sendTo("stats","addBillboardDouble","goldGainedFromSupportTowers;"..tostring(goldGained))
@@ -179,13 +166,7 @@ function BankTower.new()
 	-- function:	setCurrentInfo
 	-- purpose:		
 	local function setCurrentInfo()
-		if xpManager then
-			xpManager.updateXpToNextLevel()
-		end
-
 		supportGoldPerWave = upgrade.getValue("supportGoldPerWave")
-		--manage support upgrades
-		sendSupporUpgrade()
 	end
 	-- function:	initModel
 	-- purpose:		to initialize the model and set the visibility flag for every mesh
@@ -196,17 +177,14 @@ function BankTower.new()
 		
 		--set visibility on all meshes
 		model:getMesh( "physic" ):setVisible(false)
-		model:getMesh( "weaken" ):setVisible(false)
-		model:getMesh( "boost" ):setVisible(false)
-		for index=0, model:getNumMesh()-1 do
-			local mesh = model:getMesh(index)
-			local shader = mesh:getShader()
-			local texture = Core.getTexture("towergroup_a")
-			mesh:setTexture(shader,texture,4)
-		end
-		for i=1, upgrade.getLevel("upgrade") do
-			model:getMesh( "range"..i ):setVisible(false)
-			model:getMesh( "dmg"..i ):setVisible(false)
+
+
+		local crystal = model:getMesh( "crystal" )
+		pLight:setLocalPosition(Vec3(0,0.5,0))
+		crystal:addChild(pLight:toSceneNode())
+		crystalPosition = crystal:getLocalPosition()
+		for i=1, 16 do
+			crystal:addChild(coins[i].model:toSceneNode())
 		end
 	end
 	-- function:	doMeshUpgradeForLevel
@@ -255,7 +233,7 @@ function BankTower.new()
 			achievementUnlocked("Upgrader")
 		end
 		--
-		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
+		--if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
 			--
 			this:removeChild(model:toSceneNode())
 			model = Core.getModel( upgrade.getValue("model") )
@@ -263,7 +241,7 @@ function BankTower.new()
 			this:addChild(model:toSceneNode())
 			billboard:setModel("tower",model)
 			cTowerUpg.fixAllPermBoughtUpgrades()
-		end
+		--end
 		upgrade.clearCooldown()
 		setCurrentInfo()
 
@@ -297,11 +275,6 @@ function BankTower.new()
 			achievementUnlocked("UpgradeSupportGold")
 		end
 	end
-	-- function:	Updates all tower what upgrades that is available
-	-- callback:	Is called when a tower is built closeby
-	local function handleShockwave()
-		sendSupporUpgrade()
-	end
 	-- function:	update
 	-- purpose:		default update sycle
 	function self.update()
@@ -317,9 +290,6 @@ function BankTower.new()
 				comUnitTable[msg.message](msg.parameter,msg.fromIndex)
 			end
 		end
-		if xpManager then
-			xpManager.update()
-		end
 		lastGlobalPosition = this:getGlobalPosition()
 		
 		--gold gain aura
@@ -333,7 +303,23 @@ function BankTower.new()
 		
 		--update the crystal animation
 		timer = timer + (Core.getDeltaTime()*0.75)
-		meshCrystal:setLocalPosition(Vec3(0, 0.65+(0.1*math.sin(timer)), 0))
+		--meshCrystal:setLocalPosition(Vec3(0, 0.65+(0.1*math.sin(timer)), 0))
+
+		local crystal = model:getMesh( "crystal" )
+		-- coins
+		local deltaTime = Core.getDeltaTime()
+		local dist = 0.35+(upgrade.getLevel("upgrade")*0.15)
+		for i=1, 4+(4*upgrade.getLevel("upgrade")) do
+			local coin = coins[i]
+			coin.time1 = coin.time1 + deltaTime*coin.timeMul1
+			coin.time2 = coin.time2 + deltaTime*coin.timeMul2
+			coin.mat1:rotate(coin.axis,coin.time1)
+			coin.mat2:rotate(coin.mat1:getUpVec(),coin.time2)
+			coin.model:setLocalPosition(coin.mat2*coin.posVec*dist)
+			coin.model:rotate(coin.axis, deltaTime)
+		end
+		--crystal
+		crystal:setLocalPosition(Vec3(0,0.1+0.1*math.sin(timer),0)+crystalPosition)
 		
 		--change update speed
 		local state = tonumber(this:getVisibleInCamera()) * math.max(1,tonumber(cameraNode:getGlobalPosition().y < 25) * 2)
@@ -363,14 +349,11 @@ function BankTower.new()
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
-		if xpManager then
-			xpManager.setUpgradeCallback(self.handleUpgrade)
-		end
 		
 		restartListener = Listener("RestartWave")
 		restartListener:registerEvent("restartWave", restartWave)
 	
-		model = Core.getModel("tower_support_l1.mym")
+		model = Core.getModel("tower_gold_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
 
@@ -395,9 +378,8 @@ function BankTower.new()
 		billboard:setInt("level", 1)
 		billboard:setFloat("baseRange", TOWERRANGE)
 		--
-		billboard:setDouble("DamagePreviousWave",0)
-		billboard:setDouble("DamagePreviousWavePassive",0)
 		billboard:setDouble("goldEarnedPreviousWave",0)
+		billboard:setDouble("goldEarned", 0)
 	
 		--ComUnitCallbacks
 		comUnitTable["waveChanged"] = waveChanged
@@ -413,25 +395,25 @@ function BankTower.new()
 		upgrade.addDisplayStats("supportGoldPerWave")
 
 
-		upgrade.addUpgrade( {	cost = 200,
+		upgrade.addUpgrade( {	cost = 500,
 								name = "upgrade",
 								info = "Bank tower level",
 								order = 1,
 								icon = 56,
 								value1 = 1,
 								stats ={range =					{ upgrade.add, TOWERRANGE},
-										supportGoldPerWave =	{ upgrade.add, 30},
-										model = 				{ upgrade.set, "tower_support_l1.mym"} }
+										supportGoldPerWave =	{ upgrade.add, 50}, -- buildingCost * 0.1 = 30
+										model = 				{ upgrade.set, "tower_gold_l1.mym"} }
 							} )
-		upgrade.addUpgrade( {	cost = 300,
+		upgrade.addUpgrade( {	cost = 500,
 								name = "upgrade",
 								info = "Bank tower level",
 								order = 1,
 								icon = 56,
 								value1 = 2,
 								stats ={range =					{ upgrade.add, TOWERRANGE},
-										supportGoldPerWave =	{ upgrade.add, 75},
-										model = 				{ upgrade.set, "tower_support_l2.mym"}}
+										supportGoldPerWave =	{ upgrade.add, 110}, -- buildingCost * 0.1 = 75
+										model = 				{ upgrade.set, "tower_gold_l2.mym"}}
 							},0 )
 		upgrade.addUpgrade( {	cost = 500,
 								name = "upgrade",
@@ -440,9 +422,22 @@ function BankTower.new()
 								icon = 56,
 								value1 = 3,
 								stats ={range =					{ upgrade.add, TOWERRANGE},
-										supportGoldPerWave =	{ upgrade.add, 150},
-										model = 				{ upgrade.set, "tower_support_l3.mym"}}
+										supportGoldPerWave =	{ upgrade.add, 170}, -- buildingCost * 0.1 = 150
+										model = 				{ upgrade.set, "tower_gold_l3.mym"}}
 							},0 )
+
+		-- boost is always after
+		upgrade.addUpgrade( {	cost = 0,
+								name = "boost",
+								info = "support tower boost",
+								duration = 10,
+								cooldown = 3,
+								order = 10,
+								icon = 68,
+								value1 = 15,
+								value2 = 80,
+								stats =	{}
+							} )
 		
 		-- gold
 		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("gold",1) and 0 or 100,

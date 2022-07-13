@@ -3,7 +3,6 @@ require("Game/diffBalancer.lua")
 --this = SceneNode()
 
 local timer = 0.0
-local interesetMultiplyerOnKill = 1.0
 local isCircleMap = false
 local diffBalancer = DiffBalancer.new()
 
@@ -18,7 +17,6 @@ function restartMap()
 	billboard:setDouble("gold", startGold or 1000)
 	billboard:setDouble("goldGainedTotal", startGold or 1000)
 	billboard:setDouble("goldGainedFromKills", 0.0)
-	billboard:setDouble("goldGainedFromInterest", 0.0)
 	billboard:setDouble("goldGainedFromWaves", billboard:getDouble("gold"))
 	billboard:setDouble("goldGainedFromSupportTowers", 0.0)
 	billboard:setDouble("goldInsertedToTowers", 0.0)
@@ -82,7 +80,6 @@ function restartWave(wave)
 		billboard:setDouble("defaultGold", item["defaultGold"])--how much gold you start the game with
 		billboard:setDouble("goldGainedTotal", item["goldGainedTotal"])
 		billboard:setDouble("goldGainedFromKills", item["goldGainedFromKills"])
-		billboard:setDouble("goldGainedFromInterest", item["goldGainedFromInterest"])
 		billboard:setDouble("goldGainedFromWaves", item["goldGainedFromWaves"])
 		billboard:setDouble("goldGainedFromSupportTowers", item["goldGainedFromSupportTowers"])
 		billboard:setDouble("goldInsertedToTowers", item["goldInsertedToTowers"])
@@ -163,7 +160,6 @@ function create()
 
 	--ComUnitCallbacks
 	comUnitTable = {}
-	comUnitTable["setInteresetMultiplyerOnKill"] = handleInteresetMultiplyerOnKill
 	comUnitTable["setLife"] = abort
 	comUnitTable["setGold"] = handleSetGold
 	comUnitTable["setStartGold"] = handleSetStartGold
@@ -172,7 +168,6 @@ function create()
 	comUnitTable["addGoldNoScore"] = handleAddGoldNoScore
 	comUnitTable["addGoldWaveBonus"] = handleAddGoldWaveBonus
 	comUnitTable["addTotalDmg"] = handleAddTotalDamage
-	comUnitTable["goldInterest"] = handleGoldInterest
 	comUnitTable["removeGold"] = handleRemoveGold
 	--
 	comUnitTable["addTowersSold"] = handleAddTowerSold
@@ -235,13 +230,13 @@ function create()
 	return true
 end
 function updateScore()
-	billboard:setDouble("score", billboard:getDouble("totalTowerValue") + billboard:getDouble("gold") + (billboard:getInt("life")*100) + billboard:getDouble("goldGainedFromInterest") )
+	billboard:setDouble("score", billboard:getDouble("totalTowerValue") + billboard:getDouble("gold") + (billboard:getInt("life")*100) )
 	updateScoreIconStatus()
 end
 	
-function handleInteresetMultiplyerOnKill(mul)
-	interesetMultiplyerOnKill = tonumber(mul)
-end
+--function handleInteresetMultiplyerOnKill(mul)
+--	interesetMultiplyerOnKill = tonumber(mul)
+--end
 function handleAddTotalDamage(dmg)
 	billboard:setDouble("totalDamageDone", billboard:getDouble("totalDamageDone")+tonumber(dmg))
 end
@@ -256,15 +251,6 @@ function handleSetLife(numLife)
 	local mapInfo = MapInfo.new()
 	billboard:setInt("life", tonumber(numLife))
 	billboard:setDouble("diffBalancer", diffBalancer.getHandicap(currentWave))
-	if mapInfo.getGameMode()=="training" then
-		billboard:setDouble("activeInterestrate",0.0)	
-	else
-		if mapInfo.isCartMap() or mapInfo.isCricleMap() then
-			billboard:setDouble("activeInterestrate",0.002)
-		else
-			billboard:setDouble("activeInterestrate",0.002*(billboard:getInt("life")/billboard:getInt("maxLife")))
-		end
-	end
 	updateScore()
 end
 function handleSetMaxLife()
@@ -310,14 +296,6 @@ function handleAddGoldWaveBonus(amount)
 	handleAddGold(amount)
 	billboard:setDouble("goldGainedFromWaves",billboard:getDouble("goldGainedFromWaves")+tonumber(amount))
 end
---player earn gold on all real kills (repar spawns and hydras>1 does not grant any gold/interest)
-function handleGoldInterest(multiplyer)
-	if interesetMultiplyerOnKill>0.00001 then
-		local interestEarned = billboard:getDouble("gold")*tonumber(multiplyer)*billboard:getDouble("activeInterestrate")*interesetMultiplyerOnKill
-		handleAddGold( interestEarned )
-		billboard:setDouble( "goldGainedFromInterest", billboard:getDouble("goldGainedFromInterest")+interestEarned )
-	end
-end
 function handleRemoveGold(amount)
 	billboard:setDouble("gold", billboard:getDouble("gold")-tonumber(amount))
 	billboard:setDouble("goldInsertedToTowers", billboard:getDouble("goldInsertedToTowers")+tonumber(amount))
@@ -348,7 +326,6 @@ function handleSetwave(inWave)
 		defaultGold = billboard:getDouble("defaultGold"),
 		goldGainedTotal = billboard:getDouble("goldGainedTotal"),
 		goldGainedFromKills = billboard:getDouble("goldGainedFromKills"),
-		goldGainedFromInterest = billboard:getDouble("goldGainedFromInterest"),
 		goldGainedFromWaves = billboard:getDouble("goldGainedFromWaves"),
 		goldGainedFromSupportTowers = billboard:getDouble("goldGainedFromSupportTowers"),
 		goldInsertedToTowers = billboard:getDouble("goldInsertedToTowers"),
@@ -522,7 +499,6 @@ function setStatsPerKillTableOn(index)
 			billboard:getDouble("gold"),
 			billboard:getDouble("goldGainedTotal"),
 			billboard:getDouble("goldGainedFromKills"),
-			billboard:getDouble("goldGainedFromInterest"),
 			billboard:getDouble("goldGainedFromWaves"),
 			billboard:getDouble("goldGainedFromSupportTowers"),
 			billboard:getDouble("goldInsertedToTowers"),

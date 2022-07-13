@@ -532,7 +532,6 @@ function SpawnManager.new()
 			local totalGoldEarned = startGold
 			local theoreticalGold = startGold-350--start cost of wall towers
 			local theoreticalPaidHpPS = 0.0
-			local theoreticalMinimumScoreInterest = 0.0
 			local theoreticalGoldPaid = 0.0
 			local minimalScore = 0.0
 			local timerAddBetweenWaves = 5+math.max(-0.5,5.5*(1.0-difficultBase))
@@ -902,12 +901,10 @@ function SpawnManager.new()
 						waveGoldEarned = waveGoldEarned + calculateGoldValue(groupUnit.npc,hpMultiplyer)
 						waveNpcGold = waveNpcGold + calculateGoldValue(groupUnit.npc,hpMultiplyer)
 						--
-						waveGoldEarned = waveGoldEarned + (theoreticalGold*tonumber(interestOnKill))
+						waveGoldEarned = waveGoldEarned + theoreticalGold
 						--
-						theoreticalGold = (theoreticalGold*(1.0+tonumber(interestOnKill))) + calculateGoldValue(groupUnit.npc,hpMultiplyer)--statistics
+						theoreticalGold = theoreticalGold + calculateGoldValue(groupUnit.npc,hpMultiplyer)--statistics
 						
-						--score += 400[estimated gold available]*interestOnKill*2*2[life/10==2, or on mincart map it is default 2]+goldEarnedFromKillingNPC
-						theoreticalMinimumScoreInterest = theoreticalMinimumScoreInterest + (200.0*tonumber(interestOnKill)*2.0)
 						--
 						--add unit to wave info
 						if waveDetailsInfo[groupUnit.npc] then
@@ -1075,9 +1072,8 @@ function SpawnManager.new()
 			local minutes=math.floor(playTime/60)
 			--playTime = playTime - (minutes*60)
 			print("=== totalGoldEarned(guaranteed)="..totalGoldEarned)
-			print("=== theoreticalMinimumScoreInterest="..theoreticalMinimumScoreInterest)
 			print("=== minimalScore(guaranteed)="..totalGoldEarned*0.75)
-			print("=== minimalScore="..tostring(((totalGoldEarned+theoreticalMinimumScoreInterest)*0.75)+theoreticalMinimumScoreInterest+100))
+			print("=== minimalScore="..tostring(((totalGoldEarned)*0.75)+100))
 			
 --			abort()
 --			LOG(tostring(waves))
@@ -1086,7 +1082,6 @@ function SpawnManager.new()
 --			LOG("=== theoreticalGoldPaid="..theoreticalGoldPaid)
 --			LOG("=== totalGoldEarned(guaranteed)="..totalGoldEarned)
 --			LOG("=== theoreticalGold(Earned)="..(theoreticalGold+theoreticalGoldPaid))
---			LOG("=== interest="..(theoreticalGold+theoreticalGoldPaid-totalGoldEarned))
 --			LOG("=== playTime=="..hours.."h "..minutes.."m")
 --			abort()
 			--

@@ -220,11 +220,11 @@ function create()
 		buildings[7] = {name="Missile tower", range=0,damage=0,dmg_range=-1,cost = 0}
 		buildings[8] = {name="Quake tower", range=0,damage=0,dmg_range=-1,cost = 0}
 		buildings[9] = {name="Support tower", range=0,cost = 0}
-		buildings[10] = {name="Bank tower", range=0,cost = 0}
+		buildings[10]= {name="Bank tower", range=0,cost = 0}
 		
 		local keyBinds = Core.getBillboard("keyBind")
 		local keyBind = {}
-		for i = 1, 9 do
+		for i = 1, 10 do
 			keyBind[i] = keyBinds:getKeyBind("Building " .. i)
 		end
 		

@@ -61,26 +61,25 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 			goldAvailable = item[1],
 			goldGainedTotal = item[2],
 			goldGainedFromKills = item[3],
-			goldGainedFromInterest = item[4],
-			goldGainedFromWaves = item[5],
-			goldGainedFromSupportTowers = item[6],
-			goldInsertedToTowers = item[7],
-			goldLostFromSelling = item[8],
+			goldGainedFromWaves = item[4],
+			goldGainedFromSupportTowers = item[5],
+			goldInsertedToTowers = item[6],
+			goldLostFromSelling = item[7],
 			--SCORE
-			score = item[9],
-			totalTowerValue = item[10],
-			life = item[11],
+			score = item[8],
+			totalTowerValue = item[9],
+			life = item[10],
 			--TOWERS
-			towersBuilt = item[12],
-			wallTowerBuilt = item[13],
-			towersSold = item[14],
-			towersUpgraded = item[15],
-			towersSubUpgraded = item[16],
-			towersBoosted = item[17],
+			towersBuilt = item[11],
+			wallTowerBuilt = item[12],
+			towersSold = item[13],
+			towersUpgraded = item[14],
+			towersSubUpgraded = item[15],
+			towersBoosted = item[16],
 			--ENEMIES
-			spawnCount = item[18],
-			killCount = item[19],
-			totalDamageDone = item[20],
+			spawnCount = item[17],
+			killCount = item[18],
+			totalDamageDone = item[19],
 		}
 	end
 	--
@@ -334,7 +333,7 @@ function GraphDrawer.new(pPanel, pLife, pScorePerLife, pScoreLimits)
 			panel:addRenderObject( staticMesh )
 			
 			drawLine(staticMesh, getScoreGraph(function(index)	return getGridY(getKill(index)["score"]-(20*pScorePerLife)) end), 1, Vec4(0.85,0.85,0.85,0.1))--getKill(index)["life"]
-			drawLine(staticMesh, getScoreGraph(function(index)	return getGridY(getKill(index)["goldGainedFromInterest"]) end), 1, Vec4(0.85,0.85,0.85,0.1))
+			--drawLine(staticMesh, getScoreGraph(function(index)	return getGridY(getKill(index)["goldGainedFromInterest"]) end), 1, Vec4(0.85,0.85,0.85,0.1))
 			
 			for k,v in pairs(scoreLimits) do
 				if v.score>1 then

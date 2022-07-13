@@ -7,7 +7,6 @@ function create()
 	local goldEstimationEarnedPerWave = 500+(numWaves*5)
 	local startGold = 1000
 	local goldMultiplayerOnKills = 1.0
-	local interestMultiplyerOnKill = 1.0
 	local startLives = 20
 	local seed = mapInfo.getSead()
 	local startSpawnWindow = mapInfo.getSpawnWindow()			--how many group compositions that can spawn 2==[1,2,3]
@@ -24,17 +23,13 @@ function create()
 	elseif mapInfo.getGameMode()=="survival" then
 		--lower the availabel gold to make the spawned npc's easier. (this will make it easier to get intrest in the available gold)
 		startGold = startGold*0.5				--(makes the spawn easier, restored after the generating of the waves)
-		interestMultiplyerOnKill = 0.5				--(makes the spawn easier, restored after the generating of the waves)
 		numWaves = 100
 	elseif mapInfo.getGameMode()=="training" then
 		--nothing, so the spawns will be the same as if in normal game
-	elseif mapInfo.getGameMode()=="only interest" then
-		--nonting, to calculate the wave unchanged
 	elseif mapInfo.getGameMode()=="leveler" then
 		startGold = 1000
-		interestMultiplyerOnKill = 0
 	end
-	if not event.init(startGold,waveFinishedGold,interestMultiplyerOnKill,startLives,level) then
+	if not event.init(startGold,waveFinishedGold,startLives,level) then
 		return false
 	end
 	--
@@ -50,21 +45,14 @@ function create()
 	
 	if mapInfo.getGameMode()=="survival" then
 		startGold = startGold * 2.0
-		interestMultiplyerOnKill = 1.0
 	elseif mapInfo.getGameMode()=="training" then
 		startGold = 9000
 		waveFinishedGold = 0
-		interestMultiplyerOnKill = 0
-		goldMultiplayerOnKills = 0
-	elseif mapInfo.getGameMode()=="only interest" then
-		waveFinishedGold = 0
-		startGold = 3000
 		goldMultiplayerOnKills = 0
 	elseif mapInfo.getGameMode()=="leveler" then
 		goldMultiplayerOnKills = 0
-		interestMultiplyerOnKill = 0
 	end
-	event.setDefaultGold(startGold,waveFinishedGold,interestMultiplyerOnKill,goldMultiplayerOnKills)
+	event.setDefaultGold(startGold,waveFinishedGold,goldMultiplayerOnKills)
 	
 	update = event.update
 	return true

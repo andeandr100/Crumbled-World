@@ -40,6 +40,7 @@ function create()
 	createKeyboardBind("BuildHeader", "hotKey", "Building 7", -1, Key.k7);
 	createKeyboardBind("BuildHeader", "hotKey", "Building 8", -1, Key.k8);
 	createKeyboardBind("BuildHeader", "hotKey", "Building 9", -1, Key.k9);
+	createKeyboardBind("BuildHeader", "hotKey", "Building 10", -1, Key.k0);
 	createMouseBind("BuildHeader", "placment", "Place", -1, MouseKey.left);
 	createMouseBind("BuildHeader", "placment", "Deselect", -1, MouseKey.right);
 	createKeyboardBind("BuildHeader", "placment", "Locked rotation", -1, Key.lctrl);

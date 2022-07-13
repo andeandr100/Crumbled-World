@@ -78,7 +78,7 @@ function BoostAbility.new(inCamera, inComUnit)
 			if show then
 				local script = node:getScriptByName("tower")
 				local scriptBilboard = script and script:getBillboard() or nil
-				if script and scriptBilboard and scriptBilboard:getString("Name") ~= "Wall tower" and scriptBilboard:getBool("isNetOwner") then
+				if script and scriptBilboard and scriptBilboard:getString("Name") ~= "Wall tower" and scriptBilboard:getString("Name") ~= "Bank tower" and scriptBilboard:getBool("isNetOwner") then
 					setGlowColor( node, Vec3(0.05,0.15,0.05) )
 				end
 			else

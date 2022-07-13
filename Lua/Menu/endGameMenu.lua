@@ -174,29 +174,28 @@ function setStatsLayout(panel)
 	menuItems[1] = { label=addheader(panel,"Gold"), key=1}
 	menuItems[2] = { label=addLine(panel,2,language:getText("Total gold earned")), key=2}
 	menuItems[3] = { label=addLine(panel,4,language:getText("From kills")), key=3}
-	menuItems[4] = { label=addLine(panel,5,language:getText("From interest")), key=4}
-	menuItems[5] = { label=addLine(panel,6,language:getText("From waves")), key=5}
-	menuItems[6] = { label=addLine(panel,7,language:getText("From towers")), key=6}
-	menuItems[7] = { label=addLine(panel,8,language:getText("Spent in towers")), key=7}
-	menuItems[8] = { label=addLine(panel,9,language:getText("Lost from selling")), key=8}
+	menuItems[4] = { label=addLine(panel,5,language:getText("From waves")), key=4}
+	menuItems[5] = { label=addLine(panel,6,language:getText("From towers")), key=5}
+	menuItems[6] = { label=addLine(panel,7,language:getText("Spent in towers")), key=6}
+	menuItems[7] = { label=addLine(panel,8,language:getText("Lost from selling")), key=7}
 	--
-	menuItems[9] = { label=addheader(panel,"Score"), key=9}
-	menuItems[10] = { label=addLine(panel,9,"From gold:")}
-	menuItems[11] = { label=addLine(panel,10,"Total tower value:"), key=10}
-	menuItems[12] = { label=addLine(panel,11,"From life left:"), key=11, multiplyer=SCOREPERLIFE}
+	menuItems[8] = { label=addheader(panel,"Score"), key=8}
+	menuItems[9] = { label=addLine(panel,9,"From gold:")}
+	menuItems[10] = { label=addLine(panel,10,"Total tower value:"), key=9}
+	menuItems[11] = { label=addLine(panel,11,"From life left:"), key=10, multiplyer=SCOREPERLIFE}
 	--
 	addheader(panel,"Towers")
-	menuItems[13] = { label=addLine(panel,10,"Built:"), key=12}
-	menuItems[14] = { label=addLine(panel,11,"walls:"), key=13}
-	menuItems[15] = { label=addLine(panel,12,"sold:"), key=14}
-	menuItems[16] = { label=addLine(panel,13,"Upgrades:"), key=15}
-	menuItems[17] = { label=addLine(panel,14,"Sub upgrades:"), key=16}
-	menuItems[18] = { label=addLine(panel,15,"Boosted:"), key=17}
+	menuItems[12] = { label=addLine(panel,10,"Built:"), key=11}
+	menuItems[13] = { label=addLine(panel,11,"walls:"), key=12}
+	menuItems[14] = { label=addLine(panel,12,"sold:"), key=13}
+	menuItems[15] = { label=addLine(panel,13,"Upgrades:"), key=14}
+	menuItems[16] = { label=addLine(panel,14,"Sub upgrades:"), key=15}
+	menuItems[17] = { label=addLine(panel,15,"Boosted:"), key=16}
 	--
 	addheader(panel,"Enemies")
-	menuItems[19] = { label=addLine(panel,16,"Spawned:"), key=18}
-	menuItems[20] = { label=addLine(panel,17,"Killed:"), key=19}
-	menuItems[21] = { label=addLine(panel,18,"Damage:"), key=20}
+	menuItems[18] = { label=addLine(panel,16,"Spawned:"), key=17}
+	menuItems[19] = { label=addLine(panel,17,"Killed:"), key=18}
+	menuItems[20] = { label=addLine(panel,18,"Damage:"), key=19}
 end
 function setGraphLayout()
 	
@@ -410,9 +409,6 @@ function manageVictoryAchievement(scoreItem)
 	end
 	if scoreItem.name=="dimond" and mapInfo.getGameMode()=="leveler" then
 		comUnit:sendTo("SteamAchievement","BeatLevelerInsane","")
-	end
-	if scoreItem.name=="dimond" and mapInfo.getGameMode()=="only interest" then
-		comUnit:sendTo("SteamAchievement","BeatInflationInsane","")
 	end
 	--Flawless game
 	if scoreItem.name=="dimond" then

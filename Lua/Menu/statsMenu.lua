@@ -164,12 +164,10 @@ local function updateGoldToolTip()
 
 	local goldTextList = {	{text=language:getText("Total gold earned"),	billName="goldGainedTotal", color="40,255,40" }, 
 							{text=language:getText("From kills"), 			billName="goldGainedFromKills", color="40,255,40" }, 
-							{text=language:getText("From interest"), 		billName="goldGainedFromInterest", color="40,255,40" }, 
 							{text=language:getText("From waves"), 			billName="goldGainedFromWaves", color="40,255,40" }, 
 							{text=language:getText("From towers"), 			billName="goldGainedFromSupportTowers", color="40,255,40" }, 
 							{text=language:getText("Spent in towers"), 		billName="goldInsertedToTowers", color="255,255,40" }, 
 							{text=language:getText("Lost from selling"),	billName="goldLostFromSelling", color="255,40,40"},
-							{text=language:getText("Interest rate"),		billName="activeInterestrate", color="40,255,40"},
 --							{text="towersBuilt",		billName="towersBuilt", color="40,255,40"},
 --							{text="wallTowerBuilt",		billName="wallTowerBuilt", color="40,255,40"},
 --							{text="towersSold",		billName="towersSold", color="40,255,40"},
@@ -195,12 +193,7 @@ local function updateGoldToolTip()
 
 		
 		local goldLabel
-		if goldTextList[i].billName=="activeInterestrate" then
-			local out = string.format("%.2f",statsBilboard:getDouble(goldTextList[i].billName)*100.0)
-			goldLabel = goldPanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..goldTextList[i].color..")>"..out.."%</font>") ))
-		else
-			goldLabel = goldPanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..goldTextList[i].color..")>"..getBillboardStr(goldTextList[i].billName).."</font>") ))
-		end
+		goldLabel = goldPanel:add(Label( PanelSize(Vec2(1)), Text("<font color=rgb("..goldTextList[i].color..")>"..getBillboardStr(goldTextList[i].billName).."</font>") ))
 		goldLabel:setTextHeight(Core.getScreenResolution().y * 0.0125)
 		local goldPixelSize = goldLabel:getTextSizeInPixel() + Vec2(4,2)
 		goldSize.x = math.max(goldSize.x, goldPixelSize.x)

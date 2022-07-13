@@ -145,7 +145,7 @@ function SwarmBall.new(pTargetSelector)
 			--score target close to tower
 			targetSelector.setPosition(towerPosition)--calculate value of closest target in comparison to the tower
 			targetSelector.scoreClosest(10)--closest to the tower
-			--score target by interest
+			--score target
 			targetSelector.scoreName("fireSpirit",-100)
 			targetSelector.scoreState(state.burning,-15)--[burning==2]
 			--select only targets that is in range of the tower

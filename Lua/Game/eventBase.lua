@@ -207,7 +207,7 @@ function EventBase.new()
 			end
 		end
 	end
-	function self.init(pStartGold,pWaveFinishedBonus,pInterestMulOnKill,pLives,pLevel)
+	function self.init(pStartGold,pWaveFinishedBonus,pLives,pLevel)
 		--make sure that only one event script is running
 		if Core.getScriptOfNetworkName("Event"..(Core.isInMultiplayer() and Core.getNetworkClient():getClientId() or "-")) then
 			return false
@@ -231,7 +231,6 @@ function EventBase.new()
 	
 		--mapp settings for initiating the waves
 		waveFinishedBonus = pWaveFinishedBonus
-		comUnit:sendTo("stats","setInteresetMultiplyerOnKill",tonumber(pInterestMulOnKill))
 		setGold(pStartGold)
 		comUnit:sendTo("stats", "setMaxLife", tostring(pLives))
 		local tab = {startGold=pStartGold,WaveFinishedBonus=pWaveFinishedBonus,lives=pLives,level=pLevel}
@@ -276,10 +275,9 @@ function EventBase.new()
 		end
 		return true
 	end
-	function self.setDefaultGold(pStartGold,pWaveFinishedBonus,pInterestMulOnKill,pGoldMultiplayerOnKills)
+	function self.setDefaultGold(pStartGold,pWaveFinishedBonus,pGoldMultiplayerOnKills)
 		waveFinishedBonus = pWaveFinishedBonus
 		spawnManager.setGoldMultiplayerOnKills(pGoldMultiplayerOnKills)
-		comUnit:sendTo("stats","setInteresetMultiplyerOnKill",tonumber(pInterestMulOnKill))
 		setGold(pStartGold)
 	end
 	function self.doRestartWave(restartedFromTheOutSide)
@@ -380,7 +378,7 @@ function EventBase.new()
 						steamStatMinPlayedTime = Core.getTime()
 					end
 					comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("goldGainedTotal"))
-					comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("goldGainedFromInterest"))
+					--comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("goldGainedFromInterest"))
 					comUnit:sendTo("SteamStats","MaxGoldGainedFromSupportSingeGame",bilboardStats:getInt("goldGainedFromSupportTowers"))
 					--comUnit:sendNetworkSyncSafe("ChangeWave",tostring(waveCount))
 					sendNetworkSyncSafe("ChangeWave",tostring(waveCount))
@@ -430,7 +428,7 @@ function EventBase.new()
 							comUnit:sendTo("builder"..node:getClientId(), "sendHightScoreToTheServer","")
 							comUnit:sendTo("SteamStats","MaxGoldEarnedDuringSingleGame",bilboardStats:getInt("goldGainedTotal"))
 							comUnit:sendTo("SteamStats","MaxGoldAtEndOfMap",bilboardStats:getInt("gold"))
-							comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("goldGainedFromInterest"))
+							--comUnit:sendTo("SteamStats","MaxGoldInterestEarned",bilboardStats:getInt("goldGainedFromInterest"))
 							--
 							-- Achievements
 							--

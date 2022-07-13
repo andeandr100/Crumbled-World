@@ -77,7 +77,7 @@ function updateSelectedTowerToBuild()
 --		enableTheCrasher = true
 --	end
 	if canBuildInThisWorld then 
-		for i = 1, 9 do
+		for i = 1, 10 do
 			if keyBind[i] and keyBind[i]:getPressed() then
 				currentTowerIndex = i;
 				changeSelectedTower( buildings[i] );
@@ -379,7 +379,7 @@ function create()
 		keyBinds = Core.getBillboard("keyBind")
 		keyRotationLocked = keyBinds:getKeyBind("Locked rotation")
 		keyBind = {}
-		for i = 1, 9 do
+		for i = 1, 10 do
 			print("building "..tostring(i).."\n")
 			keyBind[i] = keyBinds:getKeyBind("Building " .. i)
 		end
