@@ -11,7 +11,7 @@ function create()
 	
 	npcBase.init("stoneSpirit","npc_stonespirit.mym",0.2,0.6,1.3,2.0)
 	--physic animated death
-	npcBase.addDeathRigidBody()
+	npcBase.addDeathRigidBody(false)
 	--particle effect
 	sparkCenter = ParticleSystem.new(ParticleEffect.SpiritStone)
 	sparkCenter:activate(Vec3(0.0,0.75,0.0))

@@ -60,7 +60,7 @@ function AttackAbility.new(inCamera, inComUnit)
 	end
 	
 	local function getDamage()
-		return statsBilboard:getInt("npc_scorpion_hp")	
+		return statsBilboard:getInt("npc_scorpion_hp") * 100
 	end
 	
 	local function impact(shieldIndex)

@@ -140,14 +140,14 @@ function update()
 	worldEdgeStuff.update()
 	
 	
-	if timeOffset == 0 and statsBilboard and statsBilboard:getInt("wave") == 1 then
-		--this is needed for network gameSync
-		--when the first round starts all islands on the map will be in the same location for all games
-		timeOffset = Core.getGameTime()
-	end
-	
-	local time = (Core.getGameTime()-timeOffset) * 0.03 + islandTimeOffset
-	this:setNextLocalPosition( islandStartPosition + Vec3(math.sin(time), 0, math.sin(time)):normalizeV() * math.cos(time) * 0.5)
+--	if timeOffset == 0 and statsBilboard and statsBilboard:getInt("wave") == 1 then
+--		--this is needed for network gameSync
+--		--when the first round starts all islands on the map will be in the same location for all games
+--		timeOffset = Core.getGameTime()
+--	end
+--	
+--	local time = (Core.getGameTime()-timeOffset) * 0.03 + islandTimeOffset
+--	this:setNextLocalPosition( islandStartPosition + Vec3(math.sin(time), 0, math.sin(time)):normalizeV() * math.cos(time) * 0.5)
 	
 
 	return true

@@ -317,7 +317,7 @@ end
 
 
 Settings.DeathAnimation = {}
-Settings.DeathAnimation.options = {"Physic", "Animated", "Disabled"}
+Settings.DeathAnimation.options = {"Animated", "Disabled"}
 Settings.DeathAnimation.configName = "DeathAnimation"
 function Settings.DeathAnimation.getSettings()
 	return getActiveOptionStr(Settings.DeathAnimation, 2)

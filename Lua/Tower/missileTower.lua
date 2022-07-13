@@ -899,7 +899,6 @@ function MissileTower.new()
 		--model
 		model = Core.getModel(upgrade.getValue("model"))
 		this:addChild(model:toSceneNode())
-		this:addChild(StaticBody.new(model:getMesh("physic")):toSceneNode())
 		
 		--Hull
 		local hullModel = Core.getModel("tower_resource_hull.mym")

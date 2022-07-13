@@ -58,6 +58,7 @@ function NpcBase.new()
 	local prevState = -1
 	local sentUpdateTimer = 0
 	local tmpUpdate = update
+	local useSubMeshMovment = false
 	
 	function self.destroy()
 		if tmpUpdate and type(tmpUpdate)=="function" then
@@ -278,10 +279,12 @@ function NpcBase.new()
 		local npcCenterPos = this:getGlobalPosition()+centerOffset
 		for i=0, subMeshList:size()-1, 1 do
 			local rVec = math.randomVec3()
-			rVec = ((npcCenterPos-physicDeathInfo.pos):normalizeV()+rVec):normalizeV()
-			rVec = Vec3(rVec.x*2.5,math.abs(rVec.y)*4,rVec.z*2.5)
-			local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island), subMeshList:item(i), rVec)
-			deathManager.addRigidBody(rigidBody)
+			rVec = ((npcCenterPos-physicDeathInfo.pos):normalizeV() + rVec * 0.5):normalizeV()
+			rVec = Vec3(rVec.x*5.25,math.abs(rVec.y)*9,rVec.z*5.25)
+			local rotation = Vec3(math.randomFloat() * 0.2, 0.7 + math.randomFloat() * 0.3, math.randomFloat() * 0.2):normalizeV()
+			local rotationSpeed = math.randomFloat(5,15)
+--			local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island), subMeshList:item(i), rVec)
+			deathManager.addRigidBody(this:findNodeByType(NodeId.island), subMeshList:item(i), rVec, rotation, rotationSpeed)
 			--deadBodyManger:addRigidBody(rigidBody)
 		end
 	end
@@ -289,10 +292,24 @@ function NpcBase.new()
 		if not (physicDeathInfo and physicDeathInfo.time+0.1>Core.getGameTime()) then
 			local meshSplitter = MeshSplitter()
 			local subMeshList = meshSplitter:splitMesh(model:getMesh(0))
+			if useSubMeshMovment then
+				model:getAnimation():update(0.05)
+				meshSplitter:calculateSubMeshMovement(0.05)	
+			end
 			--local playerNode = this:getPlayerNode()
 			for i=0, subMeshList:size()-1, 1 do
-				local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island), subMeshList:item(i), mover:getCurrentVelocity())
-				deathManager.addRigidBody(rigidBody)
+				local subMesh = subMeshList:item(i)
+--				local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island), subMeshList:item(i), mover:getCurrentVelocity())
+--				deathManager.addRigidBody(rigidBody)
+				local rotation = Vec3(math.randomFloat() * 0.2, 0.7 + math.randomFloat() * 0.3, math.randomFloat() * 0.2):normalizeV()
+				local rotationSpeed = math.randomFloat(1,7)
+				local velocity = Vec3()
+				if useSubMeshMovment then
+					velocity = subMesh:getVelocity():normalizeV() * 3-- + mover:getCurrentVelocity()*0.5 + math.randomVec3() * 0.1 + Vec3(0,0.8,0)
+				else 
+					velocity = mover:getCurrentVelocity() * 1.5 + math.randomVec3() * 0.5 + Vec3(0,0.8,0)
+				end
+				deathManager.addRigidBody(this:findNodeByType(NodeId.island), subMesh, velocity, rotation, rotationSpeed)
 			end
 		else
 			rigidBodyExplosion()
@@ -307,7 +324,9 @@ function NpcBase.new()
 		deathFrameTable = tableFrame
 	end
 	--add physical rigid body to be managed on npc death
-	function self.addDeathRigidBody()
+	function self.addDeathRigidBody(useSubMeshAnimationMovment)
+		deathManager.setUsePhysicDeathAnimation()
+		useSubMeshMovment = useSubMeshAnimationMovment
 		deathRigidBodyFunc = rigidBody
 	end
 	--add physical soft body to be managed on npc death
@@ -457,45 +476,11 @@ function NpcBase.new()
 	function self.createDeadBody()
 		if Settings.DeathAnimation.getSettings()~="Disabled" and useDeathAnimationOrPhysic and model then
 			--death animations is enabled
-			local otherOptions = false
-			if Settings.DeathAnimation.getSettings()=="Physic" and Settings.corpseTimer.getInt()>0 and (deathSoftBodyFunc or deathRigidBodyFunc) then
-				--physic can be used
-				otherOptions=true
-			end
-			local useAnimation = deathManager.hasDeathAnimation()--deathAnimationTable and #deathAnimationTable>0
-			--if we have animations and other options the best course of action may still be physic
-			if useAnimation and otherOptions then
-				--we can do animation and physic, if there is a bridge then we can use physic
-				local line = Line3D(this:getGlobalPosition()+Vec3(0,2,0), this:getGlobalPosition()-Vec3(0,2,0))
-				local onABridge = this:getPlayerNode():collisionTree(line, {NodeId.ropeBridge}) 	
-				--if on a bridge
-				if onABridge then
-					--66% chanse that we will use animation anyway one the bridge (performance'ish)
-					if math.randomFloat()>0.66 then
-						useAnimation = false
-					end
-				end
-				--if unit can explode
-				if useAnimation and deathRigidBodyFunc and physicDeathInfo and physicDeathInfo.time+0.1>Core.getGameTime() then
-					useAnimation = false
-				end
-			end
-			--
-			-- DEBUG
-			--useAnimation = false
-			--
-			--use animation, can be aborted
-			if useAnimation then
+			if deathManager.getUseAnimatedDeath() then
 				deathAnimation()
 			else
-				if deathSoftBodyFunc then
-					local d1 = deathSoftBodyFunc()
-					deathManager.addSoftBody(d1)
-					this:removeChild(model:toSceneNode())
-				elseif deathRigidBodyFunc then
-					deathRigidBodyFunc()
-					this:removeChild(model:toSceneNode())
-				end
+				deathRigidBodyFunc()
+				this:removeChild(model:toSceneNode())
 			end
 		end
 		self.deathCleanup()

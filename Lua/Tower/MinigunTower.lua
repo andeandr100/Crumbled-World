@@ -785,7 +785,6 @@ function MinigunTower.new()
 		model = Core.getModel("tower_minigun_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
-		this:addChild(StaticBody.new(model:getMesh("physic")):toSceneNode())
 		--
 		--
 		--

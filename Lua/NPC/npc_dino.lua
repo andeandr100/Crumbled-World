@@ -35,36 +35,9 @@ function create()
 						endFrame = 16,
 						framePositions = {2,10}}
 	npcBase.addDeathAnimation(tableAnimationInfo,tableFrame)
-	--physic animated death
-	npcBase.addDeathSoftBody(genereateSoftBody)
 	return true
 end
-function genereateSoftBody()
-	local softBody = SoftBody.new(npcBase.getModel():getMesh(0))
-	softBody:setKDF( 1.0 ) --Dynamic friction coefficient [0,1]
-	softBody:setKDG( 0.0 ) --Drag coefficient [0,+inf]
-	softBody:setKLF( 0.0 ) --Lift coefficient [0,+inf]
-	softBody:setKPR( 0.0 )
-	softBody:setKVC( 0.0 ) --Veolume conversation coefficient [0,+inf]
-	softBody:setKMT( 0.0 ) --Pose matching coefficient [0,1]	
-	softBody:setKDP( 0.1 ) --Damping coefficient [0,1]
 
-	local material = softBody:appendMaterial()
-	material:setKLST(0.2)-- Linear stiffness coefficient [0,1]
-	material:setKAST(0.1)-- Area/Angular stiffness coefficient [0,1]
-	material:setKVST(0.1)-- Volume stiffness coefficient [0,1]
-
-	softBody:generateBendingConstraints(6, material)
-	--softBody:randomizeConstraints()
-	softBody:setTotalMass(30, false)
-	softBody:generateClusters(24, 1024)
-	softBody:setPose(false, false)
-	softBody:addSoftBodyToPhysicWorld()
-	softBody:setVelocity(npcBase.getMover():getCurrentVelocity() * 1 + Vec3(0,0,0))
-
-	softBody:update()
-	return softBody
-end
 function update()
 	local ret = npcBase.update()
 	if ret and soul.getHp()>0.0 then

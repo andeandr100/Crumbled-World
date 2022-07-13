@@ -1,15 +1,16 @@
 --this = SceneNode()
 
 function destroy()
-	if form then
-		form:setVisible(false)
-		form:destroy()
-		form = nil
-	end
+--	if form then
+--		form:setVisible(false)
+--		form:destroy()
+--		form = nil
+--	end
 end
 
 function create()
-	return false
+	return true
+--	return false
 --	--Protection in multiplayer environment where multiple instances of this script is loaded
 --	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 --	if ( node == nil and this:getSceneName() ~= "Stats menu" ) or ( node and node:getClientId() ~= 0 ) then
@@ -64,32 +65,32 @@ end
 
 function update()
 	
-	local p = 1.0 / Core.getRealDeltaTime()
-	frameCount = (frameCount*0.99) + (p*0.01)
-	deltaTimeMs = deltaTimeMs * 0.9 + Core.getRealDeltaTime() * 10000 * 0.1
-	
-	updateTextTimer = updateTextTimer - Core.getRealDeltaTime()
-	if updateTextTimer < 0 then
-		updateTextTimer = 0.25
-		
-		label:setText(tostring(math.floor(frameCount)))
-	
-		labelMs:setText(tostring(math.floor(deltaTimeMs)/10).."ms")
-		
-		if labelPing then
-			labelPing:setText(math.floor(client:getPing()*1000).."ping")
-		end
-	end
-	if form then
-		form:update()
-	end
+--	local p = 1.0 / Core.getRealDeltaTime()
+--	frameCount = (frameCount*0.99) + (p*0.01)
+--	deltaTimeMs = deltaTimeMs * 0.9 + Core.getRealDeltaTime() * 10000 * 0.1
+--	
+--	updateTextTimer = updateTextTimer - Core.getRealDeltaTime()
+--	if updateTextTimer < 0 then
+--		updateTextTimer = 0.25
+--		
+--		label:setText(tostring(math.floor(frameCount)))
+--	
+--		labelMs:setText(tostring(math.floor(deltaTimeMs)/10).."ms")
+--		
+--		if labelPing then
+--			labelPing:setText(math.floor(client:getPing()*1000).."ping")
+--		end
+--	end
+--	if form then
+--		form:update()
+--	end
 	
 	if Core.getInput():getKeyPressed(Key.F1) then
-		setGameSpeed(0.5)
+		setGameSpeed(0.25)
 	elseif Core.getInput():getKeyPressed(Key.F2) then
-		setGameSpeed(1.0)
+		setGameSpeed(0.5)
 	elseif Core.getInput():getKeyPressed(Key.F3) then
-		setGameSpeed(2.0)
+		setGameSpeed(1.0)
 	elseif Core.getInput():getKeyPressed(Key.F4) then
 		setGameSpeed(3.0)
 	elseif Core.getInput():getKeyPressed(Key.kp_plus) then

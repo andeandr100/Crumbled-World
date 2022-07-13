@@ -23,10 +23,17 @@ function DeathManager.new()
 	local effectList =				{size=0}
 	local pointLigthList =			{size=0}
 	
---	local function init()
---		physicManager = 			this:findNodeByType(NodeId.soulManager)
---	end
---	init()
+	local useAnimatedDeath =		true
+	
+
+	function self.getUseAnimatedDeath()
+		return useAnimatedDeath
+	end
+
+	function self.setUsePhysicDeathAnimation()
+		useAnimatedDeath = false
+	end
+
 	function self.getDeadBodyDecayTime()
 		return deadBodyDecayTime*Settings.corpseTimer.getInt()*0.25
 	end
@@ -51,35 +58,32 @@ function DeathManager.new()
 			higthOverGround = 		-1
 		}
 	end
+
 	
-	function self.addSoftBody(softBody)
-		bodyTableSize = bodyTableSize + 1
-		bodyTable[bodyTableSize] = {
-			type =				BodyType.softBody,
-			groundTestTimer	=	-0.1,
-			startDeadMatrix =	Matrix(),
-			physicBodyTimeOut =	10,
-			lifeTime =			self.getDeadBodyStartTime(),
-			physicBody = 		softBody,
-			sceneNode =			softBody,
-			renderNode =		softBody,
-			color =				softBody:getColor(),
-			higthOverGround =	-1.0
-		}
+	function self.addRigidBody(island, splitedMesh, velocity, rotation, rotationSpeed)
+		local mesh = Mesh.new(splitedMesh)
+		local islandInverseM = island:getGlobalMatrix():inverseM()
+		--Connect the mesh to the island
+		mesh:setLocalMatrix( islandInverseM * mesh:getLocalMatrix() )
+		island:addChild(mesh:toSceneNode())
+		
+		self.addRigidBodyMesh(mesh, velocity, rotation, rotationSpeed)
 	end
 	
-	function self.addRigidBody(rigidBody)
+	function self.addRigidBodyMesh(mesh, velocity, rotation, rotationSpeed)
 		bodyTableSize = bodyTableSize + 1
+		
 		bodyTable[bodyTableSize] = {
 			type =				BodyType.rigidBody,
 			groundTestTimer	=	-0.1,
 			startDeadMatrix =	Matrix(),
-			physicBodyTimeOut =	10,
+			physicEnabled =		true,
 			lifeTime =			self.getDeadBodyStartTime(),
-			physicBody = 		rigidBody,
-			sceneNode =			rigidBody,
-			renderNode =		rigidBody:getRenderMesh(),
-			color =				rigidBody:getRenderMesh() and rigidBody:getRenderMesh():getColor() or Vec4(),
+			meshNode = 			mesh,
+			color =				mesh:getColor(),
+			velocity = 			velocity,
+			rotation = 			rotation,
+			rotationSpeed = 	rotationSpeed,
 			higthOverGround =	-1
 		}
 	end
@@ -404,14 +408,15 @@ function DeathManager.new()
 	end
 	local function manageDeathPhysic(deltaTime)
 		local index=1
+		local playerNode = this:getPlayerNode()
 		while index<=bodyTableSize do
 			local body = bodyTable[index]
-			body.physicBodyTimeOut = body.physicBodyTimeOut - deltaTime
+			local meshNode = body.meshNode
 			body.lifeTime = body.lifeTime - deltaTime
 			
-			if body.lifeTime<0.0 then
+			if body.lifeTime<0.0 or meshNode:getLocalPosition().y < -100.0 then
 				--this body part is dead, delete it
-				body.sceneNode:destroy()--getParent():removeChild(body.sceneNode)--body.sceneNode:setParent(nil)
+				meshNode:destroy()--getParent():removeChild(body.sceneNode)--body.sceneNode:setParent(nil)
 				if index<bodyTableSize then
 					bodyTable[index],bodyTable[bodyTableSize] = bodyTable[bodyTableSize],bodyTable[index]
 				end
@@ -419,74 +424,107 @@ function DeathManager.new()
 				bodyTableSize = bodyTableSize - 1
 				index = index - 1
 			else
-				--this body part is still alive
-				if body.physicBody:getPhysicEnable() then
-					--if physic is active wait for time out or stop in motion
-					if body.physicBodyTimeOut < deadBodyPhysicTimeOut then
-						local globalPos = body.physicBody:getGlobalPosition()
-						body.groundTestTimer = body.groundTestTimer - deltaTime
-						if body.groundTestTimer<0.0 then
-							local collisionPoint
-							body.groundTestNode, collisionPoint = collisionAginstTheWorldGlobal(globalPos)	
-							body.groundTestTimer = body.groundTestTimer + groundTestEvery
-						end
-						if body.groundTestNode and body.groundTestNode:getNodeType() == NodeId.ropeBridge then
-							--is on a bridge. time to die
-							--stop there physical activities, so they can fade out of existance
-							body.lifeTime = self.getDeadBodyDecayTime()+0.1
-							body.physicBody:tryToDestroyPhysic()
-							--
-							local collisionPoint
-							body.groundTestNode, collisionPoint = collisionAginstTheWorldGlobal(globalPos)	
-							--
-							body.startDeadMatrix = body.sceneNode:getLocalMatrix()
-							body.startDeadMatrix:setPosition(Vec3())
-						elseif body.groundTestNode then
-							--on an island
-							if body.physicBodyTimeOut < 0.0 then
-								body.physicBody:tryToDestroyPhysic()
-								--
-								local collisionPoint
-								body.groundTestNode, collisionPoint = collisionAginstTheWorldGlobal(globalPos)	
-								--
-								body.startDeadMatrix = body.sceneNode:getLocalMatrix()
-								body.startDeadMatrix:setPosition(Vec3())
-							elseif body.type==BodyType.softBody then
-								body.physicBody:damping(math.clamp(1.0-(body.physicBodyTimeOut/deadBodyPhysicTimeOut),0.0,1.0))
-							end
-						else
-							--falling, wait to reach a safe distance
-							body.lifeTime = self.getDeadBodyDecayTime() + 1--so we don't destroy it to early
-							if globalPos.y<100.0 then
-								--destroy this physic
-								body.lifeTime = - 1
-								local comUnit = Core.getComUnit()
-								comUnit:sendTo("SteamAchievement","Falling","")
-							end
-						end
-					elseif body.physicBody:getVelocity() < 0.1 then
-						--soft body is moving to slow save physic calculation by force stop the body
-						body.physicBodyTimeOut = deadBodyPhysicTimeOut
-					end
-				end
-				--decay away the dead bodies
-				if body.lifeTime < self.getDeadBodyDecayTime() then
-					--we do not want remaining(falling)) softbody to surface
-					if body.physicBody:getPhysicEnable() or not body.groundTestNode then
-						--something is wrong, destroy the issue
-						body.lifeTime = -1
-					else
-						--body.groundTest not needed as body should be stationary
-						if body.type==BodyType.rigidBody or body.groundTestNode:getNodeType()~=NodeId.ropeBridge then
-							--on an island
-							deathAnimation(body)
-						else
-							--on a bridge
-							--fade the model away with alpha
-							fadeOut(body,deltaTime,"normal")
+				if bodyTable[index].physicEnabled then
+					local globalPosition = meshNode:getGlobalPosition() + body.velocity * Core.getDeltaTime()
+					body.velocity = body.velocity + Vec3(0,-9.8,0) * Core.getDeltaTime()
+					
+					local collisionLine = Line3D(meshNode:getGlobalPosition(), globalPosition)
+					
+					if playerNode:collisionTree(collisionLine,NodeId.islandMesh) then
+						globalPosition = collisionLine.endPos
+						
+						local velocityXZ = Vec3(body.velocity.x,0,body.velocity.z):length()
+						
+						body.velocity = body.velocity * Vec3(0.8,(velocityXZ < 1.5 and -0.1 or -0.4), 0.8)
+						body.rotationSpeed = body.rotationSpeed * math.randomFloat(0.3,1.4)
+						
+						if body.velocity:length() < 0.7 then
+							body.velocity = Vec3()
+							body.rotationSpeed = 0
+							bodyTable[index].physicEnabled = false
 						end
 					end
+					
+					meshNode:setLocalPosition(meshNode:getParent():getGlobalMatrix():inverseM() * globalPosition)
+					
+					local rotMat = Matrix()
+					rotMat:rotate( body.rotation, body.rotationSpeed * Core.getDeltaTime())
+					meshNode:setLocalMatrix( meshNode:getLocalMatrix() * rotMat )
+				elseif body.lifeTime < deadBodyDecayTime then
+					
+					local colorScale = math.max(body.lifeTime,0)/deadBodyDecayTime
+					meshNode:setLocalPosition(meshNode:getLocalPosition() + Vec3(0,-0.35 * deltaTime/deadBodyDecayTime,0))
+					meshNode:setColor(body.color * colorScale)
 				end
+				
+--				--this body part is still alive
+--				if body.physicBody:getPhysicEnable() then
+--					--if physic is active wait for time out or stop in motion
+--					if body.physicBodyTimeOut < deadBodyPhysicTimeOut then
+--						local globalPos = body.physicBody:getGlobalPosition()
+--						body.groundTestTimer = body.groundTestTimer - deltaTime
+--						if body.groundTestTimer<0.0 then
+--							local collisionPoint
+--							body.groundTestNode, collisionPoint = collisionAginstTheWorldGlobal(globalPos)	
+--							body.groundTestTimer = body.groundTestTimer + groundTestEvery
+--						end
+--						if body.groundTestNode and body.groundTestNode:getNodeType() == NodeId.ropeBridge then
+--							--is on a bridge. time to die
+--							--stop there physical activities, so they can fade out of existance
+--							body.lifeTime = self.getDeadBodyDecayTime()+0.1
+--							body.physicBody:tryToDestroyPhysic()
+--							--
+--							local collisionPoint
+--							body.groundTestNode, collisionPoint = collisionAginstTheWorldGlobal(globalPos)	
+--							--
+--							body.startDeadMatrix = body.sceneNode:getLocalMatrix()
+--							body.startDeadMatrix:setPosition(Vec3())
+--						elseif body.groundTestNode then
+--							--on an island
+--							if body.physicBodyTimeOut < 0.0 then
+--								body.physicBody:tryToDestroyPhysic()
+--								--
+--								local collisionPoint
+--								body.groundTestNode, collisionPoint = collisionAginstTheWorldGlobal(globalPos)	
+--								--
+--								body.startDeadMatrix = body.sceneNode:getLocalMatrix()
+--								body.startDeadMatrix:setPosition(Vec3())
+--							elseif body.type==BodyType.softBody then
+--								body.physicBody:damping(math.clamp(1.0-(body.physicBodyTimeOut/deadBodyPhysicTimeOut),0.0,1.0))
+--							end
+--						else
+--							--falling, wait to reach a safe distance
+--							body.lifeTime = self.getDeadBodyDecayTime() + 1--so we don't destroy it to early
+--							if globalPos.y<100.0 then
+--								--destroy this physic
+--								body.lifeTime = - 1
+--								local comUnit = Core.getComUnit()
+--								comUnit:sendTo("SteamAchievement","Falling","")
+--							end
+--						end
+--					elseif body.physicBody:getVelocity() < 0.1 then
+--						--soft body is moving to slow save physic calculation by force stop the body
+--						body.physicBodyTimeOut = deadBodyPhysicTimeOut
+--					end
+--				end
+--				--decay away the dead bodies
+--				if body.lifeTime < self.getDeadBodyDecayTime() then
+--					--we do not want remaining(falling)) softbody to surface
+--					if body.physicBody:getPhysicEnable() or not body.groundTestNode then
+--						--something is wrong, destroy the issue
+--						body.lifeTime = -1
+--					else
+--						--body.groundTest not needed as body should be stationary
+--						if body.type==BodyType.rigidBody or body.groundTestNode:getNodeType()~=NodeId.ropeBridge then
+--							--on an island
+--							deathAnimation(body)
+--						else
+--							--on a bridge
+--							--fade the model away with alpha
+--							fadeOut(body,deltaTime,"normal")
+--						end
+--					end
+--				end
 			end
 			index = index + 1
 		end
