@@ -496,6 +496,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	addLanguageRow("support range")
 	addLanguageRow("support weaken")
 	addLanguageRow("support gold")
+	addLanguageRow("support gold per wave")
 	
 	
 	addLanguageRow("damage delt to enemies")

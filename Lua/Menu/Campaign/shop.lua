@@ -303,8 +303,8 @@ function Shop.new(camera, updateCrystalButton, inPanel)
 			
 			local towerImage = towerPane1:add(Image(PanelSize(Vec2(-1), Vec2(1)), "icon_tower_table.tga"))
 			towerImage:setBorder(Border( BorderSize( Vec4(MainMenuStyle.borderSize * 2) ), MainMenuStyle.borderColor ) )
-			local textureOffset = Vec2((i%3)/3.0, math.floor((8-i)/3.0) * 0.3333)
-			towerImage:setUvCoord( textureOffset, textureOffset + Vec2(0.3333))
+			local textureOffset = Vec2((i%4)/4.0, math.floor((15-i)/4.0) * 0.25)
+			towerImage:setUvCoord( textureOffset, textureOffset + Vec2(0.25))
 			
 			local upgradeAreaPanel = towerPane1:add(Panel(PanelSize(Vec2(-1),Vec2(5,4))))
 			upgradeAreaPanel:setLayout(GridLayout(4,5, PanelSize(Vec2(MainMenuStyle.borderSize), Vec2(1))))

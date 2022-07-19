@@ -109,6 +109,8 @@ function showPoster(button)
 					icon:setUvCoord(Vec2(0.125,0.25),Vec2(0.25,0.3125))
 				elseif name=="dmg_range" then
 					icon:setUvCoord(Vec2(0.875,0.25),Vec2(1.0,0.3125))
+				elseif name=="supportGoldPerWave" then
+					icon:setUvCoord(Vec2(0.75,0.5), Vec2(0.875, 0.5625))
 				else
 					icon:setUvCoord(Vec2(0.0,0.25),Vec2(0.125,0.3125))
 				end
@@ -209,7 +211,7 @@ function create()
 		menuNode:loadLuaScript("Menu/AbilitiesMenu.lua")
 		return false
 	else
-		statsOrder =  {"damage","rps","range","slow","fireDPS","burnTime","dmg_range"}
+		statsOrder =  {"damage","rps","range","slow","fireDPS","burnTime","dmg_range","supportGoldPerWave"}
 		buildings = {}
 		buildings[1] = {name="Wall tower", cost=0}
 		buildings[2] = {name="Minigun tower", range=0,damage=0,rps=0,cost=10}
@@ -220,7 +222,7 @@ function create()
 		buildings[7] = {name="Missile tower", range=0,damage=0,dmg_range=-1,cost = 0}
 		buildings[8] = {name="Quake tower", range=0,damage=0,dmg_range=-1,cost = 0}
 		buildings[9] = {name="Support tower", range=0,cost = 0}
-		buildings[10]= {name="Bank tower", range=0,cost = 0}
+		buildings[10]= {name="Bank tower", range=0,supportGoldPerWave=-1,cost = 0}
 		
 		local keyBinds = Core.getBillboard("keyBind")
 		local keyBind = {}
@@ -287,15 +289,15 @@ function create()
 				print("Tower loaded\n")					
 
 				local start
-				local x = (numBuildings-1)%3
-				local y = 2-math.floor(((numBuildings-1)/3))
-				start = Vec2(x/3.0, y/3.0)
+				local x = (numBuildings-1)%4
+				local y =3-math.floor(((numBuildings-1)/4))
+				start = Vec2(x/4.0, y/4.0)
 				
 				buildings[numBuildings].uvCoordMin=start
-				buildings[numBuildings].uvCoordMax=start+Vec2(1.0/3.0,1.0/3.0)
+				buildings[numBuildings].uvCoordMax=start+Vec2(1.0/4.0, 1.0/4.0)
 				buildings[numBuildings].texture=towerTexture
 
-				local button = topPanel:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, start, start+Vec2(1.0/3.0,1.0/3.0) ))
+				local button = topPanel:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, start, start+Vec2(1.0/4.0, 1.0/4.0) ))
 				--button:setBackground( Sprite( towerTexture ));
 				button:setInnerColor(Vec4(0,0,0,0.15),Vec4(0.2,0.2,0.2,0.35), Vec4(0.1,0.1,0.1,0.3))
 				button:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
@@ -334,7 +336,7 @@ function create()
 			if i~=1 and i~= 6 then
 				buildings[i].range = getTowerInfo(i, "range")
 			end
-			if i~=1 and i~= 9 then
+			if i~=1 and i~=9 and i~=10 then
 				buildings[i].damage = i==7 and getTowerInfo(i, "dmg") or getTowerInfo(i, "damage")
 			end
 			if i==2 or i==3 or i==5 or i==6 then
@@ -342,6 +344,9 @@ function create()
 			end
 			if i==7 or i==8 then
 				buildings[i].dmg_range = getTowerInfo(i, "dmg_range")
+			end
+			if i==10 then
+				buildings[i].supportGoldPerWave = getTowerInfo(i, "supportGoldPerWave")
 			end
 		end
 		buildings[4].burnTime = getTowerInfo(4, "burnTime")

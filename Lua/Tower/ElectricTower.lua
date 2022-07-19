@@ -872,7 +872,7 @@ function ElectricTower.new()
 										slowTimer = { upgrade.add, 2.0},
 										slowRange = { upgrade.add, 0.0},
 										attackCost ={ upgrade.add, 575/damagePerEnergy},
-										energyMax = { upgrade.add, (575/damagePerEnergy)*11.0},
+										energyMax = { upgrade.add, (575/damagePerEnergy)*10.0},
 										energyReg =	{ upgrade.add, (575/damagePerEnergy)*5/36*1.05},--0.021/g  [1.25 is just a magic number to increase regen]
 										ERPS = 		{ upgrade.set, ((575/damagePerEnergy)*5/36*1.05) / (575/damagePerEnergy)},
 										equalizer =	{ upgrade.add, 0.0},
@@ -895,7 +895,7 @@ function ElectricTower.new()
 										slowTimer = { upgrade.add, 2.0},
 										slowRange = { upgrade.add, 0.0},
 										attackCost ={ upgrade.add, 1370/damagePerEnergy},--71.9
-										energyMax = { upgrade.add, (1370/damagePerEnergy)*11.0},--575
+										energyMax = { upgrade.add, (1370/damagePerEnergy)*10.0},--575
 										energyReg =	{ upgrade.add, (1370/damagePerEnergy)*6.5/36*1.05},--0.021/g [1.25 is just a magic number to increase regen]
 										ERPS = 		{ upgrade.set, ((1370/damagePerEnergy)*6.5/36*1.05) / (1370/damagePerEnergy)},
 										equalizer =	{ upgrade.add, 0.0},
@@ -918,7 +918,7 @@ function ElectricTower.new()
 										slowTimer = { upgrade.add, 2.0},
 										slowRange = { upgrade.add, 0.0},
 										attackCost ={ upgrade.add, 2700/damagePerEnergy},--143
-										energyMax = { upgrade.add, (2700/damagePerEnergy)*11},--953
+										energyMax = { upgrade.add, (2700/damagePerEnergy)*10},--953
 										energyReg =	{ upgrade.add, (2700/damagePerEnergy)*8/36*1.05},--0.022/g == energy regen per second per gold [1.25 is just a magic number to increase regen]
 										ERPS = 		{ upgrade.set, ((2700/damagePerEnergy)*8/36*1.05) / (2700/damagePerEnergy)},
 										equalizer =	{ upgrade.add, 0.0},

@@ -402,7 +402,7 @@ function BankTower.new()
 								icon = 56,
 								value1 = 1,
 								stats ={range =					{ upgrade.add, TOWERRANGE},
-										supportGoldPerWave =	{ upgrade.add, 50}, -- buildingCost * 0.1 = 30
+										supportGoldPerWave =	{ upgrade.add, 50}, -- buildingCost * 0.1 = 50
 										model = 				{ upgrade.set, "tower_gold_l1.mym"} }
 							} )
 		upgrade.addUpgrade( {	cost = 500,
@@ -412,7 +412,7 @@ function BankTower.new()
 								icon = 56,
 								value1 = 2,
 								stats ={range =					{ upgrade.add, TOWERRANGE},
-										supportGoldPerWave =	{ upgrade.add, 110}, -- buildingCost * 0.1 = 75
+										supportGoldPerWave =	{ upgrade.add, 105}, -- buildingCost * 0.1 = 100
 										model = 				{ upgrade.set, "tower_gold_l2.mym"}}
 							},0 )
 		upgrade.addUpgrade( {	cost = 500,
@@ -422,7 +422,7 @@ function BankTower.new()
 								icon = 56,
 								value1 = 3,
 								stats ={range =					{ upgrade.add, TOWERRANGE},
-										supportGoldPerWave =	{ upgrade.add, 170}, -- buildingCost * 0.1 = 150
+										supportGoldPerWave =	{ upgrade.add, 160}, -- buildingCost * 0.1 = 150
 										model = 				{ upgrade.set, "tower_gold_l3.mym"}}
 							},0 )
 
