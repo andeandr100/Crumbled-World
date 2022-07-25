@@ -86,6 +86,8 @@ function IslandMeshExporter.new()
 		"props/watermelon.mym",
 		"props/end_crystal.mym",
 		"props/minecart_npc.mym",
+		"Constructions/buildings/bridge_4m.mym",
+		"Constructions/buildings/bridge_4m_2.mym",
 		"nature/worldedge/edge_floater1.mym",
 		"nature/worldedge/edge_floater2.mym",
 		"nature/worldedge/edge_floater3.mym",

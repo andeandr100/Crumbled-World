@@ -1,6 +1,8 @@
 require("Menu/settings.lua")
 --this = Island()
 
+This file is dead TODO remove
+
 IslandMeshOptimizer = {}
 IslandMeshOptimizer.staticNode = SceneNode.new()		--meshes that will never change (in theory)
 IslandMeshOptimizer.dynamicNode = SceneNode.new()		--Dynamic nodes that will need to be updated
@@ -20,6 +22,10 @@ IslandMeshOptimizer.moveNodes = false
 local optimizationIgnoreFileNameTable = {
 	"props/watermelon.mym",
 	"props/end_crystal.mym",
+	"Constructions/buildings/bridge_4m.mym",
+	"Constructions/buildings/bridge_4m_2.mym",
+	"bridge_4m.mym",
+	"bridge_4m_2.mym",
 	"nature/worldedge/edge_floater1.mym",
 	"nature/worldedge/edge_floater2.mym",
 	"nature/worldedge/edge_floater3.mym",
@@ -38,8 +44,21 @@ end
 local function isInOptimizationIgnoreModelTable(fileName)
 	for key,name in pairs(optimizationIgnoreFileNameTable) do
 		if name==fileName then
+			if fileName=="Constructions/buildings/bridge_4m.mym" then
+				abort("1")
+			end
+			if fileName=="bridge_4m.mym" then
+				abort("2")
+			end
+			abort("5")
 			return true
 		end
+	end
+	if fileName=="Constructions/buildings/bridge_4m.mym" then
+		abort("3")
+	end
+	if fileName=="bridge_4m.mym" then
+		abort("4")
 	end
 	return false
 end
@@ -56,6 +75,48 @@ function IslandMeshOptimizer.findAllMeshes(node, meshTable, moveNodes)
 --		move = true
 --	end
 
+	print("Model File Name: " .. node:getFileName())
+	print("Model Scene Name: " .. node:getSceneName())
+
+	if node:getSceneName() == "Constructions/buildings/bridge_4m.mym" then
+		print("Model File Name: " .. node:getFileName())
+		print("Model Scene Name: " .. node:getSceneName())
+		abort("tada1")
+	end
+	
+	if node:getFileName() == "Constructions/buildings/bridge_4m.mym" then
+		print("Model File Name: " .. node:getFileName())
+		print("Model Scene Name: " .. node:getSceneName())
+		abort("tada2")
+	end
+	
+
+	if node:getSceneName() == "bridge_4m" then
+		print("Model File Name: " .. node:getFileName())
+		print("Model Scene Name: " .. node:getSceneName())
+		abort("tada3")
+	end
+	
+	if node:getFileName() == "bridge_4m.mym" then
+		print("Model File Name: " .. node:getFileName())
+		print("Model Scene Name: " .. node:getSceneName())
+		abort("tada")
+	end
+
+	if string.find(node:getFileName(),"bridge") then
+		print("Model File Name: " .. node:getFileName())
+		print("Model Scene Name: " .. node:getSceneName())
+		abort("tada4")
+	end
+	
+	if string.find(node:getSceneName(),"bridge") then
+		print("Model File Name: " .. node:getFileName())
+		print("Model Scene Name: " .. node:getSceneName())
+		abort("tada5")
+	end
+	
+	abort("tada6")
+
 	if node:getNodeType() == NodeId.model or node:getNodeType() == NodeId.islandMesh or (node:getNodeType() ~= NodeId.island and #node:getAllScript() > 0 ) then
 	
 		if (node:getNodeType() ~= NodeId.island and #node:getAllScript() > 0 ) then
@@ -69,6 +130,7 @@ function IslandMeshOptimizer.findAllMeshes(node, meshTable, moveNodes)
 			end
 			return false
 		end
+		print("Model File Name: " .. node:getFileName())
 		if node:getNodeType() == NodeId.islandMesh or isInOptimizationIgnoreModelTable(node:getFileName()) then
 			if moveNodes then
 				if node:getNodeType() ~= NodeId.islandMesh then

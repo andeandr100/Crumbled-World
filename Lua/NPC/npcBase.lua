@@ -275,32 +275,37 @@ function NpcBase.new()
 	local function rigidBodyExplosion()
 		local meshSplitter = MeshSplitter()
 		local subMeshList = meshSplitter:splitMesh(model:getMesh(0))
+		local physicNode = this:getPlayerNode():getPhysicNode()--findAllNodeByTypeTowardsLeaf({NodeId.PhysicNode})
+		if not physicNode then
+			abort(no "physicNode")
+		end
 		--local playerNode = this:getPlayerNode()
 		local npcCenterPos = this:getGlobalPosition()+centerOffset
 		for i=0, subMeshList:size()-1, 1 do
 			local rVec = math.randomVec3()
 			rVec = ((npcCenterPos-physicDeathInfo.pos):normalizeV() + rVec * 0.5):normalizeV()
-			rVec = Vec3(rVec.x*5.25,math.abs(rVec.y)*9,rVec.z*5.25)
+			rVec = Vec3(rVec.x*5.25,math.abs(rVec.y)*8,rVec.z*5.25)
 			local rotation = Vec3(math.randomFloat() * 0.2, 0.7 + math.randomFloat() * 0.3, math.randomFloat() * 0.2):normalizeV()
 			local rotationSpeed = math.randomFloat(5,15)
---			local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island), subMeshList:item(i), rVec)
-			deathManager.addRigidBody(this:findNodeByType(NodeId.island), subMeshList:item(i), rVec, rotation, rotationSpeed)
-			--deadBodyManger:addRigidBody(rigidBody)
+			
+			local mesh = Mesh.new(subMeshList:item(i))
+			physicNode:addRigidBody(mesh:toSceneNode(), rVec, rotation, rotationSpeed, deathManager.getDeadBodyStartTime() )
 		end
 	end
 	local function rigidBody()
 		if not (physicDeathInfo and physicDeathInfo.time+0.1>Core.getGameTime()) then
+			local physicNode = this:getPlayerNode():getPhysicNode()--findAllNodeByTypeTowardsLeaf({NodeId.PhysicNode})
+			if not physicNode then
+				abort(no "physicNode")
+			end
 			local meshSplitter = MeshSplitter()
 			local subMeshList = meshSplitter:splitMesh(model:getMesh(0))
 			if useSubMeshMovment then
 				model:getAnimation():update(0.05)
 				meshSplitter:calculateSubMeshMovement(0.05)	
 			end
-			--local playerNode = this:getPlayerNode()
 			for i=0, subMeshList:size()-1, 1 do
 				local subMesh = subMeshList:item(i)
---				local rigidBody = RigidBody.new(this:findNodeByType(NodeId.island), subMeshList:item(i), mover:getCurrentVelocity())
---				deathManager.addRigidBody(rigidBody)
 				local rotation = Vec3(math.randomFloat() * 0.2, 0.7 + math.randomFloat() * 0.3, math.randomFloat() * 0.2):normalizeV()
 				local rotationSpeed = math.randomFloat(1,7)
 				local velocity = Vec3()
@@ -309,7 +314,8 @@ function NpcBase.new()
 				else 
 					velocity = mover:getCurrentVelocity() * 1.5 + math.randomVec3() * 0.5 + Vec3(0,0.8,0)
 				end
-				deathManager.addRigidBody(this:findNodeByType(NodeId.island), subMesh, velocity, rotation, rotationSpeed)
+				local mesh = Mesh.new(subMesh)
+				physicNode:addRigidBody(mesh:toSceneNode(), velocity, rotation, rotationSpeed, deathManager.getDeadBodyStartTime() )
 			end
 		else
 			rigidBodyExplosion()
