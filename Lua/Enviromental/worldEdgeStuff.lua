@@ -115,27 +115,85 @@ end
 function worldEdgeStuff.createDustAndGravel()
 	local self = worldEdgeStuff
 	self.counter = 0
+	local combineParticle = 0
+	local particleEffect = nil
+	local shader = Core.getShader("ParticleEffectBackAndForthBasic")
+	local lifeTime = 18
+	
 	for i=1, self.worldEdgeConnections.size do
 		local globalStartPos = self.worldEdgePos[self.worldEdgeConnections[i][1]]
 		local globalEndPos = self.worldEdgePos[self.worldEdgeConnections[i][2]]
 		local node = self.dynamicNode--getClosestNode( (globalStartPos+globalEndPos)*0.5,true )
 		local localStartPos = node:getGlobalMatrix():inverseM()*self.worldEdgePos[self.worldEdgeConnections[i][1]]
 		local localEndPos = node:getGlobalMatrix():inverseM()*self.worldEdgePos[self.worldEdgeConnections[i][2]]
+		
+		
+		--we are trying to combine a few particle effect to minimize the amount of particle effect to speed up rendering pass
+		if combineParticle == 0 then
+			if particleEffect then
+				particleEffect:compile()
+				self.dust[#self.dust+1] = particleEffect:toSceneNode()
+				particleEffect = nil
+			end
+			--the amount of particle effect to combine
+			combineParticle = 3
+			particleEffect = GraphicParticleSystem.new(30 * lifeTime * combineParticle,lifeTime)
+			particleEffect:setShader(shader)
+			node:addChild(particleEffect:toSceneNode())
+		end
+		
+		
+
+--		local localStartPos = self.worldEdgePos[self.worldEdgeConnections[i][1]]
+--		local localEndPos = self.worldEdgePos[self.worldEdgeConnections[i][2]]
 		--Dust
 		self.counter = self.counter + 1
-		local rockDust = ParticleSystem.new(ParticleEffect.RockDust)
-		node:addChild( rockDust:toSceneNode() )
-		rockDust:activate(Vec3())
-		rockDust:setSpawnRate( math.min(1.0,(localEndPos-localStartPos):length()/4.5) )
-		rockDust:setEmitterLine(Line3D(localStartPos,localEndPos))
-		rockDust:ageParticles(18.0)
-		self.dust[#self.dust+1] = rockDust
+		
+
+		local atVec = (localEndPos-localStartPos)
+		
+		local spawnRate = (localEndPos-localStartPos):length()/1.75
+		
+		local rightVec = Vec3(0,1,0):crossProductV(atVec:normalizeV()):normalizeV()
+		
+		
+--		local g1 = self.worldEdgePos[self.worldEdgeConnections[i][1]]
+--		local g2 = self.worldEdgePos[self.worldEdgeConnections[i][2]]
+--		Core.addDebugLine( g1, g2, 500, Vec3(1))
+--		Core.addDebugLine( g1, g1 + Vec3(0,1,0), 500, Vec3(1, 0, 0))
+--		Core.addDebugLine( g1, g1 + rightVec, 500, Vec3(0, 1, 0))
+		
+		 
+		local maxParticle = spawnRate * lifeTime
+		for i=1, maxParticle do 
+			
+			local spawnPosition = localStartPos + atVec * math.randomFloat() +  rightVec * math.randomFloat(-0.3,0.3) + Vec3(0,0.6,0)
+			local uvCoord = Vec2(0,0.5) + Vec2( math.randomFloat() > 0.5 and 0.124 or 0.0, math.randomFloat() > 0.5 and 0.124 or 0.0 )
+			particleEffect:addparticle( spawnPosition, Vec3(0,-0.095,0) * math.randomFloat(0.8,1.2), uvCoord, Vec4(0.32,0.27,0.27,0), Vec4(0.32,0.27,0.27,0.45), 0.55, 0.8, i/maxParticle )
+		end
+		
+		
+		
+--		local rockDust = ParticleSystem.new(ParticleEffect.RockDust)
+--		node:addChild( rockDust:toSceneNode() )
+--		rockDust:activate(Vec3())
+--		rockDust:setSpawnRate( math.min(1.0,(localEndPos-localStartPos):length()/4.5) )
+--		rockDust:setEmitterLine(Line3D(localStartPos,localEndPos))
+--		rockDust:ageParticles(18.0)
+--		self.dust[#self.dust+1] = rockDust
 		--Gravel
 		local atVec = (self.worldEdgeMatrix[self.worldEdgeConnections[i][1]]:getUpVec()+self.worldEdgeMatrix[self.worldEdgeConnections[i][2]]:getUpVec())*0.5
 		local rightVec = (self.worldEdgeMatrix[self.worldEdgeConnections[i][1]]:getRightVec()+self.worldEdgeMatrix[self.worldEdgeConnections[i][2]]:getRightVec())*0.5
 		local upVec = (self.worldEdgeMatrix[self.worldEdgeConnections[i][1]]:getAtVec()+self.worldEdgeMatrix[self.worldEdgeConnections[i][2]]:getAtVec())*0.5
 		self.generateGravel(globalStartPos,globalEndPos,atVec,rightVec,upVec)
+		
+		combineParticle = combineParticle - 1
 	end
+	if particleEffect then
+		particleEffect:compile()
+		self.dust[#self.dust+1] = particleEffect:toSceneNode()
+	end
+	
 	for i=1, self.nodes.size do
 		self.nodes[i].nodeStatic:setEnableUpdates(false)
 	end

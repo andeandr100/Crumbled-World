@@ -6,12 +6,14 @@ function BoostAbility.new(inCamera, inComUnit)
 	
 	local camera = inCamera
 	local comUnit = inComUnit
+	local keyBindSlowAbility = Core.getBillboard("keyBind"):getKeyBind("SlowAbility")
 	local keyBindBoostBuilding = Core.getBillboard("keyBind"):getKeyBind("BoostAbility")
+	local keyAttackAbility = Core.getBillboard("keyBind"):getKeyBind("AttackAbility")
 	local showBoostableTowers = false
 	local buildingNodeBillboard = Core.getBillboard("buildings")
 	local billboardStats = Core.getBillboard("stats")
 	local towerHasBeenBoostedThisWave = false
-	local boostButtonPressed = false
+	local boostSelected = false
 	
 	function self.getBoostKeyBind()
 		return keyBindBoostBuilding;
@@ -22,7 +24,15 @@ function BoostAbility.new(inCamera, inComUnit)
 	end
 	
 	function self.setBoostButtonPressed()
-		boostButtonPressed = true
+		boostSelected = true
+	end
+	
+	function self.setAnotherAbilityButtonPressed()
+		boostSelected = false
+	end
+	
+	function self.restartWave()
+		towerHasBeenBoostedThisWave = false
 	end
 	
 	function self.waveChanged(param)
@@ -117,7 +127,16 @@ function BoostAbility.new(inCamera, inComUnit)
 	
 	function self.update()
 		if buildingNodeBillboard:getBool("inBuildMode") == false then
-			local boostSelected = boostButtonPressed or keyBindBoostBuilding:getHeld()
+			
+			if keyBindBoostBuilding:getPressed() then
+				boostSelected = true
+			end
+			
+			if keyBindSlowAbility:getPressed() or keyAttackAbility:getPressed() then
+				boostSelected = false
+			end
+			
+
 			buildingNodeBillboard:setBool("AbilitesBeingPlaced", boostSelected)
 			showAllTowerThatCanBeBoosted(boostSelected and towerHasBeenBoostedThisWave==false)
 	
@@ -142,7 +161,7 @@ function BoostAbility.new(inCamera, inComUnit)
 		end
 		
 		if Core.getInput():getMouseDown(MouseKey.left) or Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) then
-			boostButtonPressed = false
+			boostSelected = false
 		end
 	end
 	

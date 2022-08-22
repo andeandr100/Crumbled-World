@@ -19,6 +19,8 @@ function AbilitesMenu.new()
 	local boostButton
 	local slowButton
 	local attackButton
+	local keyBinds = Core.getBillboard("keyBind");
+	local keyBindRevertWave = keyBinds:getKeyBind("Revert wave")
 	
 	function self.destroy()
 		if posterForm then
@@ -99,11 +101,30 @@ function AbilitesMenu.new()
 		end
 		
 		
+		restartListener = Listener("Restart")
+		restartListener:registerEvent("restart", self.restartWave)
 		
 	end
 	
+	function self.restartWave()
+		boostAbility.restartWave()
+		boostButton:setEnabled(true)
+		
+		slowfieldAbility.restartWave()
+		slowButton:setEnabled(true)
+		
+		attackAbility.restartWave()
+		attackButton:setEnabled(true)
+	end
+	
+	
 	function self.buttonPressed(button)
 		--button = Button()
+		
+		boostAbility.setAnotherAbilityButtonPressed()
+		slowfieldAbility.setAnotherAbilityButtonPressed()
+		attackAbility.setAnotherAbilityButtonPressed()
+		
 		if button:getTag():toString() == "boost" then
 			boostAbility.setBoostButtonPressed()
 		elseif button:getTag():toString() == "slow" then
@@ -149,6 +170,10 @@ function AbilitesMenu.new()
 			if comUnitTable[msg.message]~=nil then
 			 	comUnitTable[msg.message](msg.parameter,msg.fromIndex)
 			end
+		end
+		
+		if keyBindRevertWave:getPressed() and (not Core.isInMultiplayer()) then
+			self.restartWave()
 		end
 		
 		if posterForm:getVisible() then

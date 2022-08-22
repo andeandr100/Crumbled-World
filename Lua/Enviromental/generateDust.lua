@@ -1,5 +1,11 @@
 --this = SceneNode()
 function worldEdge.create(island)
+	
+	
+	abort()
+	--TODO REMOVE FILE
+	
+	
 --	Core.setUpdateHz(2)
 --
 --	local islands = this:getRootNode():findAllNodeByNameTowardsLeaf("*Island*")
@@ -149,5 +155,9 @@ function worldEdge.generateGravel(startPos,endPos,matrix)
 	end
 end
 function update()
+	
+	abort()
+	--TODO REMOVE FILE
+	
 	return true
 end

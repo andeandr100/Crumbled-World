@@ -1,6 +1,10 @@
 --this = SceneNode()
 function create()
 	--this:setIsStatic(true)
+	
+	
+	abort()
+	--TODO REMOVE FILE
 
 	TIMERS_COUNT = 5
 
@@ -65,6 +69,10 @@ function generateGravel(island)
 	end
 end
 function update()
+	
+	abort()
+	--TODO REMOVE FILE
+	
 	local deltaTime = Core.getDeltaTime()*0.25
 	for i = 0, TIMERS_COUNT-1, 1 do
 		timersBig[i].time = timersBig[i].time + (deltaTime*0.6)

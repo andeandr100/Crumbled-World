@@ -5,7 +5,7 @@ function AttackArea.new()
 	local self = {}
 	local mesh
 	local slowFieldShader = Core.getShader("attackTargetArea")
-	local texture = Core.getTexture("gas.tga")
+	local texture = Core.getTexture("portal")
 
 	local nodeArea = SceneNode.new()
 	
@@ -45,6 +45,7 @@ function AttackArea.new()
 		
 		buildTargetAreaMesh(mesh)
 		mesh:setShader(slowFieldShader)
+		mesh:setTexture(slowFieldShader, texture, 0 )
 		mesh:setUniform(slowFieldShader, "ScreenSize", Core.getRenderResolution())
 		mesh:setUniform(slowFieldShader, "CenterPosition", Vec3(0,100,0))
 		mesh:setUniform(slowFieldShader, "Radius", 3)

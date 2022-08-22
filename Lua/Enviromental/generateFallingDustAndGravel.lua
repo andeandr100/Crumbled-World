@@ -1,5 +1,9 @@
 --this = SceneNode()
 function create()
+	
+	abort()
+	--TODO REMOVE FILE
+	
 --	local islands = this:getRootNode():findAllNodeByNameTowardsLeaf("*island*")
 --
 --	for i=0, islands:size()-1, 1 do
@@ -15,7 +19,13 @@ function generateFallingDustAndGravel(island)
 			list:item(i):loadLuaScript("Enviromental/fallingDustAndGravel.lua")
 		end
 	end
+	
+	abort()
 end
 function update()
+	
+	abort()
+	--TODO REMOVE FILE
+	
 	return false
 end

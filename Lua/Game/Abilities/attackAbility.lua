@@ -11,8 +11,10 @@ function AttackAbility.new(inCamera, inComUnit)
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	local attackEffect = AttackEffect.new(camera, targetSelector, inComUnit)
-	local keyBindAbility = Core.getBillboard("keyBind"):getKeyBind("AttackAbility")
-	local abilityButtonPressed = false
+	local keyBindSlowAbility = Core.getBillboard("keyBind"):getKeyBind("SlowAbility")
+	local keyBindBoostBuilding = Core.getBillboard("keyBind"):getKeyBind("BoostAbility")
+	local keyAttackAbility = Core.getBillboard("keyBind"):getKeyBind("AttackAbility")
+	local boostSelected = false
 	local abilityHasBeenUsedThisWave = false
 	local statsBilboard = Core.getBillboard("stats")
 	
@@ -34,15 +36,24 @@ function AttackAbility.new(inCamera, inComUnit)
 	end
 	
 	function self.setAttackButtonPressed()
-		abilityButtonPressed = true
+		boostSelected = true
 	end
 	
-	function self.waveChanged(param)
+	function self.setAnotherAbilityButtonPressed()
+		boostSelected = false
+	end
+	
+	function self.restartWave()
+		abilityHasBeenUsedThisWave = false
+		attackEffect.stop()
+	end
+	
+	function self.waveChanged()
 		abilityHasBeenUsedThisWave = false
 	end
 	
 	function self.getAttackKeyBind()
-		return keyBindAbility;
+		return keyAttackAbility;
 	end
 	
 	local function worldCollision()
@@ -60,7 +71,7 @@ function AttackAbility.new(inCamera, inComUnit)
 	end
 	
 	local function getDamage()
-		return statsBilboard:getInt("npc_scorpion_hp") * 100
+		return statsBilboard:getInt("npc_scorpion_hp")
 	end
 	
 	local function impact(shieldIndex)
@@ -94,8 +105,12 @@ function AttackAbility.new(inCamera, inComUnit)
 	
 	function self.update()
 		
-		if Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) then
-			abilityButtonPressed = false
+		if keyAttackAbility:getPressed() then
+			boostSelected = true
+		end
+		
+		if Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) or keyBindSlowAbility:getPressed() or keyBindBoostBuilding:getPressed() then
+			boostSelected = false
 		end
 		
 		if attackEffect.update() then
@@ -111,7 +126,6 @@ function AttackAbility.new(inCamera, inComUnit)
 --			abort("shield collision")
 --		end
 		
-		local boostSelected = abilityButtonPressed or keyBindAbility:getHeld()
 		if boostSelected and abilityHasBeenUsedThisWave == false then
 				
 			local collision, globalposition = worldCollision()
@@ -120,7 +134,7 @@ function AttackAbility.new(inCamera, inComUnit)
 				abilityActivated = Core.getGameTime()
 				abilityHasBeenUsedThisWave = true
 				abilityGlobalPosition = globalposition
-				abilityButtonPressed = false
+				boostSelected = false
 				attackEffect.activate(globalposition)
 				AttackArea.update(false, Vec3())
 				

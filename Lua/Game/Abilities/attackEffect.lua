@@ -64,7 +64,20 @@ function AttackEffect.new(inCamera, inTargetSelector, inComUnit)
 		
 	end
 	
+	function self.stop()
+		state = 0
+		node:setVisible(false)
+		attackActive = false
+		fireball:setVisible(false)
+		stoneModel:setVisible(false)
+		smokeTrail:setSpawnRate(0.0)
+		for i=1, #smalRocks do
+			smalRocks[i].model:setVisible(false)
+		end
+	end
+	
 	function self.activate(globalPosition)
+		
 		attackTime = 2
 		state = 1
 		attackVector = (Vec3(0,-1.0,0) - camera:getGlobalMatrix():getRightVec()):normalizeV()
@@ -91,6 +104,7 @@ function AttackEffect.new(inCamera, inTargetSelector, inComUnit)
 			smalRocks[i].model:setVisible(false)
 			smalRocks[i].atVec = Vec3(math.randomFloat(-1,1), math.randomFloat(0.8,1.5), math.randomFloat(-1,1) ):normalizeV() * 18
 		end
+		node:setVisible(true)
 	end
 	
 	function self.impactedShieldIndex()
@@ -143,6 +157,7 @@ function AttackEffect.new(inCamera, inTargetSelector, inComUnit)
 				fireball:setVisible(false)
 				stoneModel:setVisible(false)
 				smokeTrail:setSpawnRate(0.0)
+				
 				state = 2
 				time = 3
 				
