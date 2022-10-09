@@ -14,6 +14,7 @@ setttings.enableObjectCollision = false
 setttings.enableSpaceCollision = false
 
 state = 1
+subState = 1
 
 path = {}
 path.spawnAreas = {}
@@ -306,10 +307,20 @@ end
 function activated()
 	titlePanel:setVisible(true)
 	changeState(1)
-	print("activated\n")
+	print("activated Path tool")
 	subState = 1
 
 	railCartPathTool.activated()
+	
+	local data = {path.spawnAreas, path.pathPoints, path.targetAreas, path.paths}
+	for i=1, #data  do
+		local pathData = data[i]
+		for n=1, #pathData do
+			if pathData[n].mesh then
+				pathData[n].mesh.setVisible(true)	
+			end	
+		end
+	end
 
 	updatePathLines()
 	--currentFrae = Core.get
@@ -321,8 +332,19 @@ function deActivated()
 	
 	railCartPathTool.deActivated()
 	
+	local data = {path.spawnAreas, path.pathPoints, path.targetAreas, path.paths}
+	for i=1, #data  do
+		local pathData = data[i]
+		print("path data pathData " .. #pathData)
+		for n=1, #pathData do
+			if pathData[n].mesh then
+				pathData[n].mesh.setVisible(false)
+			end	
+		end
+	end
+	
 	changeState(0)
-	print("Deactivated\n")
+	print("Deactivated Path tool")
 end
 
 function collisionAgainstSpawn()
