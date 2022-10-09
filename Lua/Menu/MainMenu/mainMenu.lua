@@ -36,10 +36,11 @@ function languageChanged()
 	buttons[5].text = language:getText("map editor")
 	buttons[6].text = language:getText("options")
 	buttons[7].text = language:getText("credits")
+--	buttons[8].text = Text("c-2")
 	
 	
 	local addExtraLength = Core.getScreenResolution().y * 0.025
-	for i=1, 7 do
+	for i=1, #buttons do
 		local labeltmp = Label( PanelSize(Vec2(1)), buttons[i].text)
 		labeltmp:setTextHeight(Core.getScreenResolution().y * 0.027)
 		print("Text: "..buttons[i].text:toString())
@@ -193,6 +194,7 @@ function createTopMenu()
 	buttons[5] = {text = language:getText("map editor")}
 	buttons[6] = {text = language:getText("options")}
 	buttons[7] = {text = language:getText("credits")}
+--	buttons[8] = {text = Text("c-2") }
 
 	
 	print("button 1\n")
@@ -214,6 +216,8 @@ function createTopMenu()
 		buttons[i].button = MainMenuStyle.addTopMenuButton(centerTopPanel, Vec2(buttons[i].text:getTextScale().x/2+1,1), buttons[i].text)
 		buttons[i].button:addEventCallbackExecute(toglePanelVisible)
 	end
+	
+--	buttons[8].button = MainMenuStyle.addTopMenuButton(leftTopMenuPanel, Vec2(buttons[8].text:getTextScale().x/2+1,1), buttons[8].text)
 	
 --	local button = centerTopPanel:add(Button(PanelSize(Vec2(-1),Vec2(4,1)), "Gjame",ButtonStyle.SQUARE_LIGHT) )
 --	local edgeColor = MainMenuStyle.borderColor

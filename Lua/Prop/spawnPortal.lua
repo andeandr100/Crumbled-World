@@ -1,6 +1,5 @@
 require("Prop/spawnPortalMesh.lua")
 
-
 --State,
 --0 = closed
 --1 = opening
@@ -28,11 +27,11 @@ function create()
 	
 	spawnportalMesh = SpawnPortalMesh.new(portalSize)
 	--
---	local portalLight = PointLight.new(Vec3(0.0,1.25,0.0),Vec3(1.75,0.4,1.75),8.0)
---	pLight:setCutOff(0.25)
---	pLight:addFlicker(Vec3(0.075,0.075,0.0),0.1,0.2)
---	pLight:addSinCurve(Vec3(0.4,0.4,0.0),2.0)
---	this:addChild(pLight:toSceneNode())
+	local pLight = PointLight.new(Vec3(0.0,1.25,0.0),Vec3(1.75,0.4,1.75),8.0)
+	pLight:setCutOff(0.25)
+	pLight:addFlicker(Vec3(0.075,0.075,0.0),0.1,0.2)
+	pLight:addSinCurve(Vec3(0.4,0.4,0.0),2.0)
+	this:addChild(pLight:toSceneNode())
 	--
 	
 	restartListener = Listener("Restart")

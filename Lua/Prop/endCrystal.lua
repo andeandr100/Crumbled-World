@@ -26,10 +26,19 @@ function destroyCrystal()
 		model:setLocalMatrix(this:getLocalMatrix())
 		model:setVisible(false)
 		
+		local physicNode = this:getPlayerNode():getPhysicNode()
 		for i=1, 24 do
-			local atVec = model:getMesh("crystal"..i):getLocalPosition()-Vec3(0.0,0.3,0.0)
-			atVec = Vec3(atVec.x*6,atVec.y*4,atVec.z*6)
-			rigidBodies[#rigidBodies+1] = RigidBody.new(this:findNodeByType(NodeId.island),model:getMesh("crystal"..i),atVec)
+			local velocity = model:getMesh("crystal"..i):getLocalPosition()-Vec3(0.0,0.3,0.0)
+			velocity = Vec3(velocity.x*6,velocity.y*4,velocity.z*6)
+			
+			
+			local mesh = model:getMesh("crystal"..i)
+			local rotation = Vec3(math.randomFloat() * 0.2, 0.7 + math.randomFloat() * 0.3, math.randomFloat() * 0.2):normalizeV()
+			local rotationSpeed = math.randomFloat(1,7)
+			physicNode:addRigidBody(mesh:toSceneNode(), velocity, rotation, rotationSpeed, 20)
+			
+			
+--			rigidBodies[#rigidBodies+1] = RigidBody.new(this:findNodeByType(NodeId.island),model:getMesh("crystal"..i),atVec)
 		end
 	end
 	this:getChildNode(0):setVisible(false)
@@ -50,10 +59,10 @@ function cleanUpDestroyedCrystal()
 		end
 		
 		--physic node
-		for i=1, #rigidBodies do
-			rigidBodies[i]:destroyTree()
-		end
-		rigidBodies={}
+--		for i=1, #rigidBodies do
+--			rigidBodies[i]:destroyTree()
+--		end
+--		rigidBodies={}
 	end
 end
 -- function:	defeated

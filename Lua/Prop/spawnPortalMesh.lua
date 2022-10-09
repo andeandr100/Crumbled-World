@@ -9,7 +9,6 @@ function SpawnPortalMesh.new(portalSize)
 	local particleEffectPortalEdge
 	local particleEffectStars
 	local centerPos
-	local portalLight
 
 	local function initPortal(PortalSize)
 	
@@ -122,8 +121,6 @@ function SpawnPortalMesh.new(portalSize)
 		--###########################################################
 		
 		
-		portalLight = PointLight.new(Vec3(0.0,1.25,0.0),Vec3(1,0.4,1),8.0)
-		portalNode:addChild(portalLight:toSceneNode())
 	
 	end
 
