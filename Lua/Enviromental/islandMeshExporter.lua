@@ -93,7 +93,24 @@ function IslandMeshExporter.new()
 		"nature/worldedge/edge_floater3.mym",
 		"nature/worldedge/edge_floater4.mym",
 		"nature/worldedge/edge_floater5.mym",
-		"Constructions/buildings/mine.mym"
+		"Constructions/buildings/mine.mym",
+		"Constructions/bridges/bridge_3m.mym",
+		"Constructions/bridges/bridge_3m_2.mym",
+		"Constructions/bridges/bridge_3m_3.mym",
+		"Constructions/bridges/bridge_3m_4.mym",
+		"Constructions/bridges/bridge_4m.mym",
+		"Constructions/bridges/bridge_4m_2.mym",
+		"Constructions/bridges/bridge_4m_3.mym",
+		"Constructions/bridges/bridge_4m_4.mym",
+		"Constructions/bridges/bridge_4m_5.mym",
+		"Constructions/bridges/bridge_4m_6.mym",
+		"Constructions/bridges/bridge_4m_7.mym",
+		"Constructions/bridges/bridge_5m.mym",
+		"Constructions/bridges/bridge_5m_2.mym",
+		"Constructions/bridges/bridge_5m_3.mym",
+		"Constructions/bridges/bridge_6m.mym",
+		"Constructions/bridges/bridge_8m.mym",
+		"Constructions/bridges/bridge_8m_broken.mym"
 	}
 	
 	local function isOnNavMeshHullEdge(position)
@@ -134,11 +151,20 @@ function IslandMeshExporter.new()
 			if string.find(node:getFileName(),"tree") then
 				return false
 			end
+			
+			if string.find(node:getFileName(),"bridge") then
+				abort()
+				return false
+			end
 		end
 		local nodeLocalMatrix = this:getGlobalMatrix():inverseM() * node:getGlobalMatrix()
 		local dontTochMesh = false
 		if node:getNodeType() == NodeId.mesh then
-			if isOnNavMeshHullEdge(nodeLocalMatrix:getPosition()) or string.find(node:getModelName(),"buildingParts") or string.find(node:getModelName(),"railroad") or string.find(node:getModelName(),"buildings") or string.find(node:getModelName(),"world_edge") then 
+			if isOnNavMeshHullEdge(nodeLocalMatrix:getPosition()) or string.find(node:getModelName(),"buildingParts") or string.find(node:getModelName(),"railroad") or string.find(node:getModelName(),"buildings") or string.find(node:getModelName(),"world_edge") or string.find(node:getModelName(),"bridges") then 
+				
+				if string.find(node:getModelName(),"bridges") then
+					abort()
+				end
 				importentMeshes[#importentMeshes+1] = {mesh=node,localMatrix=nodeLocalMatrix}
 			else
 				inMeshTable[#inMeshTable+1] = {mesh=node,localMatrix=nodeLocalMatrix}

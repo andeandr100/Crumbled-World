@@ -981,6 +981,11 @@ function update()
 		end
 	end
 	
+	if currentTower and keyUse:getPressed() and isMouseInMainPanel() == false then
+		currentTowerIndex = 0;
+		changeSelectedTower( nil );
+	end
+	
 	if Core.getInput():getKeyHeld(Key.lshift) or stateBillboard:getBool("inMenu") then
 		noMoneyIcon:setVisible(false)
 		builderFunctions.renderTargetArea("",nil,nil)
@@ -1088,7 +1093,6 @@ function update()
 				local buildingScript = building and building:getScriptByName("tower") or nil			
 				local buildingBillBoard = buildingScript and buildingScript:getBillboard() or nil
 				
-				local a=32
 				if towerBilboard:getString("Name") ~= "Wall tower" and buildingBillBoard and buildingBillBoard:getString("Name") == "Wall tower" and buildingBillBoard:getBool("isNetOwner")==true then
 					canBePlacedHere = true
 					local currentMatrix = towerMatrix
@@ -1122,7 +1126,6 @@ function update()
 						local buildingCost = buildingScript:getBillboard():getFloat("cost")
 						--get the script file name
 						local scriptName = buildingScript:getFileName()
-						
 						
 						
 						upgradeFromTowerToTower(building, buildingCost, scriptName, newBuildingMatrix, tab.tName, true)

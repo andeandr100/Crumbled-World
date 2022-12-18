@@ -14,6 +14,7 @@ function BoostAbility.new(inCamera, inComUnit)
 	local billboardStats = Core.getBillboard("stats")
 	local towerHasBeenBoostedThisWave = false
 	local boostSelected = false
+	local billboardStats = Core.getBillboard("stats")
 	
 	function self.getBoostKeyBind()
 		return keyBindBoostBuilding;
@@ -123,8 +124,6 @@ function BoostAbility.new(inCamera, inComUnit)
 		return billboardStats:getPanel("MainPanel") == Core.getPanelWithMouseFocus()
 	end
 	
-	
-	
 	function self.update()
 		if buildingNodeBillboard:getBool("inBuildMode") == false then
 			
@@ -139,9 +138,13 @@ function BoostAbility.new(inCamera, inComUnit)
 
 			buildingNodeBillboard:setBool("AbilitesBeingPlaced", boostSelected)
 			showAllTowerThatCanBeBoosted(boostSelected and towerHasBeenBoostedThisWave==false)
-	
 			
-			if towerHasBeenBoostedThisWave == false and Core.getInput():getMouseDown(MouseKey.left) and boostSelected and buildingNodeBillboard:getBool("canBuildAndSelect") and isMouseInMainPanel() then
+			if Core.getInput():getMouseDown(MouseKey.left) and isMouseInMainPanel() == false then
+				boostSelected = false
+			end
+			
+			if towerHasBeenBoostedThisWave == false and Core.getInput():getMouseDown(MouseKey.left) and boostSelected and buildingNodeBillboard:getBool("canBuildAndSelect") and isMouseInMainPanel()then
+
 				local playerNode = this:findNodeByType(NodeId.playerNode)
 				local buildNode = playerNode:findNodeByType(NodeId.buildNode)
 				--buildNode = buildNode()
@@ -155,6 +158,7 @@ function BoostAbility.new(inCamera, inComUnit)
 						buildingNodeBillboard:setBool("AbilitesBeingPlaced", false)
 					end
 				end
+
 			end
 		else
 			showAllTowerThatCanBeBoosted(false)

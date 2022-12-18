@@ -3,6 +3,9 @@ require("Menu/settings.lua")
 
 This file is dead TODO remove
 
+abort()
+
+
 IslandMeshOptimizer = {}
 IslandMeshOptimizer.staticNode = SceneNode.new()		--meshes that will never change (in theory)
 IslandMeshOptimizer.dynamicNode = SceneNode.new()		--Dynamic nodes that will need to be updated
@@ -22,10 +25,23 @@ IslandMeshOptimizer.moveNodes = false
 local optimizationIgnoreFileNameTable = {
 	"props/watermelon.mym",
 	"props/end_crystal.mym",
-	"Constructions/buildings/bridge_4m.mym",
-	"Constructions/buildings/bridge_4m_2.mym",
-	"bridge_4m.mym",
-	"bridge_4m_2.mym",
+	"Constructions/bridges/bridge_3m.mym",
+	"Constructions/bridges/bridge_3m_2.mym",
+	"Constructions/bridges/bridge_3m_3.mym",
+	"Constructions/bridges/bridge_3m_4.mym",
+	"Constructions/bridges/bridge_4m.mym",
+	"Constructions/bridges/bridge_4m_2.mym",
+	"Constructions/bridges/bridge_4m_3.mym",
+	"Constructions/bridges/bridge_4m_4.mym",
+	"Constructions/bridges/bridge_4m_5.mym",
+	"Constructions/bridges/bridge_4m_6.mym",
+	"Constructions/bridges/bridge_4m_7.mym",
+	"Constructions/bridges/bridge_5m.mym",
+	"Constructions/bridges/bridge_5m_2.mym
+	"Constructions/bridges/bridge_5m_3.mym",
+	"Constructions/bridges/bridge_6m.mym",
+	"Constructions/bridges/bridge_8m.mym",
+	"Constructions/bridges/bridge_8m_broken.mym",
 	"nature/worldedge/edge_floater1.mym",
 	"nature/worldedge/edge_floater2.mym",
 	"nature/worldedge/edge_floater3.mym",

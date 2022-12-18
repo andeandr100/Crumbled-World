@@ -19,6 +19,7 @@ function SlowfieldAbility.new(inCamera, inComUnit)
 	local abilitySlowPercentage = 0.4
 	local abilityActivated = -100
 	local abilityGlobalPosition = Vec3()
+	local billboardStats = Core.getBillboard("stats")
 	
 	function self.getSlowFieldHasBeenUsedThisWave()
 		return abilityHasBeenUsedThisWave
@@ -59,6 +60,10 @@ function SlowfieldAbility.new(inCamera, inComUnit)
 		return false, Vec3();
 	end
 	
+	local function isMouseInMainPanel()
+		return billboardStats:getPanel("MainPanel") == Core.getPanelWithMouseFocus()
+	end
+	
 	function self.update()
 		
 		if keyBindSlowAbility:getPressed() then
@@ -69,13 +74,16 @@ function SlowfieldAbility.new(inCamera, inComUnit)
 			boostSelected = false
 		end
 		
+		if Core.getInput():getMouseDown(MouseKey.left) and isMouseInMainPanel() == false then
+			boostSelected = false
+		end
 		
 		if boostSelected and abilityHasBeenUsedThisWave == false then
 				
 			local collision, globalposition = worldCollision()
 			slowFieldTargetArea.update(collision, globalposition, false)
 			
-			if collision and Core.getInput():getMouseDown(MouseKey.left) then
+			if collision and Core.getInput():getMouseDown(MouseKey.left) and isMouseInMainPanel() then
 				abilityActivated = Core.getGameTime()
 				abilityHasBeenUsedThisWave = true
 				abilityGlobalPosition = globalposition

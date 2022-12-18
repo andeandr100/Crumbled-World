@@ -25,7 +25,7 @@ function AttackAbility.new(inCamera, inComUnit)
 	local abilitySlowPercentage = 0.4
 	local abilityActivated = 0
 	local abilityGlobalPosition = Vec3()
-	
+	local billboardStats = Core.getBillboard("stats")
 	
 	
 	--Reality check will fail due to this node being built on the player node instead of the islands
@@ -103,7 +103,13 @@ function AttackAbility.new(inCamera, inComUnit)
 		end
 	end
 	
+	local function mouseInGameArea()
+		return billboardStats:getPanel("MainPanel") == Core.getPanelWithMouseFocus()
+	end
+	
 	function self.update()
+		
+		
 		
 		if keyAttackAbility:getPressed() then
 			boostSelected = true
@@ -125,12 +131,16 @@ function AttackAbility.new(inCamera, inComUnit)
 --		if targetSelector.getIndexOfShieldCovering(attackEffect.getPosition()) > 0 then
 --			abort("shield collision")
 --		end
+
+		if Core.getInput():getMouseDown(MouseKey.left) and mouseInGameArea() == false then
+			boostSelected = false
+		end
 		
 		if boostSelected and abilityHasBeenUsedThisWave == false then
 				
 			local collision, globalposition = worldCollision()
 			
-			if collision and Core.getInput():getMouseDown(MouseKey.left) then
+			if collision and Core.getInput():getMouseDown(MouseKey.left) and mouseInGameArea() then
 				abilityActivated = Core.getGameTime()
 				abilityHasBeenUsedThisWave = true
 				abilityGlobalPosition = globalposition
