@@ -1,4 +1,5 @@
 require("Game/Abilities/slowFieldTargetArea.lua")
+require("Game/Abilities/worldCollision.lua")
 
 --this = SceneNode()
 SlowfieldAbility = {}
@@ -14,12 +15,14 @@ function SlowfieldAbility.new(inCamera, inComUnit)
 	local abilityHasBeenUsedThisWave = false
 	
 	local lastSlowEffectSent = 0
-	local abilityLast = 12
+	local abilityLast = 8
 	local abilityTargetArea = 4
 	local abilitySlowPercentage = 0.4
 	local abilityActivated = -100
 	local abilityGlobalPosition = Vec3()
 	local billboardStats = Core.getBillboard("stats")
+	local oldCollisionPosition = Vec3()
+	local mapCollision = WorldCollision.new(inCamera)
 	
 	function self.getSlowFieldHasBeenUsedThisWave()
 		return abilityHasBeenUsedThisWave
@@ -46,19 +49,6 @@ function SlowfieldAbility.new(inCamera, inComUnit)
 		return keyBindSlowAbility;
 	end
 	
-	local function worldCollision()
-		--get collision line from camera and mouse pos
-		local cameraLine = camera:getWorldLineFromScreen(Core.getInput():getMousePos());
-		--Do collision agains playerWorld and return collided mesh
-		local playerNode = this:findNodeByType(NodeId.playerNode)
-		collisionMesh = playerNode:collisionTree(cameraLine, NodeId.islandMesh);
-		--Check if collision occured and check that we have an island which the mesh belongs to
-		if collisionMesh and collisionMesh:findNodeByType(NodeId.island) then
-			collPos = cameraLine.endPos;
-			return true, collPos;
-		end		
-		return false, Vec3();
-	end
 	
 	local function isMouseInMainPanel()
 		return billboardStats:getPanel("MainPanel") == Core.getPanelWithMouseFocus()
@@ -80,7 +70,7 @@ function SlowfieldAbility.new(inCamera, inComUnit)
 		
 		if boostSelected and abilityHasBeenUsedThisWave == false then
 				
-			local collision, globalposition = worldCollision()
+			local collision, globalposition = mapCollision.mouseWorldCollision(true)
 			slowFieldTargetArea.update(collision, globalposition, false)
 			
 			if collision and Core.getInput():getMouseDown(MouseKey.left) and isMouseInMainPanel() then

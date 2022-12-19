@@ -102,11 +102,11 @@ function slowFieldTargetArea.new()
 		if visible then
 			particleEffect:setLocalPosition(globalposition)
 --			Core.addDebugSphere(particleEffect:getGlobalBoundingSphere(),0.1,Vec3(1))
-			Core.addDebugSphere(Sphere(globalposition,0.2),0.1,Vec3(1))
+--			Core.addDebugSphere(Sphere(globalposition,0.2),0.1,Vec3(1))
 		end
 		
 		if active then
-			print("Active - slowField")
+--			print("Active - slowField")
 			
 			
 			timeBettwenLightning = timeBettwenLightning - Core.getDeltaTime()

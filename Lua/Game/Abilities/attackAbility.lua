@@ -1,5 +1,6 @@
 require("Game/Abilities/attackTargetArea.lua")
 require("Game/Abilities/attackEffect.lua")
+require("Game/Abilities/worldCollision.lua")
 
 --this = SceneNode()
 AttackAbility = {}
@@ -20,12 +21,13 @@ function AttackAbility.new(inCamera, inComUnit)
 	
 	local lastSlowEffectSent = 0
 	local abilityLast = 12
-	local abilityTargetArea = 4
+	local abilityTargetArea = 3.5
 	local abilityDetonationRange = 6
 	local abilitySlowPercentage = 0.4
 	local abilityActivated = 0
 	local abilityGlobalPosition = Vec3()
 	local billboardStats = Core.getBillboard("stats")
+	local mapCollision = WorldCollision.new(inCamera)
 	
 	
 	--Reality check will fail due to this node being built on the player node instead of the islands
@@ -56,19 +58,6 @@ function AttackAbility.new(inCamera, inComUnit)
 		return keyAttackAbility;
 	end
 	
-	local function worldCollision()
-		--get collision line from camera and mouse pos
-		local cameraLine = camera:getWorldLineFromScreen(Core.getInput():getMousePos());
-		--Do collision agains playerWorld and return collided mesh
-		local playerNode = this:findNodeByType(NodeId.playerNode)
-		collisionMesh = playerNode:collisionTree(cameraLine, NodeId.islandMesh);
-		--Check if collision occured and check that we have an island which the mesh belongs to
-		if collisionMesh and collisionMesh:findNodeByType(NodeId.island) then
-			collPos = cameraLine.endPos;
-			return true, collPos;
-		end		
-		return false, Vec3();
-	end
 	
 	local function getDamage()
 		return statsBilboard:getInt("npc_scorpion_hp")
@@ -138,7 +127,7 @@ function AttackAbility.new(inCamera, inComUnit)
 		
 		if boostSelected and abilityHasBeenUsedThisWave == false then
 				
-			local collision, globalposition = worldCollision()
+			local collision, globalposition = mapCollision.mouseWorldCollision(false)
 			
 			if collision and Core.getInput():getMouseDown(MouseKey.left) and mouseInGameArea() then
 				abilityActivated = Core.getGameTime()

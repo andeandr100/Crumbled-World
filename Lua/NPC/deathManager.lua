@@ -109,7 +109,7 @@ function DeathManager.new()
 		local globalMatrix = parent:getGlobalMatrix()
 		local line = Line3D(globalPosition + globalMatrix:getUpVec(), globalPosition -  globalMatrix:getUpVec() )
 		--Core.addDebugLine(line.startPos, line.endPos, 0.01, Vec3(1,1,0))
-		local collisionNode = this:getPlayerNode():collisionTree(line, {NodeId.islandMesh, NodeId.ropeBridge})
+		local collisionNode = this:getPlayerNode():collisionTree(line, {NodeId.islandMesh, NodeId.collisionMesh})
 		--Core.addDebugSphere(Sphere( line.endPos, 0.3), 0.01, Vec3(1,0,0))
 		if collisionNode then
 			localPosition = parent:getGlobalMatrix():inverseM() * line.endPos

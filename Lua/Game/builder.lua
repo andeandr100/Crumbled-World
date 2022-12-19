@@ -12,6 +12,8 @@ local ghostTowers = {}
 local waveTime = 0
 local curentWave = -1
 local canBuildInThisWorld = false
+local worldCollisionHeight = 0
+local oldCollisionMesh = nil
 
 --local keyTable = {
 --			[keyTable["goldGainedTotal"]] = 32,		
@@ -37,8 +39,13 @@ function worldCollision()
 	collisionMesh = playerNode:collisionTree(cameraLine, NodeId.islandMesh);
 	--Check if collision occured and check that we have an island which the mesh belongs to
 	if collisionMesh and collisionMesh:findNodeByType(NodeId.island) then
+		oldCollisionMesh = collisionMesh
 		collPos = cameraLine.endPos;
+		worldCollisionHeight = collPos.y
 		return true;
+	else
+		collisionMesh = oldCollisionMesh
+		return collisionMesh and Collision.lineSegmentPlaneIntersection( collPos, cameraLine, Vec3(0,1,0), Vec3(0,worldCollisionHeight,0))
 	end		
 	return false;
 end
