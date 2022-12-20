@@ -75,7 +75,7 @@ function NpcPath.new()
 							--set diffuse shader uniforms
 							meshList[n]:setUniform(shader,"portalPosition", centerPosition)
 							meshList[n]:setUniform(shader,"portalAtVec", atVec)
-							meshList[n]:setUniform(shader,"portalColor", Vec3(1,1,0))
+							meshList[n]:setUniform(shader,"portalColor", Vec3(1,0,1))
 							
 							--set shadow shader
 							meshList[n]:setUniform(shadowShader,"portalPosition", centerPosition)
