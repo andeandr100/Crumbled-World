@@ -19,6 +19,6 @@ When developing place this code under the Custom Lua folder this folder is not r
 You can use any IDE you want. We at Clone Corps uses the internal editor from the game. This is a very crude editor supplying you with a basic intelligence of the games API.
 On windows the editor can be found side by side of the Crumbled world exe file.
 Note on the develop branch we uses the latest version of the game this version can be found on the “Experimental branch” on steam. 
-This IDE uses the Crumbled World [wiki](http://crumbledworld.com/wiki/index.php?title=Lua) as it’s intelligence database and to update the intelligence of the editor delete the file “Data/LuaConfig/LuaInteligence.lua” and the latest info from the wiki is downloaded.
+This IDE uses the Crumbled World [wiki](https://wiki.crumbledworld.com/index.php?title=Lua) as it’s intelligence database and to update the intelligence of the editor delete the file “Data/LuaConfig/LuaInteligence.lua” and the latest info from the wiki is downloaded.
 
 
