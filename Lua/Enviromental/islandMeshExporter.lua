@@ -153,7 +153,6 @@ function IslandMeshExporter.new()
 			end
 			
 			if string.find(node:getFileName(),"bridge") then
-				abort()
 				return false
 			end
 		end
@@ -161,10 +160,6 @@ function IslandMeshExporter.new()
 		local dontTochMesh = false
 		if node:getNodeType() == NodeId.mesh then
 			if isOnNavMeshHullEdge(nodeLocalMatrix:getPosition()) or string.find(node:getModelName(),"buildingParts") or string.find(node:getModelName(),"railroad") or string.find(node:getModelName(),"buildings") or string.find(node:getModelName(),"world_edge") or string.find(node:getModelName(),"bridges") then 
-				
-				if string.find(node:getModelName(),"bridges") then
-					abort()
-				end
 				importentMeshes[#importentMeshes+1] = {mesh=node,localMatrix=nodeLocalMatrix}
 			else
 				inMeshTable[#inMeshTable+1] = {mesh=node,localMatrix=nodeLocalMatrix}
