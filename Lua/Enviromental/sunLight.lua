@@ -5,9 +5,9 @@ function create()
 	sunDirection = Vec3(math.cos(0.5*pi),math.sin(0.5*pi),math.sin(0.5*pi)):normalizeV()
 	sunSetDirection = Vec3(math.cos(0.8*pi),math.sin(0.2*pi),math.sin(0.8*pi)):normalizeV()
 	
-	sunriseColor = Vec3(0.9,0.35,0.70)
-	sunColor = Vec3(1.05,1.05,1.05)
-	sunsetColor = Vec3(1.08,0.58,0.035)
+	sunriseColor = Vec3(0.9,0.35,0.70) * 1.1
+	sunColor = Vec3(1.05,1.05,1.05) * 1.1
+	sunsetColor = Vec3(1.08,0.58,0.035) * 1.1
 	
 	ambientRiseColor = Vec3(0.45)
 	ambientColor = Vec3(0.75)
