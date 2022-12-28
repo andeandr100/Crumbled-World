@@ -174,7 +174,7 @@ function NpcPath.new()
 --				nodeMover:addCallbackWayPointReached(self.wayPointReached)
 --			end
 			
-			
+			nodeMover:rotateTopointalongWalkPath()
 			
 		else
 			error("No path bilboard was found")
