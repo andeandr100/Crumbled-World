@@ -27,8 +27,8 @@ function CampaignData.new()
 	local isInGame = Core.getBillboard("SoulManager")
 	
 	local files = { 
-		{file=File("Data/Map/Campaign/Beginning.map"), 		statId="Begining",		statIdOld="L1",		minScore=4000,	maxScore=11000,	type="Crystal",	sead=258187458,	waveCount=10},--? / 11413[5k]
-		{file=File("Data/Map/Campaign/Intrusion.map"), 		statId="Intrusion",		statIdOld="L2",		minScore=8000,	maxScore=18000,	type="Crystal",	sead=334652485,	waveCount=15},--? / 17029
+		{file=File("Data/Map/Campaign/Beginning.map"), 		statId="Begining",		statIdOld="L1",		minScore=2000,	maxScore=6000,	type="Crystal",	sead=258187458,	waveCount=5},--? / 11413[5k]
+		{file=File("Data/Map/Campaign/Intrusion.map"), 		statId="Intrusion",		statIdOld="L2",		minScore=5000,	maxScore=11000,	type="Crystal",	sead=334652485,	waveCount=10},--? / 17029
 		{file=File("Data/Map/Campaign/Stockpile.map"),		statId="Stockpile",		statIdOld="L3",		minScore=10000,	maxScore=24000,	type="Crystal",	sead=294158370,	waveCount=20},--? / 23738[9k]
 		{file=File("Data/Map/Campaign/Expansion.map"), 		statId="Expansion",		statIdOld="L4",		minScore=15000,	maxScore=35000,	type="Crystal",	sead=864885368,	waveCount=25},--? /	35162[13k]							--40K
 		{file=File("Data/Map/Campaign/Repair station.map"),	statId="RepairStation",	statIdOld="L5",		minScore=15000,	maxScore=44000,	type="Cart",	sead=256546887,	waveCount=25},--? / 42900								--40k	
