@@ -35,20 +35,6 @@ function init()
 	return false
 end
 
---function createMesh()
---	nodeMesh = NodeMesh.new(RenderMode.points)
---	nodeMesh:setVertexType(VertexType.vec3, VertexType.vec3)
---	nodeMesh:bindVertexToShaderName("pos1", "pos2" )
---	nodeMesh:setShader(Core.getShader("pathRender"))
---	nodeMesh:setShadowShader(Core.getShader("pathRender"))
---	nodeMesh:setBoundingSphere(Sphere(Vec3(), 75.0))
---	nodeMesh:setColor(Vec4(1))
---	
---	updateMesh()
---	
---	
---	this:addChild(nodeMesh)
---end
 
 function create()
 	bilboard = Core.getGlobalBillboard("Paths")
