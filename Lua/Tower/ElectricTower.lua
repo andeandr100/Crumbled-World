@@ -4,6 +4,7 @@ require("Tower/supportManager.lua")
 require("NPC/state.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
+require("Game/graphicParticleSystems.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Game/soundManager.lua")
@@ -43,7 +44,8 @@ function ElectricTower.new()
 	--effect
 	local energyLightShow = 2.0
 	local pointLightBaseRange = 1.75
-	local sparkCenter = ParticleSystem.new(ParticleEffect.SparkSpirit)
+	local particleSparcleCenter = GraphicParticleSystems.new().createTowerElectricEffect()
+--	local sparkCenter = ParticleSystem.new(ParticleEffect.SparkSpirit)
 	local electric1 = ParticleEffectElectricFlash.new("Lightning_D.tga")
 	local electric2 = ParticleEffectElectricFlash.new("Lightning_D.tga")
 	local pointLight = PointLight.new(Vec3(0,2.5,0),Vec3(0.0,4.0,4.0),pointLightBaseRange)
@@ -746,8 +748,12 @@ function ElectricTower.new()
 		end
 	
 		local bLevel = upgrade.getLevel("boost")
-		local ampliture = 0.25+(energyPer*0.75) + (bLevel*0.5)
-		sparkCenter:setScale( ampliture ) 
+--		local ampliture = 0.25+(energyPer*0.75) + (bLevel*0.5)
+--		sparkCenter:setScale( ampliture )
+		local mat = particleSparcleCenter:getLocalMatrix()
+		mat:setScale(Vec3(math.clamp( energyPer * 1.2, 0.06, 1.0) + (bLevel*0.5)))
+		particleSparcleCenter:setLocalMatrix(mat)
+		
 		pointLight:setRange(pointLightBaseRange*energyPer + bLevel)
 		
 		ring[1]:rotate(math.randomVec3(), rotationThisFrame*0.33*math.randomFloat())
@@ -1099,9 +1105,13 @@ function ElectricTower.new()
 		initModel()
 	
 		--ParticleEffects
-		this:addChild(sparkCenter:toSceneNode())
+		
+		this:addChild(particleSparcleCenter:toSceneNode())
+		particleSparcleCenter:setLocalPosition(Vec3(0,2.75,0))
+		
+--		this:addChild(sparkCenter:toSceneNode())
+--		sparkCenter:activate(Vec3(0,2.75,0))
 		ring[1]:rotate(math.randomVec3(), math.pi*2.0*math.randomFloat())
-		sparkCenter:activate(Vec3(0,2.75,0))
 		this:addChild(electric1:toSceneNode())
 		this:addChild(electric2:toSceneNode())
 		pointLightAttack:setCutOff(0.05)

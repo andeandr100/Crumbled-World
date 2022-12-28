@@ -25,10 +25,11 @@ void main( void )
 
 	col = color;
 	uvCord = uvCoord;
-	size = position.w;
+	float scale = length(modelMat * vec4( 0.57735, 0.57735, 0.57735, 0.0 ));
+	size = scale * position.w;
 	targetColor = inTargetColor;
 	timeOffset = inAttribute.x + particleTime - floor(inAttribute.x + particleTime);
-	sizeGrowth = inAttribute.y;
+	sizeGrowth = scale * inAttribute.y;
 
 	vec3 localPos = position.xyz + inVelocity * timeOffset;
 

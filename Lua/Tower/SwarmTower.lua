@@ -6,6 +6,7 @@ require("Projectile/projectileManager.lua")
 require("Projectile/SwarmBall.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
+require("Game/graphicParticleSystems.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 --this = SceneNode()
@@ -37,7 +38,8 @@ function SwarmTower.new()
 	local reloadTimeLeft = 0.0
 	local boostedOnLevel = 0
 	--effects
-	local fireCenter = ParticleSystem.new(ParticleEffect.SwarmTowerFlame)
+	local particleFireCenter = GraphicParticleSystems.new().createTowerFireCenter()
+	--local fireCenter = ParticleSystem.new(ParticleEffect.SwarmTowerFlame)
 	local pointLight
 	--communication
 	local comUnit = Core.getComUnit()
@@ -510,7 +512,7 @@ function SwarmTower.new()
 		end
 		
 		local bLevel = upgrade.getLevel("boost")
-		fireCenter:setScale(1.0+(bLevel*0.4))
+--		fireCenter:setScale(1.0+(bLevel*0.4))
 		pointLight:setRange(1.25+(bLevel))
 		
 		--change update speed
@@ -849,8 +851,11 @@ function SwarmTower.new()
 		cTowerUpg.fixAllPermBoughtUpgrades()
 	
 		--ParticleEffects
-		this:addChild( fireCenter:toSceneNode() )
-		fireCenter:activate(Vec3(0.0,1.9,0.0))
+		this:addChild( particleFireCenter:toSceneNode() )
+		particleFireCenter:setLocalPosition(Vec3(0,2.1,0))
+		
+--		this:addChild( fireCenter:toSceneNode() )
+--		fireCenter:activate(Vec3(0.0,1.9,0.0))
 		pointLight = PointLight.new(Vec3(0,2.45,0),Vec3(5,2.5,0.0),1.25)
 		this:addChild(pointLight:toSceneNode())
 		
