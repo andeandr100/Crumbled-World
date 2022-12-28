@@ -24,10 +24,6 @@ function update()
 		if collisionMesh and collisionMesh:getSceneName()=="watermelon" then
 			destroyWatermelon(collisionMesh)
 		end
-		
-		if collisionMesh and collisionMesh:getSceneName()=="bridge_4m" then
-			abort("tada")
-		end
 	end
 	
 	
