@@ -336,6 +336,17 @@ function TargetSelector.new(pteam)
 		end
 		return hp
 	end
+
+	function self.getTargetHPPercentage(target)
+		local hpPercentage = 0.0
+		local soulBillboard = Core.getBillboard(target or currentTarget)
+		if soulBillboard and soulBillboard:getBool("isAlive") then
+			hpPercentage = soulBillboard:getDouble("hp") / soulBillboard:getDouble("hpMax")
+		end
+		return hpPercentage
+	end
+	
+	
 	-- function:	getTarget
 	-- purpose:		returns the currently active target(currentTarget)
 	function self.getTarget()
