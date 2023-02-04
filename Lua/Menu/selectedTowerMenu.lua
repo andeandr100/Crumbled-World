@@ -32,13 +32,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local towerPanel
 	local buttonPanel
 	local buttonCostPanel
-	local MainButtonPanel
-	local MainButtonCostPanel
 	local infoPanel
 	local infopanelRight
 	local energyBar
 	local overHeatBar
-	local xpBar
 	local upgradesPanel
 	local towerInfo
 	local imagePanel
@@ -60,12 +57,14 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local targetArea = TargetArea.new()
 	local showBoostableTowers = false
 	local updateBoostTimer = {}
-			
+	local towerUpdateIndex = -1
+	local towerButtonUpdateIndex = -1		
 	
 	--this = SceneNode()
 	local function instalForm()
 	
-		leftMainPanel:setPanelSize(PanelSize(Vec2(-1),Vec2(1,1.3)))
+		leftMainPanel:setPanelSize(PanelSize(Vec2(-1)))
+--		leftMainPanel:setBackground(Sprite(Vec3(1,0,0)))
 	
 		--Wall tower info panel
 		wallTowerPanel = leftMainPanel:add(Panel(PanelSize(Vec2(-1))))
@@ -92,16 +91,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		--add Spacing
 		buttonCostPanel = towerPanel:add(Panel(PanelSize(Vec2(-1),Vec2(16,1))))
 		buttonCostPanel:setLayout(GridLayout(1,5))
-		
-	
-		--Main uppgrade, tower uppgrade, boost, rotate arrow tower, sell building
-		MainButtonPanel = towerPanel:add(Panel(PanelSize(Vec2(-1),Vec2(5.2,1)))); 
-		MainButtonPanel:setLayout(GridLayout(1,5))
-		
-		--add Spacing
-		MainButtonCostPanel = towerPanel:add(Panel(PanelSize(Vec2(-1),Vec2(16,1))))
-		MainButtonCostPanel:setLayout(GridLayout(1,5))
-		
 		
 		
 		--Spacing
@@ -142,18 +131,13 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		overHeatBar:setColor(Vec4(1.0,0.5,0,0.75), Vec4(0.5,0.2,0.,0.75))
 		overHeatBar:setVisible(false)
 		
-		xpBar = ProgressBar(PanelSize(Vec2(-1.0,0.1),PanelSizeType.ParentPercent), Text(""), 0.0)
-		xpBar:setTextColor(Vec3(1.0));
-		xpBar:setInnerColor(Vec4(0,0,0,0.3), Vec4(0.1,0.1,0.1,0.6))
-		xpBar:setColor(Vec4(1.0,0.5,0,0.75), Vec4(0.5,0.2,0.,0.75))
-		xpBar:setVisible(false)
+
 		
 		imagePanel = towerImagePanel:add(Panel(PanelSize(Vec2(-1))))
 	
 		imagePanel:setPadding(BorderSize(Vec4(0.01)))
 		imagePanel:add(energyBar)
 		imagePanel:add(overHeatBar)
-		imagePanel:add(xpBar)
 		
 	
 		local bottomPanel = imagePanel:add(Panel(PanelSize(Vec2(-1))))
@@ -174,6 +158,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 
 		
 		towerInfo = {}
+--		statsOrder =  {"damage", "dmg","RPS", "ERPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range","supportDamage","SupportRange","supportWeaken","weakenValue","supportGold","supportGoldPerWave"}
 		statsOrder =  {"damage", "dmg","RPS", "ERPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range","supportDamage","SupportRange","supportWeaken","weakenValue","supportGold","supportGoldPerWave"}
 		keyBindTable = {keyBindUpgradeBuilding, keyBindBoostBuilding}
 		
@@ -304,13 +289,14 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				costPanel:setCanHandleInput(false)
 				
 				
-				local x = (towers[i]-1)%3
-				local y = 2-math.floor(((towers[i]-1)/3))
-				local start = Vec2(x/3.0, y/3.0)
+				
+				local x = towers[i]%4
+				local y = 2-math.floor((towers[i]/4))
+				local start = Vec2(x/4.0, y/4.0)
 			
 				--print( "textureName: "..texture:getName():toString().."\n")
 				--Make sure that information about the tower uppgrade actually exist				
-				local button = Button(PanelSize(Vec2(-1,-1), Vec2(1,1),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, towerTexture, start, start+Vec2(1/3,1/3))
+				local button = Button(PanelSize(Vec2(-1,-1), Vec2(1,1),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, towerTexture, start, start+Vec2(0.25,0.25))
 				button:setTag(tostring(towers[i]).."Node")
 				button:addEventCallbackExecute(uppgradeWallTowerCallback)
 		--		button:addEventCallbackMouseFocusGain(showWallBuildingInformation)
@@ -341,9 +327,9 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			local row1 = row1Panel:add(Panel(PanelSize(Vec2(-2/3,-1))))
 			wallTowerSellPanel = row1Panel:add(Panel(PanelSize(Vec2(-1))))
 			
-			createWallTowerPanel(row1, 2, {8,9,-1})
-			createWallTowerPanel(row2, 3, {2,3,4})
-			createWallTowerPanel(row3, 3, {5,6,7})
+			createWallTowerPanel(row1, 2, {7,8,-1})
+			createWallTowerPanel(row2, 3, {1,2,3})
+			createWallTowerPanel(row3, 3, {4,5,6})
 			
 			wallTowerSellPanel:setLayout(FlowLayout(Alignment.TOP_RIGHT))
 			wallTowerSellPanel:setPadding(BorderSize(Vec4(0,0,0.006,0),true))
@@ -378,7 +364,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				
 				local clientId = buildingLastSelected:getPlayerNode():getClientId()
 				--Core.getNetworkClient():getClientId()
---				comUnit:sendTo("stats","removeGold",tostring(cost))
+				comUnit:sendTo("stats","removeGold",tostring(cost))
 				comUnit:sendTo("builder"..clientId, "buildingSubUpgrade", tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=paramMessage}))
 			end
 		end
@@ -428,16 +414,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			overHeatBar:setValue(enegrgy)
 		end
 	end
-	
-	local function updateXpBar()
-		if xpBar:getVisible() then
-			
-			local xp = buildingBillBoard:getInt("xp")
-			local maxXp = buildingBillBoard:getInt("xpToNextLevel")
-			xpBar:setText(Text(xp.."/"..maxXp))
-			xpBar:setValue(xp/maxXp)
-		end
-	end
+
 	
 	local function onExecute(button)
 		print("")
@@ -454,7 +431,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			print("SIZE: "..tostring(size))
 			
 			if size == 3 and tonumber(subString[2]) then
-				handleUpgrade(tonumber(subString[2]), subString[1], tonumber(subString[1]=="upgrade2" and 1 or subString[3]) )
+				handleUpgrade(tonumber(subString[2]), subString[1], tonumber(subString[3]) )
 			else
 				handleUpgrade(0, subString[1])	
 			end
@@ -474,10 +451,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			return Vec2(0.25,0.375),Vec2(0.375,0.4375), language:getText("charges per second")
 		elseif name=="range" then
 			return Vec2(0.375,0.4375),Vec2(0.5,0.5), language:getText("target range")
-		elseif name=="fireDPS" then
-			return Vec2(0.75,0.25),Vec2(0.875,0.3125), language:getText("burn damage per second")
-		elseif name=="burnTime" then
-			return Vec2(0.625,0.25),Vec2(0.75,0.3125), language:getText("burn time")
+--		elseif name=="fireDPS" then
+--			return Vec2(0.75,0.25),Vec2(0.875,0.3125), language:getText("burn damage per second")
+--		elseif name=="burnTime" then
+--			return Vec2(0.625,0.25),Vec2(0.75,0.3125), language:getText("burn time")
 		elseif name=="slow" then
 			return Vec2(0.875,0.375),Vec2(1.0,0.4375), language:getText("slow")
 		elseif name=="bladeSpeed" then
@@ -501,28 +478,42 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		end
 	end
 	
+	local function valueToString(value, decimalLimit)
+		--could use math.floor(math.log10) to get the 10^x but why complicate a simple issue
+		--2 significants are to little, 3 is almost to much
+		decimalLimit = decimalLimit or 3
+		if math.abs(value)<0 and decimalLimit>=3 then
+			return string.format("%.3f",value)
+		elseif math.abs(value)<10 and decimalLimit>=2 then
+			return string.format("%.2f",value)
+		elseif math.abs(value)<100 and decimalLimit>=1 then
+			return string.format("%.1f",value)
+		else
+			return string.format("%.0f",value)
+		end
+	end
+	
 	local function updateText()
-		
-		local reload = not (storedShowText == buildingBillBoard:getString("currentStats") )
-		
+
 		--check if the stats need to be reloaded
-		if reload then
+		if towerUpdateIndex ~= buildingBillBoard:getInt("updateIndex") then
+			towerUpdateIndex = buildingBillBoard:getInt("updateIndex")
 			--print("\n\nupdateText()\n")
+			local displayStats = buildingBillBoard:getTable("displayStats")
 			
-			--infoPanel:clear()	towerInfo
 			if towerInfo.info then
-				--update info
-				storedShowText = buildingBillBoard:getString("currentStats")
 				local info = towerInfo.info
-				--print("displayStats"..storedShowText)
-				for splitedStr in (storedShowText .. ";"):gmatch("([^;]*);") do 
-					--print("Splited:".. splitedStr)
-					local array = splitFirst(splitedStr, "=")
-					local name = array[1]
-					local value = array[2]
-					if info[name] ~= nil and info[name].label then
-						info[name].value = value
-						info[name].label:setText((value and value or "---"))
+				for index, statName in ipairs(displayStats) do
+					if info[statName] ~= nil and info[statName].label then
+						info[statName].valueupg = tonumber(buildingBillBoard:getString(statName.."-upg"))
+						info[statName].value = tonumber(buildingBillBoard:getString(statName))
+						
+						local upgradeValue = ""
+						if info[statName].valueupg ~= 0 then
+							upgradeValue = ( info[statName].valueupg > 0 and "<font color=rgb(0,255,0)>+" or "<font color=rgb(255,0,0)>-" ) .. valueToString(info[statName].valueupg) .. "</font>"
+						end
+						
+						info[statName].label:setText(valueToString(info[statName].value,2)..upgradeValue)
 					end
 					
 				end
@@ -530,12 +521,12 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				--build info
 				local info = {}
 				towerInfo.info = info
-				storedShowText = buildingBillBoard:getString("currentStats")
+				
 				--print("displayStats"..storedShowText)
-				for splitedStr in (storedShowText .. ";"):gmatch("([^;]*);") do 
-					--print("Splited:".. splitedStr)
-					local array = splitFirst(splitedStr, "=")
-					info[array[1]] = {value=array[2]}
+				for index, statName in ipairs(displayStats) do
+					info[statName] = {}
+					info[statName].valueupg = tonumber(buildingBillBoard:getString(statName.."-upg"))
+					info[statName].value=tonumber(buildingBillBoard:getString(statName))
 					
 				end
 	
@@ -549,154 +540,18 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 						icon:setToolTip(text)
 						
 						row:add(icon)--Label(PanelSize(Vec2(-0.4,0.166),PanelSizeType.ParentPercent), (array[1] and array[1] or "----")..":", Vec3(1.0)))
-						local label = row:add(Label(PanelSize(Vec2(-1)), (info[name].value and info[name].value or "-"), Vec3(1.0)))
+						local upgradeValue = ""
+						if info[name].valueupg ~= 0 then
+							upgradeValue = ( info[name].valueupg > 0 and "<font color=rgb(0,255,0)>+" or "<font color=rgb(255,0,0)>-" ) .. valueToString(info[name].valueupg) .. "</font>"
+						end
+						local label = row:add(Label(PanelSize(Vec2(-1)), (info[name].value and valueToString(info[name].value,2) or "-") .. upgradeValue, Vec3(1.0)))
 	
 						info[name].icon = icon
 						info[name].label = label
 					end				
 				end
 			end
-		end
-	end
-	
-	local function updateToolTip(button, info)
-		local requireText = Text("")
-		if info["require"] ~= nil then
-			local value = info["require"].value
-			local requireTextCreated = false
-			if value == "tower level 2" or value == "tower level 3" or value == "Wave" or value == "shop required" or value == "not your tower" or value == "conflicting upgrade" then
-				requireTextCreated = true
-				requireText = Text("<font color=rgb(255,50,50)>")
-			end
-			
-			
-			if value == "tower level 2" then
-				requireText = requireText + language:getText("tower level") + Text(" 2")
-			elseif value == "tower level 3" then
-				requireText = requireText + language:getText("tower level") + Text(" 3")
-			elseif value == "Wave" then
-				local wave = ( info.duration and info.timerStart) and tonumber(info.duration.value) + tonumber(info.timerStart.value) or 0
-				requireText = requireText  + language:getText("req wave") + Text(" "..tostring(wave))
-			elseif value == "shop required" then
-				requireText = requireText  + language:getText("shop required")
-			elseif value == "not your tower" then
-				requireText = requireText  + language:getText("not your tower")
-			elseif value == "conflicting upgrade" then
-				requireText = requireText  + language:getText("conflicting upgrade")
-			end
-			
-			
-			if requireTextCreated then
-				requireText = requireText + Text("</font><br>")
-			end
-		end
 		
-		
-					
-		if info.toolTipPanel ~= nil then
-			if info.infoName == "sell" then
-				info.toolTipSellLabel:setText("<font color=rgb(40,255,40)>+"..(info.towerValue and tostring(info.towerValue) or "0").."</font>")
-			else
-				for i, name in pairs(statsOrder) do
-					if info[name] and info[name].toolTipLabel then
-						local notifyText = "?"
-						if info[name].value and info[name].value then
-							local fontTag = "<font color=rgb(255,255,255)>"
-							if tonumber(info[name].value) > 0 then
-								fontTag = "<font color=rgb(40,255,40)>+"
-							elseif tonumber(info[name].value) < 0 then
-								fontTag = "<font color=rgb(255,50,50)>"
-							end
-							notifyText = fontTag .. (info[name].value and info[name].value or "?") .. "</font>\n"
-						end
-						
-						info[name].toolTipLabel:setText(notifyText)
-					end	
-				end
-				local infoValueText = (info.info and info.info.value or "")
-				info.toolTipLabel:setText( requireText + language:getTextWithValues(infoValueText, (info.value1 ~= nil) and info.value1.value or "", (info.value2 ~= nil) and info.value2.value or ""))
-				local startSize = info.toolTipLabel:getPanelSize():getSize()
-				info.toolTipLabel:setPanelSizeBasedOnTextSize()
-				
-				if startSize.y ~= info.toolTipLabel:getPanelSize():getSize().y then
-					local diff = info.toolTipLabel:getPanelSize():getSize() - startSize
-					local panelSize = info.toolTipPanel:getPanelSize():getSize()
-					print("\n\n\n\ndiff = "..diff.y.."\n\n\n\n")
-					info.toolTipPanel:setPanelSize(PanelSize( panelSize + Vec2(math.max(diff.x, panelSize.x) - panelSize.x, diff.y), PanelSizeType.Pixel))
-				end
-			end
-		else
-			local panel = Panel(PanelSize(Vec2(-1)))
-			panel:setLayout(FallLayout())
-			panel:getPanelSize():setFitChildren(true, true)
-			
-	--		local value1 = (info.value1 ~= nil) and info.value1.value or ""
-	--		local value2 = (info.value2 ~= nil) and info.value2.value or ""
-			local infoValueText = (info.info and info.info.value or "")
-			local textLabel = Label(PanelSize(Vec2(-1)), requireText + language:getTextWithValues(infoValueText, (info.value1 ~= nil) and info.value1.value or "", (info.value2 ~= nil) and info.value2.value or ""), Vec4(1) )
-			textLabel:setTextHeight(0.015)
-			textLabel:setPanelSizeBasedOnTextSize()
-			panel:add(textLabel)
-			
-			local totalPanelSizeInPixel = textLabel:getPanelSize():getSize()
-			
-			if info.infoName == "sell" then
-				local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(4,1)))
-				
-				local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
-				icon:setUvCoord(Vec2(0),Vec2(0.125,0.0625))
-					
-				
-				local notifyText = "<font color=rgb(40,255,40)>+"..(info.towerValue and tostring(info.towerValue) or "0").."</font>"
-				row:add(icon)
-				local label = row:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
-				panel:add(row)
-				
-				info.toolTipSellIcon = icon
-				info.toolTipSellLabel = label		
-				
-				totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.025 * Core.getScreenResolution().y )
-				
-			else
-				for i, name in pairs(statsOrder) do
-					if info[name] then
-						
-						local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(5,1)))
-						local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
-						local minCoord, maxCoord, text = getUvCoordAndTextFromName(name)
-						icon:setUvCoord(minCoord,maxCoord)
-						icon:setToolTip(text)
-										
-						local notifyText = "?"
-						if info[name].value and info[name].value then
-							local fontTag = "<font color=rgb(255,255,255)>"
-							if tonumber(info[name].value) > 0 then
-								fontTag = "<font color=rgb(40,255,40)>+"
-							elseif tonumber(info[name].value) < 0 then
-								fontTag = "<font color=rgb(255,50,50)>"
-							end
-							notifyText = fontTag .. (info[name].value and info[name].value or "?") .. "</font>\n"
-						end
-						
-						row:add(icon)
-						local label = row:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
-						panel:add(row)
-						
-						info[name].toolTipIcon = icon
-						info[name].toolTipLabel = label
-						
-						
-						totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.025 * Core.getScreenResolution().y )
-					end				
-				end
-			end
-			
-			panel:setPanelSize(PanelSize(totalPanelSizeInPixel, PanelSizeType.Pixel)	)
-			
-			info.toolTipPanel = panel
-			info.toolTipLabel = textLabel
-			
-			button:setToolTip(panel)
 		end
 	end
 	
@@ -708,18 +563,18 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		showRange = false
 	end
 	
-	local function updateRangeButton()
-		if showRange and towerInfo and towerInfo.buttonsInfo then
-			for name, data in pairs(towerInfo.buttonsInfo) do
-				if data.name and data.level ~= nil and data.name.value == "range" then
-					if data.level.level == 3 then
-						updateButton(name, nil)
-						return
-					end
-				end
-			end
-		end
-	end
+--	local function updateRangeButton()
+--		if showRange and towerInfo and towerInfo.buttonsInfo then
+--			for name, data in pairs(towerInfo.buttonsInfo) do
+--				if data.name and data.level ~= nil and data.name.value == "range" then
+--					if data.level.level == 3 then
+--						updateButton(name, nil)
+--						return
+--					end
+--				end
+--			end
+--		end
+--	end
 	
 	local function updateTowerName(button)
 		local levelText = " "
@@ -745,473 +600,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		end
 	end
 	
-	local function updateButton(name, inText)
-		print("\n=== updateButton ===")
-		print("Name "..name)
-		print("Text: \""..(inText and inText or "nil").."\"")
-		if not towerInfo.buttonsInfo[name] then
-			towerInfo.buttonsInfo[name] = {infoName = name}
-		end
-		local buttoninfo = towerInfo.buttonsInfo[name]
-		
-		if inText then
-			buttoninfo.cost = nil
-			buttoninfo["require"] = nil
-			for splitedStr in (inText .. ";"):gmatch("([^;]*);") do 
-				local array, size = splitFirst(splitedStr, "=")
-				if size == 2 then
-					print(array[1].." = "..array[2])
-					if buttoninfo[array[1]] == nil then
-						buttoninfo[array[1]] = {value=array[2]}
-					else
-						buttoninfo[array[1]].value = array[2]
-					end
-		 		end
-			end
-			
-			if name == "sell" then
-				buttoninfo.towerValue = buildingBillBoard:getInt("value")
-			end
-			
-			--update information
-			if buttoninfo.info ~= nil and buttoninfo.info.value then
-				buttoninfo.info.value = buttoninfo.info.value:gsub("\"", "")
-			end
-			if buttoninfo["require"] ~= nil and buttoninfo["require"].value then
-				buttoninfo["require"].value = buttoninfo["require"].value:gsub("\"", "")
-			end
-			if buttoninfo["name"] ~= nil and buttoninfo["name"].value then
-				buttoninfo["name"].value = buttoninfo["name"].value:gsub("\"", "")
-			end
-			
-			if buttoninfo.button then
-				
-				if buttoninfo.level ~= nil and buttoninfo.level.level ~= buttoninfo.level.value and buttoninfo.level.levelPanel ~= nil then
-					local level = buttoninfo.level.value
-					local texture = Core.getTexture("icon_table.tga")
-					buttoninfo.level.level = level
-					buttoninfo.level.levelPanel:setBackground(Sprite( texture, Vec2(0.625 + (level-1) * 0.125,0.3125), Vec2(0.625 + level * 0.125, 0.375)))
-				end
-				
-				if buttoninfo.cost ~= nil and buttoninfo.costLabel and tonumber(buttoninfo.cost.value) > 0 then
-					local text = Text(costToShortString(buttoninfo.cost.value))
-					buttoninfo.costLabel:setPanelSize(PanelSize(Vec2(-1),Vec2(2,1)))
-					buttoninfo.costLabel:setText( text )
-					--update tag
-					buttoninfo.button:setTag(name..";"..tostring(buttoninfo.cost and buttoninfo.cost.value or 0)..";"..tostring(buttoninfo.level.level))
-					
-					if name ~= "sell" then
-						local enable = tonumber(buttoninfo.cost.value) <= billboardStats:getDouble("gold")
-						buttoninfo.button:setEnabled( enable )
-						buttoninfo.costLabel:setTextColor( enable and Vec4(1) or Vec4(4.0,1,1,1))
-						buttoninfo.costIconSprite:setColor(enable and Vec4(1) or Vec4(Vec3(0.7),1))
-						buttoninfo.costIcon:setBackground(buttoninfo.costIconSprite)
-						
-						buttoninfo.costLabel:setVisible(true)
-						buttoninfo.costIcon:setVisible(true)
-					end	
-				else
-					
-					if name == "upgrade2" then
-						buttoninfo.button:setEnabled(buttoninfo.cost ~= nil)
-						buttoninfo.costLabel:setText( "Boost" )
-						buttoninfo.costLabel:setVisible(true)
-						buttoninfo.costIcon:setVisible(false)
-					else
-						buttoninfo.button:setEnabled(name == "sell" and buildingBillBoard:getBool("isNetOwner"))
-					end
-					buttoninfo.costLabel:setVisible(false)
-					buttoninfo.costIcon:setVisible(false)
-					if buttoninfo["require"] ~= nil then
-						if buttoninfo["require"].value == "tower level 2" then
-							buttoninfo.requireLabel:setText( language:getText("lvl") + Text(" 2") )
-							buttoninfo.requireLabel:setVisible(true)
-						elseif buttoninfo["require"].value == "tower level 3" then
-							buttoninfo.requireLabel:setText( language:getText("lvl") + Text(" 3") )
-							buttoninfo.requireLabel:setVisible(true)
-						elseif buttoninfo["require"].value == "Wave" then
-							local wave = ( buttoninfo.duration and buttoninfo.timerStart) and tonumber(buttoninfo.duration.value) + tonumber(buttoninfo.timerStart.value) or 0
-							buttoninfo.requireLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
-							buttoninfo.requireLabel:setText( language:getText("w") + Text(" "..tostring(wave)) )
-							buttoninfo.requireLabel:setVisible(true)
-						elseif buttoninfo["require"].value == "shop required" then
-							buttoninfo.requireLabel:setTextAlignment(Alignment.MIDDLE_LEFT)
-							buttoninfo.requireLabel:setText( language:getText("shop"))
-							buttoninfo.requireLabel:setVisible(true)
-						elseif buttoninfo["require"].value == "not your tower" then
-							buttoninfo.requireLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
-							buttoninfo.requireLabel:setText( Text("Lock"))
-							buttoninfo.requireLabel:setVisible(true)
-						elseif buttoninfo["require"].value == "conflicting upgrade" then
-							buttoninfo.requireLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
-							buttoninfo.requireLabel:setText( Text("Lock"))
-							buttoninfo.requireLabel:setVisible(true)
-						end
-					else
-						buttoninfo.requireLabel:setVisible(false)
-					end
-				end
-				if name == "sell" then
-					buttoninfo.costLabel:setVisible(true)
-					buttoninfo.costLabel:setText("+"..buttoninfo.towerValue)
-				end
-				
-				if buttoninfo.isOwner ~= nil then
-					buttoninfo.button:setEnabled(false)
-				end
-				
-				--boost button, only allowed on boost button
-				if buttoninfo.timerStart ~= nil and buttoninfo.duration ~= nil and name == "upgrade2" then
-					
-					if tonumber(buttoninfo.duration.value) == 10 then
-						--count down in seconds
-						local str = tostring(math.round( (tonumber(buttoninfo.duration.value) + tonumber(buttoninfo.timerStart.value)) - Core.getGameTime() ))
-						if buttoninfo.timeLabel then
-							--update time text
-							buttoninfo.timeLabel:setText(str)						
-						else
-							--create time text
-							local timeLabel = buttoninfo.button:add(Label(PanelSize(Vec2(-1)), str, MainMenuStyle.textColor, Alignment.MIDDLE_CENTER))
-							timeLabel:setCanHandleInput(false)	
-							buttoninfo.timeLabel = timeLabel
-						end
-					elseif buttoninfo.timeLabel then
-						--we are waiting for the right wave
-						buttoninfo.timeLabel:setVisible(false)
-						--Enable the boost button to be pressed
-						buttoninfo.button:setTag(name..";"..tostring(buttoninfo.cost and buttoninfo.cost.value or 0)..(buttoninfo.level and ";"..tostring(buttoninfo.level.level) or ""))
-					end
-				end
-				
-				updateToolTip(buttoninfo.button, buttoninfo)
-			else
-				--make usre we have a icon id
-				if not buttoninfo.icon then buttoninfo.icon = {value=0} end
-				
-				local texture = Core.getTexture("icon_table.tga")
-				local offset = Vec2((buttoninfo.icon.value%8)*0.125, math.floor(buttoninfo.icon.value/8)*0.0625)
-				local button = Button(PanelSize(Vec2(-1), Vec2(1)), ButtonStyle.SIMPLE, texture, offset, offset+Vec2(0.125, 0.0625))
-				
-				local levelPanel = nil
-				local level = 0
-				if buttoninfo.level ~= nil and buttoninfo["name"].value ~= "rotate" and buttoninfo["name"].value ~= "boost" then
-					level = buttoninfo.level.value
-					levelPanel = button:add(Panel(PanelSize(Vec2(-1))))
-					levelPanel:setCanHandleInput(false)
-					levelPanel:setBackground(Sprite( texture, Vec2(0.625 + (level-1) * 0.125,0.3125), Vec2(0.625 + level * 0.125, 0.375)))
-					
-					buttoninfo.level.level = level
-					buttoninfo.level.levelPanel = levelPanel
-				end
-				
-				if name ~= "sell" then
-					button:setEnabled( buttoninfo.cost ~= nil and (tonumber(buttoninfo.cost.value) <= billboardStats:getDouble("gold")) )
-					button:addEventCallbackExecute(onExecute)
-				else
-					button:setEnabled(buildingBillBoard:getBool("isNetOwner"))
-					button:addEventCallbackExecute(sellTower)
-				end
-				button:setTag(name..";"..tostring(buttoninfo.cost and buttoninfo.cost.value or 0)..(buttoninfo.level and ";"..tostring(buttoninfo.level.level) or ""))
 	
-				button:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
-				button:setInnerHoverColor(Vec4(Vec3(1.3),0.2),Vec4(Vec3(1.3),0.4), Vec4(Vec3(1.3),0.2))
-				button:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
-				
-				local costPanel = nil
-				local costLabel = nil
-				local requireLabel = nil
-				local costIcon = nil
-				local costIconSprite = nil
-				
-				costPanel = Panel(PanelSize(Vec2(-1)))
-				local text = Text( buttoninfo.cost~=nil and costToShortString(buttoninfo.cost.value) or "" )
-				costLabel = Label(PanelSize(Vec2(-1),Vec2(2,1)), text, Vec4(1))
-				costLabel:setTextHeight(-0.75)
-				requireLabel = Label(PanelSize(Vec2(-1)), "Lvl2", Vec4(0.8,0.2,0.2,1))
-				requireLabel:setTextHeight(-0.75)
-				requireLabel:setVisible(false)
-				costIcon = Panel(PanelSize(Vec2(-1),Vec2(1)))
-				costIconSprite = Sprite(texture)
-				costIconSprite:setUvCoord(Vec2(), Vec2(0.125,0.0625))
-				costIcon:setBackground(costIconSprite)
-				costPanel:add(Panel(PanelSize(Vec2(-1),Vec2(-0.125,-1))))
-				costPanel:add(costLabel)
-				costPanel:add(costIcon)
-				costPanel:add(requireLabel)
-				costPanel:setCanHandleInput(false)
-				
-				if buttoninfo.cost == nil then
-					costLabel:setVisible(false)
-					costIcon:setVisible(false)
-					if buttoninfo["require"] ~= nil then
-						print("\nrequire.value="..buttoninfo["require"].value.."\n")
-						if buttoninfo["require"].value == "tower level 2" then
-							requireLabel:setText("LvL 2")
-							requireLabel:setVisible(true)
-						elseif buttoninfo["require"].value == "tower level 3" then
-							requireLabel:setText("LvL 3")
-							requireLabel:setVisible(true)
-						elseif buttoninfo["require"].value == "Wave" then
-							local wave = ( buttoninfo.duration and buttoninfo.timerStart) and tonumber(buttoninfo.duration.value) + tonumber(buttoninfo.timerStart.value) or 0
-							requireLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
-							requireLabel:setText(language:getText("w") + Text(" "..tostring(wave)))
-							requireLabel:setVisible(true)
-						elseif buttoninfo["require"].value == "shop required" then
-							requireLabel:setTextAlignment(Alignment.MIDDLE_LEFT)
-							requireLabel:setText( language:getText("shop"))
-							requireLabel:setVisible(true)
-						elseif buttoninfo["require"].value == "not your tower" then
-							requireLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
-							requireLabel:setText( Text("Lock"))
-							requireLabel:setVisible(true)
-						elseif buttoninfo["require"].value == "conflicting upgrade" then
-							requireLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
-							requireLabel:setText( Text("Lock"))
-							requireLabel:setVisible(true)
-						end
-					end
-				end
-				
-				
-				--boost button timer, only allowed on boost button
-				if buttoninfo.timerStart ~= nil and buttoninfo.duration ~= nil and name == "upgrade2" then
-					if tonumber(buttoninfo.duration.value) == 10 then
-						local str = tostring(math.round( (tonumber(buttoninfo.duration.value) + tonumber(buttoninfo.timerStart.value)) - Core.getGameTime() ))
-						local timeLabel = button:add(Label(PanelSize(Vec2(-1)), str, MainMenuStyle.textColor, Alignment.MIDDLE_CENTER))
-						timeLabel:setCanHandleInput(false)	
-						buttoninfo.timeLabel = timeLabel			
-					end
-				end
-				
-				
-	--			duration = 10
-	--			timerStart = 32.568678027869
-	--			
-	--			duration = 3
-	--			timerStart = 3
-				
-				
-				buttoninfo.button = button
-				buttoninfo.costLabel = costLabel
-				buttoninfo.costIcon = costIcon
-				buttoninfo.requireLabel = requireLabel
-				buttoninfo.costIconSprite = costIconSprite
-				buttoninfo.added = true
-				
-	--			print("buttoninfo.info: \""..tostring(buttoninfo.info).."\" <-----------")
-				
-			
-				if name == "upgrade1" or name ==  "upgrade2" then
-					--"upgrade2" is the boost
-					if name == "upgrade2" then
-						MainButtonPanel:add(Panel(PanelSize(Vec2(-1))))
-						MainButtonCostPanel:add(Panel(PanelSize(Vec2(-1))))
-						
-						towerInfo.rangeChangePanel = MainButtonPanel:add(Panel(PanelSize(Vec2(-1))))
-						MainButtonCostPanel:add(Panel(PanelSize(Vec2(-1))))
-						
-						MainButtonPanel:add(Panel(PanelSize(Vec2(-1))))
-						MainButtonCostPanel:add(Panel(PanelSize(Vec2(-1))))
-					else
-						local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
-						tutorialBillboard:setPanel("upgradeTowerButton", button)
-					end
-					local buttonHidePanel = Panel(PanelSize(Vec2(-1)))
-					MainButtonPanel:add(buttonHidePanel)
-					buttonHidePanel:add(button)
-					
-					
-					--Only upgrade panel of the main buttons cost anythinge
-					button:setToolTipParentpanel(costPanel)
-					
-					if costPanel then
-						MainButtonCostPanel:add(costPanel)
-					end
-					
-					if name == "upgrade2" then
-						costIcon:setVisible(false)
-						costLabel:setVisible(true)
-						costLabel:setPanelSize(PanelSize(Vec2(-0.98,-1)))
-						costLabel:setText("Boost")
-						costLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
-					else
-						button:addEventCallbackExecute(updateTowerName)
-					end
-					
-				elseif name == "sell" then
-					--Vec2(16/5,1)
-					local sellPanel = inoPanelTopRight:add(Panel(PanelSize(Vec2(-1),Vec2(3,1.5))))
-					sellPanel:setLayout(FallLayout(Alignment.TOP_RIGHT))
-					button:setPanelSize(PanelSize(Vec2(-0.3333,-1),Vec2(1)))
-					costPanel:setPanelSize(PanelSize(Vec2(-0.3333,-1),Vec2(16/5,1)))
-					sellPanel:add(costPanel)
-					sellPanel:add(button)
-					
-					costIcon:setVisible(false)
-					
-					costLabel:setVisible(true)
-					costLabel:setTextColor(Vec3(0,1,0))
-					costLabel:setPanelSize(PanelSize(Vec2(-1,-1)))
-					costLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
-					costLabel:setText("+"..buttoninfo.towerValue)
-					
-				elseif buttoninfo.info ~= nil and buttoninfo["name"].value == "rotate" then
-					towerInfo.rangeChangePanel:add(button)
-				else
-					local index = buttonPanels.index
-					if buttoninfo["name"] then
-						if buttoninfo["name"].value == "range" then
-							index = 5
-							button:addEventCallbackMouseFocusGain(towerShowRange)
-							button:addEventCallbackMouseFocusLost(towerHideRange)
-							button:addEventCallbackExecute(updateRangeButton)
-						elseif buttoninfo["name"].value == "smartTargeting" then
-							index = 4
-						else
-							buttonPanels.index = buttonPanels.index + 1
-						end
-					else
-						buttonPanels.index = buttonPanels.index + 1
-					end
-					
-					if buttonPanel[index] then
-						buttonPanel[index]:add(button)
-						button:setToolTipParentpanel(costPanel)
-					end
-					if costPanel and buttonCostPanels[index] then
-						buttonCostPanels[index]:add(costPanel)
-					end
-				end
-				
-				if buttoninfo.isOwner ~= nil then
-					button:setEnabled(false)
-				end
-				
-				updateToolTip(buttoninfo.button, buttoninfo)
-			end
-		else
-			--this button has been removed or was never added
-			if buttoninfo.button then
-				buttoninfo.button:setVisible(false)	
-			end
-			if buttoninfo.costLabel then
-				buttoninfo.costLabel:setVisible(false)
-				buttoninfo.costIcon:setVisible(false)
-			end
-			if buttoninfo.requireLabel then
-				buttoninfo.requireLabel:setVisible(false)
-			end
-			
-			if not buttoninfo.added then
-				if name == "upgrade1" or name ==  "upgrade2" then
-					if name == "upgrade2" then
-						MainButtonPanel:add(Panel(PanelSize(Vec2(-1))))
-						MainButtonCostPanel:add(Panel(PanelSize(Vec2(-1))))
-						
-						buttoninfo.rangeChangePanel = MainButtonPanel:add(Panel(PanelSize(Vec2(-1))))
-						MainButtonCostPanel:add(Panel(PanelSize(Vec2(-1))))
-						
-						MainButtonPanel:add(Panel(PanelSize(Vec2(-1))))
-						MainButtonCostPanel:add(Panel(PanelSize(Vec2(-1))))
-					end
-					MainButtonPanel:add(Panel(PanelSize(Vec2(-1))))
-					MainButtonCostPanel:add(Panel(PanelSize(Vec2(-1))))
-				
-				else
-					buttonPanel:add(Panel(PanelSize(Vec2(-1))))
-					buttonCostPanel:add(Panel(PanelSize(Vec2(-1))))
-				end
-				
-				buttoninfo.added = true
-			end
-			
-			towerInfo.buttonsInfo[name] = nil
-		end
-		print("====================")
-	end
 	
-	local function buildToolTipPanelForUpgradeInfo(info)
-		--statsOrder =  {"damage", "dmg","RPS", "ERPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range"}
-		local panel = Panel(PanelSize(Vec2(-1)))
-		panel:setLayout(FallLayout())
-		panel:getPanelSize():setFitChildren(true, true)
-		
-		local infoValueText = (info.info and info.info or "")
-		local textLabel = Label(PanelSize(Vec2(-1)), language:getTextWithValues(infoValueText, (info.value1 ~= nil) and tostring(info.value1) or "", (info.value2 ~= nil) and tostring(info.value2) or ""), Vec4(1) )
-		textLabel:setTextHeight(0.015)
-		textLabel:setPanelSizeBasedOnTextSize()
-		panel:add(textLabel)
-		
-		local totalPanelSizeInPixel = textLabel:getPanelSize():getSize()
-		for name, data in pairs(info.stats) do
 	
-			local inList = false
-			for i=1, #statsOrder do
-				if statsOrder[i] == name then
-					inList = true
-				end
-			end
-			
-			if inList then
-				local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(5,1)))
-				local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
-				local minCoord, maxCoord, text = getUvCoordAndTextFromName(name)
-				icon:setUvCoord(minCoord,maxCoord)
-				icon:setToolTip(text)
-								
-				local notifyText = nil
-				if data[2] and data[3] then
-					local fontTag = "<font color=rgb(255,255,255)>"
-					if data[2] > 0 then
-						fontTag = "<font color=rgb(40,255,40)>+"
-					elseif data[2] < 0 then
-						fontTag = "<font color=rgb(255,50,50)>"
-					end
-					notifyText = fontTag .. data[2] .. data[3] .. "</font>\n"
-				end
-				
-				print("\n\n----(1)  "..(data[2] and data[2] or "<null>"))
-				print("----(2)  "..(data[3] and data[3] or "<null>").."\n\n")
-				
-				if notifyText then
-					row:add(icon)
-					local label = row:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
-					panel:add(row)
-					totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.025 * Core.getScreenResolution().y )
-				end
-				
-			end				
-		end
-		
-		panel:setPanelSize(PanelSize(totalPanelSizeInPixel, PanelSizeType.Pixel)	)
-		return panel
-		
-	end
 	
-	local function updateUpgradeInfoIcons()
-		
-		--print("\n\nupdateUpgradeInfoIcons\n")
-		local upgradeInfo = buildingBillBoard:getTable("upgraded")
-		if upgradeInfoText == nil or (upgradeInfo and upgradeInfoText.version ~= upgradeInfo.version ) then
-	--		print("upgradeInfoText: \""..(upgradeInfoText and upgradeInfoText or "").."\"")
-	--		print("upgradeInfo: \""..upgradeInfo.."\"")
-			upgradeInfoText = upgradeInfo
-			upgradesPanel:clear();
-			
-			local texture = Core.getTexture("icon_table.tga")
-			for i=2, 10 do 
-				if upgradeInfo[i] then
-					local info = upgradeInfo[i]
-					local offset = Vec2((info.icon%8)*0.125, math.floor(info.icon/8)*0.0625)
-					
-					local image = upgradesPanel:add(Image(PanelSize(Vec2(-1,-1), Vec2(1.0,1.0)), Text("icon_table.tga")))
-					image:setUvCoord(offset,offset+Vec2(0.125, 0.0625))
-					image:setBackground(Sprite( Vec3(0) ))
-					image:setToolTip(buildToolTipPanelForUpgradeInfo(info))
-				end
-			end
-		end
-	end
 	
 	local function changedTargetSystem(tag, index, items)
 		comUnit:sendTo(buildingScript:getIndex(),"SetTargetMode",tostring(index))
@@ -1309,29 +701,328 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		progressBar:setColor({Vec4(0.5*0.7, 1.1*0.7, 0.5*0.7, 0.75), Vec4(0.0, 0.65*0.7, 0.0, 0.75), Vec4(1.1*0.7, 0.5*0.7, 0.3*0.7, 0.75), Vec4(1.1*0.4, 0.5*0.4, 0.0, 0.75), Vec4(0.94, 0.94, 0.61, 0.75), Vec4(0.61, 0.61, 0.4, 0.75)})
 	end
 	
+	local function buildToolTipPanelForUpgradeInfo(info)
+		local requireText = Text("")
+		if info.locked ~= nil then
+			
+			local requireTextCreated = false
+			if info.locked == "tower level 2" or info.locked == "tower level 3" or info.locked == "shop required" or info.locked == "not your tower" then
+				requireTextCreated = true
+				requireText = Text("<font color=rgb(255,50,50)>")
+			end
+			
+			
+			if info.locked == "tower level 2" then
+				requireText = requireText + language:getText("tower level") + Text(" 2")
+			elseif info.locked == "tower level 3" then
+				requireText = requireText + language:getText("tower level") + Text(" 3")
+			elseif info.locked == "shop required" then
+				requireText = requireText  + language:getText("shop required")
+			elseif info.locked == "not your tower" then
+				requireText = requireText  + language:getText("not your tower")
+			end
+			
+			if requireTextCreated then
+				requireText = requireText + Text("</font><br>")
+			end
+		end
+		
+		
+		local panel = Panel(PanelSize(Vec2(-1)))
+		panel:setLayout(FallLayout())
+		panel:getPanelSize():setFitChildren(true, true)
+		
+
+		local infoValueText = (info.info and info.info or "")
+		local value1 = info.values[1] and tostring(info.values[1]) or ""
+		local value2 = info.values[2] and tostring(info.values[2]) or ""
+		local textLabel = Label(PanelSize(Vec2(-1)), requireText + language:getTextWithValues(infoValueText, value1, value2), Vec4(1) )
+		textLabel:setTextHeight(0.015)
+		textLabel:setPanelSizeBasedOnTextSize()
+		panel:add(textLabel)
+		
+		local totalPanelSizeInPixel = textLabel:getPanelSize():getSize()
+		
+		if info.infoName == "sell" then
+			local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(4,1)))
+			
+			local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
+			icon:setUvCoord(Vec2(0),Vec2(0.125,0.0625))
+				
+			
+			local notifyText = "<font color=rgb(40,255,40)>+"..(info.towerValue and tostring(info.towerValue) or "0").."</font>"
+			row:add(icon)
+			local label = row:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
+			panel:add(row)
+			
+			info.toolTipSellIcon = icon
+			info.toolTipSellLabel = label		
+			
+			totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.025 * Core.getScreenResolution().y )
+			
+		else
+			for i, name in pairs(statsOrder) do
+				if info.stats[name] then
+					
+					local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(5,1)))
+					local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
+					local minCoord, maxCoord, text = getUvCoordAndTextFromName(name)
+					icon:setUvCoord(minCoord,maxCoord)
+					icon:setToolTip(text)
+									
+				
+					local fontTag = "<font color=rgb(255,255,255)>"
+					if info.stats[name] > 0 then
+						fontTag = "<font color=rgb(40,255,40)>+"
+					elseif info.stats[name] < 0 then
+						fontTag = "<font color=rgb(255,50,50)>"
+					end
+					notifyText = fontTag .. info.stats[name] .. "</font>\n"
+					
+					
+					row:add(icon)
+					local label = row:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
+					panel:add(row)
+					
+					info.toolTipIcon = icon
+					info.toolTipLabel = label
+					
+					
+					totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.025 * Core.getScreenResolution().y )
+				end				
+			end
+		end
+		
+		panel:setPanelSize(PanelSize(totalPanelSizeInPixel, PanelSizeType.Pixel))
+		return panel, textLabel
+	end
+	
+	local function updateToolTip(button, info)
+		
+		
+		local panel, textLabel = buildToolTipPanelForUpgradeInfo(info)
+		
+		info.toolTipPanel = panel
+		info.toolTipLabel = textLabel
+		
+		button:setToolTip(panel)
+	end
+	
+	local function updateUpgradeInfoIcons()
+		
+		--print("\n\nupdateUpgradeInfoIcons\n")
+		local upgradeInfo = buildingBillBoard:getTable("activeTowerUpgrades")
+		
+		if upgradeInfo and towerActiveUpdateIndex ~= buildingBillBoard:getInt("updateIndex") then
+			towerActiveUpdateIndex = buildingBillBoard:getInt("updateIndex")
+
+			upgradesPanel:clear();
+			
+			local texture = Core.getTexture("icon_table.tga")
+			for i=1, #upgradeInfo, 1 do 
+				if upgradeInfo[i] then
+					local info = upgradeInfo[i]
+					local offset = Vec2((info.icon%8)*0.125, math.floor(info.icon/8)*0.0625)
+					
+					local image = upgradesPanel:add(Image(PanelSize(Vec2(-1,-1), Vec2(1.0,1.0)), Text("icon_table.tga")))
+					image:setUvCoord(offset,offset+Vec2(0.125, 0.0625))
+					image:setBackground(Sprite( Vec3(0) ))
+					local panel, textLabel = buildToolTipPanelForUpgradeInfo(info)
+					image:setToolTip(panel)
+				end
+			end
+		end
+	end
+	
+	local function addNewButton(upgrade)
+		if upgrade == nil then
+			return --ugrade don't exist any more
+		end
+		print("\n=== updateButton ===")
+		print("Name "..upgrade.name)
+
+		if not towerInfo.buttonsInfo[upgrade.name] then
+			towerInfo.buttonsInfo[upgrade.name] = {}
+		end
+		local buttoninfo = towerInfo.buttonsInfo[upgrade.name]
+		
+		if upgrade.level > upgrade.maxLevel then
+			if buttoninfo.button then
+				buttoninfo.button:setVisible(false)
+				buttoninfo.costLabel:setVisible(false)
+				buttoninfo.costIcon:setVisible(false)
+			else
+				buttonPanels.index = buttonPanels.index + 1
+			end
+			return
+		end
+		
+
+		if buttoninfo.button == nil then
+		
+			buttoninfo.infoName = upgrade.name
+			buttoninfo.cost = upgrade.cost
+			buttoninfo.locked = upgrade.locked
+			buttoninfo.level = upgrade.level
+			buttoninfo.info = upgrade.info
+			buttoninfo.values = upgrade.values
+			buttoninfo.stats = upgrade.stats
+	
+			local texture = Core.getTexture("icon_table.tga")
+			local offset = Vec2((upgrade.icon%8)*0.125, math.floor(upgrade.icon/8)*0.0625)
+			local button = Button(PanelSize(Vec2(-1), Vec2(1)), ButtonStyle.SIMPLE, texture, offset, offset+Vec2(0.125, 0.0625))
+			
+			local levelPanel = nil
+			if buttoninfo.level ~= nil and buttoninfo.infoName ~= "rotate" and buttoninfo.infoName ~= "boost" then
+				levelPanel = button:add(Panel(PanelSize(Vec2(-1))))
+				levelPanel:setCanHandleInput(false)
+				levelPanel:setBackground(Sprite( texture, Vec2(0.625 + (upgrade.level-1) * 0.125,0.3125), Vec2(0.625 + upgrade.level * 0.125, 0.375)))
+				
+				buttoninfo.levelPanel = levelPanel
+			end
+
+			button:setEnabled( buttoninfo.cost <= billboardStats:getDouble("gold") and buttoninfo.locked == nil)
+			button:addEventCallbackExecute(onExecute)
+			button:setTag(upgrade.name..";"..tostring(buttoninfo.cost)..";"..tostring(buttoninfo.level))
+	
+			button:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
+			button:setInnerHoverColor(Vec4(Vec3(1.3),0.2),Vec4(Vec3(1.3),0.4), Vec4(Vec3(1.3),0.2))
+			button:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
+			
+			local costPanel = nil
+			local costLabel = nil
+			local requireLabel = nil
+			local costIcon = nil
+			local costIconSprite = nil
+			
+			costPanel = Panel(PanelSize(Vec2(-1)))
+			local text = Text( costToShortString(buttoninfo.cost) )
+			costLabel = Label(PanelSize(Vec2(-1),Vec2(2,1)), text, Vec4(1))
+			costLabel:setTextHeight(-0.75)
+			requireLabel = Label(PanelSize(Vec2(-1)), "Lvl2", Vec4(0.8,0.2,0.2,1))
+			requireLabel:setTextHeight(-0.75)
+			requireLabel:setVisible(false)
+			costIcon = Panel(PanelSize(Vec2(-1),Vec2(1)))
+			costIconSprite = Sprite(texture)
+			costIconSprite:setUvCoord(Vec2(), Vec2(0.125,0.0625))
+			costIcon:setBackground(costIconSprite)
+			costPanel:add(Panel(PanelSize(Vec2(-1),Vec2(-0.125,-1))))
+			costPanel:add(costLabel)
+			costPanel:add(costIcon)
+			costPanel:add(requireLabel)
+			costPanel:setCanHandleInput(false)
+			
+
+			if buttoninfo.locked ~= nil then
+				print("\buttoninfo.locked="..buttoninfo.locked.."\n")
+				if buttoninfo.locked == "tower level 2" then
+					requireLabel:setText("LvL 2")
+					requireLabel:setVisible(true)
+				elseif buttoninfo.locked == "tower level 3" then
+					requireLabel:setText("LvL 3")
+					requireLabel:setVisible(true)
+				elseif buttoninfo.locked == "shop required" then
+					requireLabel:setTextAlignment(Alignment.MIDDLE_LEFT)
+					requireLabel:setText( language:getText("shop"))
+					requireLabel:setVisible(true)
+				elseif buttoninfo.locked == "not your tower" then
+					requireLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
+					requireLabel:setText( Text("Lock"))
+					requireLabel:setVisible(true)
+				end
+			end
+
+			buttoninfo.button = button
+			buttoninfo.costLabel = costLabel
+			buttoninfo.costIcon = costIcon
+			buttoninfo.requireLabel = requireLabel
+			buttoninfo.costIconSprite = costIconSprite
+			buttoninfo.added = true
+			
+			if upgrade.name == "range" then
+				button:addEventCallbackMouseFocusGain(towerShowRange)
+				button:addEventCallbackMouseFocusLost(towerHideRange)
+			end
+			
+			local index = buttonPanels.index
+			buttonPanels.index = buttonPanels.index + 1
+
+			
+			if buttonPanels[index] then
+				buttonPanels[index]:add(button)
+				button:setToolTipParentpanel(costPanel)
+			end
+			if costPanel and buttonCostPanels[index] then
+				buttonCostPanels[index]:add(costPanel)
+			end
+
+			updateToolTip(buttoninfo.button, upgrade)	
+		else
+			
+			local texture = Core.getTexture("icon_table.tga")
+			buttoninfo.cost = upgrade.cost
+			
+			if buttoninfo.levelPanel and buttoninfo.level ~= upgrade.level then
+				buttoninfo.level = upgrade.level
+				buttoninfo.levelPanel:setBackground(Sprite( texture, Vec2(0.625 + (upgrade.level-1) * 0.125,0.3125), Vec2(0.625 + upgrade.level * 0.125, 0.375)))
+			end
+			
+			if buttoninfo.locked ~= upgrade.locked then
+				buttoninfo.locked = upgrade.locked
+				buttoninfo.button:setEnabled( buttoninfo.cost <= billboardStats:getDouble("gold") and buttoninfo.locked == nil)
+				
+				if buttoninfo.locked ~= nil then
+					print("\buttoninfo.locked="..buttoninfo.locked.."\n")
+					if buttoninfo.locked == "tower level 2" then
+						buttoninfo.requireLabel:setText("LvL 2")
+						buttoninfo.requireLabel:setVisible(true)
+					elseif buttoninfo.locked == "tower level 3" then
+						buttoninfo.requireLabel:setText("LvL 3")
+						buttoninfo.requireLabel:setVisible(true)
+					elseif buttoninfo.locked == "shop required" then
+						buttoninfo.requireLabel:setTextAlignment(Alignment.MIDDLE_LEFT)
+						buttoninfo.requireLabel:setText( language:getText("shop"))
+						buttoninfo.requireLabel:setVisible(true)
+					elseif buttoninfo.locked == "not your tower" then
+						buttoninfo.requireLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
+						buttoninfo.requireLabel:setText( Text("Lock"))
+						buttoninfo.requireLabel:setVisible(true)
+					end
+				end
+			end
+			
+			buttoninfo.button:setTag(upgrade.name..";"..tostring(buttoninfo.cost)..";"..tostring(buttoninfo.level))
+			buttoninfo.costLabel:setText(Text( costToShortString(buttoninfo.cost) ))
+			
+			updateToolTip(buttoninfo.button, upgrade)
+		end
+		
+	end
+	
+	
+	
+		
 	local function updateButtons()
 
-	
-		local numUpgradeButtons = buildingBillBoard:getInt("numupgrades")
-		
+		local upgrades = buildingBillBoard:getTable("upgrades")
+		local towerUpgrade = buildingBillBoard:getTable("towerUpgrade")
 		
 		if not towerInfo.buttonsInfo then
 			towerInfo.buttonsInfo = {}
 			storedButtonsInfo = {}
 			buttonPanel:clear()
-			MainButtonPanel:clear()
 			infopanelRight:clear()
-			MainButtonCostPanel:clear()
 			buttonCostPanel:clear()
 			retargetPanel:clear()
 			towerValue = 0
 			showRange = false
 			targetModes = {}
 			
+			if not upgrades then
+				return
+			end
 			
 			infopanelRight:setLayout(FallLayout(Alignment.BOTTOM_RIGHT))
-			
-			
 			local targetModsString = buildingBillBoard:getString("targetMods")
 			
 			for splitedStr in (targetModsString .. ";"):gmatch("([^;]*);") do 
@@ -1354,67 +1045,79 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			buttonPanels.index = 1
 			buttonCostPanels = {}
 			for i=1, 5 do
-				buttonPanel[i] = buttonPanel:add(Panel(PanelSize(Vec2(-1))))
+				buttonPanels[i] = buttonPanel:add(Panel(PanelSize(Vec2(-1))))
 				buttonCostPanels[i] = buttonCostPanel:add(Panel(PanelSize(Vec2(-1))))
 			end
 			
-			for i=1, numUpgradeButtons, 1 do
-				storedButtonsInfo[i] = buildingBillBoard:getString("upgrade"..i)
-				if storedButtonsInfo[i] ~= "" then
-					updateButton("upgrade"..i, storedButtonsInfo[i])
-				else
-					updateButton("upgrade"..i, nil)
-				end
+			-----------------------------
+			-- Add Main upgrade button --
+			-----------------------------
+			if towerUpgrade then
+				addNewButton(towerUpgrade)
+			else
+				buttonPanels.index = 2
 			end
 			
-			updateButton("sell","info=\"sell tower\";")
 			
-			
-			--target modes
-			
-			
-		else
-			local infoNames = {}
-			infoNames[1] = "sell"
-			for i=1, numUpgradeButtons, 1 do
-				local text = buildingBillBoard:getString("upgrade"..i)
-				infoNames[#infoNames + 1] = "upgrade"..i
-				if storedButtonsInfo[i] ~= text then
-					storedButtonsInfo[i] = text
-					if storedButtonsInfo[i] ~= "" then
-						updateButton("upgrade"..i,text)
+			----------------------------
+			-- Add Sub upgrade button --
+			----------------------------
+			local rangeUpgrade = nil
+			for i=1, #upgrades, 1 do
+				local upgrade = upgrades[i]
+				
+				if upgrade == nil then
+					
+				else
+					if upgrade.name == "range" then
+						rangeUpgrade = upgrade
 					else
-						updateButton("upgrade"..i,nil)
-					end
-				else
-					local buttoninfo = towerInfo.buttonsInfo["upgrade"..i]
-					if buttoninfo and buttoninfo.button and i ~= 2 then
-						local enable = buttoninfo.cost ~= nil and (tonumber(buttoninfo.cost.value) <= billboardStats:getDouble("gold"))
-						buttoninfo.button:setEnabled( enable )
-						if buttoninfo.costLabel then
-							buttoninfo.costLabel:setTextColor( enable and Vec4(1) or Vec4(0.8,0.2,0.2,1))
-							buttoninfo.costIconSprite:setColor(enable and Vec4(1) or Vec4(Vec3(0.7),1))
-							buttoninfo.costIcon:setBackground(buttoninfo.costIconSprite)
-						end
-					end
-					
-					--update boost info
-					if i == 2 and buttoninfo.timerStart ~= nil and buttoninfo.duration ~= nil and buttoninfo.timeLabel and tonumber(buttoninfo.duration.value) == 10 then
-						local num = math.round( (tonumber(buttoninfo.duration.value) + tonumber(buttoninfo.timerStart.value)) - Core.getGameTime() )
-						if num > 0 then
-							buttoninfo.timeLabel:setText(tostring(num))						
-						end
+						addNewButton(upgrade)
 					end
 					
 				end
 			end
-			if towerValue ~= buildingBillBoard:getInt("value") then
-				towerValue = buildingBillBoard:getInt("value")
-				updateButton("sell","info=\"sell tower\";")
+			
+			------------------------------
+			-- Add Range upgrade button --
+			------------------------------
+			if rangeUpgrade and buttonPanels.index < 5 then
+				buttonPanels.index = 5
+				addNewButton(rangeUpgrade)
 			end
 			
-			updateUpgradeInfoIcons()
+
+			towerButtonUpdateIndex = buildingBillBoard:getInt("updateIndex")
+
+		elseif towerButtonUpdateIndex ~= buildingBillBoard:getInt("updateIndex") then
+			towerButtonUpdateIndex = buildingBillBoard:getInt("updateIndex")
+			if not upgrades then
+				return
+			end
+			
+			
+			addNewButton(towerUpgrade)
+			
+			for i=1, #upgrades, 1 do
+				local upgrade = upgrades[i]
+				if upgrade then
+					addNewButton(upgrade)
+				end
+			end
+		else
+			local buttoninfo = towerInfo.buttonsInfo[towerUpgrade.name]
+			if buttoninfo.button then
+				buttoninfo.button:setEnabled( buttoninfo.cost <= billboardStats:getDouble("gold") and buttoninfo.locked == nil)
+			end
+			
+			for i=1, #upgrades, 1 do
+				buttoninfo = towerInfo.buttonsInfo[upgrades[i].name]
+				if buttoninfo.button then
+					buttoninfo.button:setEnabled( buttoninfo.cost <= billboardStats:getDouble("gold") and buttoninfo.locked == nil)
+				end
+			end
 		end
+		
 	end
 	
 	local function showWallBuildingInformation(button)
@@ -1455,7 +1158,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local function updateBars()
 		energyBar:setVisible(buildingBillBoard:exist("energy") and buildingBillBoard:exist("energyMax") );
 		overHeatBar:setVisible(buildingBillBoard:exist("overHeatPer"))
-		xpBar:setVisible(buildingBillBoard:exist("xp"))
 	end
 	
 	local function updateWallTowerButtons()
@@ -1485,6 +1187,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		
 		storedNumStats = 0
 		storedShowText = ""
+		towerUpdateIndex = -1
+		towerButtonUpdateIndex = -1
 		
 		selectedBuildingType = 0
 		storedNumButtons = 0
@@ -1526,8 +1230,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					updateTowerName(nil)
 					--this panel is hidden when not in use
 					builBilboard:setBool("isTowerSelected",true)
-					local sizeDiff = buildingBillBoard:getString("targetMods") ~= "" and 0 or (1.0/9.0)
-					leftMainPanel:setPanelSize(PanelSize(Vec2(-1),Vec2(1,1.4 - sizeDiff)))
+					leftMainPanel:setPanelSize(PanelSize(Vec2(-1),Vec2(1,1.1)))
 					wallTowerPanel:setVisible(false)
 					towerPanel:setVisible(true)
 					imagePanel:setVisible(true)
@@ -1535,7 +1238,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					selectedBuildingType = 1
 					
 					buttonPanel:clear()
-					MainButtonPanel:clear()
 					infoPanel:clear()				
 					
 					updateBars()
@@ -1973,13 +1675,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				updateBars()
 				updateEnergyBar()
 				updateOverHeatBar()
-				updateXpBar()
 				updateText()
 				updateButtons()
+				updateUpgradeInfoIcons()
 				
-				if boostLabel and boostTime then
-					boostLabel:setText(""..(boostDuration-math.round(Core.getGameTime()-boostTime)))
-				end
 			elseif selectedBuildingType == 2 then
 				updateWallTowerButtons()
 			end
@@ -1988,13 +1687,13 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				
 				local rangeLevel = 4
 				
-				if showRange and towerInfo and towerInfo.buttonsInfo then
+				if showRange and towerInfo and towerInfo.buttonsInfo and towerInfo.buttonsInfo["range"] then
 	--				print("towerInfo: "..tostring(towerInfo.buttonsInfo))
-					for name, data in pairs(towerInfo.buttonsInfo) do
-						if data.name and data.level ~= nil and data.name.value == "range" then
-							rangeLevel = data.level.level
-						end
-					end
+--					for name, data in pairs(towerInfo.buttonsInfo) do
+--						if data.name and data.level ~= nil and data.name.value == "range" then
+							rangeLevel = towerInfo.buttonsInfo["range"].level
+--						end
+--					end
 				end
 				
 				

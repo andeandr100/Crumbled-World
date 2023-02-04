@@ -32,7 +32,7 @@ function instalForm()
 --	mainPanel:getPanelSize():setFitChildren(false,true)
 --	mainPanel:setLayout(FallLayout())
 
-	leftMainPanel = form:add(Panel(PanelSize(Vec2(-1),Vec2(1,1.1))));
+	leftMainPanel = form:add(Panel(PanelSize(Vec2(-1),Vec2(1,0.8))));
 	leftMainPanel:setLayout(FallLayout(PanelSize(Vec2(0.01),Vec2(1))))
 	
 
