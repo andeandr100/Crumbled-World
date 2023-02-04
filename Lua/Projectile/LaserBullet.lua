@@ -13,8 +13,6 @@ function LaserBullet.new()
 	local currentPos = Vec3()
 	local range = 0.0
 	local damage = 0.0
-	local damageFire = 0.0
-	local damageFireTimer = 0.0
 	local isAlive = false
 	local shieldAreaIndex = 0
 	local playerNode = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
@@ -44,9 +42,8 @@ function LaserBullet.new()
 	function self.init(table)
 		targetIndex = table[1]
 		damage = billboard:getFloat("damage")
-		damageFire = billboard:getFloat("fireDPS")
-		damageFireTimer = billboard:getFloat("burnTime")
 		range = billboard:getFloat("range")
+		damageWeak = billboard:getFloat("damageWeak-upg")
 		pointLight:setLocalPosition(Vec3())
 		pointLight:setVisible(true)
 		pointLight:setRange(1.5)
@@ -108,15 +105,21 @@ function LaserBullet.new()
 				prevAtVec = atVec
 		end
 		
+		
+
+		local additionDamage = 0
+		if damageWeak then
+			additionDamage = damage * (1.0 - targetSelector.getTargetHPPercentage()) * (damageWeak-1.0)
+		end
+		
 		if lengthLeft-frameMovment<0.25 then
 			--direct hit on enemy target
-			comUnit:sendTo(targetIndex,"attack",tostring(damage))
-			comUnit:sendTo(targetIndex,"attackFireDPS",{DPS=damageFire,time=damageFireTimer,type="fire"})
+			comUnit:sendTo(targetIndex,"attack",tostring(damage + additionDamage))
 			targetIndex = 0
 		elseif shieldAreaIndex~=targetSelector.getIndexOfShieldCovering(currentPos) then
 			--shield hitt
 			targetIndex = shieldAreaIndex>0 and shieldAreaIndex or targetSelector.getIndexOfShieldCovering(currentPos)
-			comUnit:sendTo(targetIndex,"attack",tostring(damage+(damageFire*0.5)))--can't do fire damage to shield
+			comUnit:sendTo(targetIndex,"attack",tostring(damage))--can't do fire damage to shield
 			local oldPosition = currentPos - atVec
 			local futurePosition = currentPos + atVec
 			local hitTime = "0.5"
