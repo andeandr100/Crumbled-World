@@ -1,6 +1,5 @@
 require("Tower/upgrade.lua")
 require("NPC/state.lua")
-require("Tower/xpSystem.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
