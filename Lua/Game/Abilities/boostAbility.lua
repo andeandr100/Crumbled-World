@@ -115,7 +115,7 @@ function BoostAbility.new(inCamera, inComUnit)
 			local buildingBillBoard = buildingScript:getBillboard()
 			
 			if buildingBillBoard and buildingBillBoard:getBool("isNetOwner") then
-				handleUpgrade(building, "upgrade2", "1")
+				handleUpgrade(building, "boost", "1")
 			end
 		end
 	end
