@@ -1,4 +1,5 @@
 require("Game/particleEffect.lua")
+require("Game/graphicParticleSystems.lua")
 require("Game/targetSelector.lua")
 --this = SceneNode()
 SwarmBall = {name="SwarmBall"}
@@ -17,11 +18,11 @@ function SwarmBall.new(pTargetSelector)
 
 	local hittExplosion = ParticleSystem.new( ParticleEffect.ExplosionFireBallOnHitt )
 	local explosion = ParticleSystem.new( ParticleEffect.ExplosionFireBall )
-	local effect2 = ParticleSystem.new( ParticleEffect.FireBall )
+	local fireBallEffect = GraphicParticleSystems.new().createSwarmBall()
 	node:addChild(hittExplosion:toSceneNode())
 	node:addChild(explosion:toSceneNode())
-	node:addChild(effect2:toSceneNode())
-	effect2:setVisible(false)
+	node:addChild(fireBallEffect:toSceneNode())
+	fireBallEffect:deactivate()
 	
 	local velocity = Vec3()
 	local position = Vec3()
@@ -124,7 +125,7 @@ function SwarmBall.new(pTargetSelector)
 	local function endLife()
 		pointLight:pushRangeChange(0.1,0.8)
 		lifeStage = LIFE_STAGE_PREPPING_TO_DIE
-		effect2:setVisible(false)
+		fireBallEffect:deactivate()
 		explosion:activate(position,velocity)
 		timeLeft = 1.0
 		--this:attackTargetPos(position,DRONE_DETONATION_RANGE)
@@ -239,9 +240,9 @@ function SwarmBall.new(pTargetSelector)
 		pointLight:setVisible(true)
 		pointLight:setRange(0.4)
 		pointLight:pushRangeChange(2.0,0.7)
-	
-		effect2:activate(Vec3())
-		effect2:setVisible(true)
+
+		
+		fireBallEffect:activate()
 	
 		--comUnit:sendTo(targetIndex,"getFuturePos",firstTime)
 	end
@@ -253,7 +254,7 @@ function SwarmBall.new(pTargetSelector)
 	function self.stop()
 		hittExplosion:setVisible(false)
 		explosion:setVisible(false)
-		effect2:setVisible(false)
+		fireBallEffect:deactivate()
 		pointLight:setVisible(false)
 		node:setVisible(false)
 	end
@@ -264,7 +265,7 @@ function SwarmBall.new(pTargetSelector)
 			--drone has exploded
 			--waiting for particle effect to die
 			if explosion:isActive()==false and hittExplosion:isActive()==false then
-				effect2:setVisible(false)
+				fireBallEffect:deactivate()
 				pointLight:setVisible(false)
 				node:setVisible(false)
 				return false
@@ -338,10 +339,7 @@ function SwarmBall.new(pTargetSelector)
 				pointLight:setLocalPosition(position)
 				velocity = pathList:getVelocity():normalizeV()
 				position = pathList:getNextPos()
-				--moveList = pathList:getList()
-
-				velocity = velocity:normalizeV()
-				effect2:setLocalPosition(position)
+				fireBallEffect:setLocalPosition(position)
 			end
 		end
 		pointLight:update()
