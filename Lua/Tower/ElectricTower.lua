@@ -318,7 +318,7 @@ function ElectricTower.new()
 		model:setBoundingVolumeCanShrink(false)
 	
 		for index =1, 3, 1 do
-			model:getMesh( string.format("range%d", index) ):setVisible( upgrade.getLevel("energyPool")==index )--this is just reusing the smae model
+			model:getMesh( string.format("range%d", index) ):setVisible( upgrade.getLevel("energyPool")==index )--this is just reusing the same model
 			model:getMesh( string.format("slow%d", index) ):setVisible( upgrade.getLevel("ampedSlow")==index )
 			model:getMesh( string.format("amplifier%d", index) ):setVisible( upgrade.getLevel("energy")==index )
 			model:getMesh( string.format("equalizer%d", index) ):setVisible( upgrade.getLevel("range")==index )
