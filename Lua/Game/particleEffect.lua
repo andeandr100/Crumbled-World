@@ -507,45 +507,45 @@ ParticleEffect = {
 			widthY = 0.125
 		}
 	},
-	FireBall =  {
-		WallboardParticle = true,
-		airResistance = 0,
-		color =  {
-			color1 =  {r = 1.10,g = 0.30,b = 0.10,a = 0.500,per = 0.0,size = 0.095},
-			color2 =  {r = 1.10,g = 0.40,b = 0.15,a = 0.375,per = 0.5,size = 0.14},
-			color3 =  {r = 1.10,g = 0.60,b = 0.20,a = 0.250,per = 1.0,size = 0.055},
-			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
-		},
-		emitterSpeedMultiplyer = 0,
-		gravity = 0,
-		lifeTime =  {
-			max = 1.5,
-			min = 0.75
-		},
-		spawn =  {
-			OffsetFromGroundPer = 0.75,
-			maxParticles = 6,
-			minParticles = 4,
-			pattern = "sphere",
-			patternData =  {
-				max = 1,
-				min = -1
-			},
-			spawnDuration = math.huge,
-			spawnRadius = 0.0375,
-			spawnRate = 6,
-			spawnSpeed = 0
-		},
-		texture =  {
-			countX = 1,
-			countY = 2,
-			lengthEqlWidthMul = 1,
-			startX = 0,
-			startY = 0.75,
-			widthX = 0.125,
-			widthY = 0.125
-		}
-	},
+--	FireBall =  {
+--		WallboardParticle = true,
+--		airResistance = 0,
+--		color =  {
+--			color1 =  {r = 1.10,g = 0.30,b = 0.10,a = 0.500,per = 0.0,size = 0.095},
+--			color2 =  {r = 1.10,g = 0.40,b = 0.15,a = 0.375,per = 0.5,size = 0.14},
+--			color3 =  {r = 1.10,g = 0.60,b = 0.20,a = 0.250,per = 1.0,size = 0.055},
+--			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
+--		},
+--		emitterSpeedMultiplyer = 0,
+--		gravity = 0,
+--		lifeTime =  {
+--			max = 1.5,
+--			min = 0.75
+--		},
+--		spawn =  {
+--			OffsetFromGroundPer = 0.75,
+--			maxParticles = 6,
+--			minParticles = 4,
+--			pattern = "sphere",
+--			patternData =  {
+--				max = 1,
+--				min = -1
+--			},
+--			spawnDuration = math.huge,
+--			spawnRadius = 0.0375,
+--			spawnRate = 6,
+--			spawnSpeed = 0
+--		},
+--		texture =  {
+--			countX = 1,
+--			countY = 2,
+--			lengthEqlWidthMul = 1,
+--			startX = 0,
+--			startY = 0.75,
+--			widthX = 0.125,
+--			widthY = 0.125
+--		}
+--	},
 	FireBallTale18 =  {
 		WallboardParticle = true,
 		airResistance = 0.5,
@@ -1406,45 +1406,45 @@ ParticleEffect = {
 			widthY = 0.125
 		}
 	},
-	SparkSpirit =  {
-		WallboardParticle = true,
-		airResistance = 0.25,
-		color =  {
-			color1 =  {r = 0.80,g = 1.20,b = 2.00,a = 0.75,per = 0.00,size = 0.14},
-			color2 =  {r = 0.42,g = 0.65,b = 1.00,a = 0.75,per = 0.10,size = 0.22},
-			color3 =  {r = 0.42,g = 0.65,b = 1.00,a = 0.00,per = 1.00,size = 0.52},
-			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
-		},
-		emitterSpeedMultiplyer = 1,
-		gravity = 0,
-		lifeTime =  {
-			max = 1,
-			min = 0.45
-		},
-		spawn =  {
-			OffsetFromGroundPer = 0,
-			maxParticles = 75,
-			minParticles = 0,
-			pattern = "sphere",
-			patternData =  {
-				max = 1,
-				min = -1
-			},
-			spawnDuration = math.huge,
-			spawnRadius = 0.20,
-			spawnRate = 50,
-			spawnSpeed = 0.10
-		},
-		texture =  {
-			countX = 2,
-			countY = 2,
-			lengthEqlWidthMul = 1,
-			startX = 0.75,
-			startY = 0,
-			widthX = 0.125,
-			widthY = 0.125
-		}
-	},
+--	SparkSpirit =  {
+--		WallboardParticle = true,
+--		airResistance = 0.25,
+--		color =  {
+--			color1 =  {r = 0.80,g = 1.20,b = 2.00,a = 0.75,per = 0.00,size = 0.14},
+--			color2 =  {r = 0.42,g = 0.65,b = 1.00,a = 0.75,per = 0.10,size = 0.22},
+--			color3 =  {r = 0.42,g = 0.65,b = 1.00,a = 0.00,per = 1.00,size = 0.52},
+--			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
+--		},
+--		emitterSpeedMultiplyer = 1,
+--		gravity = 0,
+--		lifeTime =  {
+--			max = 1,
+--			min = 0.45
+--		},
+--		spawn =  {
+--			OffsetFromGroundPer = 0,
+--			maxParticles = 75,
+--			minParticles = 0,
+--			pattern = "sphere",
+--			patternData =  {
+--				max = 1,
+--				min = -1
+--			},
+--			spawnDuration = math.huge,
+--			spawnRadius = 0.20,
+--			spawnRate = 50,
+--			spawnSpeed = 0.10
+--		},
+--		texture =  {
+--			countX = 2,
+--			countY = 2,
+--			lengthEqlWidthMul = 1,
+--			startX = 0.75,
+--			startY = 0,
+--			widthX = 0.125,
+--			widthY = 0.125
+--		}
+--	},
 	weakening =  {
 		WallboardParticle = true,
 		airResistance = 0.25,
@@ -1603,48 +1603,48 @@ ParticleEffect = {
 			widthY = 0.125
 		}
 	},
-	SwarmTowerFlame =  {
-		WallboardParticle = true,
-		airResistance = 1.5,
-		color =  {
-			color1 =  {r = 0.60,g = 0.10,b = 0.05,a = 0.35,per = 0,size = 0.15},
-			color2 =  {r = 1.30,g = 0.5,b = 0.10,a = 0.15,per = 0.15,size = 0.30},
-			color3 =  {r = 1.20,g = 0.70,b = 0.20,a = 0.35,per = 0.20,size = 0.35},
-			color4 =  {r = 1.20,g = 0.5,b = 0.10,a = 0.35,per = 0.35,size = 0.25},
-			color5 =  {r = 1.20,g = 0.80,b = 0.30,a = 0.20,per = 0.75,size = 0.15},
-			color6 =  {r = 0.80,g = 0.25,b = 0.05,a = 0.05,per = 1,size = 0},
-			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
-		},
-		emitterSpeedMultiplyer = 0.75,
-		gravity = -1.5,
-		lifeTime =  {
-			max = 2,
-			min = 1
-		},
-		spawn =  {
-			OffsetFromGroundPer = 0.35,
-			maxParticles = 30,
-			minParticles = 0,
-			pattern = "sphere",
-			patternData =  {
-				max = 1,
-				min = 0.90
-			},
-			spawnDuration = math.huge,
-			spawnRadius = 0.20,
-			spawnRate = 15,
-			spawnSpeed = 0.30
-		},
-		texture =  {
-			countX = 1,
-			countY = 1,
-			lengthEqlWidthMul = 1,
-			startX = 0,
-			startY = 0.875,
-			widthX = 0.125,
-			widthY = 0.125
-		}
-	},
+--	SwarmTowerFlame =  {
+--		WallboardParticle = true,
+--		airResistance = 1.5,
+--		color =  {
+--			color1 =  {r = 0.60,g = 0.10,b = 0.05,a = 0.35,per = 0,size = 0.15},
+--			color2 =  {r = 1.30,g = 0.5,b = 0.10,a = 0.15,per = 0.15,size = 0.30},
+--			color3 =  {r = 1.20,g = 0.70,b = 0.20,a = 0.35,per = 0.20,size = 0.35},
+--			color4 =  {r = 1.20,g = 0.5,b = 0.10,a = 0.35,per = 0.35,size = 0.25},
+--			color5 =  {r = 1.20,g = 0.80,b = 0.30,a = 0.20,per = 0.75,size = 0.15},
+--			color6 =  {r = 0.80,g = 0.25,b = 0.05,a = 0.05,per = 1,size = 0},
+--			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
+--		},
+--		emitterSpeedMultiplyer = 0.75,
+--		gravity = -1.5,
+--		lifeTime =  {
+--			max = 2,
+--			min = 1
+--		},
+--		spawn =  {
+--			OffsetFromGroundPer = 0.35,
+--			maxParticles = 30,
+--			minParticles = 0,
+--			pattern = "sphere",
+--			patternData =  {
+--				max = 1,
+--				min = 0.90
+--			},
+--			spawnDuration = math.huge,
+--			spawnRadius = 0.20,
+--			spawnRate = 15,
+--			spawnSpeed = 0.30
+--		},
+--		texture =  {
+--			countX = 1,
+--			countY = 1,
+--			lengthEqlWidthMul = 1,
+--			startX = 0,
+--			startY = 0.875,
+--			widthX = 0.125,
+--			widthY = 0.125
+--		}
+--	},
 	quakeBlaster =  {
 		WallboardParticle = true,
 		airResistance = 1.5,
