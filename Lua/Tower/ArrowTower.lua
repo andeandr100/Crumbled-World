@@ -979,9 +979,9 @@ function ArrowTower.new()
 								icon = 60,
 								stats = {}
 							} )
-		supportManager.setUpgrade(upgrade)
-		supportManager.addHiddenUpgrades()
-		supportManager.addSetCallbackOnChange(updateStats)
+--		supportManager.setUpgrade(upgrade)
+--		supportManager.addHiddenUpgrades()
+--		supportManager.addSetCallbackOnChange(updateStats)
 		--
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))

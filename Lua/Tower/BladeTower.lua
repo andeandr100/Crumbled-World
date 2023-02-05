@@ -1051,9 +1051,9 @@ function BladeTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("range",3),
 								stats ={range =		{ upgrade.add, 4.5, ""} }
 							} )
-		supportManager.setUpgrade(upgrade)
-		supportManager.addHiddenUpgrades()
-		supportManager.addSetCallbackOnChange(updateStats)
+--		supportManager.setUpgrade(upgrade)
+--		supportManager.addHiddenUpgrades()
+--		supportManager.addSetCallbackOnChange(updateStats)
 	
 		--set default vector for pipe
 		pipeAt = this:getGlobalMatrix():getAtVec()

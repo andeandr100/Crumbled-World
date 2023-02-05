@@ -1,9 +1,9 @@
-require("Tower/upgrade.lua")
+require("Tower/TowerData.lua")
 
 SupportManager = {}
 function SupportManager.new()
 	local self = {}
-	local upgrade		--upgrade = Upgrade.new()
+	local data		--upgrade = Upgrade.new()
 	local comUnitTable
 	local comUnit = Core.getComUnit()
 	local onChangeCallback
@@ -19,31 +19,37 @@ function SupportManager.new()
 	-- purpose:		To set the correct upgrade level for a specefic upgrade
 	-- upg:			The name of the upgrade
 	-- level:		What level is should have
-	local function fixLevel(upg,level)
-		local dCount = 0
-		while upgrade.getLevel(upg)~=level do
-			dCount = dCount + 1
-			if upgrade.getLevel(upg)>level then
-				upgrade.degrade(upg)
-			else
-				upgrade.upgrade(upg)
-			end
-			if dCount==5 then
-				error("Never ending loop detected in SupportManager.fixLevel("..tostring(upg)..", "..tostring(level)..")")
-			end
-		end
-	end
+--	local function fixLevel(upg,level)
+--		local dCount = 0
+--		while upgrade.getLevel(upg)~=level do
+--			dCount = dCount + 1
+--			if upgrade.getLevel(upg)>level then
+--				upgrade.degrade(upg)
+--			else
+--				upgrade.upgrade(upg)
+--			end
+--			if dCount==5 then
+--				error("Never ending loop detected in SupportManager.fixLevel("..tostring(upg)..", "..tostring(level)..")")
+--			end
+--		end
+--	end
 	-- function:	updateSupportUpgrades
 	-- purpose: 	fix all level for all upgrades
 	-- upg:			The name of the upgrade
 	local function updateSupportUpgrades(upg)
 		--support
 		if supportLevel[upg] then
+			local tab =  {}
 			local maxLevel = 0
 			for k,v in pairs(supportLevel[upg]) do
-				maxLevel = math.max(maxLevel, v)
+				if v>maxLevel then
+					tab = {[1]=k}
+					maxLevel = v
+				elseif v==maxLevel then
+					tab[#tab+1] = k
+				end
 			end
-			fixLevel(upg,maxLevel)
+			data.setSupportUpgradeLevel(upg,maxLevel,tab)
 		end
 	end
 	
@@ -52,30 +58,30 @@ function SupportManager.new()
 	-- upg:			The name of the upgrade
 	-- damage:		The amount of damage dealt
 	-- return:		The amount of damage the tower actual did by it self
-	function self.handleSupportDamage(damage)
-		local tab =  {}
-		if supportLevel["supportDamage"] then
-			local maxLevel = 0
-			for k,v in pairs(supportLevel["supportDamage"]) do
-				if v>maxLevel then
-					tab = {[1]=k}
-					maxLevel = v
-				elseif v==maxLevel then
-					tab[#tab+1] = k
-				end
-			end
-			--
-			local tDamage = damage*( 1.0/(1.0+(maxLevel*PERDAMGINCPERLEVEL)) )
-			local sDamage = damage*( (maxLevel*PERDAMGINCPERLEVEL)/(1.0+(maxLevel*PERDAMGINCPERLEVEL)) )
-			local size = #tab
-			for i=1, size do
-				comUnit:sendTo(tab[i],"dmgDealtMarkOfDeath",tostring(sDamage/size) )--dmgDealtMarkOfDeath only because it already does it, just wrong name
-			end
-			fixLevel("supportDamage",maxLevel)
-			return tDamage
-		end
-		return damage
-	end
+--	function self.handleSupportDamage(damage)
+--		local tab =  {}
+--		if supportLevel["supportDamage"] then
+--			local maxLevel = 0
+--			for k,v in pairs(supportLevel["supportDamage"]) do
+--				if v>maxLevel then
+--					tab = {[1]=k}
+--					maxLevel = v
+--				elseif v==maxLevel then
+--					tab[#tab+1] = k
+--				end
+--			end
+--			--
+--			local tDamage = damage*( 1.0/(1.0+(maxLevel*PERDAMGINCPERLEVEL)) )
+--			local sDamage = damage*( (maxLevel*PERDAMGINCPERLEVEL)/(1.0+(maxLevel*PERDAMGINCPERLEVEL)) )
+--			local size = #tab
+--			for i=1, size do
+--				comUnit:sendTo(tab[i],"dmgDealtFromSupportDamage",tostring(sDamage/size) )--dmgDealtMarkOfDeath only because it already does it, just wrong name
+--			end
+--			fixLevel("supportDamage",maxLevel)
+--			return tDamage
+--		end
+--		return damage
+--	end
 	
 	-- function:	handle
 	-- purpose:		a help function for handleSupportRange, handleSupportDamage	
@@ -114,15 +120,15 @@ function SupportManager.new()
 	-- param:		the level of the tower
 	-- index:		what tower it is from
 	local function handleSupportBoost(param,index)
-		if upgrade.getLevel("supportBoost")==0 then
-			upgrade.upgrade("supportBoost")
-		end
+--		if upgrade.getLevel("supportBoost")==0 then
+--			upgrade.upgrade("supportBoost")
+--		end
 	end
 	-- function:	setUpgrade
 	-- purpose:		Sets the upgrade class, that will be used
 	-- upg:			The class that will be used
 	function self.setUpgrade(upg)
-		upgrade = upg
+		data = upg
 	end
 	-- function:	addHiddenUpgrades
 	-- purpose:		Add the hidden upgrades for the support tower to the upgrade list
@@ -130,75 +136,95 @@ function SupportManager.new()
 --		restartListenerSupport = Listener("RestartWave")
 --		restartListenerSupport:registerEvent("restartWave", self.waveRestart)
 		--
-		if not upgrade then
+		if not data then
 			error("The setUpgrade must have been used")
 		else
 			--local function spportBoostDamage() return upgrade.getStats("damage")*(1.0+math.clamp(0.25+(waveCount/100),0.25,0.5)) end
-			upgrade.addUpgrade( {	cost = 0,
-								name = "supportBoost",
-								info = "support boost",
-								order = 9,
-								duration = 10,
-								cooldown = 0,
-								icon = 68,
-								hidden = true,
-								stats = {	damage =	{ upgrade.mul, 1.80, ""},
-											range =		{ upgrade.mul, 1.15 } }
-							} )
-			upgrade.addUpgrade( {	cost = 0,
+			data.addSupportUpgrade({cost = {0,0,0},
 									name = "supportRange",
 									info = "support manager range",
-									icon = 65,
-									order = 7,
-									hidden = true,
-									value1 = 10,
-									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*1) }}
-								} )
-			upgrade.addUpgrade( {	cost = 0,
-									name = "supportRange",
-									info = "support manager range",
-									icon = 65,
-									order = 7,
-									hidden = true,
-									value1 = 20,
-									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*2) }}
-								} )
-			upgrade.addUpgrade( {	cost = 0,
-									name = "supportRange",
-									info = "support manager range",
-									icon = 65,
-									order = 7,
-									hidden = true,
-									value1 = 30,
-									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*3) }}
-								} )
-			upgrade.addUpgrade( {	cost = 0,
+									iconId = 65,
+									level = 0,
+									maxLevel = 3,
+									stats = { range = { 1.1, 1.2, 1.3, func = data.mul }}
+								})
+								
+			data.addSupportUpgrade({cost = {0,0,0},
 									name = "supportDamage",
 									info = "support manager damage",
-									icon = 64,
-									order = 8,
-									hidden = true,
-									value1 = 10,
-									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*1) }}
-								} )
-			upgrade.addUpgrade( {	cost = 0,
-									name = "supportDamage",
-									info = "support manager damage",
-									icon = 64,
-									order = 8,
-									hidden = true,
-									value1 = 20,
-									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*2) }}
-								} )
-			upgrade.addUpgrade( {	cost = 0,
-									name = "supportDamage",
-									info = "support manager damage",
-									icon = 64,
-									order = 8,
-									hidden = true,
-									value1 = 30,
-									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*3) }}
-								} )
+									iconId = 64,
+									level = 0,
+									maxLevel = 3,
+									stats = { damage = { 1.1, 1.2, 1.3, func = data.mul }}
+								})					
+
+
+
+--			upgrade.addUpgrade( {	cost = 0,
+--								name = "supportBoost",
+--								info = "support boost",
+--								order = 9,
+--								duration = 10,
+--								cooldown = 0,
+--								icon = 68,
+--								hidden = true,
+--								stats = {	damage =	{ upgrade.mul, 1.80, ""},
+--											range =		{ upgrade.mul, 1.15 } }
+--							} )
+--			upgrade.addUpgrade( {	cost = 0,
+--									name = "supportRange",
+--									info = "support manager range",
+--									icon = 65,
+--									order = 7,
+--									hidden = true,
+--									value1 = 10,
+--									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*1) }}
+--								} )
+--			upgrade.addUpgrade( {	cost = 0,
+--									name = "supportRange",
+--									info = "support manager range",
+--									icon = 65,
+--									order = 7,
+--									hidden = true,
+--									value1 = 20,
+--									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*2) }}
+--								} )
+--			upgrade.addUpgrade( {	cost = 0,
+--									name = "supportRange",
+--									info = "support manager range",
+--									icon = 65,
+--									order = 7,
+--									hidden = true,
+--									value1 = 30,
+--									stats = {	range = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*3) }}
+--								} )
+--			upgrade.addUpgrade( {	cost = 0,
+--									name = "supportDamage",
+--									info = "support manager damage",
+--									icon = 64,
+--									order = 8,
+--									hidden = true,
+--									value1 = 10,
+--									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*1) }}
+--								} )
+--			upgrade.addUpgrade( {	cost = 0,
+--									name = "supportDamage",
+--									info = "support manager damage",
+--									icon = 64,
+--									order = 8,
+--									hidden = true,
+--									value1 = 20,
+--									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*2) }}
+--								} )
+--			upgrade.addUpgrade( {	cost = 0,
+--									name = "supportDamage",
+--									info = "support manager damage",
+--									icon = 64,
+--									order = 8,
+--									hidden = true,
+--									value1 = 30,
+--									stats = {	damage = 	{ upgrade.mul, 1+(PERDAMGINCPERLEVEL*3) }}
+--								} )
 		end
 	end
 	-- function:	setComUnitTable

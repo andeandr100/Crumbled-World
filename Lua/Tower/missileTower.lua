@@ -880,9 +880,9 @@ function MissileTower.new()
 								levelRequirement = cTowerUpg.getLevelRequierment("shieldSmasher",1),
 								stats ={shieldDamageMul =	{ upgrade.mul, 3.0}}
 							} )
-		supportManager.setUpgrade(upgrade)
-		supportManager.addHiddenUpgrades()
-		supportManager.addSetCallbackOnChange(updateStats)
+--		supportManager.setUpgrade(upgrade)
+--		supportManager.addHiddenUpgrades()
+--		supportManager.addSetCallbackOnChange(updateStats)
 		
 		upgrade.upgrade("upgrade")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))

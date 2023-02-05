@@ -1085,9 +1085,9 @@ function ElectricTower.new()
 								hidden = true,
 								stats = {	slow =	{ upgrade.func, calcSlow} }
 							} )
-		supportManager.setUpgrade(upgrade)
-		supportManager.addHiddenUpgrades()
-		supportManager.addSetCallbackOnChange(updateStats)
+--		supportManager.setUpgrade(upgrade)
+--		supportManager.addHiddenUpgrades()
+--		supportManager.addSetCallbackOnChange(updateStats)
 	
 		upgrade.upgrade("upgrade")
 		upgrade.upgrade("calculate")

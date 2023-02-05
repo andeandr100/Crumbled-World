@@ -820,9 +820,9 @@ function SwarmTower.new()
 								icon = 62,
 								stats = {	burnTime =	{ upgrade.func, burnTimeCalc} }
 							} )
-		supportManager.setUpgrade(upgrade)
-		supportManager.addHiddenUpgrades()
-		supportManager.addSetCallbackOnChange(updateStats)
+--		supportManager.setUpgrade(upgrade)
+--		supportManager.addHiddenUpgrades()
+--		supportManager.addSetCallbackOnChange(updateStats)
 	
 		upgrade.upgrade("upgrade")
 		upgrade.upgrade("calculate")

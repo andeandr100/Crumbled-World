@@ -942,8 +942,9 @@ function QuakeTower.new()
 										slowTimer =	{ upgrade.add, 2.0},
 										count =		{ upgrade.add, 7}}
 							} )
-		supportManager.setUpgrade(upgrade)
-		supportManager.addHiddenUpgrades()
+--		supportManager.setUpgrade(upgrade)
+--		supportManager.addHiddenUpgrades()
+--		supportManager.addSetCallbackOnChange(updateStats)
 		self.handleUpgrade("1")
 		billboard:setInt("level",upgrade.getLevel("upgrade"))
 		billboard:setString("targetMods","")
