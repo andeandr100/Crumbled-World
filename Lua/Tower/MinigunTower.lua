@@ -1,5 +1,4 @@
 require("Tower/rotator.lua")
---require("Tower/upgrade.lua")
 require("Tower/supportManager.lua")
 require("NPC/state.lua")
 require("Projectile/LaserBullet.lua")
@@ -9,7 +8,6 @@ require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Game/soundManager.lua")
-
 require("Tower/TowerData.lua")
 
 --this = SceneNode()
@@ -50,6 +48,7 @@ function MinigunTower.new()
 	local targetMode = 1
 	local activePipe = 0
 	local pipeAt = Vec3()
+	local boostActive = false
 
 	local reloadTime = 0.0
 	local reloadTimeLeft = 0.0
@@ -166,10 +165,6 @@ function MinigunTower.new()
 		if data.getIsMaxedOut() then
 			achievementUnlocked("MinigunMaxed")
 		end
-	end
-	local function damageDealt(param)
-		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		data.addDamage(addDmg)
 	end
 	
 	local function setPipePointLightPos(pLight,num)
@@ -871,9 +866,9 @@ function MinigunTower.new()
 		
 --							} )
 --		--support tower functions
---		supportManager.setUpgrade(upgrade)
---		supportManager.addHiddenUpgrades()
---		supportManager.addSetCallbackOnChange(updateStats)
+		supportManager.setUpgrade(data)
+		supportManager.addHiddenUpgrades()
+		supportManager.addSetCallbackOnChange(data.updateStats)
 		
 		billboard:setInt("level",data.getTowerLevel())
 		if isCircleMap then
@@ -887,7 +882,7 @@ function MinigunTower.new()
 		end
 	
 		--ComUnitCallbacks
-		comUnitTable["dmgDealt"] = damageDealt
+		comUnitTable["dmgDealt"] = data.addDamage
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["NetTarget"] = NetSyncTarget
@@ -901,8 +896,8 @@ function MinigunTower.new()
 		comUnitTable["overkill"] = self.upgradeOverkill
 		
 		
---		supportManager.setComUnitTable(comUnitTable)
---		supportManager.addCallbacks()
+		supportManager.setComUnitTable(comUnitTable)
+		supportManager.addCallbacks()
 		
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})
 		targetSelector.setPosition(this:getGlobalPosition())
