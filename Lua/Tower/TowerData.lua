@@ -7,12 +7,14 @@ function TowerData.new()
 	local stats = {}
 	local displayStats = {}
 	local upgrades = {}
+	local supportUpgrades = {}
 	local towerLevel = UpgradeData.new()
 	local boostData = UpgradeData.new()
 	local billboard = nil
 --	local valueEfficiency = 1.0	--(0.75 if used)how much you will get back upon selling this tower
---	local totalCost = 0			--cost for only "upgrade"
+	local totalCost = 0			--cost for only "upgrade"
 	local dmgDone = 0
+	local passivDamageDone = 0
 	--billboard = Billboard()
 	local billboardWaveStats = nil
 	--billboardWaveStats = Billboard()
@@ -61,6 +63,15 @@ function TowerData.new()
 		upgrades[data.name] = myData
 		return myData
 	end
+	
+	function self.addSupportUpgrade( data )
+		local myData = UpgradeData.new()
+		myData.init(data)
+		supportUpgrades[data.name] = myData
+		return myData
+	end
+	
+	
 	
 	function self.setTowerLevel(level)
 		billboard:setInt("level",level)
@@ -115,11 +126,14 @@ function TowerData.new()
 			if upgrade == "range" and level==3 then
 				achievementUnlocked("Range")
 			end
-			
-			return true
 		end
-		return false
-		--outUpgrade = 
+	end
+	
+	function self.setSupportUpgradeLevel(upgrade, level, towerIndexes)
+		if supportUpgrades[upgrade] then
+			supportUpgrades[upgrade].setLevel(level)
+			supportUpgrades[upgrade].setSupportTowerIndex(towerIndexes)
+		end
 	end
 	
 	function self.getTowerLevel()
@@ -138,18 +152,43 @@ function TowerData.new()
 		return stats[value] and stats[value] or defaultValue
 	end
 	
-	function self.addDamage( addDmg )
-		dmgDone = dmgDone + addDmg
-		billboard:setDouble("DamageCurrentWave",dmgDone)
-		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+dmgDone)
+	function self.addPassivDamage(addDmgString)
+		passivDamageDone = passivDamageDone + tonumber(addDmgString)
+	end
+	
+	function self.addDamage( addDmgString )
+		local towerDamage = tonumber(addDmgString)
+
+		for name,upgrade in pairs(supportUpgrades) do
+			local level = upgrade.getLevel()
+			local upgDamage = upgrade.getStats()["damage"]
+			if level > 0 and upgDamage and upgDamage[level] then
+				local supportDamage = 0
+				if upgDamage.func == self.mul then
+					supportDamage = towerDamage*( (upgDamage[level] - 1)/upgDamage[level])
+				elseif upgDamage.func == self.add then
+					supportDamage = upgDamage[level]
+				end
+				local tab = upgrade.getSupportTowerIndex()
+				local size = #tab
+				for i=1, size do
+					comUnit:sendTo(tab[i],"dmgDealtFromSupportDamage",tostring(supportDamage/size) )--dmgDealtMarkOfDeath only because it already does it, just wrong name
+				end	
+				towerDamage = towerDamage - supportDamage
+			end
+		end
+		
+		dmgDone = dmgDone + towerDamage
+		billboard:setDouble("DamageCurrentWave",towerDamage)
+		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+towerDamage)
 	end
 	
 	
 	function self.storeWaveChangeStats( wave, tab )
 		billboard:setDouble("DamagePreviousWave",dmgDone)
-		billboard:setDouble("DamagePreviousWavePassive",0.0)
+		billboard:setDouble("DamagePreviousWavePassive",passivDamageDone)
 		if canSyncTower then
-			comUnit:sendTo("stats", "addTotalDmg", dmgDone )
+			comUnit:sendTo("stats", "addTotalDmg", dmgDone + passivDamageDone )
 		end
 		
 		--save the wave state
@@ -167,11 +206,14 @@ function TowerData.new()
 			billboardWaveStats:setTable( wave, tab )
 
 		end
+		
 		dmgDone = 0
+		passivDamageDone =0
 	end
 	
 	function self.restoreWaveChangeStats( wave )
 		dmgDone = 0
+		passivDamageDone = 0
 		--restore the wave state
 		if wave<=0 then
 			return nil
@@ -233,6 +275,7 @@ function TowerData.new()
 		for key,value in pairs(towerLevel.getStats()) do
 			stats[key] = value[level]
 		end
+		totalCost = towerLevel.getValueInGold()
 
 		local towerStats = {}		
 --		for i=1, #displayStats, 1 do
@@ -240,12 +283,24 @@ function TowerData.new()
 --			towerStats[displayStats[i]] = stats[displayStats[i]]
 --		end
 		for key,value in pairs(stats) do
-			billboard:setDouble(key, value)
+			
 			towerStats[key] = value
 		end
 		
 		--Apply all Secondary upgrades
 		for name,upgrade in pairs(upgrades) do
+			local level = upgrade.getLevel()
+			--Only apply if the
+			if level > 0 then
+				totalCost = upgrade.getValueInGold()
+				for key,value in pairs(upgrade.getStats()) do
+					stats[key] = value.func( stats[key], value[level] )
+				end
+			end
+		end
+		
+		--Apply support upgrades
+		for name,upgrade in pairs(supportUpgrades) do
 			local level = upgrade.getLevel()
 			--Only apply if the
 			if level > 0 then
@@ -269,7 +324,7 @@ function TowerData.new()
 		end
 		
 		--Infromation for selected Tower Menu
-		
+		billboard:setDouble("totalCost", totalCost )
 		billboard:setTable("displayStats", displayStats)
 		billboard:setInt("value", 123 )
 		
@@ -278,7 +333,8 @@ function TowerData.new()
 --		end
 		
 		for key,value in pairs(stats) do
-			billboard:setFloat(key.."-upg", value - (towerStats[key] and towerStats[key] or 0.0))
+			billboard:setDouble(key, value)
+			billboard:setDouble(key.."-upg", towerStats[key] and (value - towerStats[key]) or 0.0)
 		end
 		
 		
@@ -333,6 +389,7 @@ function TowerData.new()
 		local activeTowerUpgrades = {}
 		
 		--Sub upgrades
+		local tempValueForUpgrades = {}
 		for name, data in pairs(upgrades) do
 			
 			local upgrade = {}
@@ -361,7 +418,7 @@ function TowerData.new()
 				upgrade.values = {}
 				upgrade.stats = {}
 				for key,value in pairs(data.getStats()) do
-					local displayValue = (not value.func or value.func == self.add) and value[level] or (value[level] - 1.0) * 100
+					local displayValue = (value.func == nil or value.func == self.add or value.func == self.set) and value[level] or (value[level] - 1.0) * 100
 					upgrade.values[#upgrade.values+1] = displayValue
 					upgrade.stats[key] = displayValue
 				end
@@ -376,9 +433,10 @@ function TowerData.new()
 			
 			
 			--this is used for the info icons in the select menu
-			local activeUpgrade = {}
+			
 			level = data.getLevel()
 			if level > 0 then
+				local activeUpgrade = {}
 				activeUpgrade.name = data.getName()
 				activeUpgrade.icon = data.getIconId()
 				activeUpgrade.info = data.getInfo()
@@ -387,13 +445,61 @@ function TowerData.new()
 				activeUpgrade.values = {}
 				activeUpgrade.stats = {}
 				for key,value in pairs(data.getStats()) do
-					local displayValue = (not value.func or value.func == self.add) and value[level] or (value[level] - 1.0) * 100
+					if tempValueForUpgrades[key] == nil  then
+						tempValueForUpgrades[key] = (billboard:getDouble(key)-billboard:getDouble(key.."-upg"))
+					end
+					local displayValue = (value.func == nil or value.func == self.add or value.func == self.set) and value[level] or (value[level] - 1.0) * 100
 					activeUpgrade.values[#activeUpgrade.values+1] = displayValue
-					activeUpgrade.stats[key] = displayValue
+					
+					
+					if value.func == self.add then
+						activeUpgrade.stats[key] = displayValue
+					elseif value.func == self.mul then
+						activeUpgrade.stats[key] = tempValueForUpgrades[key] * (value[level] - 1.0)
+					else
+						activeUpgrade.stats[key] = displayValue
+					end				
+					tempValueForUpgrades[key] = tempValueForUpgrades[key] + 	activeUpgrade.stats[key]
+					
 				end
 				activeTowerUpgrades[#activeTowerUpgrades+1] = activeUpgrade
-			end
+			end	
 		end
+		
+		for name, data in pairs(supportUpgrades) do
+			
+			--this is used for the info icons in the select menu
+			
+			level = data.getLevel()
+			if level > 0 then
+				local activeUpgrade = {}
+				activeUpgrade.name = data.getName()
+				activeUpgrade.icon = data.getIconId()
+				activeUpgrade.info = data.getInfo()
+				activeUpgrade.level = level
+				
+				activeUpgrade.values = {}
+				activeUpgrade.stats = {}
+				for key,value in pairs(data.getStats()) do
+					if tempValueForUpgrades[key] == nil  then
+						tempValueForUpgrades[key] = (billboard:getDouble(key)-billboard:getDouble(key.."-upg"))
+					end
+					
+					local displayValue = (not value.func or value.func == self.add) and value[level] or (value[level] - 1.0) * 100
+					activeUpgrade.values[#activeUpgrade.values+1] = displayValue
+					if value.func == self.add then
+						activeUpgrade.stats[key] = displayValue
+					else
+						activeUpgrade.stats[key] = tempValueForUpgrades[key] * (value[level] - 1.0)
+					end
+					tempValueForUpgrades[key] = tempValueForUpgrades[key] + activeUpgrade.stats[key]
+				end
+				activeTowerUpgrades[#activeTowerUpgrades+1] = activeUpgrade
+			end	
+		end
+		
+
+		
 		updateIndex = updateIndex + 1
 		billboard:setTable("upgrades", towerUpgrades)
 		billboard:setTable("activeTowerUpgrades", activeTowerUpgrades)

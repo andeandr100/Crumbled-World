@@ -11,10 +11,15 @@ function UpgradeData.new()
 	local iconId = 0
 	local stats= {}
 	local timeout = -1
+	local supportTowerIndexes = {} --List of support towers that has the max level support bonus active on this tower
 	
 	
 	function self.getStats()
 		return stats
+	end
+	
+	function self.getStatValue(statName)
+		return stats[statName] and stats[statName][level] or nil
 	end
 	
 	function self.getLevel()
@@ -24,6 +29,14 @@ function UpgradeData.new()
 	function self.getCost(level)
 		return cost[level]
 	end	
+	
+	function self.getValueInGold()
+		local goldValue = 0
+		for i=1, level do
+			goldValue = goldValue + ( cost[i] and cost[i] or 0 )
+		end
+		return goldValue
+	end
 	
 	function self.getMaxLevel()
 		return maxLevel
@@ -39,6 +52,14 @@ function UpgradeData.new()
 	
 	function self.getInfo()
 		return info
+	end	
+	
+	function self.getSupportTowerIndex()
+		return supportTowerIndexes
+	end	
+	
+	function self.setSupportTowerIndex(towerIndexes)
+		supportTowerIndexes = towerIndexes
 	end	
 	
 	
