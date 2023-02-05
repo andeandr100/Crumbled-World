@@ -98,9 +98,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		damageInfoBar = towerPanel:add(ProgressBar(PanelSize(Vec2(-1),Vec2(9,1)), Text(""), 0))
 		
 		
-		
-		
-
 		local infoPanelMain = towerPanel:add(Panel(PanelSize(Vec2(-1))))
 		
 
@@ -116,8 +113,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		local label = Label(PanelSize(Vec2(-0.3,0.1),PanelSizeType.ParentPercent), "Level:");
 		label:setTextColor(Vec3(1.0));		
 		
-		
-		
 		--add progress bar
 		energyBar = ProgressBar(PanelSize(Vec2(-1.0,0.1),PanelSizeType.ParentPercent), Text("0 / 0"), 0.0)
 		energyBar:setTextColor(Vec3(1.0));
@@ -131,7 +126,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		overHeatBar:setColor(Vec4(1.0,0.5,0,0.75), Vec4(0.5,0.2,0.,0.75))
 		overHeatBar:setVisible(false)
 		
-
 		
 		imagePanel = towerImagePanel:add(Panel(PanelSize(Vec2(-1))))
 	
@@ -506,7 +500,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				for index, statName in ipairs(displayStats) do
 					if info[statName] ~= nil and info[statName].label then
 						info[statName].valueupg = tonumber(buildingBillBoard:getString(statName.."-upg"))
-						info[statName].value = tonumber(buildingBillBoard:getString(statName))
+						info[statName].value = tonumber(buildingBillBoard:getString(statName)) - info[statName].valueupg
 						
 						local upgradeValue = ""
 						if info[statName].valueupg ~= 0 then
@@ -526,7 +520,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				for index, statName in ipairs(displayStats) do
 					info[statName] = {}
 					info[statName].valueupg = tonumber(buildingBillBoard:getString(statName.."-upg"))
-					info[statName].value=tonumber(buildingBillBoard:getString(statName))
+					info[statName].value=tonumber(buildingBillBoard:getString(statName)) - info[statName].valueupg
 					
 				end
 	
