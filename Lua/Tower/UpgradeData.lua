@@ -1,4 +1,14 @@
 
+function split(str,sep)
+	local array = {}
+	local size = 0
+	local reg = string.format("([^%s]+)",sep)
+	for mem in string.gmatch(str,reg) do
+		table.insert(array, mem)
+		size = size + 1
+	end	
+	return array, size
+end
 
 UpgradeData = {}
 function UpgradeData.new()
@@ -12,7 +22,8 @@ function UpgradeData.new()
 	local stats= {}
 	local timeout = -1
 	local supportTowerIndexes = {} --List of support towers that has the max level support bonus active on this tower
-	
+	local changedLevelCallback = nil
+	local achievementName = nil
 	
 	function self.getStats()
 		return stats
@@ -42,6 +53,10 @@ function UpgradeData.new()
 		return maxLevel
 	end	
 	
+	function self.getAchievement()
+		return achievementName
+	end
+	
 	function self.getName()
 		return name
 	end	
@@ -65,7 +80,11 @@ function UpgradeData.new()
 	
 	function self.setLevel(newlevel)
 		level = newlevel
-	end
+		
+		if changedLevelCallback then
+			changedLevelCallback()
+		end
+	end	
 	
 	--Function used to temporary activate one level above
 	function self.activate()
@@ -85,6 +104,8 @@ function UpgradeData.new()
 		cost = data.cost
 		iconId = data.iconId
 		stats = data.stats
+		achievementName = data.achievementName
+		changedLevelCallback = data.callback
 	end
 	
 	return self

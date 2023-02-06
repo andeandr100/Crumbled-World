@@ -573,8 +573,9 @@ function MinigunTower.new()
 	
 
 	function self.handleUpgrade(param)
-		print("handleUpgrade("..tostring(param)..")")
-		local level = tonumber(param)
+		print("handleUpgrade("..param..")")
+		local subString, size = split(param, ";")
+		local level = tonumber(subString[2])
 --		if data.getTowerLevel() == level then
 --			return--level unchanged
 --		end
@@ -639,46 +640,11 @@ function MinigunTower.new()
 		overHeatPer = 0.0
 	end
 	
-	function self.upgradeRange(param)
-		local level = tonumber(param)
-		if level ~= data.getLevel("range") then
-			data.setUpgradeLevel("range", level)
-			updateMeshesAndparticlesForSubUpgrades()
-		else
-			return--level unchanged
-		end
-		
+	function self.handleSubUpgrade()
+		updateMeshesAndparticlesForSubUpgrades()
 		setCurrentInfo()
 	end
 	
-	function self.upgradeOverkill(param)
-		
-		local level = tonumber(param)
-		if level ~= data.getLevel("overkill") then
-			data.setUpgradeLevel("overkill", level)
-			updateMeshesAndparticlesForSubUpgrades()
-		else
-			return--level unchanged
-		end
-		
-		setCurrentInfo()
-	end
-	local function handleSupportBase(param,index)
---		local activeLevel = tonumber(param)
---		support["supportBase"][index] = activeLevel
-	end
-	function self.upgradeOverCharge(param)
-		
-		local level = tonumber(param)
-		if level ~= data.getLevel("overCharge") then
-			data.setUpgradeLevel("overCharge", level)
-			updateMeshesAndparticlesForSubUpgrades()
-		else
-			return--level unchanged
-		end
-		
-		setCurrentInfo()
-	end
 	--
 	local function setNetOwner(param)
 		if param=="YES" then
@@ -835,6 +801,8 @@ function MinigunTower.new()
 								iconId = 59,
 								level = 0,
 								maxLevel = 3,
+								callback = self.handleSubUpgrade,
+								achievementName = "Range",
 								stats = {range = { 0.75, 1.5, 2.25, func = data.add }}
 							})
 		
@@ -845,6 +813,7 @@ function MinigunTower.new()
 								iconId = 63,
 								level = 0,
 								maxLevel = 3,
+								callback = self.handleSubUpgrade,
 								stats = {	damage = 	{ 1.35, 1.7, 2.05, func = data.mul},
 											cooldown =	{ 10.0, 10.0, 10.0, func = data.set},
 											overheat =	{ 13.0, 13.0, 13.0, func = data.set} }
@@ -857,6 +826,7 @@ function MinigunTower.new()
 								iconId = 61,
 								level = 0,
 								maxLevel = 3,
+								callback = self.handleSubUpgrade,
 								stats = { damageWeak = { 1.5, 2.0, 2.5, func = data.set} }
 							})		
 		
@@ -891,9 +861,9 @@ function MinigunTower.new()
 		
 		comUnitTable["upgrade"] = self.handleUpgrade
 		comUnitTable["boost"] = self.handleBoost
-		comUnitTable["range"] = self.upgradeRange
-		comUnitTable["overCharge"] = self.upgradeOverCharge
-		comUnitTable["overkill"] = self.upgradeOverkill
+		comUnitTable["range"] = data.handleSecondaryUpgrade
+		comUnitTable["overCharge"] = data.handleSecondaryUpgrade
+		comUnitTable["overkill"] = data.handleSecondaryUpgrade
 		
 		
 		supportManager.setComUnitTable(comUnitTable)
@@ -939,7 +909,8 @@ function MinigunTower.new()
 		while comUnit:hasMessage() do
 			local msg = comUnit:popMessage()
 			if comUnitTable[msg.message]~=nil then
-				comUnitTable[msg.message](msg.parameter,msg.fromIndex)
+				print("minigun update("..msg.parameter..")")
+				comUnitTable[msg.message](msg.parameter, msg.fromIndex)
 			end
 		end
 

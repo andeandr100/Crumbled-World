@@ -353,13 +353,13 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				print("======= "..buyMessage.." =======")
 				print("Lua index: " .. buildingScript:getIndex() .. " Message: " .. buyMessage)
 				print("comUnit:sendTo(...,"..buyMessage..")")
-				print("tab="..tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=paramMessage}))
+				print("tab="..tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=buyMessage..";"..paramMessage}))
 				print("")
 				
 				local clientId = buildingLastSelected:getPlayerNode():getClientId()
 				--Core.getNetworkClient():getClientId()
 				comUnit:sendTo("stats","removeGold",tostring(cost))
-				comUnit:sendTo("builder"..clientId, "buildingSubUpgrade", tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=paramMessage}))
+				comUnit:sendTo("builder"..clientId, "buildingSubUpgrade", tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=buyMessage..";"..paramMessage}))
 			end
 		end
 	end
@@ -445,10 +445,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			return Vec2(0.25,0.375),Vec2(0.375,0.4375), language:getText("charges per second")
 		elseif name=="range" then
 			return Vec2(0.375,0.4375),Vec2(0.5,0.5), language:getText("target range")
---		elseif name=="fireDPS" then
---			return Vec2(0.75,0.25),Vec2(0.875,0.3125), language:getText("burn damage per second")
---		elseif name=="burnTime" then
---			return Vec2(0.625,0.25),Vec2(0.75,0.3125), language:getText("burn time")
 		elseif name=="slow" then
 			return Vec2(0.875,0.375),Vec2(1.0,0.4375), language:getText("slow")
 		elseif name=="bladeSpeed" then
@@ -593,11 +589,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			return "1K"
 		end
 	end
-	
-	
-	
-	
-	
 	
 	local function changedTargetSystem(tag, index, items)
 		comUnit:sendTo(buildingScript:getIndex(),"SetTargetMode",tostring(index))

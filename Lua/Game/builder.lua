@@ -623,9 +623,9 @@ function upgradeWallTower(param)
 end
 
 function towerUpgradefunc(tab)
---	print("\n\ntowerUpgradefunc")
---	print("NetId: "..tab.netId)
---	print("comUnit:sendTo("..Core.getScriptOfNetworkName(tab.netId):getIndex()..", "..tab.msg..", "..(tab.param or ""))
+	print("\n\ntowerUpgradefunc")
+	print("NetId: "..tab.netId)
+	print("comUnit:sendTo("..Core.getScriptOfNetworkName(tab.netId):getIndex()..", "..tab.msg..", "..(tab.param or ""))
 
 	comUnit:sendTo(Core.getScriptOfNetworkName(tab.netId):getIndex(),tab.msg,tab.param or "")
 end
@@ -645,7 +645,7 @@ function towerUpgrade(param)
 	
 	
 	if tab.param and not ( scriptName == "Tower/ArrowTower.lua" and tab.msg == "upgrade6") then
-		local downGrade = {netId = tab.netId, msg = tab.msg, param = tab.param - 1}
+--		local downGrade = {netId = tab.netId, msg = tab.msg, param = tab.param}
 		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=tab.cost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=1},restore=nil}
 	else
 		--TODO not supported

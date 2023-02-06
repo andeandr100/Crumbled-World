@@ -267,8 +267,10 @@ function SwarmTower.new()
 	-- function:	handleUpgrade
 	-- purpose:		upgrades the tower and all the meshes and stats for the new level
 	function self.handleUpgrade(param)
-		if tonumber(param) ~= data.getTowerLevel() then
-			data.setTowerLevel(tonumber(param))
+		local subString, size = split(param, ";")
+		local towerLevel = tonumber(subString[2])
+		if towerLevel ~= data.getTowerLevel() then
+			data.setTowerLevel(towerLevel)
 		else
 			return--level unchanged
 		end
@@ -317,61 +319,12 @@ function SwarmTower.new()
 		updateMeshesAndparticlesForSubUpgrades()
 		boostActive = true
 	end
-	-- function:	handleUpgradeRange
-	-- purpose:		do all changes for upgrading the range
-	function self.handleUpgradeRange(param)
-		local level = tonumber(param)
-		if level ~= data.getLevel("range") then
-			data.setUpgradeLevel("range", level)
-		else
-			return--level unchanged
-		end
-		
-		if data.getLevel("range")==3 then
-			achievementUnlocked("UpgradeSupportRange")
-		end
-		
+	
+	function self.handleSubUpgrade()
 		setCurrentInfo()
 		updateMeshesAndparticlesForSubUpgrades()
-
 	end
-
-	-- function:	handleUpgradeWeaken
-	-- purpose:		do all changes for upgrading the weakening
-	function self.handleUpgradeWeaken(param)
-		local level = tonumber(param)
-		if level ~= data.getLevel("weaken") then
-			data.setUpgradeLevel("weaken", level)
-		else
-			return--level unchanged
-		end
-		
-		if data.getLevel("weaken")==3 then
-			achievementUnlocked("UpgradeSupportMarkOfDeath")
-		end
-		
-		setCurrentInfo()
-		updateMeshesAndparticlesForSubUpgrades()
-		
-	end
-	-- function:	Upgrades the towers gold upgrade.
-	-- callback:	Is called when the tower has been upgraded
-	function self.handleUpgradegold(param)
-		local level = tonumber(param)
-		if level ~= data.getLevel("gold") then
-			data.setUpgradeLevel("gold", level)
-		else
-			return--level unchanged
-		end
-		
-		if data.getLevel("gold")==3 then
-			achievementUnlocked("UpgradeSupportGold")
-		end
-		
-		setCurrentInfo()
-		updateMeshesAndparticlesForSubUpgrades()
-		
-	end
+	
 	-- function:	Updates all tower what upgrades that is available
 	-- callback:	Is called when a tower is built closeby
 	local function handleShockwave()
@@ -490,9 +443,9 @@ function SwarmTower.new()
 		comUnitTable["waveChanged"] = waveChanged
 		comUnitTable["upgrade"] = self.handleUpgrade
 		comUnitTable["boost"] = self.handleBoost
-		comUnitTable["range"] = self.handleUpgradeRange
-		comUnitTable["weaken"] = self.handleUpgradeWeaken
-		comUnitTable["gold"] = self.handleUpgradegold
+		comUnitTable["range"] = data.handleSecondaryUpgrade
+		comUnitTable["weaken"] = data.handleSecondaryUpgrade
+		comUnitTable["gold"] = data.handleSecondaryUpgrade
 		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["shockwave"] = handleShockwave
 		comUnitTable["extraGoldEarned"] = handleGoldStats
@@ -538,6 +491,8 @@ function SwarmTower.new()
 								iconId = 65,
 								level = 0,
 								maxLevel = 3,
+								callback = self.handleSubUpgrade,
+								achievementName = "UpgradeSupportRange",
 								stats = {SupportRange = { 10, 20, 30, func = data.set }}
 							})
 							
@@ -548,6 +503,8 @@ function SwarmTower.new()
 								iconId = 66,
 								level = 0,
 								maxLevel = 3,
+								callback = self.handleSubUpgrade,
+								achievementName = "UpgradeSupportMarkOfDeath",
 								stats = {weaken =		{ 0.08, 0.16, 0.24, func = data.set},
 										 supportWeaken ={ 8, 16, 24, func = data.set},
 										 weakenTimer =	{ 1, 1, 1, func = data.set} }
@@ -560,12 +517,14 @@ function SwarmTower.new()
 								iconId = 67,
 								level = 0,
 								maxLevel = 3,
+								callback = self.handleSubUpgrade,
+								achievementName = "UpgradeSupportGold",
 								stats = {supportGold =	{ 1, 2, 3, func = data.set} }
 							})
 							
 							
 
-		self.handleUpgrade("1")
+		self.handleUpgrade("upgrade;1")
 		billboard:setInt("level",data.getTowerLevel())
 		
 		--target modes (default stats)

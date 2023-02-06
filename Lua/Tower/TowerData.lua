@@ -71,14 +71,34 @@ function TowerData.new()
 		return myData
 	end
 	
+	function self.handleSecondaryUpgrade( param )
+		print("handleSecondaryUpgrade("..param..")")
+		local subString, size = split(param, ";")
+		local upgradeName = subString[1]
+		local level = tonumber(subString[2])
 	
+		if level ~= upgrades[upgradeName].getLevel() then
+			if upgrades[upgradeName] then
+				upgrades[upgradeName].setLevel(level)
+				
+				if Core.isInMultiplayer() and canSyncTower then
+					comUnit:sendNetworkSyncSafe(upgradeName,param)
+				end
+				
+				if upgrades[upgradeName].getAchievement() and level==3 then
+					achievementUnlocked(upgrades[upgradeName].getAchievement())
+				end
+			end
+		end
+		
+	end
 	
 	function self.setTowerLevel(level)
 		billboard:setInt("level",level)
 		towerLevel.setLevel(level)
 		
 		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 and canSyncTower then
-			comUnit:sendNetworkSyncSafe("upgrade",tostring(param))
+			comUnit:sendNetworkSyncSafe("upgrade","upgrade;"..tostring(level))
 		end
 		
 		--Achievements
@@ -88,14 +108,6 @@ function TowerData.new()
 		end
 		--
 	end
-	
---	function self.setUsed()
---		if valueEfficiency>0.75 then
---			valueEfficiency = 0.75
---			billboard:setFloat("value", totalCost*valueEfficiency)
---			comUnit:sendTo("stats","updateTowerValue","")
---		end
---	end
 	
 	function self.addBoostUpgrade( data )
 		boostData.init(data)
@@ -115,19 +127,6 @@ function TowerData.new()
 		--outUpgrade = 
 	end
 	
-	function self.setUpgradeLevel( upgrade, level )
-		if upgrades[upgrade] then
-			upgrades[upgrade].setLevel(level)
-			
-			if Core.isInMultiplayer() and canSyncTower then
-				comUnit:sendNetworkSyncSafe(upgrade,tostring(param))
-			end
-			
-			if upgrade == "range" and level==3 then
-				achievementUnlocked("Range")
-			end
-		end
-	end
 	
 	function self.setSupportUpgradeLevel(upgrade, level, towerIndexes)
 		if supportUpgrades[upgrade] then
