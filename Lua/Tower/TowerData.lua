@@ -231,6 +231,8 @@ function TowerData.new()
 			
 			towerLevel.setLevel(tab.upgradeLevel)
 			for name,upgrade in pairs(upgrades) do
+				local up1  = upgrade
+				local upNam = name
 				upgrades[name].setLevel( tab[name] )
 			end
 			
@@ -277,12 +279,7 @@ function TowerData.new()
 		totalCost = towerLevel.getValueInGold()
 
 		local towerStats = {}		
---		for i=1, #displayStats, 1 do
---			billboard:setFloat(displayStats[i], stats[displayStats[i]])
---			towerStats[displayStats[i]] = stats[displayStats[i]]
---		end
 		for key,value in pairs(stats) do
-			
 			towerStats[key] = value
 		end
 		
@@ -326,10 +323,7 @@ function TowerData.new()
 		billboard:setDouble("totalCost", totalCost )
 		billboard:setTable("displayStats", displayStats)
 		billboard:setInt("value", 123 )
-		
---		for i=1, #displayStats, 1 do
---			billboard:setFloat(displayStats[i].."-upg", stats[displayStats[i]] - towerStats[displayStats[i]])
---		end
+
 		
 		for key,value in pairs(stats) do
 			billboard:setDouble(key, value)
@@ -362,7 +356,7 @@ function TowerData.new()
 				towerUpgrade.locked = nil
 			end
 			
-			towerUpgrade.values = {}
+			towerUpgrade.values = {towerLevel.getLevel() + 1}
 			towerUpgrade.stats = {}
 			for key,value in pairs(towerLevel.getStats()) do
 				

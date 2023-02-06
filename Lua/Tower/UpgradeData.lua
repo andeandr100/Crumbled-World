@@ -79,6 +79,9 @@ function UpgradeData.new()
 	
 	
 	function self.setLevel(newlevel)
+		if newlevel == nil or newlevel < 0 or newlevel > maxLevel then
+			abort()
+		end
 		level = newlevel
 		
 		if changedLevelCallback then
