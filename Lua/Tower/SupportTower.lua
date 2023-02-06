@@ -63,6 +63,78 @@ function SwarmTower.new()
 		end
 	end
 	
+	local function updateMeshesAndparticlesForSubUpgrades()
+	
+		--set visibility on all meshes
+		model:getMesh( "physic" ):setVisible(false)
+		model:getMesh( "weaken" ):setVisible(data.getLevel("weaken")>0)
+		model:getMesh( "boost" ):setVisible(data.getBoostActive())--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local name = mesh:getName()
+			local shader = mesh:getShader()
+			if name~="crystal" then
+				local texture = Core.getTexture(data.getBoostActive() and "towergroup_boost_a" or  "towergroup_a")
+				mesh:setTexture(shader,texture,4)
+			end
+		end
+		
+		
+		for i=1, data.getTowerLevel() do
+			model:getMesh( "range"..i ):setVisible(data.getLevel("range")==i)
+			model:getMesh( "dmg"..i ):setVisible(data.getTowerLevel()==i)
+		end	
+		
+		local rangeMatrix
+		if meshRange then
+			rangeMatrix = meshRange:getLocalMatrix()
+		end
+		meshRange = data.getLevel("range")==0 and nil or model:getMesh( "range"..data.getLevel("range") )
+		if rangeMatrix then
+			meshRange:setLocalMatrix(rangeMatrix)
+		end
+		
+		--- Weaken effect --
+		if data.getLevel("weaken")==0 then
+			model:getMesh("weaken"):setVisible(false)
+			if weakeningArea then
+				weakeningArea:deactivate()
+				for i=1, 4 do
+					weakenEffects[i]:deactivate()
+					weakenPointLight[i]:setVisible(false)
+				end
+			end
+		else
+			--loop all effects and create them
+			if not weakeningArea then
+				for i=1, 4 do
+					weakenEffects[i] = ParticleSystem.new(ParticleEffect.weakening)
+					weakenPointLight[i] = PointLight.new(Vec3(1.0,1.0,0.0), 1.0)
+					weakenPointLight[i]:setCutOff(0.05)
+					this:addChild( weakenEffects[i]:toSceneNode() )
+					this:addChild( weakenPointLight[i]:toSceneNode() )
+				end
+				weakeningArea = ParticleSystem.new(ParticleEffect.weakeningArea)
+				this:addChild(weakeningArea:toSceneNode())
+			end
+			weakenEffects[1]:activate(Vec3(-0.575,0.75,0.0))
+			weakenPointLight[1]:setLocalPosition(Vec3(-0.575,0.75,0.0))
+			weakenEffects[2]:activate(Vec3(0.575,0.75,0.0))
+			weakenPointLight[2]:setLocalPosition(Vec3(0.575,0.75,0.0))
+			weakenEffects[3]:activate(Vec3(0.0,0.75,0.575))
+			weakenPointLight[3]:setLocalPosition(Vec3(0.0,0.75,0.575))
+			weakenEffects[4]:activate(Vec3(0.0,0.75,-0.575))
+			weakenPointLight[4]:setLocalPosition(Vec3(0.0,0.75,-0.575))
+			weakeningArea:activate(Vec3(0,0.5,0))
+			weakeningArea:setSpawnRate( 0.4+(data.getLevel("weaken")*0.2) )
+			--update the spawn rate on the 4 tower effects
+			for i=1, 4 do
+				weakenEffects[i]:setScale( 0.25+(data.getLevel("weaken")*0.25) )
+				weakenPointLight[i]:setRange( 0.5+(data.getLevel("weaken")*0.5) )
+				weakenPointLight[i]:setVisible(true)
+			end	
+		end
+	end	
 
 	local function restoreWaveChangeStats( wave )
 		if isThisReal and wave>0 then
@@ -165,78 +237,7 @@ function SwarmTower.new()
 			goldGainAmount = 0
 		end
 	end
-	local function updateMeshesAndparticlesForSubUpgrades()
 	
-		--set visibility on all meshes
-		model:getMesh( "physic" ):setVisible(false)
-		model:getMesh( "weaken" ):setVisible(data.getLevel("weaken")>0)
-		model:getMesh( "boost" ):setVisible(data.getBoostActive())--set ambient map
-		for index=0, model:getNumMesh()-1 do
-			local mesh = model:getMesh(index)
-			local name = mesh:getName()
-			local shader = mesh:getShader()
-			if name~="crystal" then
-				local texture = Core.getTexture(data.getBoostActive() and "towergroup_boost_a" or  "towergroup_a")
-				mesh:setTexture(shader,texture,4)
-			end
-		end
-		
-		
-		for i=1, data.getTowerLevel() do
-			model:getMesh( "range"..i ):setVisible(data.getLevel("range")==i)
-			model:getMesh( "dmg"..i ):setVisible(data.getTowerLevel()==i)
-		end	
-		
-		local rangeMatrix
-		if meshRange then
-			rangeMatrix = meshRange:getLocalMatrix()
-		end
-		meshRange = data.getLevel("range")==0 and nil or model:getMesh( "range"..data.getLevel("range") )
-		if rangeMatrix then
-			meshRange:setLocalMatrix(rangeMatrix)
-		end
-		
-		--- Weaken effect --
-		if data.getLevel("weaken")==0 then
-			model:getMesh("weaken"):setVisible(false)
-			if weakeningArea then
-				weakeningArea:deactivate()
-				for i=1, 4 do
-					weakenEffects[i]:deactivate()
-					weakenPointLight[i]:setVisible(false)
-				end
-			end
-		else
-			--loop all effects and create them
-			if not weakeningArea then
-				for i=1, 4 do
-					weakenEffects[i] = ParticleSystem.new(ParticleEffect.weakening)
-					weakenPointLight[i] = PointLight.new(Vec3(1.0,1.0,0.0), 1.0)
-					weakenPointLight[i]:setCutOff(0.05)
-					this:addChild( weakenEffects[i]:toSceneNode() )
-					this:addChild( weakenPointLight[i]:toSceneNode() )
-				end
-				weakeningArea = ParticleSystem.new(ParticleEffect.weakeningArea)
-				this:addChild(weakeningArea:toSceneNode())
-			end
-			weakenEffects[1]:activate(Vec3(-0.575,0.75,0.0))
-			weakenPointLight[1]:setLocalPosition(Vec3(-0.575,0.75,0.0))
-			weakenEffects[2]:activate(Vec3(0.575,0.75,0.0))
-			weakenPointLight[2]:setLocalPosition(Vec3(0.575,0.75,0.0))
-			weakenEffects[3]:activate(Vec3(0.0,0.75,0.575))
-			weakenPointLight[3]:setLocalPosition(Vec3(0.0,0.75,0.575))
-			weakenEffects[4]:activate(Vec3(0.0,0.75,-0.575))
-			weakenPointLight[4]:setLocalPosition(Vec3(0.0,0.75,-0.575))
-			weakeningArea:activate(Vec3(0,0.5,0))
-			weakeningArea:setSpawnRate( 0.4+(data.getLevel("weaken")*0.2) )
-			--update the spawn rate on the 4 tower effects
-			for i=1, 4 do
-				weakenEffects[i]:setScale( 0.25+(data.getLevel("weaken")*0.25) )
-				weakenPointLight[i]:setRange( 0.5+(data.getLevel("weaken")*0.5) )
-				weakenPointLight[i]:setVisible(true)
-			end	
-		end
-	end
 	-- function:	initModel
 	-- purpose:		to initialize the model and set the visibility flag for every mesh
 	local function initModel()
@@ -395,7 +396,9 @@ function SwarmTower.new()
 		else
 			billboard:setBool("isNetOwner",false)
 		end
---		upgrade.fixBillboardAndStats()
+		
+		--set the game sessionBillboard first here after this function we are sure that the builder has set the network id
+		data.setGameSessionBillboard( Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() ) )
 	end
 	-- function:	functionName
 	-- purpose:		
@@ -453,7 +456,7 @@ function SwarmTower.new()
 		comUnitTable["dmgDealtFromSupportDamage"] = data.addPassivDamage
 	
 		
-		data.setGameSessionBillboard( Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() ) )
+
 		data.setBillboard(billboard)
 		data.setCanSyncTower(canSyncTower())
 		data.setComUnit(comUnit)

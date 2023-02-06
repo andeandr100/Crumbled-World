@@ -103,8 +103,6 @@ function MinigunTower.new()
 	end
 	--
 	
-	data.setGameSessionBillboard( Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() ) )
-	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
 			tab = {}
@@ -271,10 +269,10 @@ function MinigunTower.new()
 		-- Handle overkill upgrades Mesh & particle effect --
 		-----------------------------------------------------
 		
-		local overChargeLevel = data.getLevel("overCharge")
+		local overkillLevel = data.getLevel("overkill")
 		for i=1,3,1 do
 			if model:getMesh("fireCrit"..i) then
-				model:getMesh("fireCrit"..i):setVisible(i == overChargeLevel)
+				model:getMesh("fireCrit"..i):setVisible(i == overkillLevel)
 			end
 		end
 	
@@ -652,6 +650,8 @@ function MinigunTower.new()
 		else
 			billboard:setBool("isNetOwner",false)
 		end
+		--set the game sessionBillboard first here after this function we are sure that the builder has set the network id
+		data.setGameSessionBillboard( Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() ) )
 		data.updateStats()
 	end
 	--
