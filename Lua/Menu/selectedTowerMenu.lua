@@ -892,9 +892,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			costIconSprite:setUvCoord(Vec2(), Vec2(0.125,0.0625))
 			costIcon:setBackground(costIconSprite)
 			costPanel:add(Panel(PanelSize(Vec2(-1),Vec2(-0.125,-1))))
+			costPanel:add(requireLabel)
 			costPanel:add(costLabel)
 			costPanel:add(costIcon)
-			costPanel:add(requireLabel)
+			
 			costPanel:setCanHandleInput(false)
 			
 
@@ -973,6 +974,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 						buttoninfo.requireLabel:setText( Text("Lock"))
 						buttoninfo.requireLabel:setVisible(true)
 					end
+				elseif buttoninfo.requireLabel then
+					buttoninfo.requireLabel:setVisible(false)
 				end
 			end
 			
