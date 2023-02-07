@@ -147,7 +147,7 @@ function SwarmTower.new()
 			end
 			
 			if towerLevel ~= data.getTowerLevel() then
-				self.handleUpgrade(tostring(data.getTowerLevel()))
+				self.handleUpgrade("upgrade;"..tostring(data.getTowerLevel()))
 			end
 			updateMeshesAndparticlesForSubUpgrades()
 		end
@@ -270,11 +270,8 @@ function SwarmTower.new()
 	function self.handleUpgrade(param)
 		local subString, size = split(param, ";")
 		local towerLevel = tonumber(subString[2])
-		if towerLevel ~= data.getTowerLevel() then
-			data.setTowerLevel(towerLevel)
-		else
-			return--level unchanged
-		end
+		data.setTowerLevel(towerLevel)
+
 
 		local newTowerModel = Core.getModel("tower_support_l"..data.getTowerLevel()..".mym")
 		if newTowerModel then
@@ -408,9 +405,11 @@ function SwarmTower.new()
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
 		
-		restartListener = Listener("RestartWave")
-		restartListener:registerEvent("restartWave", restartWave)
-	
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			restartListener:registerEvent("restartWave", restartWave)
+		end
+		
 		model = Core.getModel("tower_support_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())

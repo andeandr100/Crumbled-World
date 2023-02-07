@@ -49,7 +49,6 @@ function BankTower.new()
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
-	local billboardWaveStats
 	--sound
 	--targetSelector
 	local activeTeam = 1
@@ -75,16 +74,12 @@ function BankTower.new()
 	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
-			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
-			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-			if billboardWaveStats:exist( waveStr )==false then
-				local tab = {
-					goldEarnedPreviousWave = billboard:getDouble("goldEarnedPreviousWave"),
-					goldEarned = billboard:getDouble("goldEarned"),
-					totalGoaldEarned = totalGoaldEarned
-				}
-				data.storeWaveChangeStats( waveStr, tab)
-			end
+			local tab = {
+				goldEarnedPreviousWave = billboard:getDouble("goldEarnedPreviousWave"),
+				goldEarned = billboard:getDouble("goldEarned"),
+				totalGoaldEarned = totalGoaldEarned
+			}
+			data.storeWaveChangeStats( waveStr, tab)
 		end
 	end
 	
@@ -100,12 +95,12 @@ function BankTower.new()
 		end
 		
 		if towerLevel ~= data.getTowerLevel() then
-			self.handleUpgrade(tostring(data.getTowerLevel()))
+			self.handleUpgrade("upgrade;"..tostring(data.getTowerLevel()))
 		end
 		goldEarned = 0
 	end
 	
-	local function restartWave(param)
+	function restartWave(param)
 		restoreWaveChangeStats( tonumber(param) )
 		goldEarned = 0
 	end
@@ -292,9 +287,11 @@ function BankTower.new()
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
 		
-		restartListener = Listener("RestartWave")
-		restartListener:registerEvent("restartWave", restartWave)
-	
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			restartListener:registerEvent("restartWave", restartWave)
+		end
+		
 		model = Core.getModel("tower_gold_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())

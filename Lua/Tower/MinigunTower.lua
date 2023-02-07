@@ -295,7 +295,7 @@ function MinigunTower.new()
 		end
 		
 		if towerLevel ~= data.getTowerLevel() then
-			self.handleUpgrade(tostring(data.getTowerLevel()))
+			self.handleUpgrade("upgrade;"..tostring(data.getTowerLevel()))
 		else
 			updateMeshesAndparticlesForSubUpgrades()
 		end
@@ -663,9 +663,11 @@ function MinigunTower.new()
 		this:createBoundVolumeGroup()
 		this:setBoundingVolumeCanShrink(false)
 		
-		restartListener = Listener("RestartWave")
-		restartListener:registerEvent("restartWave", restartWave)
-	
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			restartListener:registerEvent("restartWave", restartWave)
+		end
+		
 		model = Core.getModel("tower_minigun_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
