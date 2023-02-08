@@ -336,6 +336,15 @@ function TargetSelector.new(pteam)
 		end
 		return hp
 	end
+	
+	function self.getTargetMaxHP(target)
+		local hpMax = -1.0
+		local soulBillboard = Core.getBillboard(target or currentTarget)
+		if soulBillboard and soulBillboard:getBool("isAlive") then
+			hpMax = soulBillboard:getDouble("hpMax")
+		end
+		return hpMax
+	end
 
 	function self.getTargetHPPercentage(target)
 		local hpPercentage = 0.0

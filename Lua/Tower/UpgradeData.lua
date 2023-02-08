@@ -15,6 +15,7 @@ function UpgradeData.new()
 	local self = {}
 	local name = ""
 	local info = ""
+	local infoValues = nil
 	local level = 0
 	local maxLevel = 0
 	local cost = {}
@@ -69,6 +70,18 @@ function UpgradeData.new()
 		return info
 	end	
 	
+	function self.getInfoValues()
+		if infoValues then
+			return infoValues
+		else
+			local outValue = {}
+			for key,value in pairs(stats) do
+				outValue[#outValue+1] = key
+			end
+			return outValue
+		end
+	end
+	
 	function self.getSupportTowerIndex()
 		return supportTowerIndexes
 	end	
@@ -102,6 +115,7 @@ function UpgradeData.new()
 	function self.init(data)
 		name = data.name
 		info = data.info
+		infoValues = data.infoValues
 		level = data.level
 		maxLevel = data.maxLevel
 		cost = data.cost

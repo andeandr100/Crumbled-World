@@ -1069,7 +1069,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			------------------------------
 			-- Add Range upgrade button --
 			------------------------------
-			if rangeUpgrade and buttonPanels.index < 5 then
+			if rangeUpgrade and buttonPanels.index <= 5 then
 				buttonPanels.index = 5
 				addNewButton(rangeUpgrade)
 			end

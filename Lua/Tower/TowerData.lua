@@ -408,13 +408,19 @@ function TowerData.new()
 				
 				--This values are used for tooltip in towerMenu
 				--TODO add sort value to get the values in correct order
-				upgrade.values = {}
+				
 				upgrade.stats = {}
 				for key,value in pairs(data.getStats()) do
 					local displayValue = (value.func == nil or value.func == self.add or value.func == self.set) and value[level] or (value[level] - 1.0) * 100
-					upgrade.values[#upgrade.values+1] = displayValue
 					upgrade.stats[key] = displayValue
 				end
+				
+				upgrade.values = {}
+				local infoValues = data.getInfoValues()
+				for i=1, #infoValues do
+					upgrade.values[i] = upgrade.stats[infoValues[i]]
+				end
+				
 			else
 				upgrade.name = data.getName()
 				upgrade.level = data.getMaxLevel() + 1
@@ -435,6 +441,8 @@ function TowerData.new()
 				activeUpgrade.info = data.getInfo()
 				activeUpgrade.level = level
 				
+				
+				local infoValues = data.getInfoValues()
 				activeUpgrade.values = {}
 				activeUpgrade.stats = {}
 				for key,value in pairs(data.getStats()) do
@@ -443,7 +451,11 @@ function TowerData.new()
 					end
 					local displayValue = (value.func == nil or value.func == self.add or value.func == self.set) and value[level] or (value[level] - 1.0) * 100
 					activeUpgrade.values[#activeUpgrade.values+1] = displayValue
-					
+					for i=1, #infoValues do
+						if key == infoValues[i] then
+							activeUpgrade.values[i] = displayValue
+						end
+					end
 					
 					if value.func == self.add then
 						activeUpgrade.stats[key] = displayValue
@@ -456,6 +468,10 @@ function TowerData.new()
 					
 				end
 				activeTowerUpgrades[#activeTowerUpgrades+1] = activeUpgrade
+				
+				
+				
+				
 			end	
 		end
 		

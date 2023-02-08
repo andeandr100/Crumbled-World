@@ -278,10 +278,7 @@ function MinigunTower.new()
 	
 	end
 	
-	
-	
 	local function restoreWaveChangeStats( wave )
-	
 		local towerLevel = data.getTowerLevel()
 	
 		local tab = data.restoreWaveChangeStats( wave )	
@@ -395,12 +392,29 @@ function MinigunTower.new()
 --				else
 				local damageWeak = data.getValue("damageWeak")
 				local additionDamage = 0
-				if damageWeak then
-					additionDamage = dmg * (1.0 - targetSelector.getTargetHPPercentage(target)) * (damageWeak-1.0)
+--				print("")
+--				print("")
+--				print("default damage = "..dmg)
+				if damageWeak > 1.0 then
+					--damageWeak was to bad in the begining of the game when all NPC has full life
+					--if enemies was damage 90% in one shot they only took 90% and the second shot killed them
+					--Now we say that due to they will suffer 90% helath loss we say the NPC have
+					--only 45% helath meaning this effect on level 1 now will add an additional 27.5% extra damage
+					--Meaning the NPC now will suffer 114% killing the enemy in one shot
+					local hp = targetSelector.getTargetHP()
+					local maxHp = targetSelector.getTargetMaxHP()
+					local hpAfterHalfDamage = math.max(hp-dmg*0.5,0)
+					local averageHPercantage =  hpAfterHalfDamage / maxHp
+					additionDamage = dmg * (1.0 - averageHPercantage) * (damageWeak-1.0)
+					
+--					print("hp = " .. hp)
+--					print("maxHp = " .. maxHp)
+--					print("hpAfterHalfDamage = "..hpAfterHalfDamage)
+--					print("averageHPPercantage = "..averageHPercantage)
 				end
-				print("")
-				print("additionDamage = "..additionDamage)
-				print("default damage = "..dmg)
+				
+--				print("additionDamage = "..additionDamage)
+--				print("default damage = "..dmg)
 				comUnit:sendTo(target,"attackPhysical",tostring(dmg + additionDamage))
 				
 				
@@ -779,7 +793,8 @@ function MinigunTower.new()
 										range =		{ 5.0, 5.0, 5.0 },
 										damage = 	{ 115, 325, 405},
 										RPS = 		{ 2.5, 2.5, 5.0},
-										rotationSpeed =	{ 1.2, 1.4, 1.6 } }
+										rotationSpeed =	{ 1.2, 1.4, 1.6 },
+										damageWeak = { 1.0, 1.0, 1.0 } }
 							})
 		
 		data.addBoostUpgrade({	cost = 0,
@@ -800,6 +815,7 @@ function MinigunTower.new()
 								cost = {100,200,300},
 								name = "range",
 								info = "minigun tower range",
+								infoValues = {"range"},
 								iconId = 59,
 								level = 0,
 								maxLevel = 3,
@@ -812,6 +828,7 @@ function MinigunTower.new()
 								cost = {100,200,300},
 								name = "overCharge",
 								info = "minigun tower overcharge",
+								infoValues = {"damage","overheat"},
 								iconId = 63,
 								level = 0,
 								maxLevel = 3,
@@ -825,11 +842,12 @@ function MinigunTower.new()
 								cost = {100,200,300},
 								name = "overkill",
 								info = "minigun tower overkill",
+								infoValues = {"damageWeak"},
 								iconId = 61,
 								level = 0,
 								maxLevel = 3,
 								callback = self.handleSubUpgrade,
-								stats = { damageWeak = { 1.5, 2.0, 2.5, func = data.set} }
+								stats = { damageWeak = { 1.5, 2.0, 2.5, func = data.mul} }
 							})		
 		
 		--calculate all stats
