@@ -588,9 +588,6 @@ function MinigunTower.new()
 		print("handleUpgrade("..param..")")
 		local subString, size = split(param, ";")
 		local level = tonumber(subString[2])
---		if data.getTowerLevel() == level then
---			return--level unchanged
---		end
 		data.setTowerLevel(level)
 		
 
