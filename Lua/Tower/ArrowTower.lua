@@ -1,6 +1,4 @@
 require("Tower/rotator.lua")
-require("Tower/upgrade.lua")
-require("Tower/xpSystem.lua")
 require("Tower/supportManager.lua")
 require("NPC/state.lua")
 require("Projectile/projectileManager.lua")
@@ -9,24 +7,20 @@ require("Projectile/ArrowMortar.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
+require("Tower/TowerData.lua")
+
 --this = SceneNode()
 ArrowTower = {}
 function ArrowTower.new()
 	local self = {}
 	local waveCount = 0
-	local dmgDone = 0
-	local dmgDoneMarkOfDeath = 0
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	local projectiles = projectileManager.new()
 	local cData = CampaignData.new()
-	local upgrade = Upgrade.new()
 	local supportManager = SupportManager.new()
-	local cTowerUpg = CampaignTowerUpg.new("Tower/ArrowTower.lua",upgrade)
 	local rotator = Rotator.new()
 	local currentGlobalVec = ""
-	--XP
-	local xpManager = XpSystem.new(upgrade,"Tower/ArrowTower.lua")
 	--constants
 	local RECOIL_ON_ATTACK = math.pi/18.0	 	 --default kickback
 	local SCOPE_ROTATION_ON_BOOST = math.pi*30/180 --rotation to avoid ammo coger when boost is activated
@@ -38,6 +32,8 @@ function ArrowTower.new()
 	local defaultRotaterMeshMatrix
 	--Sound
 	local soundNode
+	
+	local data = TowerData.new()
 	--attack
 	local targetMode = 1
 	local activeProjectile = "Arrow"
@@ -77,72 +73,68 @@ function ArrowTower.new()
 	
 	local function storeWaveChangeStats( waveStr )
 		if isThisReal then
-			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
-			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-			if billboardWaveStats:exist( waveStr )==false then
-				local tab = {
-					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
-					upgradeTab = upgrade.storeWaveChangeStats(),
-					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-					DamageTotal = billboard:getDouble("DamageTotal"),
-					currentTargetMode = billboard:getInt("currentTargetMode"),
-					rotaterMatrix = rotaterMesh:getLocalMatrix(),
-					crossbowMatrix = crossbowMesh:getLocalMatrix(),
-					currentGlobalVec = currentGlobalVec,
-					boostedOnLevel = boostedOnLevel,
-					currentTargetAreaOffset = billboard:getMatrix("TargetAreaOffset"),
-					boostLevel = upgrade.getLevel("boost"),
-					upgradeLevel = upgrade.getLevel("upgrade"),
-					rangeLevel = upgrade.getLevel("range"),
-					markOfDeath = upgrade.getLevel("markOfDeath"),
-					hardArrow = upgrade.getLevel("hardArrow")
-				}
-				billboardWaveStats:setTable( waveStr, tab )
+			tab = {
+				currentTargetAreaOffset = billboard:getMatrix("TargetAreaOffset"),
+			}
+			data.storeWaveChangeStats(waveStr, tab)
+		end
+	end
+	local function SetTargetMode(param)
+		targetMode = math.clamp(tonumber(param),1,4)
+		billboard:setInt("currentTargetMode",targetMode)
+		if billboard:getBool("isNetOwner") and Core.isInMultiplayer() then
+			comUnit:sendNetworkSync("SetTargetMode", tostring(param) )
+		end
+	end
+	local function updateMeshesAndparticlesForSubUpgrades()
+		for index =1, 3, 1 do
+			model:getMesh( string.format("scope%d", index) ):setVisible( data.getLevel("range")==index )
+			model:getMesh( string.format("flamer%d", index) ):setVisible( false )
+			model:getMesh( string.format("markForDeath%d", index) ):setVisible( data.getLevel("markOfDeath")==index )
+		end
+		model:getMesh( "masterAim" ):setVisible(false)
+		model:getMesh( "physic" ):setVisible(false)
+		model:getMesh( "hull" ):setVisible(false)
+		model:getMesh( "space0" ):setVisible(false)
+	
+		model:getMesh( "ammoDrumBoost" ):setVisible(data.getBoostActive())
+		model:getMesh( "ammoDrum" ):setVisible(not data.getBoostActive())
+		
+		--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(data.getBoostActive() and "towergroup_boost_a" or "towergroup_a")
+			
+			mesh:setTexture(shader,texture,4)
+		end
+		
+		for i=1, 3 do
+			if model:getMesh("scope"..i) then
+				model:getMesh("scope"..i):setVisible(data.getLevel("range")==i)
+			end
+			if model:getMesh("markForDeath"..i) then
+				model:getMesh("markForDeath"..i):setVisible(data.getLevel("markOfDeath")==i)
 			end
 		end
+		if data.getBoostActive() and model:getMesh("scope"..data.getLevel("range")) then
+			model:getMesh("scope"..data.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), SCOPE_ROTATION_ON_BOOST)
+		end	
 	end
-	local function doDegrade(fromLevel,toLevel,callback)
-		while fromLevel>toLevel do
-			fromLevel = fromLevel - 1
-			callback(fromLevel)
-		end
-	end
+	
 	local function restoreWaveChangeStats( wave )
-		if isThisReal and wave>0 then
-			--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,4,0)+math.randomVec3(),2.0,Vec3(1,0,0))
-			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
-			lastRestored = wave
-			--we have gone back in time erase all tables that is from the future, that can never be used
-			local index = wave+1
-			while billboardWaveStats:exist( tostring(index) ) do
-				billboardWaveStats:erase( tostring(index) )
-				index = index + 1
-			end
-			--restore the stats from the wave
-			local tab = billboardWaveStats:getTable( tostring(wave) )
-			if tab then
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
-				end
-				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
-				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.handleUpgradeScope)
-				doDegrade(upgrade.getLevel("hardArrow"),tab.hardArrow,self.handleHardArrow)
-				doDegrade(upgrade.getLevel("markOfDeath"),tab.markOfDeath,self.handleWeakenTarget)
-				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
-				--
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
-				--
-				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
-				billboard:setDouble("DamageTotal", tab.DamageTotal)
-				self.SetTargetMode(tab.currentTargetMode)
+		if isThisReal then
+			local towerLevel = data.getTowerLevel()
+			local tab = data.restoreWaveChangeStats( wave )	
+			if tab ~= nil then
 				billboard:setMatrix("TargetAreaOffset",tab.currentTargetAreaOffset)
-				self.setRotateTarget(tab.currentGlobalVec)
---				rotaterMesh:setLocalMatrix(tab.rotaterMatrix)
---				crossbowMesh:setLocalMatrix(tab.crossbowMatrix)
-				boostedOnLevel = tab.boostedOnLevel
+				SetTargetMode(tab.currentTargetMode)
+			end
+		
+			if towerLevel ~= data.getTowerLevel() then
+				self.handleUpgrade("upgrade;"..tostring(data.getTowerLevel()))
+			else
+				updateMeshesAndparticlesForSubUpgrades()
 			end
 		end
 	end
@@ -151,75 +143,21 @@ function ArrowTower.new()
 		projectiles.clear()
 		supportManager.restartWave()
 		restoreWaveChangeStats( tonumber(param) )
-		dmgDone = 0
-		dmgDoneMarkOfDeath = 0
 	end
-	local function damageDealt(param)
-		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		dmgDone = dmgDone + addDmg
-		billboard:setDouble("DamageCurrentWave",dmgDone)
-		billboard:setDouble("DamageCurrentWavePassive",dmgDoneMarkOfDeath or 0.0)
-		if xpManager then
-			xpManager.addXp(addDmg)
-			local interpolation  = xpManager.getLevelPercentDoneToNextLevel()
-			upgrade.setInterpolation(interpolation)
-			upgrade.fixBillboardAndStats()
-		end
-	end
-	local function dmgDealtMarkOfDeath(param)
-		if xpManager then
-			xpManager.addXp(tonumber(param))
-		end
-		dmgDoneMarkOfDeath = dmgDoneMarkOfDeath + tonumber(param)
-	end
+
 	local function waveChanged(param)
 		local name
 		local waveCountStr
 		name,waveCountStr = string.match(param, "(.*);(.*)")
-		waveCount = tonumber(waveCountStr)
+		local waveCount = tonumber(waveCountStr)
+
 		--update and save stats only if we did not just restore this wave
 		if waveCount>=lastRestored then
-			if not xpManager then
-				billboard:setDouble("DamagePreviousWave",dmgDone)
-				billboard:setDouble("DamagePreviousWavePassive",dmgDoneMarkOfDeath)
-				billboard:setDouble("DamageTotal",billboard:getDouble("DamageTotal")+dmgDone)
-				if canSyncTower() then
-					comUnit:sendTo("stats", "addTotalDmg", dmgDone+dmgDoneMarkOfDeath )
-				end
-			else
-				xpManager.payStoredXp(waveCount)
-				--update billboard
-				upgrade.fixBillboardAndStats()
-			end
-			--store wave info to be able to restore it
 			storeWaveChangeStats( tostring(waveCount+1) )
 		end
-		dmgDone = 0
-		dmgDoneMarkOfDeath = 0
 	end
 	
 	local function resetModel()
-		for index =1, 3, 1 do
-			model:getMesh( string.format("scope%d", index) ):setVisible( upgrade.getLevel("range")==index )
-			model:getMesh( string.format("flamer%d", index) ):setVisible( false )
-			model:getMesh( string.format("markForDeath%d", index) ):setVisible( upgrade.getLevel("markOfDeath")==index )
-		end
-		model:getMesh( "masterAim" ):setVisible(false)
-		model:getMesh( "physic" ):setVisible(false)
-		model:getMesh( "hull" ):setVisible(false)
-		model:getMesh( "space0" ):setVisible(false)
-	
-		local showBoostActive = (upgrade.getLevel("boost")>0)
-		model:getMesh( "ammoDrumBoost" ):setVisible(showBoostActive)
-		model:getMesh( "ammoDrum" ):setVisible(not showBoostActive)
-		--set ambient map
-		for index=0, model:getNumMesh()-1 do
-			local mesh = model:getMesh(index)
-			local shader = mesh:getShader()
-			local texture = Core.getTexture(showBoostActive==false and "towergroup_a" or "towergroup_boost_a")
-			
-			mesh:setTexture(shader,texture,4)
-		end
 		--Meshes
 		rotaterMesh = model:getMesh( "rotater" )
 		crossbowMesh = model:getMesh( "crossbow" )
@@ -240,22 +178,20 @@ function ArrowTower.new()
 		end
 	end
 	local function updateStats()
-		targetSelector.setRange(upgrade.getValue("range"))
+		targetSelector.setRange(data.getValue("range"))
 	end
 	local function setCurrentInfo()
-		if xpManager then
-			xpManager.updateXpToNextLevel()
-		end
+		data.updateStats()
 		--xpToLevel	   = 1000.0*(1.5^level)
-		--range	 	  = upgrade.getValue("range")--info[upgradeLevel]["range"]*(1.025^level)*upgradeScopeRangeMultiplayer
-		--dmg	 		= upgrade.getValue("Damage")--info[upgradeLevel]["dmg"]*(1.02^level)
-		--reloadTime	  = 1.0/upgrade.getValue("RPS")--info[upgradeLevel]["reloadTime"]*(0.99^level)	
+		--range	 	  = data.getValue("range")--info[upgradeLevel]["range"]*(1.025^level)*upgradeScopeRangeMultiplayer
+		--dmg	 		= data.getValue("Damage")--info[upgradeLevel]["dmg"]*(1.02^level)
+		--reloadTime	  = 1.0/data.getValue("RPS")--info[upgradeLevel]["reloadTime"]*(0.99^level)	
 		model:getAnimation():play("init",1.0,PlayMode.stopSameLayer)
-		billboard:setDouble("hittStrength",upgrade.getLevel("upgrade")+(upgrade.getLevel("hardArrow")>0 and 1 or 0)+(upgrade.getLevel("boost")>0 and 1 or 0))
+		billboard:setDouble("hittStrength",data.getTowerLevel()+(data.getLevel("hardArrow")>0 and 1 or 0)+(data.getBoostActive() and 1 or 0))
 		reloadTimeLeft  = 0.0
 		updateStats()
 		--achivment
-		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("hardArrow")==3 and upgrade.getLevel("markOfDeath")==3 then
+		if data.getIsMaxedOut() then
 			achievementUnlocked("CrossbowMaxed")
 		end
 	end
@@ -296,7 +232,7 @@ function ArrowTower.new()
 		rotaterMesh:setLocalMatrix(defaultRotaterMeshMatrix)
 		
 		local pipeAt = -crossbowMesh:getGlobalMatrix():getUpVec():normalizeV()
-		local angleLimit = upgrade.getValue("targetAngle")
+		local angleLimit = data.getValue("targetAngle")
 		targetSelector.setAngleLimits(pipeAt,angleLimit)
 		rotator.setHorizontalLimits(pipeAt,-angleLimit,angleLimit)
 	
@@ -320,159 +256,49 @@ function ArrowTower.new()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
 	function self.handleUpgrade(param)
-		if tonumber(param)>upgrade.getLevel("upgrade") then
-			upgrade.upgrade("upgrade")
-		elseif upgrade.getLevel("upgrade")>tonumber(param) then
-			upgrade.degrade("upgrade")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
-		end
-		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		--Achievements
-		local level = upgrade.getLevel("upgrade")
-		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
-		if upgrade.getLevel("upgrade")==3 then
-			achievementUnlocked("Upgrader")
-		end
-		--
+		print("handleUpgrade("..param..")")
+		local subString, size = split(param, ";")
+		local level = tonumber(subString[2])
+		data.setTowerLevel(level)
 		
-		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
-			local rotaterMatrix = rotaterMesh:getLocalMatrix()--get rotation for rotater
-			local crossbowMatrix = crossbowMesh:getLocalMatrix()--get rotation for engine
-			local rotaterBaseMatrix = model:getMesh( "rotaterBase" ):getLocalMatrix()
 		
+		local rotaterMatrix = rotaterMesh:getLocalMatrix()--get rotation for rotater
+		local crossbowMatrix = crossbowMesh:getLocalMatrix()--get rotation for engine
+		local rotaterBaseMatrix = model:getMesh( "rotaterBase" ):getLocalMatrix()
+	
+	
+		local newModel = Core.getModel( string.format("tower_crossbow_l%d.mym", data.getTowerLevel()) )
+		if newModel then
 			this:removeChild(model:toSceneNode())
-			model = Core.getModel( string.format("tower_crossbow_l%d.mym", upgrade.getLevel("upgrade")) )
+			model = newModel
 			this:addChild(model:toSceneNode())
 			billboard:setModel("tower",model);
 		
 			resetModel()--resets the model and reload time
-			--model:setIsStatic(true)
-			--model:render()
-			rotaterMesh:setLocalMatrix(rotaterMatrix)--set the old rotation
-			crossbowMesh:setLocalMatrix(crossbowMatrix)--set the old rotation
-			model:getMesh( "rotaterBase" ):setLocalMatrix(rotaterBaseMatrix)
+		end
 		
-			if upgrade.getLevel("boost")>0 and upgrade.getLevel("range")>0 then
-				model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), SCOPE_ROTATION_ON_BOOST)
-			end
-		
-			--instant reload
-			reloadTimeLeft = 0.0
-			--visual changes
-			RECOIL_ON_ATTACK = RECOIL_ON_ATTACK*1.15
-			--
-			cTowerUpg.fixAllPermBoughtUpgrades()
-		end
-		upgrade.clearCooldown()
+		--model:setIsStatic(true)
+		--model:render()
+		rotaterMesh:setLocalMatrix(rotaterMatrix)--set the old rotation
+		crossbowMesh:setLocalMatrix(crossbowMatrix)--set the old rotation
+		model:getMesh( "rotaterBase" ):setLocalMatrix(rotaterBaseMatrix)
+	
+		--instant reload
+		reloadTimeLeft = 0.0
+		--visual changes
+		RECOIL_ON_ATTACK = RECOIL_ON_ATTACK*1.15
+		--
+
 		setCurrentInfo()
 	end
-	function self.handleBoost(param)
-		if tonumber(param)>upgrade.getLevel("boost") then
-			if Core.isInMultiplayer() and canSyncTower() then
-				comUnit:sendNetworkSyncSafe("upgrade2","1")
-			end
-			boostedOnLevel = upgrade.getLevel("upgrade")
-			upgrade.upgrade("boost")
-			resetModel()
-			setCurrentInfo()
-			--Achievement
-			achievementUnlocked("Boost")
-		elseif upgrade.getLevel("boost")>tonumber(param) then
-			upgrade.degrade("boost")
-			resetModel()
-			setCurrentInfo()
-			--only boost that uses timer
-			if upgrade.getLevel("range")>0 then
-		 	   model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), -SCOPE_ROTATION_ON_BOOST)
-			end
-			--clear coldown info for boost upgrade
-			upgrade.clearCooldown()
-		end
-	end
-	function self.handleUpgradeScope(param)
-		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("range")
-		elseif upgrade.getLevel("range")>tonumber(param) then
-			model:getMesh("scope"..upgrade.getLevel("range")):setVisible(false)
-			upgrade.degrade("range")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
-		end
-		if upgrade.getLevel("range")>0 then
-			model:getMesh("scope"..upgrade.getLevel("range")):setVisible(true)
-			if upgrade.getLevel("range")>1 then
-				model:getMesh("scope"..upgrade.getLevel("range")-1):setVisible(false)
-			end
-			if upgrade.getLevel("boost")>0 then
-				model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), SCOPE_ROTATION_ON_BOOST)
-			end			
-			--Acievement
-			if upgrade.getLevel("range")==3 then
-				achievementUnlocked("Range")
-			end
-		end
-		setCurrentInfo()
-	end
-	function self.handleHardArrow(param)
-		if tonumber(param)>upgrade.getLevel("hardArrow") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("hardArrow")
-		elseif upgrade.getLevel("hardArrow")>tonumber(param) then
-			upgrade.degrade("hardArrow")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
-		end
-		if upgrade.getLevel("hardArrow")==0 then
-			--no mesh in use
-		else
-			--no mesh in use
-			--Achievement
-			if upgrade.getLevel("hardArrow")==3 then
-				achievementUnlocked("HardArrow")
-			end
-		end
-		setCurrentInfo()
-	end
+
+
 	local function handleRotate(param)
---		if param==nil or (type(param)=="string" and param=="") then
---			comUnit:sendNetworkSyncSafe("upgrade6","1")
---		end
-		reRotateTowerCostMultiplyer = reRotateTowerCostMultiplyer + 1
-		upgrade.fixBillboardAndStats()
-		this:loadLuaScript("Game/buildRotater.lua")
+--		reRotateTowerCostMultiplyer = reRotateTowerCostMultiplyer + 1
+--		upgrade.fixBillboardAndStats()
+--		this:loadLuaScript("Game/buildRotater.lua")
 	end
-	function self.handleWeakenTarget(param)
-		if tonumber(param)>upgrade.getLevel("markOfDeath") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("markOfDeath")
-		elseif upgrade.getLevel("markOfDeath")>tonumber(param) then
-			model:getMesh("markForDeath"..upgrade.getLevel("markOfDeath")):setVisible(false)
-			upgrade.degrade("markOfDeath")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
-		end
-		if upgrade.getLevel("markOfDeath")>0 then
-			if upgrade.getLevel("markOfDeath")>1 then
-				model:getMesh("markForDeath"..upgrade.getLevel("markOfDeath")-1):setVisible(false)
-			end
-			model:getMesh("markForDeath"..upgrade.getLevel("markOfDeath")):setVisible(true)
-			if upgrade.getLevel("markOfDeath")==3 then
-				achievementUnlocked("MarkOfDeath")
-			end
-		end
-		setCurrentInfo()
-	end
+
 	local function attack()
 		local target = targetSelector.getTargetIfAvailable()
 		if target>0 then
@@ -484,13 +310,12 @@ function ArrowTower.new()
 			
 			--set reload timer
 			if reloadTimeLeft<-Core.getDeltaTime() then
-				reloadTimeLeft = (1.0/upgrade.getValue("RPS"))--if we are over due for fiering(reloading timer is past this frame)
+				reloadTimeLeft = (1.0/data.getValue("RPS"))--if we are over due for fiering(reloading timer is past this frame)
 			else
-				reloadTimeLeft = reloadTimeLeft + (1.0/upgrade.getValue("RPS"))--if we was supposed to fire this frame just add reload timer
+				reloadTimeLeft = reloadTimeLeft + (1.0/data.getValue("RPS"))--if we was supposed to fire this frame just add reload timer
 			end
 		
-			local projectile = "Arrow"
-			if upgrade.getLevel("boost")>0 then
+			if data.getBoostActive() then
 				projectiles.launch(ArrowMortar,{})
 			else 
 				projectiles.launch(Arrow,{})
@@ -499,10 +324,6 @@ function ArrowTower.new()
 			local animationSpeed = model:getAnimation():getLengthOfClip("attack")/reloadTimeLeft
 			model:getAnimation():play("attack",animationSpeed,PlayMode.stopSameLayer)
 			crossbowMesh:rotate(Vec3(1.0, 0.0, 0.0),RECOIL_ON_ATTACK )--add some recoil for more kick in the tower
-			
---			if upgrade.getValue("smartTargeting")>0.5 then
---				targetSelector.deselect()
---			end
 			
 			soundNode:play(1.1,false)
 		end
@@ -513,19 +334,13 @@ function ArrowTower.new()
 			targetSelector.setTarget(target)
 		end
 	end
-	function self.SetTargetMode(param)
-		targetMode = math.clamp(tonumber(param),1,4)
-		billboard:setInt("currentTargetMode",targetMode)
-		if billboard:getBool("isNetOwner") and Core.isInMultiplayer() then
-			comUnit:sendNetworkSync("SetTargetMode", tostring(param) )
-		end
-	end
+	
 	local function updateTarget()
 		--only select new target if we own the tower or we are not told anything usefull
 		if (billboard:getBool("isNetOwner") or targetSelector.getTargetIfAvailable()==0) then
 			if targetSelector.selectAllInRange() then
 				targetSelector.filterOutState(state.ignore)
-				if upgrade.getLevel("boost")>0 then
+				if data.getBoostActive() then
 					--density
 					targetSelector.scoreDensity(30)
 					targetSelector.scoreClosestToExit(10)
@@ -540,7 +355,7 @@ function ArrowTower.new()
 					targetSelector.scoreName("skeleton_cf",-20)
 					targetSelector.scoreName("skeleton_cb",-20)
 					
-					if upgrade.getLevel("markOfDeath")>0 then
+					if data.getLevel("markOfDeath")>0 then
 						targetSelector.scoreState(state.markOfDeath,-15)	--because we placed the mark, it is therefore better to mark another unit
 					else
 						targetSelector.scoreState(state.markOfDeath,15)		--attack marked unit for damage bonus
@@ -566,7 +381,7 @@ function ArrowTower.new()
 					targetSelector.scoreHP(-10)
 				end
 				
-				if upgrade.getLevel("hardArrow")>0 then
+				if data.getLevel("hardArrow")>0 then
 					targetSelector.scoreHP(20)--we realy want to shoot the strongest unit
 				end
 				targetSelector.scoreState(state.highPriority,30)
@@ -602,18 +417,18 @@ function ArrowTower.new()
 	function self.updateRotate()
 	
 		--update time based upgrades
-		if upgrade.update() then
-			resetModel()
-			setCurrentInfo()
-			--only boost that uses timer
-			if upgrade.getLevel("range")>0 then
-		 	   model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), -SCOPE_ROTATION_ON_BOOST)
-			end
-			--if the tower was upgraded while boosted, then the boost should be available
-			if boostedOnLevel~=upgrade.getLevel("upgrade") then
-				upgrade.clearCooldown()
-			end
-		end
+--		if upgrade.update() then
+--			resetModel()
+--			setCurrentInfo()
+--			--only boost that uses timer
+--			if upgrade.getLevel("range")>0 then
+--		 	   model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), -SCOPE_ROTATION_ON_BOOST)
+--			end
+--			--if the tower was upgraded while boosted, then the boost should be available
+--			if boostedOnLevel~=upgrade.getLevel("upgrade") then
+--				upgrade.clearCooldown()
+--			end
+--		end
 	
 		--Handle communication
 		while comUnit:hasMessage() do
@@ -632,21 +447,19 @@ function ArrowTower.new()
 	end
 	function self.updateReal()
 		--update time based upgrades
-		if upgrade.update() then
-			resetModel()
-			setCurrentInfo()
-			--only boost that uses timer
-			if upgrade.getLevel("range")>0 then
-		 	   model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), -SCOPE_ROTATION_ON_BOOST)
-			end
-			--if the tower was upgraded while boosted, then the boost should be available
-			if boostedOnLevel~=upgrade.getLevel("upgrade") then
-				upgrade.clearCooldown()
-			end
-		end
-		if xpManager then
-			xpManager.update()
-		end
+--		if upgrade.update() then
+--			resetModel()
+--			setCurrentInfo()
+--			--only boost that uses timer
+--			if upgrade.getLevel("range")>0 then
+--		 	   model:getMesh("scope"..upgrade.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), -SCOPE_ROTATION_ON_BOOST)
+--			end
+--			--if the tower was upgraded while boosted, then the boost should be available
+--			if boostedOnLevel~=upgrade.getLevel("upgrade") then
+--				upgrade.clearCooldown()
+--			end
+--		end
+
 		comUnit:setPos(this:getGlobalPosition())
 		--change update speed
 --		local tmpCameraNode = cameraNode
@@ -683,7 +496,7 @@ function ArrowTower.new()
 				--if target inside aceptable angle, then fire
 				if targetAngleDiffXZ<FireMinAngle and targetAngleDiffY<FireMinAngle then
 					attack()--just do the attack
-					upgrade.setUsed()--set value changed
+--					upgrade.setUsed()--set value changed
 				end
 			end
 		else
@@ -693,9 +506,7 @@ function ArrowTower.new()
 			rotaterMesh:rotate(Vec3(0.0,0.0,1.0), rotator.getHorizontalRotation())
 			crossbowMesh:rotate(Vec3(1.0, 0.0, 0.0), rotator.getVerticalRotation())
 		end
-		--local vec = model:getGlobalPosition()+Vec3(0.0,1.0,0.0);
-		--Core.addDebugLine(vec,vec+(gloabalAt*3.0),0.0,Vec3(1.0,0.0,0.0))
-	
+
 	
 		model:getAnimation():update(Core.getDeltaTime())
 		projectiles.update()
@@ -703,6 +514,12 @@ function ArrowTower.new()
 		--model:render()
 		return true;
 	end
+	
+	function self.handleSubUpgrade()
+		updateMeshesAndparticlesForSubUpgrades()
+		setCurrentInfo()
+	end
+	
 	--
 	local function setNetOwner(param)
 		if param=="YES" then
@@ -710,7 +527,8 @@ function ArrowTower.new()
 		else
 			billboard:setBool("isNetOwner",false)
 		end
-		upgrade.fixBillboardAndStats()
+		data.setGameSessionBillboard( Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() ) )
+		data.updateStats()
 	end
 	--
 	local function init()
@@ -723,15 +541,14 @@ function ArrowTower.new()
 		end
 		
 		isSettingRotation = Core.getTime()
-		if xpManager then
-			xpManager.setUpgradeCallback(self.handleUpgrade)
+		
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			restartListener:registerEvent("restartWave", restartWave)
+			restartListener2 = Listener("RestartWaveBuilder")
+			restartListener2:registerEvent("restartWaveBuilder", restartWave)
 		end
 		
-		restartListener = Listener("RestartWave")
-		restartListener:registerEvent("restartWave", restartWave)
-		restartListener2 = Listener("RestartWaveBuilder")
-		restartListener2:registerEvent("restartWaveBuilder", restartWave)
-	
 		model = Core.getModel("tower_crossbow_l1.mym")
 		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
@@ -745,13 +562,7 @@ function ArrowTower.new()
 		rotator.setSpeedVerticalMaxMinAcc(math.pi*0.4,math.pi*0.05,math.pi*0.3)
 		rotator.setVerticalLimits(-math.pi*0.20,math.pi*0.45)
 		
-		--this:addChild(candle1)
-		--this:addChild(candle2)
-		
---		if particleEffectUpgradeAvailable then
---			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
---		end
-	
+
 		--ComUnit
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(true)--debug myStats
@@ -779,15 +590,14 @@ function ArrowTower.new()
 		billboard:setDouble("DamageTotal",0)
 	
 		--ComUnitCallbacks
-		comUnitTable["dmgDealt"] = damageDealt
-		comUnitTable["dmgDealtMarkOfDeath"] = dmgDealtMarkOfDeath
-		--comUnitTable["dmgLost"] = damageLost -- There is no function for this callback
+		comUnitTable["dmgDealt"] = data.addDamage
+		comUnitTable["dmgDealtMarkOfDeath"] = data.addPassivDamage
 		comUnitTable["waveChanged"] = waveChanged
-		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = self.handleBoost
-		comUnitTable["upgrade3"] = self.handleUpgradeScope
-		comUnitTable["upgrade4"] = self.handleHardArrow
-		comUnitTable["upgrade5"] = self.handleWeakenTarget
+		comUnitTable["upgrade"] = self.handleUpgrade
+		comUnitTable["boost"] = self.handleBoost
+		comUnitTable["range"] = data.handleSecondaryUpgrade
+		comUnitTable["hardArrow"] = data.handleSecondaryUpgrade
+		comUnitTable["markOfDeath"] = data.handleSecondaryUpgrade
 		comUnitTable["upgrade6"] = handleRotate
 		comUnitTable["setRotateTarget"] = self.setRotateTarget
 		comUnitTable["setTargetAreaOffset"] = self.setTargetAreaOffset
@@ -795,196 +605,105 @@ function ArrowTower.new()
 		comUnitTable["NetTarget"] = NetSyncTarget
 		comUnitTable["Retarget"] = handleRetarget
 		comUnitTable["SetTargetMode"] = self.SetTargetMode
-		supportManager.setComUnitTable(comUnitTable)
-		supportManager.addCallbacks()
-	
-		upgrade.setBillboard(billboard)
-		upgrade.addDisplayStats("damage")
-		upgrade.addDisplayStats("RPS")
-		--upgrade.addDisplayStats("fireDPS")
-		--upgrade.addDisplayStats("burnTime")
-		upgrade.addDisplayStats("range")
-		upgrade.addDisplayStats("weakenValue")
-		upgrade.addBillboardStats("weaken")
-		upgrade.addBillboardStats("weakenTimer")
-		upgrade.addBillboardStats("detonationRange")
-		upgrade.addBillboardStats("targetAngle")
 		
-		--
-		--	LIMITATION OF ANGLE GRANTS it 0% DMG INCREASE ;-)
-		--
 		
-		upgrade.addUpgrade( {	cost = 200,
+		data.setBillboard(billboard)
+		data.setCanSyncTower(canSyncTower())
+		data.setComUnit(comUnit)
+		data.addDisplayStats("damage")
+		data.addDisplayStats("RPS")
+		data.addDisplayStats("range")
+		data.addDisplayStats("weakenValue")
+		
+		
+		data.addTowerUpgrade({	cost = {200,400,800},
 								name = "upgrade",
 								info = "Arrow tower level",
-								order = 1,
-								icon = 56,
-								value1 = 1,
-								stats ={range =		{ upgrade.add, 9.0},
-										damage = 	{ upgrade.add, 360},
-										RPS = 		{ upgrade.add, 1.0/1.5},
-										targetAngle =		{ upgrade.add, math.pi*0.175 } }
-							} )
-		--DPSpG == Damage*RPS*(radius/2+2.5)*0.111/cost == 0.79
-		--DPSpG == Damage*RPS*(radius/2+2.5)*0.111/cost == 360*(1.0/1.5)/150 == 1.20
-		upgrade.addUpgrade( {	cost = 400,
-								name = "upgrade",
-								info = "Arrow tower level",
-								order = 1,
-								icon = 56,
-								value1 = 2,
-								stats ={range =		{ upgrade.add, 9.0},
-										damage = 	{ upgrade.add, 955},
-										RPS = 		{ upgrade.add, 1.0/1.3},
-										targetAngle =		{ upgrade.add, math.pi*0.175 } } 
-							},0 )
-		--DPSpG == Damage*RPS*(radius/2+3)*0.111/cost == 955*(1.0/1.3)/600 == 1.22
-		upgrade.addUpgrade( {	cost = 800,
-								name = "upgrade",
-								info = "Arrow tower level",
-								order = 1,
-								icon = 56,
-								value1 = 3,
-								stats ={range =		{ upgrade.add, 9.0},
-										damage = 	{ upgrade.add, 1920},
-										RPS = 		{ upgrade.add, 1.0/1.1},
-										targetAngle =		{ upgrade.add, math.pi*0.175 }} 
-							},0 )
-		--DPSpG == Damage*RPS*(radius/2+3)*0.111/cost == 1920*(1/1.1)/1400 == 1.25
-		-- BOOST (increases damage output with 400%)
-		function boostDamage() return upgrade.getStats("damage")*2.0*(waveCount/50+1.0) end
-		--(total)	0=2x	25=4x	50=6x
-		upgrade.addUpgrade( {	cost = 0,
+								iconId = 56,
+								level = 1,
+								maxLevel = 3,
+								stats = {
+										range =		{ 9.0, 9.0, 9.0 },
+										damage = 	{ 360, 955, 1920},
+										RPS = 		{ 1.0/1.5, 1.0/1.3, 1.0/1.1},
+										targetAngle =	{ math.pi*0.175, math.pi*0.175, math.pi*0.175 }  }
+							})
+		
+		data.addBoostUpgrade({	cost = 0,
 								name = "boost",
-								info = "Arrow tower boost",
+								info = "minigun tower boost",
 								duration = 10,
 								cooldown = 3,
-								order = 10,
-								icon = 57,
-								stats ={range =				{ upgrade.add, 1.5},
-										damage = 			{ upgrade.func, boostDamage},
-										detonationRange =	{ upgrade.add, 2.25}}
-							} )
-		-- RANGE
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,
+								iconId = 57,
+								level = 0,
+								maxLevel = 1,
+								stats = {range = 			{ 1.5, func = data.add },
+										damage =			{ 3, func = data.mul },
+										detonationRange = 	{ 2.25, func = data.set } }
+							})
+		
+		data.addSecondaryUpgrade({	
+								cost = {100,200,300},
 								name = "range",
 								info = "Arrow tower range",
-								order = 2,
-								icon = 59,
-								value1 = 9 + 1.5,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
-								stats ={range =		{ upgrade.add, 1.5, ""} }
-							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 100 or 200,
-								name = "range",
-								info = "Arrow tower range",
-								order = 2,
-								icon = 59,
-								value1 = 9 + 3.0,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
-								stats ={range =		{ upgrade.add, 3.0, ""} }
-							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 200 or 300,
-								name = "range",
-								info = "Arrow tower range",
-								order = 2,
-								icon = 59,
-								value1 = 9 + 4.5,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",3),
-								stats ={range =		{ upgrade.add, 4.5, ""} }
-							} )
-		-- HardArrow (not stackable damage, increase damage output with 35% per upgrade)
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
+								infoValues = {"range"},
+								iconId = 59,
+								level = 0,
+								maxLevel = 3,
+								callback = self.handleSubUpgrade,
+								achievementName = "Range",
+								stats = {range = { 1.5, 3.0, 4.5, func = data.add }}
+							})
+							
+		data.addSecondaryUpgrade({	
+								cost = {100,200,300},
 								name = "hardArrow",
 								info = "Arrow tower hardArrow",
-								order = 3,
-								icon = 2,
-								value1 = 135,
-								value2 = 50,
-								levelRequirement = cTowerUpg.getLevelRequierment("hardArrow",1),
-								stats ={RPS = 		{ upgrade.mul, 0.5},
-										damage = 	{ upgrade.mul, 2.35} }
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "hardArrow",
-								info = "Arrow tower hardArrow",
-								order = 3,
-								icon = 2,
-								value1 = 240,
-								value2 = 60,
-								levelRequirement = cTowerUpg.getLevelRequierment("hardArrow",2),
-								stats ={RPS = 		{ upgrade.mul, 0.4},
-										damage = 	{ upgrade.mul, 3.4} }
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "hardArrow",
-								info = "Arrow tower hardArrow",
-								order = 3,
-								icon = 2,
-								value1 = 410,
-								value2 = 70,
-								levelRequirement = cTowerUpg.getLevelRequierment("hardArrow",3),
-								stats ={RPS = 		{ upgrade.mul, 0.3},
-										damage = 	{ upgrade.mul, 5.1} }
-							} )
-		-- MARK OF DEATH (amplified by other towers, increases damage take to target with 5% every upgrade)
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
+								infoValues = {"damage", "RPS"},
+								iconId = 2,
+								level = 0,
+								maxLevel = 3,
+								callback = self.handleSubUpgrade,
+								achievementName = "HardArrow",
+								stats = {RPS = { 0.5, 0.4, 0.3, func = data.mul },
+										damage = { 2.35, 3.4, 5.1, func = data.mul }}
+							})
+							
+		data.addSecondaryUpgrade({	
+								cost = {100,200,300},
 								name = "markOfDeath",
 								info = "Arrow tower mark of death",
-								order = 4,
-								icon = 61,
-								value1 = 8,
-								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",1),
-								stats ={weaken =		{ upgrade.add, 0.08, ""},
-										weakenValue =	{ upgrade.add, 8, ""},
-										weakenTimer =	{ upgrade.add, 5.0, ""} }
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "markOfDeath",
-								info = "Arrow tower mark of death",
-								order = 4,
-								icon = 61,
-								value1 = 16,
-								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",2),
-								stats ={weaken =		{ upgrade.add, 0.16, ""},
-										weakenValue =	{ upgrade.add, 16, ""},
-										weakenTimer =	{ upgrade.add, 5.0, ""} }
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "markOfDeath",
-								info = "Arrow tower mark of death",
-								order = 4,
-								icon = 61,
-								value1 = 24,
-								levelRequirement = cTowerUpg.getLevelRequierment("markOfDeath",3),
-								stats ={weaken =		{ upgrade.add, 0.24, ""},
-										weakenValue =	{ upgrade.add, 24, ""},
-										weakenTimer =	{ upgrade.add, 5.0, ""} }
-							} )
---		-- SMART TARGETING
---		-- if markOfDeath or flame upgraded then it will try to retarget every attack, it will also avoid shield npcs to a degree
---		upgrade.addUpgrade( {	cost = 75,
---								name = "smartTargeting",
---								info = "Arrow tower smart targeting",
---								order = 5,
---								icon = 62,
---								levelRequirement = cTowerUpg.getLevelRequierment("smartTargeting",1),
---								stats = {	smartTargeting =	{ upgrade.add, 1.0, ""} }
+								infoValues = {"weakenValue"},
+								iconId = 61,
+								level = 0,
+								maxLevel = 3,
+								callback = self.handleSubUpgrade,
+								achievementName = "MarkOfDeath",
+								stats = {weaken = { 0.08, 0.16, 0.24, func = data.set },
+										weakenValue = { 8, 16, 24, func = data.set },
+										weakenTimer = { 5.0, 5.0, 5.0, func = data.set }}
+							})
+
+
+
+--		function calculateReRotateCost() return 25*reRotateTowerCostMultiplyer end
+--		upgrade.addUpgrade( {	cost = 0,
+--								name = "rotate",
+--								info = "Arrow tower rotate",
+--								order = 6,
+--								icon = 60,
+--								stats = {}
 --							} )
-		function calculateReRotateCost() return 25*reRotateTowerCostMultiplyer end
-		upgrade.addUpgrade( {	cost = 0,
-								name = "rotate",
-								info = "Arrow tower rotate",
-								order = 6,
-								icon = 60,
-								stats = {}
-							} )
---		supportManager.setUpgrade(upgrade)
---		supportManager.addHiddenUpgrades()
---		supportManager.addSetCallbackOnChange(updateStats)
-		--
-		upgrade.upgrade("upgrade")
-		billboard:setInt("level",upgrade.getLevel("upgrade"))
+							
+							
+							
+		supportManager.setUpgrade(data)
+		supportManager.addHiddenUpgrades()
+		supportManager.addSetCallbackOnChange(data.updateStats)
+		
+		supportManager.setComUnitTable(comUnitTable)
+		supportManager.addCallbacks()
+		
 		if isCircleMap then
 			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget")
 			targetMode = 1
@@ -1001,15 +720,10 @@ function ArrowTower.new()
 		resetModel()
 	
 		local pipeAt = -crossbowMesh:getGlobalMatrix():getUpVec():normalizeV()
-		local angleLimit = upgrade.getValue("targetAngle")
+		local angleLimit = data.getValue("targetAngle")
 		targetSelector.setPosition(this:getGlobalPosition())
 		targetSelector.setAngleLimits(pipeAt,angleLimit)
 		rotator.setHorizontalLimits(pipeAt,-angleLimit,angleLimit)
-		
-		cTowerUpg.addUpg("range",self.handleUpgradeScope)
-		cTowerUpg.addUpg("hardArrow",self.handleHardArrow)
-		cTowerUpg.addUpg("markOfDeath",self.handleWeakenTarget)
-		cTowerUpg.fixAllPermBoughtUpgrades()
 		
 		return true
 	end
