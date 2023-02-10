@@ -15,7 +15,6 @@ function ElectricTower.new()
 	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	local self = {}
 	local waveCount = 0
-	local dmgDone = 0
 	local cData = CampaignData.new()
 	local supportManager = SupportManager.new()
 	local damagePerEnergy = 19
@@ -88,7 +87,6 @@ function ElectricTower.new()
 		if isThisReal then
 			tab = {}
 			tab["storedEnergy"] = energy
-			
 			data.storeWaveChangeStats(waveStr, tab)
 		end
 	end
@@ -151,7 +149,6 @@ function ElectricTower.new()
 	local function restartWave(param)
 		supportManager.restartWave()
 		restoreWaveChangeStats( tonumber(param) )
-		dmgDone = 0
 	end
 	
 	local function doLightning(targetPosition,sphere)
