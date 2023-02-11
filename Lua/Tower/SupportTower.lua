@@ -136,21 +136,10 @@ function SwarmTower.new()
 		end
 	end	
 
-	local function restoreWaveChangeStats( wave )
-		if isThisReal and wave>0 then
-			local towerLevel = data.getTowerLevel()
-			local tab = data.restoreWaveChangeStats(wave)
-			if tab then
-				billboard:setDouble("goldEarnedPreviousWave", tab.goldEarnedPreviousWave)
-				billboard:setDouble("goldEarned", tab.totalGoldEarned)
-				totalGoldEarned = tab.totalGoldEarned
-			end
-			
-			if towerLevel ~= data.getTowerLevel() then
-				self.handleUpgrade("upgrade;"..tostring(data.getTowerLevel()))
-			end
-			updateMeshesAndparticlesForSubUpgrades()
-		end
+	local function restoreWaveChangeStats( tab )
+		billboard:setDouble("goldEarnedPreviousWave", tab.goldEarnedPreviousWave)
+		billboard:setDouble("goldEarned", tab.totalGoldEarned)
+		totalGoldEarned = tab.totalGoldEarned
 	end
 	-- function:	sendSupporUpgrade
 	-- purpose:		broadcasting what upgrades the towers close by should use
@@ -159,38 +148,28 @@ function SwarmTower.new()
 		comUnit:broadCast(this:getGlobalPosition(),data.getTowerLevel()==0 and TOWERRANGE*2.0 or TOWERRANGEMAX,"supportDamage",data.getTowerLevel())
 	end
 	local function restartWave(param)
-		restoreWaveChangeStats( tonumber(param) )
 		sendSupporUpgrade()
 		goldEarned = 0
 	end
 	-- function:	waveChanged
 	-- purpose:		called on wavechange. updates the towers stats
-	local function waveChanged(param)
-		local name
-		local waveCountStr
-		name,waveCountStr = string.match(param, "(.*);(.*)")
-		waveCount = tonumber(waveCountStr)
-		--update and save stats only if we did not just restore this wave
-		if waveCount>=lastRestored then
+	local function storeWaveChangeStats()
 
-			billboard:setDouble("goldEarnedPreviousWave",goldEarned)
-			billboard:setDouble("goldEarned",totalGoldEarned)
+		billboard:setDouble("goldEarnedPreviousWave",goldEarned)
+		billboard:setDouble("goldEarned",totalGoldEarned)
 
-	
-			--store wave info to be able to restore it
-			if isThisReal then
-				local tab = {
-					goldEarnedPreviousWave = billboard:getDouble("goldEarnedPreviousWave"),
-					totalGoldEarned = totalGoldEarned
-				}
-				data.storeWaveChangeStats(tostring(waveCount+1), tab)
-			end
-		end
-
+		local tab = {
+			goldEarnedPreviousWave = billboard:getDouble("goldEarnedPreviousWave"),
+			totalGoldEarned = totalGoldEarned
+		}
+			
+			
 		--tell every tower how it realy is
 		sendSupporUpgrade()
 		--
 		goldEarned = 0
+		
+		return tab
 	end
 
 	-- function:	handleGoldStats
@@ -268,11 +247,6 @@ function SwarmTower.new()
 	-- function:	handleUpgrade
 	-- purpose:		upgrades the tower and all the meshes and stats for the new level
 	function self.handleUpgrade(param)
-		local subString, size = split(param, ";")
-		local towerLevel = tonumber(subString[2])
-		data.setTowerLevel(towerLevel)
-
-
 		local newTowerModel = Core.getModel("tower_support_l"..data.getTowerLevel()..".mym")
 		if newTowerModel then
 			this:removeChild(model:toSceneNode())
@@ -283,40 +257,9 @@ function SwarmTower.new()
 			initModel()
 		end
 		
-		
-		billboard:setInt("level",data.getTowerLevel())
-		--Achievements
-		local level = data.getTowerLevel()
-		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
-
 		setCurrentInfo()
 	end
-	-- function:	handleBoost
-	-- purpose:		boost has been upgraded
-	function self.handleBoost(param)
---		if tonumber(param)>data.getLevel("boost") then
---			if tonumber(param)<=data.getLevel("boost") then
---				return
---			end
---			if Core.isInMultiplayer() and canSyncTower() then
---				comUnit:sendNetworkSyncSafe("boost","1")
---			end
---			boostedOnLevel = data.getTowerLevel()
-			data.activateBoost()
-			setCurrentInfo()
-			--
-			comUnit:broadCast(this:getGlobalPosition(),TOWERRANGEMAX,"supportBoost",1)
-			--Achievement
---			achievementUnlocked("Boost")
---		elseif upgrade.getLevel("boost")>tonumber(param) then
---			upgrade.degrade("boost")
---			upgrade.clearCooldown()
---			--
---			setCurrentInfo()
---		end
-		updateMeshesAndparticlesForSubUpgrades()
-		boostActive = true
-	end
+
 	
 	function self.handleSubUpgrade()
 		setCurrentInfo()
@@ -385,18 +328,6 @@ function SwarmTower.new()
 		return true
 	end
 	
-	-- function:	setNetOwner
-	-- purpose:		sets the owener of this script, for multiplayer
-	local function setNetOwner(param)
-		if param=="YES" then
-			billboard:setBool("isNetOwner",true)
-		else
-			billboard:setBool("isNetOwner",false)
-		end
-		
-		--set the game sessionBillboard first here after this function we are sure that the builder has set the network id
-		data.setGameSessionBillboard( Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() ) )
-	end
 	-- function:	functionName
 	-- purpose:		
 	local function init()
@@ -405,13 +336,9 @@ function SwarmTower.new()
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
 		
-		if isThisReal then
-			restartListener = Listener("RestartWave")
-			restartListener:registerEvent("restartWave", restartWave)
-		end
+
 		
 		model = Core.getModel("tower_support_l1.mym")
-		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
 	
 		
@@ -425,9 +352,7 @@ function SwarmTower.new()
 		comUnit:setPos(this:getGlobalPosition())
 		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 	
-		billboard:setString("hullName","hull")
-		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))
-		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
+		
 		billboard:setModel("tower",model)
 		billboard:setString("TargetArea","sphere")
 		billboard:setString("Name", "Support tower")
@@ -441,30 +366,26 @@ function SwarmTower.new()
 		billboard:setDouble("goldEarnedPreviousWave",0)
 	
 		--ComUnitCallbacks
-		comUnitTable["dmgDealt"] = damageDealt
-		comUnitTable["waveChanged"] = waveChanged
-		comUnitTable["upgrade"] = self.handleUpgrade
-		comUnitTable["boost"] = self.handleBoost
-		comUnitTable["range"] = data.handleSecondaryUpgrade
-		comUnitTable["weaken"] = data.handleSecondaryUpgrade
-		comUnitTable["gold"] = data.handleSecondaryUpgrade
-		comUnitTable["NetOwner"] = setNetOwner
-		comUnitTable["shockwave"] = handleShockwave
 		comUnitTable["extraGoldEarned"] = handleGoldStats
-		comUnitTable["dmgDealtMarkOfDeath"] = data.addPassivDamage
-		comUnitTable["dmgDealtFromSupportDamage"] = data.addPassivDamage
-	
 		
-
+	
 		data.setBillboard(billboard)
 		data.setCanSyncTower(canSyncTower())
-		data.setComUnit(comUnit)
+		data.setComUnit(comUnit, comUnitTable)
+		data.setTowerUpgradeCallback(self.handleUpgrade)
+		data.setUpgradeCallback(self.handleSubUpgrade)
 		data.addDisplayStats("range")
 		data.addDisplayStats("supportDamage")
 		data.addDisplayStats("SupportRange")
 		data.addDisplayStats("supportWeaken")
 		data.addDisplayStats("supportGold")
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			restartListener:registerEvent("restartWave", restartWave)
+			data.setRestoreFunction(restartListener, restoreWaveChangeStats, storeWaveChangeStats)
+		end
 		
+	
 		data.addTowerUpgrade({	cost = {200,300,400},
 								name = "upgrade",
 								info = "support tower level",
@@ -475,17 +396,6 @@ function SwarmTower.new()
 										  supportDamage = { 10, 20, 30}}
 							})
 		
-		data.addBoostUpgrade({	cost = 0,
-								name = "boost",
-								info = "support tower boost",
-								duration = 10,
-								cooldown = 3,
-								iconId = 68,
-								level = 0,
-								maxLevel = 1,
-								stats = {supportDamage = { 3, func = data.mul } }
-							})
-		
 		data.addSecondaryUpgrade({	
 								cost = {100,200,300},
 								name = "range",
@@ -493,7 +403,6 @@ function SwarmTower.new()
 								iconId = 65,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								achievementName = "UpgradeSupportRange",
 								stats = {SupportRange = { 10, 20, 30, func = data.set }}
 							})
@@ -505,7 +414,6 @@ function SwarmTower.new()
 								iconId = 66,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								achievementName = "UpgradeSupportMarkOfDeath",
 								stats = {weaken =		{ 0.08, 0.16, 0.24, func = data.set},
 										 supportWeaken ={ 8, 16, 24, func = data.set},
@@ -519,22 +427,21 @@ function SwarmTower.new()
 								iconId = 67,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								achievementName = "UpgradeSupportGold",
 								stats = {supportGold =	{ 1, 2, 3, func = data.set} }
 							})
 							
 							
-
-		self.handleUpgrade("upgrade;1")
-		billboard:setInt("level",data.getTowerLevel())
 		
+		data.buildData()
+		
+
 		--target modes (default stats)
 		billboard:setString("targetMods","")
 		billboard:setInt("currentTargetMode",0)
 	
 		--soulManager
-		data.updateStats()
+		
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})
 		targetSelector.setPosition(this:getGlobalPosition())
 		targetSelector.setRange(data.getValue("range"))

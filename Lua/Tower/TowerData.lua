@@ -1,4 +1,5 @@
 require("Tower/UpgradeData.lua")
+require("Tower/supportManager.lua")
 
 TowerData = {}
 function TowerData.new()
@@ -21,12 +22,25 @@ function TowerData.new()
 	local canSyncTower = false
 	--gameSessionBillboard = Billboard()
 	local comUnit = nil
+	local comUnitTable = nil
 	local updateIndex = 0
-	--comUnit = ComUnit()
-
+	local lastRestored = -1
+	local supportManager = nil
 	
-	function self.setGameSessionBillboard(inGameSessionBillboard)
-		billboardWaveStats = inGameSessionBillboard
+	---
+	--Restore functions
+	local retriveExternalstoreWaveChangeStats = nil
+	local restoreWaveCallback = nil
+	
+	local towerUpgradeCallback = nil
+	local upgradeCallback = nil
+
+	function self.setTowerUpgradeCallback(func)
+		towerUpgradeCallback = func
+	end
+	
+	function self.setUpgradeCallback(func)
+		upgradeCallback = func
 	end
 	
 	function self.setBillboard( inBillboard )
@@ -37,8 +51,8 @@ function TowerData.new()
 		canSyncTower = canSync
 	end
 	
-	function self.setComUnit(inComUnit)
-		comUnit = inComUnit
+	function self.enableSupportManager()
+		supportManager = SupportManager.new()
 	end
 	
 	local function achievementUnlocked(whatAchievement)
@@ -71,6 +85,18 @@ function TowerData.new()
 		return myData
 	end
 	
+	function self.handleMainUpgrade(param)
+		print("handleMainUpgrade("..param..")")
+		local subString, size = split(param, ";")
+		local upgradeName = subString[1]
+		local level = tonumber(subString[2])
+		
+		towerLevel.setLevel(level)
+		if towerUpgradeCallback then
+			towerUpgradeCallback()
+		end
+	end
+	
 	function self.handleSecondaryUpgrade( param )
 		print("handleSecondaryUpgrade("..param..")")
 		local subString, size = split(param, ";")
@@ -87,6 +113,10 @@ function TowerData.new()
 				
 				if upgrades[upgradeName].getAchievement() and level==3 then
 					achievementUnlocked(upgrades[upgradeName].getAchievement())
+				end
+				
+				if upgradeCallback then
+					upgradeCallback()
 				end
 			end
 		end
@@ -183,71 +213,7 @@ function TowerData.new()
 	end
 	
 	
-	function self.storeWaveChangeStats( wave, tab )
-		billboard:setDouble("DamagePreviousWave",dmgDone)
-		billboard:setDouble("DamagePreviousWavePassive",passivDamageDone)
-		if canSyncTower then
-			comUnit:sendTo("stats", "addTotalDmg", dmgDone + passivDamageDone )
-		end
-		
-		--save the wave state
-		if billboardWaveStats:exist( wave )==false then
-
-			tab["DamagePreviousWave"] = billboard:getDouble("DamagePreviousWave")
-			tab["DamagePreviousWavePassive"] = billboard:getDouble("DamagePreviousWavePassive")
-			tab["DamageTotal"] = billboard:getDouble("DamageTotal")
-			tab["currentTargetMode"] = billboard:getInt("currentTargetMode")
-			tab["upgradeLevel"] = towerLevel.getLevel()
-			
-			for name,upgrade in pairs(upgrades) do
-				tab[name] = upgrade.getLevel()
-			end
-			billboardWaveStats:setTable( wave, tab )
-
-		end
-		
-		dmgDone = 0
-		passivDamageDone =0
-	end
 	
-	function self.restoreWaveChangeStats( wave )
-		dmgDone = 0
-		passivDamageDone = 0
-		--restore the wave state
-		if wave<=0 then
-			return nil
-		end
-		
-		--we have gone back in time erase all tables that is from the future, that can never be used
-		local index = wave+1
-		while billboardWaveStats:exist( tostring(index) ) do
-			billboardWaveStats:erase( tostring(index) )
-			index = index + 1
-		end
-		
-		--restore the stats from the wave
-		local tab = billboardWaveStats:getTable( tostring(wave) )
-		if tab then
-			
-			towerLevel.setLevel(tab.upgradeLevel)
-			for name,upgrade in pairs(upgrades) do
-				local up1  = upgrade
-				local upNam = name
-				upgrades[name].setLevel( tab[name] )
-			end
-			
-			billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
-			billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
-			billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
-			billboard:setDouble("DamageTotal", tab.DamageTotal)
-			
-			
-		end
-		
-		self.updateStats()
-		
-		return tab
-	end
 	
 	-- function:	add
 	-- purpose:
@@ -525,6 +491,175 @@ function TowerData.new()
 			end
 		end
 		return true
+	end
+	
+	local function setNetOwner(param)
+		if param=="YES" then
+			billboard:setBool("isNetOwner",true)
+		else
+			billboard:setBool("isNetOwner",false)
+		end
+		--set the game sessionBillboard first here after this function we are sure that the builder has set the network id
+		billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
+		self.updateStats()
+	end
+	
+	function self.setComUnit(inComUnit, inComUnitTable)
+		comUnit = inComUnit
+		comUnitTable = inComUnitTable
+	end	
+	
+	---------------------------------------------
+	---------------------------------------------
+	---------------------------------------------
+	
+	function self.storeWaveChangeStats( wave )
+		billboard:setDouble("DamagePreviousWave",dmgDone)
+		billboard:setDouble("DamagePreviousWavePassive",passivDamageDone)
+		if canSyncTower then
+			comUnit:sendTo("stats", "addTotalDmg", dmgDone + passivDamageDone )
+		end
+		
+		--save the wave state
+		if billboardWaveStats:exist( wave )==false then
+			
+			local tab = retriveExternalstoreWaveChangeStats and retriveExternalstoreWaveChangeStats() or {}
+			tab["DamagePreviousWave"] = billboard:getDouble("DamagePreviousWave")
+			tab["DamagePreviousWavePassive"] = billboard:getDouble("DamagePreviousWavePassive")
+			tab["DamageTotal"] = billboard:getDouble("DamageTotal")
+			tab["currentTargetMode"] = billboard:getInt("currentTargetMode")
+			tab["upgradeLevel"] = towerLevel.getLevel()
+			
+			for name,upgrade in pairs(upgrades) do
+				tab[name] = upgrade.getLevel()
+			end
+			billboardWaveStats:setTable( wave, tab )
+
+		end
+		
+		dmgDone = 0
+		passivDamageDone =0
+	end
+	
+	function self.restoreWaveChangeStats( wave )
+		dmgDone = 0
+		passivDamageDone = 0
+
+		if supportManager then
+			supportManager.restartWave()
+		end 
+		--restore the wave state
+		if  wave <=0 then
+			return nil
+		end
+		
+		--we have gone back in time erase all tables that is from the future, that can never be used
+		local index = wave+1
+		while billboardWaveStats:exist( tostring(index) ) do
+			billboardWaveStats:erase( tostring(index) )
+			index = index + 1
+		end
+		
+		local towerLevelChanged = false
+		local upgradeLevelChanged = false
+		--restore the stats from the wave
+		local tab = billboardWaveStats:getTable( tostring(wave) )
+		if tab then
+
+			if towerLevel.getLevel() ~= tab.upgradeLevel then
+				towerLevel.setLevel(tab.upgradeLevel)
+				towerLevelChanged = true
+			end
+			
+			
+			for name,upgrade in pairs(upgrades) do
+				if upgrades[name].getLevel() ~= tab[name] then
+					upgrades[name].setLevel( tab[name] )
+					upgradeLevelChanged = true
+				end
+			end
+			
+			billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
+			billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
+			billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
+			billboard:setDouble("DamageTotal", tab.DamageTotal)
+			
+			if restoreWaveCallback then
+				restoreWaveCallback(tab)
+			end
+		end
+	
+		self.updateStats()
+		
+		if towerLevelChanged then
+			towerUpgradeCallback()
+		end
+		if upgradeLevelChanged then
+			upgradeCallback()
+		end
+	
+	end
+	
+	
+	local function waveChanged(param)
+		local name
+		local waveCountStr
+		name,waveCountStr = string.match(param, "(.*);(.*)")
+		local waveCount = tonumber(waveCountStr)
+
+		--update and save stats only if we did not just restore this wave
+		if waveCount>=lastRestored then
+			 self.storeWaveChangeStats( tostring(waveCount+1) )
+		end
+	end
+	
+	---------------------------------------------
+	---------------------------------------------
+	---------------------------------------------
+	
+	function self.setRestoreFunction(restartListener, restoreWaveFunc, storeWaveChangeFunc)
+		retriveExternalstoreWaveChangeStats = storeWaveChangeFunc
+		restoreWaveCallback = restoreWaveFunc
+		restartListener:registerEvent("restartWave", self.restoreWaveChangeStats)
+		comUnitTable["waveChanged"] = waveChanged
+	end
+	
+	function self.buildData()
+		comUnitTable["NetOwner"] = setNetOwner
+		comUnitTable["dmgDealt"] = self.addDamage
+		comUnitTable["dmgDealtMarkOfDeath"] = self.addPassivDamage
+		comUnitTable["dmgDealtFromSupportDamage"] = self.addPassivDamage
+		
+		
+		comUnitTable["upgrade"] = self.handleMainUpgrade
+		
+		--Add all secondary upgrade to the comUnitTable
+		for name,upgrade in pairs(upgrades) do
+			comUnitTable[name] = self.handleSecondaryUpgrade
+		end
+		
+		self.updateStats()
+		
+		
+		--Hull
+		local hullModel = Core.getModel("tower_resource_hull.mym")
+		
+		--default billboard stats
+		billboard:setString("hullName","hull")
+		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))
+		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
+		
+		
+		if supportManager then
+			supportManager.setUpgrade(self)
+			supportManager.addHiddenUpgrades()
+			supportManager.addSetCallbackOnChange(self.updateStats)
+			supportManager.setComUnitTable(comUnitTable)
+			supportManager.addCallbacks()
+		end
+
+		towerUpgradeCallback()
+
 	end
 	
 	return self

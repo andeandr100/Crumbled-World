@@ -30,8 +30,8 @@ function SwarmBall.new(pTargetSelector)
 	local range = 1.0
 	local targetIndex = 0
 	local detonationRange = 0.0
-	local burnTime = 0.0
-	local fireDPS = 0.0
+--	local burnTime = 0.0
+--	local fireDPS = 0.0
 	local damage = 0.0
 	local smartTargeting = 0.0
 	local pathList = PathListMover(0.0)
@@ -205,8 +205,8 @@ function SwarmBall.new(pTargetSelector)
 		position =			table[2]
 		range =				table[3]+1.25--to give the projectile some space to move
 		detonationRange = 	billboard:getFloat("detonationRange")
-		burnTime =			billboard:getFloat("burnTime")
-		fireDPS =			billboard:getFloat("fireDPS")
+--		burnTime =			billboard:getFloat("burnTime")
+--		fireDPS =			billboard:getFloat("fireDPS")
 		damage =			billboard:getFloat("damage")
 		smartTargeting =	billboard:getFloat("smartTargeting")
 		lifeStage = 		0
@@ -302,7 +302,7 @@ function SwarmBall.new(pTargetSelector)
 							hittExplosion:activate(position,velocity)--activate hitt indication
 						end
 						comUnit:sendTo(targetIndex,"attackFire",tostring(damage))
-						comUnit:sendTo(targetIndex,"attackFireDPS",{DPS=fireDPS,time=burnTime,type="fire"})
+--						comUnit:sendTo(targetIndex,"attackFireDPS",{DPS=fireDPS,time=burnTime,type="fire"})
 						--circumference of half a circle
 						local length = 3.14*3.0*0.5
 						--length is half circumference + the distance the soul will travel during that time approxmatly
@@ -326,7 +326,7 @@ function SwarmBall.new(pTargetSelector)
 			elseif shieldAreaIndex~=targetSelector.getIndexOfShieldCovering(position) then
 				--forcefield hitt
 				targetIndex = shieldAreaIndex>0 and shieldAreaIndex or targetSelector.getIndexOfShieldCovering(position)
-				comUnit:sendTo(targetIndex,"attack",tostring(damage+(fireDPS*0.5)))--can't do fire damage to shield
+				comUnit:sendTo(targetIndex,"attack",tostring(damage))
 				--hitt effect
 				local oldPosition = position - pathList:getVelocity():normalizeV()
 				local futurePosition = position + pathList:getVelocity():normalizeV()

@@ -1,7 +1,4 @@
-require("Tower/upgrade.lua")
 require("NPC/state.lua")
-require("Tower/xpSystem.lua")
-require("Tower/supportManager.lua")
 require("Projectile/projectileManager.lua")
 require("Projectile/SwarmBall.lua")
 require("Game/campaignTowerUpg.lua")
@@ -9,6 +6,8 @@ require("Game/particleEffect.lua")
 require("Game/graphicParticleSystems.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
+require("Tower/TowerData.lua")
+
 --this = SceneNode()
 SwarmTower = {}
 function SwarmTower.new()
@@ -24,12 +23,8 @@ function SwarmTower.new()
 	local dmgDone = 0
 	local waveCount = 0
 	local projectiles = projectileManager.new(targetSelector)
-	local cData = CampaignData.new()
-	local upgrade = Upgrade.new()
-	local supportManager = SupportManager.new()
-	local cTowerUpg = CampaignTowerUpg.new("Tower/SwarmTower.lua",upgrade)
-	--XP
-	local xpManager = XpSystem.new(upgrade)
+
+	local data = TowerData.new()
 	--model
 	local model
 	--attack
@@ -47,8 +42,8 @@ function SwarmTower.new()
 	local comUnitTable = {}
 	local attackCounter = 0
 	local billboardWaveStats
-	--Events
-	restartListener = Listener("Restart")
+	local boostActive = false
+
 	--sound
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
@@ -68,117 +63,31 @@ function SwarmTower.new()
 		end
 	end
 	
-	local function storeWaveChangeStats( waveStr )
-		if isThisReal then
-			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
-			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-			if billboardWaveStats:exist( waveStr )==false then
-				local tab = {
-					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
-					upgradeTab = upgrade.storeWaveChangeStats(),
-					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-					DamageTotal = billboard:getDouble("DamageTotal"),
-					currentTargetMode = billboard:getInt("currentTargetMode"),
-					boostedOnLevel = boostedOnLevel,
-					boostLevel = upgrade.getLevel("boost"),
-					upgradeLevel = upgrade.getLevel("upgrade"),
-					rangeLevel = upgrade.getLevel("range"),
-					burnDamageLevel = upgrade.getLevel("burnDamage"),
-					fuelLevel = upgrade.getLevel("fuel")
-				}
-				billboardWaveStats:setTable( waveStr, tab )
-			end
+	local function updateMeshesAndparticlesForSubUpgrades()
+		for index =1, data.getTowerLevel() do
+			model:getMesh( string.format("fuel%d", index) ):setVisible( false )
+			model:getMesh( string.format("speed%d", index) ):setVisible( data.getLevel("burnDamage")==index )
 		end
-	end
-	local function doDegrade(fromLevel,toLevel,callback)
-		while fromLevel>toLevel do
-			fromLevel = fromLevel - 1
-			callback(fromLevel)
-		end
-	end
-	local function restoreWaveChangeStats( wave )
-		if isThisReal and wave>0 then
-			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
-			lastRestored = wave
-			--we have gone back in time erase all tables that is from the future, that can never be used
-			local index = wave+1
-			while billboardWaveStats:exist( tostring(index) ) do
-				billboardWaveStats:erase( tostring(index) )
-				index = index + 1
-			end
-			--restore the stats from the wave
-			local tab = billboardWaveStats:getTable( tostring(wave) )
-			if tab then
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
-				end
-				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
-				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.handleUpgradeRange)
-				doDegrade(upgrade.getLevel("burnDamage"),tab.burnDamageLevel,self.handleUpgradeBurnDamage)
-				doDegrade(upgrade.getLevel("fuel"),tab.fuelLevel,self.handleUpgradeFuel)
-				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
-				--
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
-				--
-				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
-				billboard:setDouble("DamageTotal", tab.DamageTotal)
-				self.SetTargetMode(tab.currentTargetMode)
-				boostedOnLevel = tab.boostedOnLevel
-			end
-		end
+		
+		model:getMesh( "boost" ):setVisible( data.getBoostActive() )
+		--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(data.getBoostActive() and "towergroup_boost_a" or "towergroup_a")
+			mesh:setTexture(shader,texture,4)
+		end		
 	end
 	
 	local function restartWave(param)
-		supportManager.restartWave()
-		restoreWaveChangeStats( tonumber(param) )
 		projectiles.clear()
-		dmgDone = 0
 	end
-
-	local function damageDealt(param)
-		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		dmgDone = dmgDone + addDmg
-		billboard:setDouble("DamageCurrentWave",dmgDone)
-		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+dmgDone)
-		if xpManager then
-			xpManager.addXp(addDmg)
-			local interpolation  = xpManager.getLevelPercentDoneToNextLevel()
-			upgrade.setInterpolation(interpolation)
-			upgrade.fixBillboardAndStats()
-		end
-	end
-	local function waveChanged(param)
-		local name
-		local waveCountStr
-		name,waveCountStr = string.match(param, "(.*);(.*)")
-		waveCount = tonumber(waveCountStr)
-		--update and save stats only if we did not just restore this wave
-		if waveCount>=lastRestored then
-			if not xpManager then
-				billboard:setDouble("DamagePreviousWave", dmgDone)
-				if canSyncTower() then
-					comUnit:sendTo("stats", "addTotalDmg", dmgDone )
-				end
-			else
-				xpManager.payStoredXp(waveCount)
-				--update billboard
-				upgrade.fixBillboardAndStats()
-			end
-			--store wave info to be able to restore it
-			storeWaveChangeStats( tostring(waveCount+1) )
-		end
-		dmgDone = 0
-	end
+	
 	local function updateStats()
-		targetSelector.setRange(upgrade.getValue("range"))
+		targetSelector.setRange(data.getValue("range"))
 	end
 	local function setCurrentInfo()
-		if xpManager then
-			xpManager.updateXpToNextLevel()
-		end
+		data.updateStats()
 		currentAttackCountOnTarget = 0
 	
 		for index = 1, 4, 1 do
@@ -193,7 +102,7 @@ function SwarmTower.new()
 		reloadTimeLeft = 0.0
 		updateStats()
 		--achivment
-		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("burnDamage")==3 and upgrade.getLevel("fuel")==3 then
+		if data.getIsMaxedOut() then
 			achievementUnlocked("SwarmMaxed")
 		end
 	end
@@ -201,23 +110,6 @@ function SwarmTower.new()
 		model:createBoundVolumeGroup()
 		model:setBoundingVolumeCanShrink(false)
 
-		for index =1, upgrade.getLevel("upgrade"), 1 do
-			model:getMesh( string.format("fuel%d", index) ):setVisible( upgrade.getLevel("fuel")==index )
-			model:getMesh( string.format("speed%d", index) ):setVisible( upgrade.getLevel("burnDamage")==index )
-		end
-		--model:getMesh( "masterAim" ):setVisible( upgrade.getLevel("smartTargeting")>0 )
-		model:getMesh( "boost" ):setVisible( upgrade.getLevel("boost")==1 )
-		--set ambient map
-		for index=0, model:getNumMesh()-1 do
-			local mesh = model:getMesh(index)
-			local shader = mesh:getShader()
-			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
-			
-			mesh:setTexture(shader,texture,4)
-		end
-		
-		--model:getMesh( "notBoosted" ):setVisible( upgrade.getLevel("boost")==0 )
-		--local towerPos = model:getMesh("tower"):getLocalMatrix():getPosition()
 	
 		for index = 1, 4, 1 do
 			piston[index] = {	mesh=model:getMesh(string.format("p%d", index)),
@@ -241,12 +133,12 @@ function SwarmTower.new()
 	local function pushPiston(index,pushItDown)
 		local aPiston = piston[index]
 		if pushItDown then
-			aPiston.timer = upgrade.getValue("fieringTime")*3.9*0.1
-			aPiston.timerStart = upgrade.getValue("fieringTime")*3.9*0.1
+			aPiston.timer = data.getValue("fieringTime")*3.9*0.1
+			aPiston.timerStart = data.getValue("fieringTime")*3.9*0.1
 			aPiston.pistonGoingDown = true
 		else
-			aPiston.timer = upgrade.getValue("fieringTime")*3.9*0.9
-			aPiston.timerStart = upgrade.getValue("fieringTime")*3.9*0.9
+			aPiston.timer = data.getValue("fieringTime")*3.9*0.9
+			aPiston.timerStart = data.getValue("fieringTime")*3.9*0.9
 			aPiston.pistonGoingDown = false
 		end
 	end
@@ -270,7 +162,7 @@ function SwarmTower.new()
 				--Core.launchProjectile(this, "SwarmBall",target)
 				attackCounter = attackCounter + 1
 				
-				projectiles.launch(SwarmBall,{target, this:getGlobalPosition()+Vec3(0.0,2.0,0.0), upgrade.getValue("range"), projectileName and projectileName or "n"..attackCounter})
+				projectiles.launch(SwarmBall,{target, this:getGlobalPosition()+Vec3(0.0,2.0,0.0), data.getValue("range"), projectileName and projectileName or "n"..attackCounter})
 				--
 				if billboard:getBool("isNetOwner") then
 					local tab = {tName=Core.getNetworkNameOf(target), pName="n"..attackCounter}
@@ -288,7 +180,7 @@ function SwarmTower.new()
 				if reloadTimeLeft < Core.getDeltaTime() then
 					reloadTimeLeft = 0.0
 				end
-				reloadTimeLeft = reloadTimeLeft + upgrade.getValue("fieringTime")
+				reloadTimeLeft = reloadTimeLeft + data.getValue("fieringTime")
 			end
 		end
 	end
@@ -351,12 +243,7 @@ function SwarmTower.new()
 		end
 		return false
 	end
-	local function doMeshUpgradeForLevel(name,meshName)
-		model:getMesh(meshName..upgrade.getLevel(name)):setVisible(true)
-		if upgrade.getLevel(name)>1 then
-			model:getMesh(meshName..(upgrade.getLevel(name)-1)):setVisible(false)
-		end
-	end
+
 	function self.getCurrentIslandPlayerId()
 		local islandPlayerId = 0--0 is no owner
 		local island = this:findNodeByTypeTowardsRoot(NodeId.island)
@@ -374,132 +261,24 @@ function SwarmTower.new()
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
-	function self.handleUpgrade(param)
-		if tonumber(param)>upgrade.getLevel("upgrade") then
-			upgrade.upgrade("upgrade")
-		elseif upgrade.getLevel("upgrade")>tonumber(param) then
-			upgrade.degrade("upgrade")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
-		end
-		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		--Achievements
-		local level = upgrade.getLevel("upgrade")
-		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
-		if upgrade.getLevel("upgrade")==3 then
-			achievementUnlocked("Upgrader")
-		end
-		--
-		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
+	function self.handleUpgrade()
+		local newModel = Core.getModel( "tower_swarm_l"..data.getTowerLevel()..".mym" )
+		if newModel then
 			this:removeChild(model:toSceneNode())
-			model = Core.getModel( upgrade.getValue("model") )
-			initModel()
+			model = newModel
+			
 			this:addChild(model:toSceneNode())
 			billboard:setModel("tower",model)
-			cTowerUpg.fixAllPermBoughtUpgrades()
+			
+			initModel()
 		end
-		upgrade.clearCooldown()
+		
 		setCurrentInfo()
 	end
-	function self.handleBoost(param)
-		if tonumber(param)>upgrade.getLevel("boost") then
-			if Core.isInMultiplayer() and canSyncTower() then
-				comUnit:sendNetworkSyncSafe("upgrade2","1")
-			end
-			boostedOnLevel = upgrade.getLevel("upgrade")
-			upgrade.upgrade("boost")
-			model:getMesh("boost"):setVisible( true )
-			--model:getMesh("notBoosted"):setVisible( false )
-			setCurrentInfo()
-			--Achievement
-			achievementUnlocked("Boost")
-		elseif upgrade.getLevel("boost")>tonumber(param) then
-			upgrade.degrade("boost")
-			model:getMesh("boost"):setVisible( false )
-			setCurrentInfo()
-			--clear coldown info for boost upgrade
-			upgrade.clearCooldown()
-		end
-		initModel()
-	end
-	function self.handleUpgradeBurnDamage(param)
-		if tonumber(param)>upgrade.getLevel("burnDamage") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("burnDamage")
-		elseif upgrade.getLevel("burnDamage")>tonumber(param) then
-			model:getMesh("speed"..upgrade.getLevel("burnDamage")):setVisible(false)
-			upgrade.degrade("burnDamage")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
-		end
-		if upgrade.getLevel("burnDamage")>0 then
-			doMeshUpgradeForLevel("burnDamage","speed")
-			--Achievement
-			if upgrade.getLevel("burnDamage")==3 then
-				achievementUnlocked("Fire")
-			end
-		end
-		setCurrentInfo()
-	end
-	function self.handleUpgradeFuel(param)
-		if tonumber(param)>upgrade.getLevel("fuel") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("fuel")
-		elseif upgrade.getLevel("fuel")>tonumber(param) then
-			model:getMesh("fuel"..upgrade.getLevel("fuel")):setVisible(false)
-			upgrade.degrade("fuel")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
-		end
-		if upgrade.getLevel("fuel")>0 then
-			doMeshUpgradeForLevel("fuel","fuel")
-			--Achievement
-			if upgrade.getLevel("fuel")==3 then
-				achievementUnlocked("FireDPS")
-			end
-		end
-		setCurrentInfo()
-	end
-	function self.handleUpgradeRange(param)
-		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("range")
-		elseif upgrade.getLevel("range")>tonumber(param) then
-			upgrade.degrade("range")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
-		end
-		if upgrade.getLevel("range")==0 then
-			--no mesh in use
-		else
-			--no mesh in use
-			--Acievement
-			if upgrade.getLevel("range")==3 then
-				achievementUnlocked("Range")
-			end
-		end
-		setCurrentInfo()
-	end
+
 	function self.update()
 
-		if upgrade.update() then
-			model:getMesh("boost"):setVisible( false )
-			setCurrentInfo()
-			initModel()
-			--if the tower was upgraded while boosted, then the boost should be available
-			if boostedOnLevel~=upgrade.getLevel("upgrade") then
-				upgrade.clearCooldown()
-			end
-		end
+
 		comUnit:setPos(this:getGlobalPosition())
 		while comUnit:hasMessage() do
 			local msg = comUnit:popMessage()
@@ -507,13 +286,15 @@ function SwarmTower.new()
 				comUnitTable[msg.message](msg.parameter,msg.fromIndex)
 			end
 		end
-		if xpManager then
-			xpManager.update()
+		
+		if boostActive ~= data.getBoostActive() then
+			boostActive = data.getBoostActive()	
+			setCurrentInfo()
+			updateMeshesAndparticlesForSubUpgrades()
 		end
 		
-		local bLevel = upgrade.getLevel("boost")
---		fireCenter:setScale(1.0+(bLevel*0.4))
-		pointLight:setRange(1.25+(bLevel))
+
+		pointLight:setRange(1.25+(data.getBoostActive() and 1.0 or 0.0))
 		
 		--change update speed
 --		local tmpCameraNode = cameraNode
@@ -547,7 +328,6 @@ function SwarmTower.new()
 		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
 		if reloadTimeLeft<0.0 and billboard:getBool("isNetOwner")and updateTarget() then
 			attack()--can now attack
-			upgrade.setUsed()--set value changed
 		end
 		--
 		projectiles.update()
@@ -555,18 +335,12 @@ function SwarmTower.new()
 		if projectiles.getSize()>=12 then
 			achievementUnlocked("SwarmBall")
 		end
-		--model:render()
+	
 		return true
 	end
-	
-	--
-	local function setNetOwner(param)
-		if param=="YES" then
-			billboard:setBool("isNetOwner",true)
-		else
-			billboard:setBool("isNetOwner",false)
-		end
-		upgrade.fixBillboardAndStats()
+	function self.handleSubUpgrade()
+		updateMeshesAndparticlesForSubUpgrades()
+		setCurrentInfo()
 	end
 	--
 	local function init()
@@ -575,15 +349,8 @@ function SwarmTower.new()
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
-		if xpManager then
-			xpManager.setUpgradeCallback(self.handleUpgrade)
-		end
 		
-		restartListener = Listener("RestartWave")
-		restartListener:registerEvent("restartWave", restartWave)
-	
 		model = Core.getModel("tower_swarm_l1.mym")
-		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
 	
 --		if particleEffectUpgradeAvailable then
@@ -597,9 +364,6 @@ function SwarmTower.new()
 		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 	
 		billboard:setDouble("rangePerUpgrade",0.75)
-		billboard:setString("hullName","hull")
-		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))
-		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
 		billboard:setModel("tower",model)
 		billboard:setString("TargetArea","sphere")
 		billboard:setString("Name", "Swarm tower")
@@ -609,224 +373,98 @@ function SwarmTower.new()
 		billboard:setFloat("baseRange", 6.5)
 	
 		--ComUnitCallbacks
-		comUnitTable["dmgDealt"] = damageDealt
-		comUnitTable["waveChanged"] = waveChanged
-		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = self.handleBoost
-		comUnitTable["upgrade3"] = self.handleUpgradeRange
-		comUnitTable["upgrade4"] = self.handleUpgradeBurnDamage
-		comUnitTable["upgrade5"] = self.handleUpgradeFuel
-		comUnitTable["NetOwner"] = setNetOwner
+		comUnitTable["boost"] = data.activateBoost
 		comUnitTable["NetLaunch"] = NetLaunch
 		comUnitTable["NetBall"] = NetBall
 		comUnitTable["SetTargetMode"] = self.SetTargetMode
-		supportManager.setComUnitTable(comUnitTable)
-		supportManager.addCallbacks()
 	
-		upgrade.setBillboard(billboard)
-		upgrade.addDisplayStats("damage")
-		upgrade.addDisplayStats("RPS")
-		upgrade.addDisplayStats("fireDPS")
-		upgrade.addDisplayStats("burnTime")
-		upgrade.addDisplayStats("range")
-		--upgrade.addDisplayStats("weaken")
-		upgrade.addBillboardStats("fireballSpeed")
-		upgrade.addBillboardStats("fireballLifeTime")
-		upgrade.addBillboardStats("detonationRange")
-		--upgrade.addBillboardStats("targetingSystem")
+		data.setBillboard(billboard)
+		data.setCanSyncTower(canSyncTower())
+		data.setComUnit(comUnit, comUnitTable)
+		data.setTowerUpgradeCallback(self.handleUpgrade)
+		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.enableSupportManager()
+		data.addDisplayStats("damage")
+		data.addDisplayStats("RPS")
+		data.addDisplayStats("range")
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			restartListener:registerEvent("restartWave", restartWave)
+			data.setRestoreFunction(restartListener, nil, nil)
+		end
 		
 		
-	
-		--default fireball does ruffly 3 attacks, before death, with 3s bettween attacks after the first
-		--25% damage bonus, because damage over time
-		--one attack every 3.1s
-		upgrade.addUpgrade( {	cost = 200,
+		data.addTowerUpgrade({	cost = {200,400,800},
 								name = "upgrade",
 								info = "swarm tower level",
-								order = 1,
-								icon = 56,
-								value1 = 1,
-								stats ={range =				{ upgrade.add, 6.5},
-										damage = 			{ upgrade.add, 110},--120
-										fireDPS = 			{ upgrade.add, 55},--60
-										burnTime = 			{ upgrade.add, 2.0},
-										burnTimeMul =		{ upgrade.add, 1.0},
-										fireballSpeed = 	{ upgrade.add, 5.5},
-										fireballLifeTime = 	{ upgrade.add, 13.0},
-										fieringTime =		{ upgrade.add, 2.25},
-										RPS =				{ upgrade.add, 1.0/2.25},
-										detonationRange = 	{ upgrade.add, 0.5},
-										targeting = 		{ upgrade.add, 1},
-										model = 			{ upgrade.set, "tower_swarm_l1.mym"} }
-							} )
-		--theoreticalMaxDPSPG = activeProjectiles*DPS/cost = (fireballLifeTime/fieringTime)*((damage+(fireDPS*fieringTime))/averageHittTime)/cost = (13/2)*((110+(55*2))/3)/200 = 2.38
-		--actualActiveProjectilePer = 0.5, actualHittsPerProjectile = 3 = efficency = (3*3)/13 = 0.69
-		--bestEstimateDPSPG = (13/2)*0.5*((108+(54*2))/3)*0.69/200 = 0.81
+								iconId = 56,
+								level = 1,
+								maxLevel = 3,
+								stats = {
+										range =				{ 6.5, 6.5, 6.5 },
+										damage = 			{ 120, 370, 890},
+										RPS = 				{ 1.0/2.25, 1.0/2.25, 1.0/2.25},
+										fireballSpeed =		{ 5.5, 5.5, 5.5 },
+										fireballLifeTime =	{ 13.0, 13.0, 13.0 },
+										fieringTime =		{ 2.25, 2.25, 2.25 },
+										targeting =			{ 1, 1, 1 },
+										detonationRange =	{ 0.5, 1.0, 1.5 } }
+							})
+							
+
 		
-	
-		upgrade.addUpgrade( {	cost = 400,
-								name = "upgrade",
-								info = "swarm tower level",
-								order = 1,
-								icon = 56,
-								value1 = 2,
-								stats ={range =				{ upgrade.add, 6.5},
-										damage = 			{ upgrade.add, 340},
-										fireDPS = 			{ upgrade.add, 170},
-										burnTime = 			{ upgrade.add, 2.0},
-										burnTimeMul =		{ upgrade.add, 1.0},
-										fireballSpeed = 	{ upgrade.add, 5.5},
-										fireballLifeTime = 	{ upgrade.add, 13.0},
-										fieringTime =		{ upgrade.add, 2.25},
-										RPS =				{ upgrade.add, 1.0/2.25},
-										detonationRange = 	{ upgrade.add, 1.0},
-										targeting = 		{ upgrade.add, 1.0},
-										model = 			{ upgrade.set, "tower_swarm_l2.mym"}}
-							},0 )
-		--bestEstimateDPSPG = (13/2)*0.5*((350+(175*2))/3)*0.69/600 = 0.82
-		upgrade.addUpgrade( {	cost = 800,
-								name = "upgrade",
-								info = "swarm tower level",
-								order = 1,
-								icon = 56,
-								value1 = 3,
-								stats ={range =				{ upgrade.add, 6.5},
-										damage = 			{ upgrade.add, 810},
-										fireDPS = 			{ upgrade.add, 405},
-										burnTime = 			{ upgrade.add, 2.0},
-										burnTimeMul =		{ upgrade.add, 1.0},
-										fireballSpeed = 	{ upgrade.add, 5.5},
-										fireballLifeTime = 	{ upgrade.add, 13.0},
-										fieringTime =		{ upgrade.add, 2.25},
-										RPS =				{ upgrade.add, 1.0/2.25},
-										detonationRange = 	{ upgrade.add, 1.5},
-										targeting = 		{ upgrade.add, 1.0},
-										model = 			{ upgrade.set, "tower_swarm_l3.mym"}}
-							},0 )
-		--bestEstimateDPSPG = (13/2)*0.5*((790+(395*2))/3)*0.69/1400 = 0.84
-		function boostDamage() return upgrade.getStats("damage")*2.5*(waveCount/50+1.0) end
-		function boostFireDamage() return upgrade.getStats("fireDPS")*2.5*(waveCount/50+1.0) end
-		--(total)	0=2x	25=4x	50=6x
-		upgrade.addUpgrade( {	cost = 0,
+		data.addBoostUpgrade({	cost = 0,
 								name = "boost",
 								info = "swarm tower boost",
 								duration = 10,
 								cooldown = 3,
-								order = 10,
-								icon = 57,
-								stats ={range =				{ upgrade.add, 0.5},
-										damage = 			{ upgrade.func, boostDamage},
-										fireDPS = 			{ upgrade.func, boostFireDamage},
-										fieringTime =		{ upgrade.mul, 0.5}},
-										RPS =				{ upgrade.mul, 2.0}
-							} )
-		-- RANGE
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,
+								iconId = 57,
+								level = 0,
+								maxLevel = 1,
+								stats = {range = 		{ 0.75, func = data.add },
+										damage =		{ 3, func = data.mul },
+										RPS = 			{ 2.0, func = data.mul } }
+							})
+		
+		data.addSecondaryUpgrade({	
+								cost = {100,200,300},
 								name = "range",
 								info = "swarm tower range",
-								order = 2,
-								icon = 59,
-								value1 = 6.5 + 0.75,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
-								stats = {range = 		{ upgrade.add, 0.75, ""}}
-							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 100 or 200,
-								name = "range",
-								info = "swarm tower range",
-								order = 2,
-								icon = 59,
-								value1 = 6.5 + 1.5,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
-								stats = {range = 		{ upgrade.add, 1.5, ""}}
-							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 200 or 300,
-								name = "range",
-								info = "swarm tower range",
-								order = 2,
-								icon = 59,
-								value1 = 6.5 + 2.25,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",3),
-								stats = {range = 		{ upgrade.add, 2.25, ""}}
-							} )
-		-- Burn
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
+								infoValues = {"range"},
+								iconId = 59,
+								level = 0,
+								maxLevel = 3,
+								achievementName = "Range",
+								stats = {range = { 0.75, 1.5, 2.25, func = data.add }}
+							})
+		
+		data.addSecondaryUpgrade({	
+								cost = {100,200,300},
 								name = "burnDamage",
 								info = "swarm tower damage",
-								order = 3,
-								icon = 2,
-								value1 = 30,
-								levelRequirement = cTowerUpg.getLevelRequierment("burnDamage",1),
-								stats ={damage =	{ upgrade.mul, 1.3} }
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "burnDamage",
-								info = "swarm tower damage",
-								order = 3,
-								icon = 2,
-								value1 = 60,
-								levelRequirement = cTowerUpg.getLevelRequierment("burnDamage",2),
-								stats ={damage =	{ upgrade.mul, 1.6} }
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "burnDamage",
-								info = "swarm tower damage",
-								order = 3,
-								icon = 2,
-								value1 = 90,
-								levelRequirement = cTowerUpg.getLevelRequierment("burnDamage",3),
-								stats ={damage =	{ upgrade.mul, 1.9} }
-							} )
-		-- fuel
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "fuel",
-								info = "swarm tower fire",
-								order = 4,
-								icon = 38,
-								value1 = 22,
-								value2 = 15,
-								levelRequirement = cTowerUpg.getLevelRequierment("fuel",1),
-								stats ={fireDPS =		{ upgrade.mul, 1.22},
-										burnTimeMul =	{ upgrade.add, 0.15} }
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "fuel",
-								info = "swarm tower fire",
-								order = 4,
-								icon = 38,
-								value1 = 38,
-								value2 = 30,
-								levelRequirement = cTowerUpg.getLevelRequierment("fuel",2),
-								stats ={fireDPS =		{ upgrade.mul, 1.38},
-										burnTimeMul =	{ upgrade.add, 0.30,} }
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "fuel",
-								info = "swarm tower fire",
-								order = 4,
-								icon = 38,
-								value1 = 52,
-								value2 = 45,
-								levelRequirement = cTowerUpg.getLevelRequierment("fuel",3),
-								stats ={fireDPS =		{ upgrade.mul, 1.52},
-										burnTimeMul =	{ upgrade.add, 0.45,} }
-							} )
-		-- to calculate values together
-		function burnTimeCalc() return upgrade.getStats("burnTime") * upgrade.getStats("burnTimeMul") end
-		upgrade.addUpgrade( {	cost = 0,
-								name = "calculate",
-								info = "calc",
-								order = 11,
-								hidden = true,
-								icon = 62,
-								stats = {	burnTime =	{ upgrade.func, burnTimeCalc} }
-							} )
---		supportManager.setUpgrade(upgrade)
---		supportManager.addHiddenUpgrades()
---		supportManager.addSetCallbackOnChange(updateStats)
-	
-		upgrade.upgrade("upgrade")
-		upgrade.upgrade("calculate")
-		billboard:setInt("level",upgrade.getLevel("upgrade"))
+								infoValues = {"damage"},
+								iconId = 2,
+								level = 0,
+								maxLevel = 3,
+								achievementName = "burnDamage",
+								stats = {damage = { 1.3, 1.6, 1.9, func = data.mul }}
+							})
+
+--		data.addSecondaryUpgrade({	
+--								cost = {100,200,300},
+--								name = "burnDamage",
+--								info = "swarm tower range",
+--								infoValues = {"damage"},
+--								iconId = 2,
+--								level = 0,
+--								maxLevel = 3,
+--								achievementName = "FireDPS",
+--								stats = {damage = { 1.3, 1.6, 1.9, func = data.mul }}
+--							})
+
+		
+		data.buildData()
+		
 		if isCircleMap then
 			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget")
 			targetMode = 1
@@ -840,22 +478,16 @@ function SwarmTower.new()
 		--soulManager
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})
 		targetSelector.setPosition(this:getGlobalPosition())
-		targetSelector.setRange(upgrade.getValue("range"))
+		targetSelector.setRange(data.getValue("range"))
 	
 		initModel()
 		setCurrentInfo()
 		
-		cTowerUpg.addUpg("range",self.handleUpgradeRange)
-		cTowerUpg.addUpg("burnDamage",self.handleUpgradeBurnDamage)
-		cTowerUpg.addUpg("fuel",self.handleUpgradeFuel)
-		cTowerUpg.fixAllPermBoughtUpgrades()
 	
 		--ParticleEffects
 		this:addChild( particleFireCenter:toSceneNode() )
 		particleFireCenter:setLocalPosition(Vec3(0,2.1,0))
 		
---		this:addChild( fireCenter:toSceneNode() )
---		fireCenter:activate(Vec3(0.0,1.9,0.0))
 		pointLight = PointLight.new(Vec3(0,2.45,0),Vec3(5,2.5,0.0),1.25)
 		this:addChild(pointLight:toSceneNode())
 		

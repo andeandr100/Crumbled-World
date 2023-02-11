@@ -209,7 +209,9 @@ function CutterBlade.new(pTargetSelector)
 			for i=1, 4, 1 do
 				sparkCenter[i]:deactivate()
 			end
-			pointLight:setVisible(false)
+			if pointLight then
+				pointLight:setVisible(false)
+			end
 		end
 		--
 		model:setVisible(false)
@@ -277,7 +279,7 @@ function CutterBlade.new(pTargetSelector)
 		--
 		--	graphic part of the code
 		--
-		if slow>0.0 then
+		if slow>0.0 and pointLight then
 			pointLight:update()
 			--pointLight:render()
 		end

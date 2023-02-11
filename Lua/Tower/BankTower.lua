@@ -73,45 +73,6 @@ function BankTower.new()
 	end
 	
 	local function storeWaveChangeStats( waveStr )
-		if isThisReal then
-			local tab = {
-				goldEarnedPreviousWave = billboard:getDouble("goldEarnedPreviousWave"),
-				goldEarned = billboard:getDouble("goldEarned"),
-				totalGoaldEarned = totalGoaldEarned
-			}
-			data.storeWaveChangeStats( waveStr, tab)
-		end
-	end
-	
-	local function restoreWaveChangeStats( wave )
-		local towerLevel = data.getTowerLevel()
-		local tab = data.restoreWaveChangeStats( wave )	
-		
-		if isThisReal and tab ~= nil then
-			totalGoaldEarned = tab.totalGoaldEarned
-			goldEarnedPreviousWave = tab.goldEarnedPreviousWave
-			billboard:setDouble("goldEarnedPreviousWave",tab.goldEarnedPreviousWave)
-			billboard:setDouble("goldEarned", tab.goldEarned)
-		end
-		
-		if towerLevel ~= data.getTowerLevel() then
-			self.handleUpgrade("upgrade;"..tostring(data.getTowerLevel()))
-		end
-		goldEarned = 0
-	end
-	
-	function restartWave(param)
-		restoreWaveChangeStats( tonumber(param) )
-		goldEarned = 0
-	end
-	-- function:	waveChanged
-	-- purpose:		called on wavechange. updates the towers stats
-	local function waveChanged(param)
-		local name
-		local waveCountStr
-		name,waveCountStr = string.match(param, "(.*);(.*)")
-		waveCount = tonumber(waveCountStr)
-		
 		goldEarned = goldEarned + supportGoldPerWave
 		totalGoaldEarned = totalGoaldEarned + supportGoldPerWave
 		if canSyncTower() then
@@ -119,16 +80,32 @@ function BankTower.new()
 			comUnit:sendTo("stats","addBillboardDouble", "goldGainedFromSupportTowers;"..tostring(supportGoldPerWave))
 		end
 		
-		--update and save stats only if we did not just restore this wave
-		if waveCount>=lastRestored then
-			billboard:setDouble("goldEarnedPreviousWave",goldEarned)
-			billboard:setDouble("goldEarned", totalGoaldEarned)
-			--store wave info to be able to restore it
-			storeWaveChangeStats( tostring(waveCount+1) )
-		end
-		--
+
+		billboard:setDouble("goldEarnedPreviousWave",goldEarned)
+		billboard:setDouble("goldEarned", totalGoaldEarned)
+		--store wave info to be able to restore it
+		goldEarned = 0
+		
+		local tab = {
+			goldEarnedPreviousWave = billboard:getDouble("goldEarnedPreviousWave"),
+			goldEarned = billboard:getDouble("goldEarned"),
+			totalGoaldEarned = totalGoaldEarned
+		}
+		return tab
+	end
+	
+	local function restoreWaveChangeStats( tab )
+		totalGoaldEarned = tab.totalGoaldEarned
+		goldEarnedPreviousWave = tab.goldEarnedPreviousWave
+		billboard:setDouble("goldEarnedPreviousWave",tab.goldEarnedPreviousWave)
+		billboard:setDouble("goldEarned", tab.goldEarned)
+		
+	end
+	
+	function restartWave(param)
 		goldEarned = 0
 	end
+
 	-- function:	handleGoldStats
 	-- purpose:		called when a unit has died with the effect active
 	local function handleGoldStats(param)
@@ -191,12 +168,7 @@ function BankTower.new()
 	-- function:	handleUpgrade
 	-- purpose:		upgrades the tower and all the meshes and stats for the new level
 	function self.handleUpgrade(param)
-		print("handleUpgrade("..param..")")
-		local subString, size = split(param, ";")
-		local level = tonumber(subString[2])
-		data.setTowerLevel(level)
-		
-		local newModel = Core.getModel( "tower_gold_l"..level..".mym" )
+		local newModel = Core.getModel( "tower_gold_l"..data.getTowerLevel()..".mym" )
 		if newModel then
 			this:removeChild(model:toSceneNode())
 			model = newModel
@@ -265,19 +237,6 @@ function BankTower.new()
 		return true
 	end
 	
-	-- function:	setNetOwner
-	-- purpose:		sets the owener of this script, for multiplayer
-	local function setNetOwner(param)
-		if param=="YES" then
-			billboard:setBool("isNetOwner",true)
-		else
-			billboard:setBool("isNetOwner",false)
-		end
-		
-		--set the game sessionBillboard first here after this function we are sure that the builder has set the network id
-		data.setGameSessionBillboard( Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() ) )
-		
-	end
 	-- function:	functionName
 	-- purpose:		
 	local function init()
@@ -293,7 +252,6 @@ function BankTower.new()
 		end
 		
 		model = Core.getModel("tower_gold_l1.mym")
-		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
 
 		
@@ -306,9 +264,6 @@ function BankTower.new()
 		comUnit:setPos(this:getGlobalPosition())
 		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 	
-		billboard:setString("hullName","hull")
-		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))
-		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
 		billboard:setModel("tower",model)
 		billboard:setString("TargetArea","sphere")
 		billboard:setString("Name", "Bank tower")
@@ -321,19 +276,22 @@ function BankTower.new()
 		billboard:setDouble("goldEarned", 0)
 	
 		--ComUnitCallbacks
-		comUnitTable["waveChanged"] = waveChanged
-		comUnitTable["upgrade"] = self.handleUpgrade
-		comUnitTable["gold"] = data.handleSecondaryUpgrade
-		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["shockwave"] = handleShockwave
 		comUnitTable["extraGoldEarned"] = handleGoldStats
 
 	
 		data.setBillboard(billboard)
 		data.setCanSyncTower(canSyncTower())
-		data.setComUnit(comUnit)
+		data.setComUnit(comUnit, comUnitTable)
+		data.setTowerUpgradeCallback(self.handleUpgrade)
+		data.setUpgradeCallback(self.handleSubUpgrade)
 		data.addDisplayStats("range")
 		data.addDisplayStats("supportGoldPerWave")
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			restartListener:registerEvent("restartWave", restartWave)
+			data.setRestoreFunction(restartListener, restoreWaveChangeStats, storeWaveChangeStats)
+		end
 
 
 		data.addTowerUpgrade({	cost = {500,500,500},
@@ -354,15 +312,13 @@ function BankTower.new()
 								iconId = 67,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								achievementName = "UpgradeSupportGold",
 								stats = {supportGold =	{ 1, 2, 3, func = data.set} }
 							})
 		
-		data.updateStats()
 		
-		self.handleUpgrade("upgrade;1")
-		billboard:setInt("level",data.getTowerLevel())
+		data.buildData()
+		
 		
 		--target modes (default stats)
 		billboard:setString("targetMods","")

@@ -1406,45 +1406,45 @@ ParticleEffect = {
 			widthY = 0.125
 		}
 	},
---	SparkSpirit =  {
---		WallboardParticle = true,
---		airResistance = 0.25,
---		color =  {
---			color1 =  {r = 0.80,g = 1.20,b = 2.00,a = 0.75,per = 0.00,size = 0.14},
---			color2 =  {r = 0.42,g = 0.65,b = 1.00,a = 0.75,per = 0.10,size = 0.22},
---			color3 =  {r = 0.42,g = 0.65,b = 1.00,a = 0.00,per = 1.00,size = 0.52},
---			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
---		},
---		emitterSpeedMultiplyer = 1,
---		gravity = 0,
---		lifeTime =  {
---			max = 1,
---			min = 0.45
---		},
---		spawn =  {
---			OffsetFromGroundPer = 0,
---			maxParticles = 75,
---			minParticles = 0,
---			pattern = "sphere",
---			patternData =  {
---				max = 1,
---				min = -1
---			},
---			spawnDuration = math.huge,
---			spawnRadius = 0.20,
---			spawnRate = 50,
---			spawnSpeed = 0.10
---		},
---		texture =  {
---			countX = 2,
---			countY = 2,
---			lengthEqlWidthMul = 1,
---			startX = 0.75,
---			startY = 0,
---			widthX = 0.125,
---			widthY = 0.125
---		}
---	},
+	SparkSpirit =  {
+		WallboardParticle = true,
+		airResistance = 0.25,
+		color =  {
+			color1 =  {r = 0.80,g = 1.20,b = 2.00,a = 0.75,per = 0.00,size = 0.14},
+			color2 =  {r = 0.42,g = 0.65,b = 1.00,a = 0.75,per = 0.10,size = 0.22},
+			color3 =  {r = 0.42,g = 0.65,b = 1.00,a = 0.00,per = 1.00,size = 0.52},
+			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
+		},
+		emitterSpeedMultiplyer = 1,
+		gravity = 0,
+		lifeTime =  {
+			max = 1,
+			min = 0.45
+		},
+		spawn =  {
+			OffsetFromGroundPer = 0,
+			maxParticles = 75,
+			minParticles = 0,
+			pattern = "sphere",
+			patternData =  {
+				max = 1,
+				min = -1
+			},
+			spawnDuration = math.huge,
+			spawnRadius = 0.20,
+			spawnRate = 50,
+			spawnSpeed = 0.10
+		},
+		texture =  {
+			countX = 2,
+			countY = 2,
+			lengthEqlWidthMul = 1,
+			startX = 0.75,
+			startY = 0,
+			widthX = 0.125,
+			widthY = 0.125
+		}
+	},
 	weakening =  {
 		WallboardParticle = true,
 		airResistance = 0.25,

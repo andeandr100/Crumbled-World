@@ -1,5 +1,5 @@
 require("Tower/rotator.lua")
-require("Tower/supportManager.lua")
+
 require("NPC/state.lua")
 require("Projectile/LaserBullet.lua")
 require("Projectile/projectileManager.lua")
@@ -23,7 +23,7 @@ function MinigunTower.new()
 	local data = TowerData.new()
 	
 	local smartTargetingRetargetTime = 0.0
-	local supportManager = SupportManager.new()
+	
 	--Upgrade
 --	local cTowerUpg = CampaignTowerUpg.new("Tower/MinigunTower.lua",upgrade)
 	--constants
@@ -82,7 +82,7 @@ function MinigunTower.new()
 	local syncTargetTimer = 0.0
 	local visibleState = 2
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
-	local lastRestored = -1
+	
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	--
 	local function SetTargetMode(param)
@@ -103,23 +103,14 @@ function MinigunTower.new()
 	end
 	--
 	
-	local function storeWaveChangeStats( waveStr )
-		if isThisReal then
-			tab = {}
-			tab["overHeatPer"] = overHeatPer
-			tab["overheated"] = overheated
-			tab["engineMatrix"] = engineMesh:getLocalMatrix()
-			tab["rotatorMatrix"] = rotatorMesh:getLocalMatrix()
-			
-			data.storeWaveChangeStats(waveStr, tab)
-		end
+	local function storeWaveChangeStats()
+		tab = {}
+		tab["overHeatPer"] = overHeatPer
+		tab["overheated"] = overheated
+		tab["engineMatrix"] = engineMesh:getLocalMatrix()
+		tab["rotatorMatrix"] = rotatorMesh:getLocalMatrix()
+		return tab
 	end
-	local function doDegrade(fromLevel,toLevel,callback)
-		upgrade.setRestoreMode(true)
-		callback(toLevel)
-		upgrade.setRestoreMode(false)
-	end
-	
 	
 	local function setRotatorSpeed(multiplyer)
 		local pi=math.pi
@@ -127,8 +118,6 @@ function MinigunTower.new()
 		rotator.setSpeedVerticalMaxMinAcc(pi*0.45*multiplyer,pi*0.055*multiplyer,pi*0.35*multiplyer)
 	end
 
-	
-	
 	local function setCurrentInfo()
 	
 		data.updateStats()
@@ -278,44 +267,19 @@ function MinigunTower.new()
 	
 	end
 	
-	local function restoreWaveChangeStats( wave )
-		local towerLevel = data.getTowerLevel()
-	
-		local tab = data.restoreWaveChangeStats( wave )	
-		if isThisReal and tab ~= nil then
-		
-			SetTargetMode(tab.currentTargetMode)
-			engineMesh:setLocalMatrix(tab.engineMatrix)
-			rotatorMesh:setLocalMatrix(tab.rotatorMatrix)
-			overHeatPer = tab.overHeatPer
-			overheated = tab.overheated
-		end
-		
-		if towerLevel ~= data.getTowerLevel() then
-			self.handleUpgrade("upgrade;"..tostring(data.getTowerLevel()))
-		else
-			updateMeshesAndparticlesForSubUpgrades()
-		end
+	local function restoreWaveChangeStats( tab )
+		SetTargetMode(tab.currentTargetMode)
+		engineMesh:setLocalMatrix(tab.engineMatrix)
+		rotatorMesh:setLocalMatrix(tab.rotatorMatrix)
+		overHeatPer = tab.overHeatPer
+		overheated = tab.overheated
 	end
 	
 	function restartWave(param)
 		projectiles.clear()
-		supportManager.restartWave()
-		restoreWaveChangeStats( tonumber(param) )
+		
 	end
 	
-	local function waveChanged(param)
-		local name
-		local waveCountStr
-		name,waveCountStr = string.match(param, "(.*);(.*)")
-		local waveCount = tonumber(waveCountStr)
-
-		--update and save stats only if we did not just restore this wave
-		if waveCount>=lastRestored then
-			storeWaveChangeStats( tostring(waveCount+1) )
-		end
-
-	end
 	local function initModel()
 
 		for index =1, data.getTowerLevel(), 1 do
@@ -584,24 +548,24 @@ function MinigunTower.new()
 	
 	
 
-	function self.handleUpgrade(param)
-		print("handleUpgrade("..param..")")
-		local subString, size = split(param, ";")
-		local level = tonumber(subString[2])
-		data.setTowerLevel(level)
+	function self.handleUpgrade()
+		local copyPreviousData = model and rotatorMesh and engineMesh
 		
-
-		local rotaterMatrix = rotatorMesh:getLocalMatrix()--get rotation for rotater
-		local engineMatrix = engineMesh:getLocalMatrix()--get rotation for engine
-		local prevModel = model
-		this:removeChild(model:toSceneNode())
-	
+		local rotaterMatrix = copyPreviousData and rotatorMesh:getLocalMatrix() or nil--get rotation for rotater
+		local engineMatrix = copyPreviousData and engineMesh:getLocalMatrix() or nil--get rotation for engine
+--		local prevModel = model
+		if model then
+			this:removeChild(model:toSceneNode())
+		end
+		
 		model = Core.getModel( string.format("tower_minigun_l%d.mym", data.getTowerLevel()) )
 		this:addChild(model:toSceneNode())
 		initModel()
-		rotatorMesh:setLocalMatrix(rotaterMatrix)
-		rotatorMesh:setLocalPosition(Vec3())
-		engineMesh:setLocalMatrix(engineMatrix)--set the old rotation
+		if copyPreviousData then
+			rotatorMesh:setLocalMatrix(rotaterMatrix)
+			rotatorMesh:setLocalPosition(Vec3())
+			engineMesh:setLocalMatrix(engineMatrix)--set the old rotation
+		end
 		
 		particleEffectGun[0]:getParent():removeChild( particleEffectGun[0]:toSceneNode() )
 		particleEffectGunLaser[0]:getParent():removeChild( particleEffectGunLaser[0]:toSceneNode() )
@@ -674,13 +638,9 @@ function MinigunTower.new()
 		this:createBoundVolumeGroup()
 		this:setBoundingVolumeCanShrink(false)
 		
-		if isThisReal then
-			restartListener = Listener("RestartWave")
-			restartListener:registerEvent("restartWave", restartWave)
-		end
+		
 		
 		model = Core.getModel("tower_minigun_l1.mym")
-		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
 		--
 		--
@@ -755,9 +715,6 @@ function MinigunTower.new()
 		comUnit:setCanReceiveBroadcast(true)--debug myStats
 		comUnit:setPos(this:getGlobalPosition())
 		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
-		billboard:setString("hullName","hull")
-		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))
-		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
 		billboard:setModel("tower",model)
 		billboard:setVec3("Position",this:getGlobalPosition()+Vec3(0,2.2,0))--for locating where the physical attack originated
 		billboard:setString("TargetArea","sphere")
@@ -775,10 +732,21 @@ function MinigunTower.new()
 		
 		data.setBillboard(billboard)
 		data.setCanSyncTower(canSyncTower())
-		data.setComUnit(comUnit)
+		data.setComUnit(comUnit, comUnitTable)
+		data.setTowerUpgradeCallback(self.handleUpgrade)
+		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.enableSupportManager()
+		
 		data.addDisplayStats("damage")
 		data.addDisplayStats("RPS")
 		data.addDisplayStats("range")
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			restartListener:registerEvent("restartWave", restartWave)
+			data.setRestoreFunction(restartListener, restoreWaveChangeStats, storeWaveChangeStats)
+		end
+		
+		
 		
 		data.addTowerUpgrade({	cost = {200,400,800},
 								name = "upgrade",
@@ -816,7 +784,6 @@ function MinigunTower.new()
 								iconId = 59,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								achievementName = "Range",
 								stats = {range = { 0.75, 1.5, 2.25, func = data.add }}
 							})
@@ -829,7 +796,6 @@ function MinigunTower.new()
 								iconId = 63,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								stats = {	damage = 	{ 1.35, 1.7, 2.05, func = data.mul},
 											cooldown =	{ 10.0, 10.0, 10.0, func = data.set},
 											overheat =	{ 13.0, 13.0, 13.0, func = data.set} }
@@ -843,19 +809,15 @@ function MinigunTower.new()
 								iconId = 61,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								stats = { damageWeak = { 1.5, 2.0, 2.5, func = data.mul} }
 							})		
 		
-		--calculate all stats
-		data.updateStats()
-		
+				
+		data.buildData()
 		
 --							} )
 --		--support tower functions
-		supportManager.setUpgrade(data)
-		supportManager.addHiddenUpgrades()
-		supportManager.addSetCallbackOnChange(data.updateStats)
+		
 		
 		billboard:setInt("level",data.getTowerLevel())
 		if isCircleMap then
@@ -869,22 +831,15 @@ function MinigunTower.new()
 		end
 	
 		--ComUnitCallbacks
-		comUnitTable["dmgDealt"] = data.addDamage
-		comUnitTable["waveChanged"] = waveChanged
-		comUnitTable["NetOwner"] = setNetOwner
+		
 		comUnitTable["NetTarget"] = NetSyncTarget
 		comUnitTable["Retarget"] = handleRetarget
 		comUnitTable["SetTargetMode"] = SetTargetMode
-		
-		comUnitTable["upgrade"] = self.handleUpgrade
 		comUnitTable["boost"] = self.handleBoost
-		comUnitTable["range"] = data.handleSecondaryUpgrade
-		comUnitTable["overCharge"] = data.handleSecondaryUpgrade
-		comUnitTable["overkill"] = data.handleSecondaryUpgrade
 		
 		
-		supportManager.setComUnitTable(comUnitTable)
-		supportManager.addCallbacks()
+		
+		
 		
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})
 		targetSelector.setPosition(this:getGlobalPosition())

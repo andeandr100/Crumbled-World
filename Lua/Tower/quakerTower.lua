@@ -1,12 +1,11 @@
-require("Tower/upgrade.lua")
-require("Tower/xpSystem.lua")
-require("Tower/supportManager.lua")
 require("NPC/state.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
 require("Game/particleEffect.lua")
 require("Game/mapInfo.lua")
 require("Game/soundManager.lua")
+require("Tower/TowerData.lua")
+
 --this = SceneNode()
 
 QuakeTower = {}
@@ -22,11 +21,8 @@ function QuakeTower.new()
 	local READY = 4			--waiting for an enemy to enter attack range
 	local HOLD_READY = 8	--enemies are in range but holding back to attack
 	--upgrades
-	local upgrade = Upgrade.new()
-	local supportManager = SupportManager.new()
-	local cTowerUpg = CampaignTowerUpg.new("Tower/quakerTower.lua",upgrade)
-	--XP
-	local xpManager = XpSystem.new(upgrade,"Tower/quakerTower.lua")
+	local data = TowerData.new()
+	local boostActive = false
 	--model
 	local model
 	local log
@@ -75,283 +71,39 @@ function QuakeTower.new()
 		end
 	end
 	
-	local function storeWaveChangeStats( waveStr )
-		if isThisReal then
-			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
-			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-			if billboardWaveStats:exist( waveStr )==false then
-				local tab = {
-					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
-					upgradeTab = upgrade.storeWaveChangeStats(),
-					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-					DamageTotal = billboard:getDouble("DamageTotal"),
-					boostedOnLevel = boostedOnLevel,
-					boostLevel = upgrade.getLevel("boost"),
-					upgradeLevel = upgrade.getLevel("upgrade"),
-					fireCritLevel = upgrade.getLevel("fireCrit"),
-					fireStrikeLevel = upgrade.getLevel("fireStrike"),
-					electricStrikeLevel = upgrade.getLevel("electricStrike")
-				}
-				billboardWaveStats:setTable( waveStr, tab )
-			end
-		end
-	end
-	local function doDegrade(fromLevel,toLevel,callback)
-		while fromLevel>toLevel do
-			fromLevel = fromLevel - 1
-			callback(fromLevel)
-		end
-	end
-	local function restoreWaveChangeStats( wave )
-		if isThisReal and wave>0 then
-			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
-			lastRestored = wave
-			--we have gone back in time erase all tables that is from the future, that can never be used
-			local index = wave+1
-			while billboardWaveStats:exist( tostring(index) ) do
-				billboardWaveStats:erase( tostring(index) )
-				index = index + 1
-			end
-			--restore the stats from the wave
-			local tab = billboardWaveStats:getTable( tostring(wave) )
-			if tab then
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
-				end
-				--
-				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
-				doDegrade(upgrade.getLevel("fireCrit"),tab.fireCritLevel,self.handleFireCrit)
-				doDegrade(upgrade.getLevel("fireStrike"),tab.fireStrikeLevel,self.handleFlameStrike)
-				doDegrade(upgrade.getLevel("electricStrike"),tab.electricStrikeLevel,self.handleElectricStrike)
-				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
-				--
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
-				--
-				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
-				billboard:setDouble("DamageTotal", tab.DamageTotal)
-			end
-		end
-	end
-	
-	local function restartWave(param)
-		supportManager.restartWave()
-		restoreWaveChangeStats( tonumber(param) )
-		dmgDone = 0
-	end
-	
-	--
-	--	XP / stats
-	--
-	local function damageDealt(param)
-		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		dmgDone = dmgDone + addDmg
-		billboard:setDouble("DamageCurrentWave",dmgDone)
-		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+dmgDone)
-		if xpManager then
-			xpManager.addXp(addDmg)
-			local interpolation  = xpManager.getLevelPercentDoneToNextLevel()
-			upgrade.setInterpolation(interpolation)
-			upgrade.fixBillboardAndStats()
-		end
-	end
-	local function waveChanged(param)
-		local name
-		local waveCountStr
-		name,waveCountStr = string.match(param, "(.*);(.*)")
-		waveCount = tonumber(waveCountStr)
-		--update and save stats only if we did not just restore this wave
-		if waveCount>=lastRestored then
-			if not xpManager then
-				billboard:setDouble("DamagePreviousWave",dmgDone)
-				if canSyncTower() then
-					comUnit:sendTo("stats", "addTotalDmg", dmgDone )
-				end
-				dmgDone = 0
-			else
-				xpManager.payStoredXp(waveCount)
-				--update billboard
-				upgrade.fixBillboardAndStats()
-			end
-			--store wave info to be able to restore it
-			storeWaveChangeStats( tostring(waveCount+1) )
-		end
-	end
-	--
-	--	upgrades
-	--
-	local function setCurrentInfo()
-		if xpManager then
-			xpManager.updateXpToNextLevel()
-		end
-		if towerState~=DROPPING then
-			towerState = READY
-			reloadTimeLeft = 0.0
-			dropTable.dist = 0.0
-			dropTable.speed = 0.0
-		end
-		reloadTime = (1.0/upgrade.getValue("RPS"))
-		targetSelector.setRange(upgrade.getValue("range"))
-		--achievment
-		if upgrade.getLevel("upgrade")==3 and (upgrade.getLevel("fireCrit")==3 or upgrade.getLevel("fireStrike")==3 or upgrade.getLevel("electricStrike")==3) then
-			achievementUnlocked("QuakeMaxed")
-		end
-	end
-	local function fixModel(setDefault)
-		log = model:getMesh("loog")
-		model:getMesh("elementSmasher"):setVisible(upgrade.getLevel("fireStrike")>0 or upgrade.getLevel("electricStrike")>0)
-		for i=1, upgrade.getLevel("upgrade") do
-			model:getMesh("blaster"..i):setVisible(upgrade.getLevel("fireCrit")==i)
-			model:getMesh("elementTower"..i):setVisible(upgrade.getLevel("fireStrike")==i or upgrade.getLevel("electricStrike")==i)
-		end
-		model:getMesh("boost"):setVisible( upgrade.getLevel("boost")==1 )
-		--set ambient map
-		for index=0, model:getNumMesh()-1 do
-			local mesh = model:getMesh(index)
-			local shader = mesh:getShader()
-			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
-			mesh:setTexture(shader,texture,4)
-		end
-		if setDefault then
-			cogs = {}
-			for i=1, 4, 1 do
-				cogs[i] = {mesh=model:getMesh("cog"..i)}
-				local atVec = cogs[i].mesh:getLocalPosition()
-				atVec.y = 0.0
-				local mat = Matrix()
-				mat:createMatrix(atVec,Vec3(0,1,0))
-				cogs[i].rightVec = Vec3(0,1,0)
-			end
-			defaultPos = model:getMesh("loog"):getLocalPosition()
-			if upgrade.getLevel("upgrade")==1 then
-				dropLength = 0.77
-			elseif upgrade.getLevel("upgrade")==2 then
-				dropLength = 0.98
-			else
-				dropLength = 1.22
-			end
-		end
-	end
-	function self.getCurrentIslandPlayerId()
-		local islandPlayerId = 0--0 is no owner
-		local island = this:findNodeByTypeTowardsRoot(NodeId.island)
-		if island then
-			islandPlayerId = island:getPlayerId()
-		end
-		--if islandPlayerId>0 then
-		networkSyncPlayerId = islandPlayerId
-		if type(networkSyncPlayerId)=="number" and Core.getNetworkClient():isPlayerIdInUse(networkSyncPlayerId)==false then
-			networkSyncPlayerId = 0
-		end
-		--end
-		return networkSyncPlayerId
-	end
-	local function canSyncTower()
-		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
-	end
-	function self.handleUpgrade(param)
-		if tonumber(param)>upgrade.getLevel("upgrade") then
-			upgrade.upgrade("upgrade")
-		elseif upgrade.getLevel("upgrade")>tonumber(param) then
-			upgrade.degrade("upgrade")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
-		end
-		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		--Achievements
-		local level = upgrade.getLevel("upgrade")
-		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
-		if upgrade.getLevel("upgrade")==3 then
-			achievementUnlocked("Upgrader")
-		end
-		--
-		--clear out the old data
-		this:removeChild(model:toSceneNode())
-		if upgrade.getLevel("upgrade")==1 then
-			this:addChild( quakeDust:toSceneNode() )
-		end
-		if upgrade.getLevel("fireCrit")>0 then
-			log:removeChild(blasterFlame:toSceneNode())
-		end
-		--insert the new data
-		model = Core.getModel( upgrade.getValue("model") )
-		this:addChild(model:toSceneNode())
-		cTowerUpg.fixAllPermBoughtUpgrades()	
-		fixModel(true)
-		if upgrade.getLevel("fireCrit")>0 then
-			log:addChild(blasterFlame:toSceneNode())
-		end
-		upgrade.clearCooldown()
-		setCurrentInfo()
-	end
-	function self.handleBoost(param)
-		if tonumber(param)>upgrade.getLevel("boost") then
-			if Core.isInMultiplayer() and canSyncTower() then
-				comUnit:sendNetworkSyncSafe("upgrade2","1")
-			end
-			boostedOnLevel = upgrade.getLevel("upgrade")
-			upgrade.upgrade("boost")
-			model:getMesh("boost"):setVisible(true)
-			setCurrentInfo()
-			--Achievement
-			achievementUnlocked("Boost")
-		elseif upgrade.getLevel("boost")>tonumber(param) then
-			upgrade.degrade("boost")
-			model:getMesh("boost"):setVisible( false )
-			setCurrentInfo()
-			--clear coldown info for boost upgrade
-			upgrade.clearCooldown()
-		end
-		fixModel()
-	end
-	function self.handleFireCrit(param)
-		if tonumber(param)>upgrade.getLevel("fireCrit") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("fireCrit")
-		elseif upgrade.getLevel("fireCrit")>tonumber(param) then
-			model:getMesh("blaster"..upgrade.getLevel("fireCrit")):setVisible(false)
-			upgrade.degrade("fireCrit")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
-		end
-		if upgrade.getLevel("fireCrit")>0 then
+	local function updateMeshesAndparticlesForSubUpgrades()
+		--------------------
+		--- Handle Boost ---
+		--------------------
+		
+		model:getMesh("boost"):setVisible( data.getBoostActive() )
+		
+		--------------------------------
+		--- Handle fireCrit upgrades ---
+		--------------------------------
+		
+		if data.getLevel("fireCrit")>0 then
 			if (not quakeDustBlast) or (not blasterFlame) then
 				quakeDustBlast = ParticleSystem.new(ParticleEffect.QuakeDustEffect)
 				blasterFlame = ParticleSystem.new(ParticleEffect.quakeBlaster)
 				log:addChild(blasterFlame:toSceneNode())
 				this:addChild(quakeDustBlast:toSceneNode())
 			end
-			if upgrade.getLevel("fireCrit")>1 then
-				model:getMesh("blaster"..(upgrade.getLevel("fireCrit")-1)):setVisible(false)
-			end
-			model:getMesh("blaster"..upgrade.getLevel("fireCrit")):setVisible(true)
-			--Acievement
-			if upgrade.getLevel("fireCrit")==3 then
-				achievementUnlocked("QuakeFireCrit")
+			for i=1, data.getTowerLevel() do
+				model:getMesh("blaster"..i):setVisible(data.getLevel("fireCrit") == i)
 			end
 		end
-		setCurrentInfo()
-	end
-	function self.handleFlameStrike(param)
-		if tonumber(param)>upgrade.getLevel("fireStrike") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("fireStrike")
-		elseif upgrade.getLevel("fireStrike")>tonumber(param) then
-			model:getMesh("elementTower"..upgrade.getLevel("fireStrike")):setVisible(false)
-			upgrade.degrade("fireStrike")
-		else
-			return--level unchanged
+		
+		----------------------------------
+		--- Handle fireStrike upgrades ---
+		----------------------------------
+		
+		for i=1, data.getTowerLevel() do
+			model:getMesh("elementTower"..i):setVisible(false)
 		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
-		end
-		if upgrade.getLevel("fireStrike")==0 then
+		
+		
+		if true then
 			if quakeFlameBlast  then
 				quakeFlameBlast:deactivate()
 				fireBall:deactivate()
@@ -368,32 +120,18 @@ function QuakeTower.new()
 			end
 			fireBall:activate(Vec3(0,0.75,0))
 			firePointLigth:setLocalPosition( Vec3(0,0.75,0) )
-			if upgrade.getLevel("fireStrike")>1 then
-				model:getMesh("elementTower"..(upgrade.getLevel("fireStrike")-1)):setVisible(false)
-			end
-			model:getMesh("elementTower"..upgrade.getLevel("fireStrike")):setVisible(true)
 			model:getMesh("elementSmasher"):setVisible(true)
-			--Acievement
-			if upgrade.getLevel("fireStrike")==3 then
-				achievementUnlocked("FireWall")
-			end
 		end
-		setCurrentInfo()
-	end
-	function self.handleElectricStrike(param)
-		if tonumber(param)>upgrade.getLevel("electricStrike") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("electricStrike")
-		elseif upgrade.getLevel("electricStrike")>tonumber(param) then
-			model:getMesh("elementTower"..upgrade.getLevel("electricStrike")):setVisible(false)
-			model:getMesh("elementSmasher"):setVisible(false)
-			upgrade.degrade("electricStrike")
-		else
-			return--level unchanged
+		
+		--------------------------------------
+		--- Handle electricStrike upgrades ---
+		--------------------------------------
+		
+		for i=1, data.getTowerLevel() do
+			model:getMesh("elementTower"..i):setVisible(data.getLevel("electricStrike") == i)
 		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
-		end
-		if upgrade.getLevel("electricStrike")==0 then
+		
+		if data.getLevel("electricStrike")==0 then
 			if electricBall then
 				electricBall:deactivate()
 				electricPointLigth:setVisible(false)
@@ -417,18 +155,112 @@ function QuakeTower.new()
 			electricBall:activate(Vec3(0,0.75,0))
 			electricBall:setScale(0.5)
 			electricPointLigth:setLocalPosition( Vec3(0,0.75,0) )
-			if upgrade.getLevel("electricStrike")>1 then
-				model:getMesh("elementTower"..(upgrade.getLevel("electricStrike")-1)):setVisible(false)
+			if data.getLevel("electricStrike")>1 then
+				model:getMesh("elementTower"..(data.getLevel("electricStrike")-1)):setVisible(false)
 			end
-			model:getMesh("elementTower"..upgrade.getLevel("electricStrike")):setVisible(true)
+			model:getMesh("elementTower"..data.getLevel("electricStrike")):setVisible(true)
 			model:getMesh("elementSmasher"):setVisible(true)
 			--Acievement
-			if upgrade.getLevel("electricStrike")==3 then
+			if data.getLevel("electricStrike")==3 then
 				achievementUnlocked("ElectricStorm")
 			end
 		end
-		setCurrentInfo()
 	end
+	
+	--
+	--	upgrades
+	--
+	local function setCurrentInfo()
+		
+		data.updateStats()
+	
+		if towerState~=DROPPING then
+			towerState = READY
+			reloadTimeLeft = 0.0
+			dropTable.dist = 0.0
+			dropTable.speed = 0.0
+		end
+		reloadTime = (1.0/data.getValue("RPS"))
+		targetSelector.setRange(data.getValue("range"))
+		--achievment
+		if data.getIsMaxedOut() then
+			achievementUnlocked("QuakeMaxed")
+		end
+	end
+	local function fixModel(setDefault)
+		log = model:getMesh("loog")
+		model:getMesh("elementSmasher"):setVisible( data.getLevel("electricStrike")>0)
+		for i=1, data.getTowerLevel() do
+			model:getMesh("blaster"..i):setVisible(data.getLevel("fireCrit")==i)
+			model:getMesh("elementTower"..i):setVisible(data.getLevel("electricStrike")==i)
+		end
+		model:getMesh("boost"):setVisible( data.getBoostActive() )
+		--set ambient map
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(data.getBoostActive() and "towergroup_boost_a" or "towergroup_a")
+			mesh:setTexture(shader,texture,4)
+		end
+		if setDefault then
+			cogs = {}
+			for i=1, 4, 1 do
+				cogs[i] = {mesh=model:getMesh("cog"..i)}
+				local atVec = cogs[i].mesh:getLocalPosition()
+				atVec.y = 0.0
+				local mat = Matrix()
+				mat:createMatrix(atVec,Vec3(0,1,0))
+				cogs[i].rightVec = Vec3(0,1,0)
+			end
+			defaultPos = model:getMesh("loog"):getLocalPosition()
+			if data.getTowerLevel() == 1 then
+				dropLength = 0.77
+			elseif data.getTowerLevel()==2 then
+				dropLength = 0.98
+			else
+				dropLength = 1.22
+			end
+		end
+	end
+	function self.getCurrentIslandPlayerId()
+		local islandPlayerId = 0--0 is no owner
+		local island = this:findNodeByTypeTowardsRoot(NodeId.island)
+		if island then
+			islandPlayerId = island:getPlayerId()
+		end
+		--if islandPlayerId>0 then
+		networkSyncPlayerId = islandPlayerId
+		if type(networkSyncPlayerId)=="number" and Core.getNetworkClient():isPlayerIdInUse(networkSyncPlayerId)==false then
+			networkSyncPlayerId = 0
+		end
+		--end
+		return networkSyncPlayerId
+	end
+	local function canSyncTower()
+		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
+	end
+	function self.handleUpgrade()
+		local newModel = Core.getModel( "tower_quaker_l"..data.getTowerLevel()..".mym" )
+		if newModel then
+			this:removeChild(model:toSceneNode())
+			model = newModel
+			
+			this:addChild(model:toSceneNode())
+			billboard:setModel("tower",model)
+			
+			fixModel(true)
+			
+			if data.getLevel("fireCrit")>0 then
+				log:addChild(blasterFlame:toSceneNode())
+			end
+		end
+		
+		setCurrentInfo()
+		updateMeshesAndparticlesForSubUpgrades()
+		
+	end
+	
+	
 	--
 	--	Network sync
 	--
@@ -438,21 +270,16 @@ function QuakeTower.new()
 		else
 			billboard:setBool("isNetOwner",false)
 		end
-		upgrade.fixBillboardAndStats()
+		--set the game sessionBillboard first here after this function we are sure that the builder has set the network id
+		data.setGameSessionBillboard( Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() ) )
+		data.updateStats()
 	end
 	--
 	--	targeting
 	--
 	local function isAnyOneInRange()
---		targetSelector.selectAllInRange()
---		if upgrade.getLevel("electricStrike")>0 then
---			targetSelector.scoreName("electroSpirit",-1000)
---			return targetSelector.selectTargetAfterMaxScore(-500)>=1
---		else
---			return targetSelector.isAnyInRange()
---		end
 		if targetSelector.selectAllInRange() then
-			if upgrade.getLevel("electricStrike")>0 then
+			if data.getLevel("electricStrike")>0 then
 				targetSelector.scoreName("electroSpirit",-1000)
 				if targetSelector.selectTargetAfterMaxScore(-500)>0 then
 					return true
@@ -478,7 +305,7 @@ function QuakeTower.new()
 			lightningItem.light:setLocalPosition( (Vec3(0,0.65,0)+endPos)*0.5 )
 			lightningItem.light:setVisible(true)
 			lightningItem.light:setRange(4.0)
-			lightningItem.light:pushRangeChange(0.25,math.min((1.0/upgrade.getValue("RPS"))-0.05,0.5))
+			lightningItem.light:pushRangeChange(0.25,math.min((1.0/data.getValue("RPS"))-0.05,0.5))
 			lightningItem.light:pushVisible(false)
 			
 		
@@ -492,12 +319,12 @@ function QuakeTower.new()
 	end
 	local function attack()
 		local damageDone = 0
-		targetSelector.setRange(upgrade.getValue("range"))
+		targetSelector.setRange(data.getValue("range"))
 		targetSelector.selectAllInRange()
-		if upgrade.getLevel("fireCrit")>0 then
+		if data.getLevel("fireCrit")>0 then
 			local targets = targetSelector.getAllTargets()
-			local fireCritDamage = upgrade.getValue("damage")*(1.0+upgrade.getValue("fireCrit"))
-			local damage = upgrade.getValue("damage")
+			local fireCritDamage = data.getValue("damage")
+			local damage = data.getValue("damage")
 			--sounds
 			soundManager.play("quake_attack", 1.0, false)
 			--
@@ -513,7 +340,7 @@ function QuakeTower.new()
 			end
 			quakeDustBlast:activate(Vec3(0,0.6,0))
 			quakeDust:activate(Vec3(0,0.4,0))
-		elseif upgrade.getLevel("electricStrike")>0 then
+		elseif data.getLevel("electricStrike")>0 then
 			electricPointLigth:pushRangeChange(3,1.0)
 			targetSelector.scoreHP(10)
 			targetSelector.scoreClosestToExit(20)
@@ -521,9 +348,9 @@ function QuakeTower.new()
 			targetSelector.scoreName("rat_tank",10)
 			targetSelector.scoreName("electroSpirit",-1000)
 			local targets = targetSelector.selectTargetCountAfterMaxScore(-500,6)
-			local dmg = tostring(upgrade.getValue("damage"))
-			local slow = upgrade.getValue("slow")
-			local duration = upgrade.getValue("slowTimer")
+			local dmg = tostring(data.getValue("damage"))
+			local slow = data.getValue("slow")
+			local duration = data.getValue("slowTimer")
 			local slowTab = {per=slow,time=duration,type="electric"}
 			--sounds
 			if #targets>0 then
@@ -558,7 +385,7 @@ function QuakeTower.new()
 				end
 			end
 		else
-			if upgrade.getLevel("fireStrike")>0 then
+			if false then
 				quakeFlameBlast:activate(Vec3(0,0.6,0))
 				firePointLigth:pushRangeChange(3,1.0)
 				fireBall:setScale(0.0)
@@ -567,12 +394,12 @@ function QuakeTower.new()
 				soundManager.play("quake_attack", 1.0, false)
 			end
 			local targets = targetSelector.getAllTargets()
-			local fireDPS = upgrade.getValue("fireDPS")
-			local fireTime = upgrade.getValue("burnTime")
-			local dmg = upgrade.getValue("damage")
+			local fireDPS = data.getValue("fireDPS")
+			local fireTime = data.getValue("burnTime")
+			local dmg = data.getValue("damage")
 			for index,score in pairs(targets) do
 				local distance = (this:getGlobalPosition()-targetSelector.getTargetPosition(index)):length()
-				if upgrade.getLevel("fireStrike")>0 and upgrade.getValue("range")>=distance then
+				if false and data.getValue("range")>=distance then
 					comUnit:sendTo(index,"attackFireDPS",{DPS=fireDPS,time=fireTime,type="fire"})
 					damageDone = damageDone + (fireDPS*fireTime)
 				end
@@ -593,24 +420,22 @@ function QuakeTower.new()
 --		dropTable.dist = 0.0
 --		dropTable.speed = 0.0
 		reloadTimeLeft = (reloadTimeLeft+Core.getDeltaTime())>0.0 and (reloadTimeLeft+reloadTime) or reloadTime
-		if upgrade.getLevel("fireCrit")>0 then
+		if data.getLevel("fireCrit")>0 then
 			blasterFlame:activate(Vec3(0,0,1.2))
-		elseif upgrade.getLevel("fireStrike")>0 then
+		elseif false then
 			firePointLigth:pushRangeChange(1,0.2)
-		elseif upgrade.getLevel("electricStrike")>0 then
+		elseif data.getLevel("electricStrike")>0 then
 			electricPointLigth:pushRangeChange(1,0.2)
 		end
 	end
 	function self.update()
 		comUnit:setPos(this:getGlobalPosition())
-		if upgrade.update() then
-			model:getMesh("boost"):setVisible( false )
+		
+		--handle boost
+		if boostActive ~= data.getBoostActive() then
+			boostActive = data.getBoostActive()	
 			setCurrentInfo()
-			fixModel()
-			--if the tower was upgraded while boosted, then the boost should be available
-			if boostedOnLevel~=upgrade.getLevel("upgrade") then
-				upgrade.clearCooldown()
-			end
+			updateMeshesAndparticlesForSubUpgrades()
 		end
 		
 		--handle communication
@@ -620,9 +445,7 @@ function QuakeTower.new()
 				comUnitTable[msg.message](msg.parameter,msg.fromIndex)
 			end
 		end
-		if xpManager then
-			xpManager.update()
-		end
+
 		--Tower spesefic stuff
 		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
 		if towerState==HOLD_READY then
@@ -669,9 +492,9 @@ function QuakeTower.new()
 				towerState = READY
 				per = 0.0
 			end
-			if upgrade.getLevel("fireStrike")>0 then
+			if false then
 				fireBall:setScale(1.0-per)
-			elseif upgrade.getLevel("electricStrike")>0 then
+			elseif data.getLevel("electricStrike")>0 then
 				electricBall:setScale( (1.0-per)*0.5 )
 			end
 			dropTable.dist = dropLength*per
@@ -679,11 +502,11 @@ function QuakeTower.new()
 		if towerState==DROPPING then
 			dropTable.speed = dropTable.speed + (4*Core.getDeltaTime())
 			dropTable.dist = dropTable.dist + (dropTable.speed*Core.getDeltaTime())
-			if upgrade.getLevel("fireStrike")>0 then
+			if false then
 				local left = dropLength-dropTable.dist
 				local scale = math.clamp(left/0.4,0,1)
 				fireBall:setScale(scale)
-			elseif upgrade.getLevel("electricStrike")>0 then
+			elseif data.getLevel("electricStrike")>0 then
 				local left = dropLength-dropTable.dist
 				local scale = math.clamp(left/0.4,0,1)*0.5
 				electricBall:setScale(scale)
@@ -704,6 +527,10 @@ function QuakeTower.new()
 		end
 		return true
 	end
+	function self.handleSubUpgrade()
+		updateMeshesAndparticlesForSubUpgrades()
+		setCurrentInfo()
+	end
 	--
 	--
 	--
@@ -713,21 +540,11 @@ function QuakeTower.new()
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
-		if xpManager then
-			xpManager.setUpgradeCallback(self.handleUpgrade)
-		end
-		
-		restartListener = Listener("RestartWave")
-		restartListener:registerEvent("restartWave", restartWave)
-		
+
 		--
 		model = Core.getModel("tower_quaker_l1.mym")
-		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
 	
---		if particleEffectUpgradeAvailable then
---			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
---		end
 		
 		--sound limits
 		for i=1, #attackSounds do
@@ -745,9 +562,6 @@ function QuakeTower.new()
 		comUnit:setPos(this:getGlobalPosition())
 		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 		billboard:setDouble("rangePerUpgrade",0.75)
-		billboard:setString("hullName","hull")
-		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))
-		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
 		billboard:setModel("tower",model)
 		billboard:setString("TargetArea","sphere")
 		billboard:setString("Name", "Quake tower")
@@ -760,211 +574,95 @@ function QuakeTower.new()
 		billboard:setDouble("DamagePreviousWave",0)
 	
 		--ComUnitCallbacks
-		comUnitTable["dmgDealt"] = damageDealt
-		comUnitTable["waveChanged"] = waveChanged
-		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = self.handleBoost
-		comUnitTable["upgrade3"] = self.handleFireCrit
-		comUnitTable["upgrade4"] = self.handleFlameStrike
-		comUnitTable["upgrade5"] = self.handleElectricStrike
-		comUnitTable["NetOwner"] = setNetOwner
-		supportManager.setComUnitTable(comUnitTable)
-		supportManager.addCallbacks()
+		comUnitTable["boost"] = data.activateBoost
 		
-		upgrade.setBillboard(billboard)
-		upgrade.addDisplayStats("damage")
-		upgrade.addDisplayStats("RPS")
-		upgrade.addDisplayStats("range")
-		upgrade.addDisplayStats("slow", 100.0, 0, "%")
+		data.setBillboard(billboard)
+		data.setCanSyncTower(canSyncTower())
+		data.setComUnit(comUnit, comUnitTable)
+		data.setTowerUpgradeCallback(self.handleUpgrade)
+		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.enableSupportManager()
+		data.addDisplayStats("damage")
+		data.addDisplayStats("RPS")
+		data.addDisplayStats("range")
+		data.addDisplayStats("slow")
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			data.setRestoreFunction(restartListener, nil, nil)
+		end
+	
 		
-		
-		--AUHpR = 1.6
-		--DPSpG = (DMG*SplashRange*AUHpR*RPS)/cost = (235*2.75*1.6*(1/3.5))/200 = 1.47
-		upgrade.addUpgrade( {	cost = 200,
+		data.addTowerUpgrade({	cost = {200,400,800},
 								name = "upgrade",
 								info = "quak tower level",
-								order = 1,
-								icon = 56,
-								value1 = 1,
-								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 215},
-										RPS = 		{ upgrade.add, 0.28},--1.0/3.5},
-										model = 	{ upgrade.set, "tower_quaker_l1.mym"} }
-							} )
-		--DPSpG = (DMG*SplashRange*AUHpR*RPS)/cost = (645*2.75*1.6*(1/3.0))/600 = 1.58
-		upgrade.addUpgrade( {	cost = 400,
-								name = "upgrade",
-								info = "quak tower level",
-								order = 1,
-								icon = 56,
-								value1 = 2,
-								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 580},
-										RPS = 		{ upgrade.add, 0.34},--1.0/3.0},
-										model = 	{ upgrade.set, "tower_quaker_l2.mym"} }
-							}, 0 )
-		--DPSpG = (DMG*SplashRange*AUHpR*RPS)/cost = (1330*2.75*1.6*(1/2.5))/1400 = 1.67
-		upgrade.addUpgrade( {	cost = 800,
-								name = "upgrade",
-								info = "quak tower level",
-								order = 1,
-								icon = 56,
-								value1 = 3,
-								stats ={range =		{ upgrade.add, 2.75},
-										damage = 	{ upgrade.add, 1200},
-										RPS = 		{ upgrade.add, 0.4},--1.0/2.5},
-										model = 	{ upgrade.set, "tower_quaker_l3.mym"} }
-							}, 0 )
-		function boostDamage() return upgrade.getStats("damage")*3.0*(waveCount/50+1.0) end
-		--(total)	0=2x	25=4x	50=6x
-		upgrade.addUpgrade( {	cost = 0,
+								iconId = 56,
+								level = 1,
+								maxLevel = 3,
+								stats = {
+										range =				{ 2.75, 2.75, 2.75 },
+										damage = 			{ 215, 580, 1200},
+										RPS = 				{ 0.28, 0.34, 0.4} }
+							})
+							
+
+		
+		data.addBoostUpgrade({	cost = 0,
 								name = "boost",
 								info = "quak tower boost",
 								duration = 10,
 								cooldown = 3,
-								order = 10,
-								icon = 57,
-								stats ={range =		{ upgrade.add, 0.5},
-										damage = 	{ upgrade.func, boostDamage},
-										RPS = 		{ upgrade.mul, 1.35}}
-							} )
-		-- firecrit
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
+								iconId = 57,
+								level = 0,
+								maxLevel = 1,
+								stats = {range = 		{ 0.4, func = data.add },
+										damage =		{ 3, func = data.mul },
+										RPS = 			{ 1.35, func = data.mul } }
+							})
+		
+		data.addSecondaryUpgrade({	
+								cost = {100,200,300},
 								name = "fireCrit",
 								info = "quak tower firecrit",
-								order = 2,
-								icon = 36,
-								value1 = 40,
-								levelRequirement = cTowerUpg.getLevelRequierment("fireCrit",1),
-								requirementNotUpgraded1 = "fireStrike",
-								requirementNotUpgraded2 = "electricStrike",
-								stats = {	fireCrit = 	{ upgrade.add, 0.40, ""}}
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "fireCrit",
-								info = "quak tower firecrit",
-								order = 2,
-								icon = 36,
-								value1 = 80,
-								levelRequirement = cTowerUpg.getLevelRequierment("fireCrit",2),
-								stats = {	fireCrit = 	{ upgrade.add, 0.80, ""}}
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "fireCrit",
-								info = "quak tower firecrit",
-								order = 2,
-								icon = 36,
-								value1 = 120,
-								levelRequirement = cTowerUpg.getLevelRequierment("fireCrit",3),
-								stats = {	fireCrit = 	{ upgrade.add, 1.20, ""}}
-							} )
-		--fire strike
-		function fireDamage1() return upgrade.getStats("damage") * 0.15 end
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "fireStrike",
-								info = "quak tower fire",
-								order = 3,
-								icon = 38,
-								value1 = 15,--15% fire damage
-								value2 = 1,--1 seconds
-								levelRequirement = cTowerUpg.getLevelRequierment("fireStrike",1),
-								requirementNotUpgraded1 = "fireCrit",
-								requirementNotUpgraded2 = "electricStrike",
-								stats ={fireDPS =		{ upgrade.set, fireDamage1},
-										burnTime =		{ upgrade.add, 1.0} }
-							} )
-		function fireDamage2() return upgrade.getStats("damage") * 0.17 end
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "fireStrike",
-								info = "quak tower fire",
-								order = 3,
-								icon = 38,
-								value1 = 17,
-								value2 = 1.75,
-								levelRequirement = cTowerUpg.getLevelRequierment("fireStrike",2),
-								stats ={fireDPS =		{ upgrade.set, fireDamage2},
-										burnTime =		{ upgrade.add, 1.75} }
-							} )
-		function fireDamage3() return upgrade.getStats("damage") * 0.18 end
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "fireStrike",
-								info = "quak tower fire",
-								order = 3,
-								icon = 38,
-								value1 = 18,
-								value2 = 2.5,
-								levelRequirement = cTowerUpg.getLevelRequierment("fireStrike",3),
-								stats ={fireDPS =		{ upgrade.set, fireDamage3},
-										burnTime =		{ upgrade.add, 2.5} }
-							} )
-		--electric strike
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
+								infoValues = {"damage"},
+								iconId = 36,
+								level = 0,
+								maxLevel = 3,
+								callback = self.handleSubUpgrade,
+								achievementName = "Range",
+								stats = {damage = { 1.3, 1.6, 1.9, func = data.mul }}
+							})
+							
+		data.addSecondaryUpgrade({	
+								cost = {100,200,300},
 								name = "electricStrike",
 								info = "quak tower electric",
-								order = 4,
-								icon = 50,
-								value1 = 30,--30% extra damage
-								value2 = 15,--15% slow
-								value3 = 2,--2 seconds
-								levelRequirement = cTowerUpg.getLevelRequierment("electricStrike",1),
-								requirementNotUpgraded1 = "fireCrit",
-								requirementNotUpgraded2 = "fireStrike",
-								stats ={damage =	{ upgrade.mul, 1.30},
-										slow = 		{ upgrade.add, 0.15},
-										slowTimer =	{ upgrade.add, 2.0},
-										count =		{ upgrade.add, 7}}
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "electricStrike",
-								info = "quak tower electric",
-								order = 4,
-								icon = 50,
-								value1 = 60,--60% extra damage
-								value2 = 28,--28% slow
-								value3 = 2,--2 seconds
-								levelRequirement = cTowerUpg.getLevelRequierment("electricStrike",2),
-								stats ={damage =	{ upgrade.mul, 1.60},
-										slow = 		{ upgrade.add, 0.28},
-										slowTimer =	{ upgrade.add, 2.0},
-										count =		{ upgrade.add, 7}}
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "electricStrike",
-								info = "quak tower electric",
-								order = 4,
-								icon = 50,
-								value1 = 90,--90% extra damage
-								value2 = 39,--39% slow
-								value3 = 2,--2 seconds
-								levelRequirement = cTowerUpg.getLevelRequierment("electricStrike",3),
-								stats ={damage =	{ upgrade.mul, 1.90},
-										slow = 		{ upgrade.add, 0.39},
-										slowTimer =	{ upgrade.add, 2.0},
-										count =		{ upgrade.add, 7}}
-							} )
---		supportManager.setUpgrade(upgrade)
---		supportManager.addHiddenUpgrades()
---		supportManager.addSetCallbackOnChange(updateStats)
-		self.handleUpgrade("1")
-		billboard:setInt("level",upgrade.getLevel("upgrade"))
+								infoValues = {"damage","slow"},
+								iconId = 50,
+								level = 0,
+								maxLevel = 3,
+								callback = self.handleSubUpgrade,
+								achievementName = "ElectricStorm",
+								stats = {damage = 	{ 1.3, 1.6, 1.9, func = data.mul },
+										slow = 		{ 0.15, 0.28, 0.39, func = data.set },
+										slowTimer = { 2.0, 2.0, 2.0, func = data.set },
+										count = 	{ 7, 7, 7, func = data.set } }
+							})
+
+		
+		data.buildData()
+
+		self.handleUpgrade("upgrade;1")
+		billboard:setInt("level",data.getTowerLevel())
 		billboard:setString("targetMods","")
 		billboard:setInt("currentTargetMode",0)
 	
 		--soulManager
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})
 		targetSelector.setPosition(this:getGlobalPosition())
-		targetSelector.setRange(1.0)
+		targetSelector.setRange(data.getValue("range"))
+
 		
-		--manage campaign shop
-		setCurrentInfo()
-		cTowerUpg.addUpg("fireCrit",self.handleFireCrit)
-		cTowerUpg.addUpg("fireStrike",self.handleFlameStrike)
-		cTowerUpg.addUpg("electricStrike",self.handleElectricStrike)
-		cTowerUpg.fixAllPermBoughtUpgrades()
-		--add free upgrade if unlocked
-		if cTowerUpg.isPermUpgraded("freeUpgrade",1) then
-			upgrade.addFreeSubUpgrade()
-		end
+		updateMeshesAndparticlesForSubUpgrades()
 		return true
 	end
 	init()

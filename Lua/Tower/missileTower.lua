@@ -1,11 +1,11 @@
-require("Tower/upgrade.lua")
-require("Tower/xpSystem.lua")
 require("Tower/supportManager.lua")
 require("Projectile/projectileManager.lua")
 require("Projectile/missile.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
+require("Tower/TowerData.lua")
+
 --this = SceneNode()
 MissileTower = {}
 function MissileTower.new()
@@ -21,16 +21,12 @@ function MissileTower.new()
 	local targetHistoryCount = 0
 	
 	local waveCount = 0
-	local dmgDone = 0
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	local projectiles = projectileManager.new(targetSelector)
-	local cData = CampaignData.new()
-	local upgrade = Upgrade.new()
 	local supportManager = SupportManager.new()
-	local cTowerUpg = CampaignTowerUpg.new("Tower/missileTower.lua",upgrade)
-	--XP
-	local xpManager = XpSystem.new(upgrade)
+	local data = TowerData.new()
+	local boostActive = false
 	--model
 	local model
 	local activeRangeMesh
@@ -61,106 +57,105 @@ function MissileTower.new()
 		end
 	end
 	
-	local function storeWaveChangeStats( waveStr )
-		if isThisReal then
-			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
-			--update wave stats only if it has not been set (this function will be called on wave changes when going back in time)
-			if billboardWaveStats:exist( waveStr )==false then
-				local tab = {
-					xpTab = xpManager and xpManager.storeWaveChangeStats() or nil,
-					upgradeTab = upgrade.storeWaveChangeStats(),
-					DamagePreviousWave = billboard:getDouble("DamagePreviousWave"),
-					DamagePreviousWavePassive = billboard:getDouble("DamagePreviousWavePassive"),
-					DamageTotal = billboard:getDouble("DamageTotal"),
-					currentTargetMode = billboard:getInt("currentTargetMode"),
-					reloadTimeLeft = reloadTimeLeft,
-					missilesAvailable = missilesAvailable,
-					missileToFireNext = missileToFireNext,
-					missile = {},
-					boostedOnLevel = boostedOnLevel,
-					boostLevel = upgrade.getLevel("boost"),
-					upgradeLevel = upgrade.getLevel("upgrade"),
-					rangeLevel = upgrade.getLevel("range"),
-					BlasterLevel = upgrade.getLevel("Blaster"),
-					fuelLevel = upgrade.getLevel("fuel"),
-					shieldSmasherLevel = upgrade.getLevel("shieldSmasher")
-				}
-				--parse all missiles
-				for i = 1, 2+level, 1 do
-					tab.missile[i] = {}
-					tab.missile[i].state = missile[i].state
-					tab.missile[i].timer = missile[i].timer
-					tab.missile[i].replaceTime = missile[i].replaceTime
-					tab.missile[i].missilePosition = missile[i].missilePosition
-					tab.missile[i].localPosition = missile[i].missile:getLocalPosition()
-					tab.missile[i].visible = missile[i].missile:getVisible()
-					tab.missile[i].hatch1Matrix = missile[i].hatch1:getLocalMatrix()
-					tab.missile[i].hatch2Matrix = missile[i].hatch2:getLocalMatrix()
-				end
-				billboardWaveStats:setTable( waveStr, tab )
-			end
+	local function updateMeshesAndparticlesForSubUpgrades()
+		--------------------
+		--- Handle Boost ---
+		--------------------
+		
+		model:getMesh( "boost" ):setVisible(data.getBoostActive())
+		
+		for index=0, model:getNumMesh()-1 do
+			local mesh = model:getMesh(index)
+			local shader = mesh:getShader()
+			local texture = Core.getTexture(data.getBoostActive() and "towergroup_boost_a" or "towergroup_a")
+			mesh:setTexture(shader,texture,4)
+		end
+		
+		---------------------------
+		--- Handle fuel upgrade ---
+		---------------------------
+		
+		-- NOTE FUEL has been disabled du to removal of fire
+		for index =1, 3 do
+			model:getMesh( "range"..index ):setVisible(data.getLevel("range")==index)
+			model:getMesh( "pipe"..index ):setVisible(false)
+		end
+		
+		----------------------------
+		--- Handle Range upgrade ---
+		----------------------------
+		
+		if data.getLevel("range")>0 then
+			activeRangeMesh = model:getMesh( "range"..data.getLevel("range") )
+		end
+		
+		----------------------------
+		--- Handle Tower upgrade ---
+		----------------------------
+				
+		model:getMesh( "masterAim1" ):setVisible(false)
+		if model:getMesh( "antenna1" ) then
+			model:getMesh( "antenna1" ):setVisible( false )
+		end
+		if model:getMesh( "antenna2" ) then
+			model:getMesh( "antenna2" ):setVisible( false )
+		end
+
+	end
+	
+	local function storeWaveChangeStats( )
+		tab = {
+			reloadTimeLeft = reloadTimeLeft,
+			missilesAvailable = missilesAvailable,
+			missileToFireNext = missileToFireNext,
+			missile = {},
+		}
+		for i = 1, 2+data.getTowerLevel(), 1 do
+			tab.missile[i] = {}
+			tab.missile[i].state = missile[i].state
+			tab.missile[i].timer = missile[i].timer
+			tab.missile[i].replaceTime = missile[i].replaceTime
+			tab.missile[i].missilePosition = missile[i].missilePosition
+			tab.missile[i].localPosition = missile[i].missile:getLocalPosition()
+			tab.missile[i].visible = missile[i].missile:getVisible()
+			tab.missile[i].hatch1Matrix = missile[i].hatch1:getLocalMatrix()
+			tab.missile[i].hatch2Matrix = missile[i].hatch2:getLocalMatrix()
+		end
+		return tab
+	end
+	
+	local function SetTargetMode(param)
+		targetMode = math.clamp(tonumber(param),1,6)
+		billboard:setInt("currentTargetMode",targetMode)
+		if billboard:getBool("isNetOwner") and Core.isInMultiplayer() then
+			comUnit:sendNetworkSync("SetTargetMode", tostring(param) )
 		end
 	end
-	local function doDegrade(fromLevel,toLevel,callback)
-		while fromLevel>toLevel do
-			fromLevel = fromLevel - 1
-			callback(fromLevel)
-		end
-	end
-	local function restoreWaveChangeStats( wave )
-		if isThisReal and wave>0 then
-			billboardWaveStats = billboardWaveStats or Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
-			lastRestored = wave
-			--we have gone back in time erase all tables that is from the future, that can never be used
-			local index = wave+1
-			while billboardWaveStats:exist( tostring(index) ) do
-				billboardWaveStats:erase( tostring(index) )
-				index = index + 1
-			end
-			--restore the stats from the wave
-			local tab = billboardWaveStats:getTable( tostring(wave) )
-			if tab then
-				if xpManager then
-					xpManager.restoreWaveChangeStats(tab.xpTab)
-				end
-				--
-				if upgrade.getLevel("boost")~=tab.boostLevel then self.handleBoost(tab.boostLevel) end
-				doDegrade(upgrade.getLevel("range"),tab.rangeLevel,self.handleRange)
-				doDegrade(upgrade.getLevel("Blaster"),tab.BlasterLevel,self.handleBlaster)
-				doDegrade(upgrade.getLevel("fuel"),tab.fuelLevel,self.handleFuel)
-				doDegrade(upgrade.getLevel("shieldSmasher"),tab.shieldSmasherLevel,self.handleShieldSmasher)
-				doDegrade(upgrade.getLevel("upgrade"),tab.upgradeLevel,self.handleUpgrade)--main upgrade last as the assets might not be available for higer levels
-				--
-				upgrade.restoreWaveChangeStats(tab.upgradeTab)
-				--
-				billboard:setDouble("DamagePreviousWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamageCurrentWave", tab.DamagePreviousWave)
-				billboard:setDouble("DamagePreviousWavePassive", tab.DamagePreviousWavePassive)
-				billboard:setDouble("DamageTotal", tab.DamageTotal)
-				self.SetTargetMode(tab.currentTargetMode)
-				reloadTimeLeft = tab.reloadTimeLeft
-				missilesAvailable = tab.missilesAvailable
-				missileToFireNext = tab.missileToFireNext
-				missilesInTheAir = false
-				--parse all missiles
-				for i = 1, 2+level, 1 do
-					missile[i].state = tab.missile[i].state
-					missile[i].timer = tab.missile[i].timer
-					missile[i].replaceTime = tab.missile[i].replaceTime
-					missile[i].missilePosition = tab.missile[i].missilePosition
-					missile[i].missile:setLocalPosition(tab.missile[i].localPosition)
-					missile[i].missile:setVisible(tab.missile[i].visible)
-					missile[i].hatch1:setLocalMatrix(tab.missile[i].hatch1Matrix)
-					missile[i].hatch2:setLocalMatrix(tab.missile[i].hatch2Matrix)
-				end
-			end
+
+	local function restoreWaveChangeStats( tab )
+		SetTargetMode(tab.currentTargetMode)
+		
+		reloadTimeLeft = tab.reloadTimeLeft
+		missilesAvailable = tab.missilesAvailable
+		missileToFireNext = tab.missileToFireNext
+		missilesInTheAir = false
+		--parse all missiles
+		for i = 1, 2+data.getTowerLevel(), 1 do
+			missile[i].state = tab.missile[i].state
+			missile[i].timer = tab.missile[i].timer
+			missile[i].replaceTime = tab.missile[i].replaceTime
+			missile[i].missilePosition = tab.missile[i].missilePosition
+			missile[i].missile:setLocalPosition(tab.missile[i].localPosition)
+			missile[i].missile:setVisible(tab.missile[i].visible)
+			missile[i].hatch1:setLocalMatrix(tab.missile[i].hatch1Matrix)
+			missile[i].hatch2:setLocalMatrix(tab.missile[i].hatch2Matrix)
 		end
 	end
 	
 	local function reloadMissiles()
 		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
 		local doorOpenAngle = math.pi*0.50
-		for i = 1, 2+level, 1 do
+		for i = 1, 2+data.getTowerLevel(), 1 do
 			missile[i].timer = missile[i].timer + Core.getDeltaTime()
 			if missile[i].timer<0.0 then missile[i].timer=0.0 end
 			local per = missile[i].timer/missile[i].replaceTime
@@ -212,17 +207,15 @@ function MissileTower.new()
 		end
 	end
 	local function updateStats()
-		targetSelector.setRange(upgrade.getValue("range"))
+		targetSelector.setRange(data.getValue("range"))
 	end
 	local function setCurrentInfo()
-		if xpManager then
-			xpManager.updateXpToNextLevel()
-		end
+		data.updateStats()
 		missilesAvailable = 0
-		for i = 1, 2+level, 1 do
+		for i = 1, 2+data.getTowerLevel(), 1 do
 			missile[i] = missile[i] or {}
-			missile[i].timer = upgrade.getValue("replaceTime")
-			missile[i].replaceTime = upgrade.getValue("replaceTime")
+			missile[i].timer = data.getValue("replaceTime")
+			missile[i].replaceTime = data.getValue("replaceTime")
 			missile[i].missile = model:getMesh( "missile"..i )
 			missile[i].hatch1 = model:getMesh( "hatch"..(i*10+1) )
 			missile[i].hatch2 = model:getMesh( "hatch"..(i*10+2) )
@@ -231,59 +224,32 @@ function MissileTower.new()
 			missile[i].state = 0
 		end
 		updateStats()
-		billboard:setInt("FirestormLevel",upgrade.getLevel("fuel"))
+		billboard:setInt("FirestormLevel",0)
 		reloadMissiles()
 		--achievment
-		if upgrade.getLevel("upgrade")==3 and upgrade.getLevel("range")==3 and upgrade.getLevel("shieldSmasher")==1 and upgrade.getLevel("fuel")==3 and upgrade.getLevel("Blaster")==3 then
+		if data.getIsMaxedOut() then
 			achievementUnlocked("MissileMaxed")
 		end
 	end
 	function restartWave(param)
 		projectiles.clear()
 		supportManager.restartWave()
-		restoreWaveChangeStats( tonumber(param) )
-		dmgDone = 0
 	end
-	local function doMeshUpgradeForLevel(name,meshName)
-		model:getMesh(meshName..upgrade.getLevel(name)):setVisible(true)
-		if upgrade.getLevel(name)>1 then
-			model:getMesh(meshName..(upgrade.getLevel(name)-1)):setVisible(false)
-		end
-	end
+
 	local function initModel(setMissilePos)
-		level = upgrade.getLevel("upgrade")
-		for index =1, 3, 1 do
-			model:getMesh( "range"..index ):setVisible(upgrade.getLevel("range")==index)
-			model:getMesh( "pipe"..index ):setVisible(upgrade.getLevel("fuel")==index)
-		end
+
 		model:getMesh( "physic" ):setVisible(false)
 		model:getMesh( "hull" ):setVisible(false)
-		model:getMesh( "boost" ):setVisible(upgrade.getLevel("boost")==1)
+		
 		if setMissilePos then
-			for i = 1, 2+level, 1 do
+			for i = 1, 2+data.getTowerLevel(), 1 do
 				missile[i] = missile[i] or {}
 				missile[i].missilePosition = model:getMesh( "missile"..i ):getLocalPosition()
 				missile[i].hatch1matrix = model:getMesh( "hatch"..(i*10+1) ):getLocalMatrix()
 				missile[i].hatch2matrix = model:getMesh( "hatch"..(i*10+2) ):getLocalMatrix()
 			end
 		end
-		--set ambient map
-		for index=0, model:getNumMesh()-1 do
-			local mesh = model:getMesh(index)
-			local shader = mesh:getShader()
-			local texture = Core.getTexture(upgrade.getLevel("boost")==0 and "towergroup_a" or "towergroup_boost_a")
-			mesh:setTexture(shader,texture,4)
-		end
-		model:getMesh( "masterAim1" ):setVisible(false)
-		if upgrade.getLevel("range")>0 then
-			activeRangeMesh = model:getMesh( "range"..upgrade.getLevel("range") )
-		end
-		if level>1 then
-			model:getMesh( "antenna1" ):setVisible( false )
-			if level>2 then
-				model:getMesh( "antenna2" ):setVisible( false )
-			end
-		end
+		
 		--performance check
 		for i=0, model:getNumMesh()-1, 1 do
 			if not model:getMesh(i):getName() =="tower" then
@@ -308,178 +274,24 @@ function MissileTower.new()
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
-	function self.handleUpgrade(param)
-		if tonumber(param)>upgrade.getLevel("upgrade") then
-			upgrade.upgrade("upgrade")
-		elseif upgrade.getLevel("upgrade")>tonumber(param) then
-			upgrade.degrade("upgrade")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade1",tostring(param))
-		end
-		billboard:setInt("level",upgrade.getLevel("upgrade"))
-		--Achievements
-		local level = upgrade.getLevel("upgrade")
-		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
-		if upgrade.getLevel("upgrade")==3 then
-			achievementUnlocked("Upgrader")
-		end
-		--
-		if not xpManager or upgrade.getLevel("upgrade")==1 or upgrade.getLevel("upgrade")==2 or upgrade.getLevel("upgrade")==3 then
-			this:removeChild(model:toSceneNode())
-			model = Core.getModel( upgrade.getValue("model") )
+	function self.handleUpgrade()
+		local newModel = Core.getModel( "tower_missile_l"..data.getTowerLevel()..".mym" )
+		if newModel then
+			if model then
+				this:removeChild(model:toSceneNode())
+			end
+			model = newModel
 			this:addChild(model:toSceneNode())
-			initModel(true)
+			initModel(true)	
 		end
-		upgrade.clearCooldown()
-		cTowerUpg.fixAllPermBoughtUpgrades()
-		setCurrentInfo()
-	end
-	function self.handleBoost(param)
-		if tonumber(param)>upgrade.getLevel("boost") then
-			if Core.isInMultiplayer() and canSyncTower() then
-				comUnit:sendNetworkSyncSafe("upgrade2","1")
-			end
-			boostedOnLevel = upgrade.getLevel("upgrade")
-			upgrade.upgrade("boost")
-			model:getMesh( "boost" ):setVisible(true)
-			setCurrentInfo()
-			--Achievement
-			achievementUnlocked("Boost")
-		elseif upgrade.getLevel("boost")>tonumber(param) then
-			upgrade.degrade("boost")
-			model:getMesh("boost"):setVisible( false )
-			setCurrentInfo()
-			--clear coldown info for boost upgrade
-			upgrade.clearCooldown()
-		end
-		initModel()
-	end
-	function self.handleFuel(param)
-		if tonumber(param)>upgrade.getLevel("fuel") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("fuel")
-		elseif upgrade.getLevel("fuel")>tonumber(param) then
-			model:getMesh("pipe"..upgrade.getLevel("fuel")):setVisible(false)
-			upgrade.degrade("fuel")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade5",tostring(param))
-		end
-		if upgrade.getLevel("fuel")>0 then
-			doMeshUpgradeForLevel("fuel","pipe")
-			--Acievement
-			if upgrade.getLevel("fuel")==3 then
-				achievementUnlocked("FireStorm")
-			end
-		end
-		setCurrentInfo()
-	end
-	function self.handleRange(param)
-		if tonumber(param)>upgrade.getLevel("range") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("range")
-		elseif upgrade.getLevel("range")>tonumber(param) then
-			--model:getMesh("???"..upgrade.getLevel("range")):setVisible(false)
-			upgrade.degrade("range")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade3",tostring(param))
-		end
-		if upgrade.getLevel("range")>0 then
-			--Acievement
-			if upgrade.getLevel("range")==3 then
-				achievementUnlocked("Range")
-			end
-		end
-		setCurrentInfo()
-	end
-	function self.handleBlaster(param)
-		if tonumber(param)>upgrade.getLevel("Blaster") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("Blaster")
-		elseif upgrade.getLevel("Blaster")>tonumber(param) then
-			--model:getMesh("???"..upgrade.getLevel("Blaster")):setVisible(false)
-			upgrade.degrade("Blaster")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade4",tostring(param))
-		end
-		if upgrade.getLevel("Blaster")>0 then
-			--Acievement
-			if upgrade.getLevel("Blaster")==3 then
-				achievementUnlocked("Blaster")
-			end
-		end
-		setCurrentInfo()
-	end
-	function self.handleShieldSmasher(param)
-		if tonumber(param)>upgrade.getLevel("shieldSmasher") and tonumber(param)<=upgrade.getLevel("upgrade") then
-			upgrade.upgrade("shieldSmasher")
-		elseif upgrade.getLevel("shieldSmasher")>tonumber(param) then
-			--model:getMesh("???"..upgrade.getLevel("shieldSmasher")):setVisible(false)
-			upgrade.degrade("shieldSmasher")
-		else
-			return--level unchanged
-		end
-		if Core.isInMultiplayer() and canSyncTower() then
-			comUnit:sendNetworkSyncSafe("upgrade6",tostring(param))
-		end
-		if upgrade.getLevel("shieldSmasher")>0 then
-			achievementUnlocked("forcefieldSmasher")
-		end
+		updateMeshesAndparticlesForSubUpgrades()
 		setCurrentInfo()
 	end
 	
 	function self.destroy()
 		projectiles.destroy()
 	end
-	local function damageDealt(param)
-		local addDmg = supportManager.handleSupportDamage( tonumber(param) )
-		dmgDone = dmgDone + addDmg
-		billboard:setDouble("DamageCurrentWave",dmgDone)
-		billboard:setDouble("DamageTotal",billboard:getDouble("DamagePreviousWave")+dmgDone)
-		if xpManager then
-			xpManager.addXp(addDmg)
-			local interpolation  = xpManager.getLevelPercentDoneToNextLevel()
-			upgrade.setInterpolation(interpolation)
-			upgrade.fixBillboardAndStats()
-		end
-	end
-	local function waveChanged(param)
-		local name
-		local waveCountStr
-		name,waveCountStr = string.match(param, "(.*);(.*)")
-		waveCount = tonumber(waveCountStr)
-		--update and save stats only if we did not just restore this wave
-		if waveCount>=lastRestored then
-			if not xpManager then
-				billboard:setDouble("DamagePreviousWave",dmgDone)
-				if canSyncTower() then
-					comUnit:sendTo("stats", "addTotalDmg", dmgDone )
-				end
-			else
-				xpManager.payStoredXp(waveCount)
-				--update billboard
-				upgrade.fixBillboardAndStats()
-			end
-			--store wave info to be able to restore it
-			storeWaveChangeStats( tostring(waveCount+1) )
-		end
-		dmgDone = 0
-	end
-	function self.SetTargetMode(param)
-		targetMode = math.clamp(tonumber(param),1,6)
-		billboard:setInt("currentTargetMode",targetMode)
-		if billboard:getBool("isNetOwner") and Core.isInMultiplayer() then
-			comUnit:sendNetworkSync("SetTargetMode", tostring(param) )
-		end
-	end
+	
 	local function updateTarget()
 		if targetSelector.isTargetAvailable()==false then -- or rotator:isAtHorizontalLimit() then
 			if targetSelector.selectAllInRange() then
@@ -515,7 +327,7 @@ function MissileTower.new()
 					targetSelector.scoreDensity(15)
 					targetSelector.scoreClosestToExit(10)
 					targetSelector.scoreName("reaper",25)
-					if upgrade.getLevel("shieldSmasher")>0 then
+					if data.getLevel("shieldSmasher")>0 then
 						targetSelector.scoreName("turtle",40)
 					end
 					targetSelector.selectTargetAfterMaxScore()
@@ -557,25 +369,25 @@ function MissileTower.new()
 		missile[missileToFireNext].timer = 0
 		missile[missileToFireNext].state = 4
 		--missile[missileToFireNext].missile:setVisible(false)
-		missileToFireNext = (missileToFireNext==2+level) and 1 or missileToFireNext + 1
+		missileToFireNext = (missileToFireNext==2+data.getTowerLevel()) and 1 or missileToFireNext + 1
 		missilesAvailable = missilesAvailable - 1
 	end
 	local function attack()
 		local target = targetSelector.getTargetIfAvailable()
 		if target>0 then
 			local targetPos = targetSelector.getTargetPosition(target)
-			reloadTimeLeft = reloadTimeLeft+Core.getDeltaTime()>0 and reloadTimeLeft+upgrade.getValue("fieringTime") or upgrade.getValue("fieringTime")
+			reloadTimeLeft = reloadTimeLeft+Core.getDeltaTime()>0 and reloadTimeLeft+data.getValue("fieringTime") or data.getValue("fieringTime")
 			targetHistoryCount = targetHistoryCount + 1
-			if targetHistoryCount<2+level then
+			if targetHistoryCount<2+data.getTowerLevel() then
 				targetHistory[targetHistoryCount] = target
 			else
 				targetHistoryCount = 0
 				targetHistory = {}
 			end
 			local counter=1
-			while missile[missileToFireNext].state~=3 and counter<2+level do
+			while missile[missileToFireNext].state~=3 and counter<2+data.getTowerLevel() do
 				counter = counter + 1
-				missileToFireNext = (missileToFireNext==2+level) and 1 or missileToFireNext + 1
+				missileToFireNext = (missileToFireNext==2+data.getTowerLevel()) and 1 or missileToFireNext + 1
 			end
 			if missile[missileToFireNext].state==3 then
 				billboard:setVec3("bulletStartPos",model:getMesh( "missile"..missileToFireNext ):getGlobalPosition() )
@@ -588,7 +400,7 @@ function MissileTower.new()
 					missile[missileToFireNext].timer = 0
 					missile[missileToFireNext].state = 4
 					--missile[missileToFireNext].missile:setVisible(false)
-					missileToFireNext = (missileToFireNext==2+level) and 1 or missileToFireNext + 1
+					missileToFireNext = (missileToFireNext==2+data.getTowerLevel()) and 1 or missileToFireNext + 1
 					missilesAvailable = missilesAvailable - 1
 				end
 			end
@@ -597,28 +409,23 @@ function MissileTower.new()
 	--
 	function self.update()
 		comUnit:setPos(this:getGlobalPosition())
-		if upgrade.update() then
-			model:getMesh("boost"):setVisible( false )
-			setCurrentInfo()
-			initModel()
-			--if the tower was upgraded while boosted, then the boost should be available
-			if boostedOnLevel~=upgrade.getLevel("upgrade") then
-				upgrade.clearCooldown()
-			end
-		end
+		
 		while comUnit:hasMessage() do
 			local msg = comUnit:popMessage()
 			if comUnitTable[msg.message]~=nil then
 				comUnitTable[msg.message](msg.parameter,msg.fromIndex)
 			end
 		end
-		if xpManager then
-			xpManager.update()
+		
+		if boostActive ~= data.getBoostActive() then
+			boostActive = data.getBoostActive()	
+			setCurrentInfo()
+			updateMeshesAndparticlesForSubUpgrades()
 		end
+
 		reloadMissiles()
 		if missilesAvailable>0 and reloadTimeLeft<0 and updateTarget() then
 			attack()
-			upgrade.setUsed()--set value changed
 		end
 		if projectiles.update() then
 			if missilesInTheAir==false then
@@ -637,34 +444,22 @@ function MissileTower.new()
 		--model:render()
 		return true
 	end
-	--
-	local function setNetOwner(param)
-		if param=="YES" then
-			billboard:setBool("isNetOwner",true)
-		else
-			billboard:setBool("isNetOwner",false)
-		end
-		upgrade.fixBillboardAndStats()
+	function self.handleSubUpgrade()
+		updateMeshesAndparticlesForSubUpgrades()
+		setCurrentInfo()
 	end
+	
 	--
 	local function init()
 		this:createBoundVolumeGroup()
 		this:setBoundingVolumeCanShrink(false)
---		if particleEffectUpgradeAvailable then
---			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
---		end
-		
+
 		Core.setUpdateHz(24.0)--slow gates and a slow rise of an missile
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
-
-		restartListener = Listener("RestartWave")
-		restartListener:registerEvent("restartWave", restartWave)
 		--
-		if xpManager then
-			xpManager.setUpgradeCallback(self.handleUpgrade)
-		end
+
 		--ComUnit
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(true)--debug for stats
@@ -672,21 +467,6 @@ function MissileTower.new()
 		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 		
 		billboard:setDouble("rangePerUpgrade",1.0)
-		upgrade.setBillboard(billboard)
-		upgrade.addDisplayStats("dmg")
-		upgrade.addDisplayStats("RPS")
-		upgrade.addDisplayStats("range")
-		upgrade.addDisplayStats("dmg_range")
-		upgrade.addDisplayStats("fireDPS")
-		upgrade.addDisplayStats("burnTime")
-		upgrade.addBillboardStats("missileSpeed")
-		upgrade.addBillboardStats("missileSpeedAcc")
-		upgrade.addBillboardStats("weaken")
-		upgrade.addBillboardStats("weakenTimer")
-		--upgrade.addBillboardStats("fireDPS")
-		--upgrade.addBillboardStats("burnTime")
-		upgrade.addBillboardStats("slow")
-		upgrade.addBillboardStats("shieldDamageMul")
 		billboard:setString("TargetArea","sphere")
 		billboard:setString("Name", "Missile tower")
 		billboard:setString("FileName", "Tower/missileTower.lua")
@@ -697,195 +477,113 @@ function MissileTower.new()
 		billboard:setDouble("DamageCurrentWave",0)
 		billboard:setDouble("DamagePreviousWave",0)
 		
-		--upgrade
-		upgrade.addUpgrade( {	cost = 200,
+		
+		--ComUnitCallbacks
+		comUnitTable["boost"] = data.activateBoost
+		comUnitTable["NetLaunchMissile"] = NetLaunchMissile
+		comUnitTable["SetTargetMode"] = self.SetTargetMode
+		
+		
+		supportManager.setUpgrade(data)
+		supportManager.addHiddenUpgrades()
+		supportManager.addSetCallbackOnChange(data.updateStats)
+		supportManager.setComUnitTable(comUnitTable)
+		supportManager.addCallbacks()
+	
+		data.setBillboard(billboard)
+		data.setCanSyncTower(canSyncTower())
+		data.setComUnit(comUnit, comUnitTable)
+		data.setTowerUpgradeCallback(self.handleUpgrade)
+		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.addDisplayStats("damage")
+		data.addDisplayStats("RPS")
+		data.addDisplayStats("range")
+		data.addDisplayStats("dmg_range")
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			restartListener:registerEvent("restartWave", restartWave)
+			data.setRestoreFunction(restartListener, restoreWaveChangeStats, storeWaveChangeStats)
+		end
+		
+		
+		data.addTowerUpgrade({	cost = {200,400,800},
 								name = "upgrade",
 								info = "missile tower level",
-								order = 1,
-								icon = 56,
-								value1 = 1,
-								stats = {range =		{ upgrade.add, 7.0},
-										dmg = 			{ upgrade.add, 270},
-										RPS = 			{ upgrade.add, 3.0/12.0,},
-										replaceTime =	{ upgrade.add, 12},
-										fieringTime =	{ upgrade.add, 1.25},
-										dmg_range =		{ upgrade.add, 1.5},
-										missileSpeed =	{ upgrade.add, 7.0},
-										missileSpeedAcc={ upgrade.add, 4.5},
-										shieldDamageMul={ upgrade.add, 1.0},
-										model =			{ upgrade.set, "tower_missile_l1.mym"} }
-							} )
-		--AUH == Average Units Hitts
-		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 310*(1.5*1.6)*(3/12)/200 == 0.93
-		upgrade.addUpgrade( {	cost = 400,
-								name = "upgrade",
-								info = "missile tower level",
-								order = 1,
-								icon = 56,
-								value1 = 2,
-								stats = {range =		{ upgrade.add, 7.0},
-										dmg = 			{ upgrade.add, 570},
-										RPS = 			{ upgrade.add, 4.0/12.0,},
-										replaceTime =	{ upgrade.add, 12},
-										fieringTime =	{ upgrade.add, 1.25},
-										dmg_range =		{ upgrade.add, 1.75},
-										missileSpeed =	{ upgrade.add, 7.0},
-										missileSpeedAcc={ upgrade.add, 4.5},
-										shieldDamageMul={ upgrade.add, 1.0},
-										model =			{ upgrade.set, "tower_missile_l2.mym"} }
-							},0 )
-		--AUH == Average Units Hitts == (1.75*1.6) == 2.8	(wave11-15==2.95)(wave16-20==3.85)
-		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 630*(1.75*1.6)*(4/12)/600 == 0.98
-		upgrade.addUpgrade( {	cost = 800,
-								name = "upgrade",
-								info = "missile tower level",
-								order = 1,
-								icon = 56,
-								value1 = 3,
-								stats = {range =		{ upgrade.add, 7.0},
-										dmg = 			{ upgrade.add, 980},
-										RPS = 			{ upgrade.add, 5.0/12.0,},
-										replaceTime =	{ upgrade.add, 12},
-										fieringTime =	{ upgrade.add, 1.25},
-										dmg_range =		{ upgrade.add, 2.0},
-										missileSpeed =	{ upgrade.add, 7.0},
-										missileSpeedAcc={ upgrade.add, 4.5},
-										shieldDamageMul={ upgrade.add, 1.0},
-										model =			{ upgrade.set, "tower_missile_l3.mym"} }
-							},0 )
-		--AUH == Average Units Hitts == (2.0*1.6) == 3.2
-		--DPSpG == dmg*AUH*RPS*(Diameter/2+2.5)*0.111/cost == 1080*(2.0*1.6)*(5/12)/1400 == 1.03
-		--boost
-		function boostDamage() return upgrade.getStats("dmg")*2.5*(waveCount/50+1.0) end
-		--(total)	0=2x	25=4x	50=6x
-		upgrade.addUpgrade( {	cost = 0,
+								iconId = 56,
+								level = 1,
+								maxLevel = 3,
+								stats = {
+										range =				{ 7.0, 7.0, 7.0 },
+										damage = 			{ 270, 570, 980},
+										RPS = 				{ 3.0/12.0, 4.0/12.0, 5.0/12.0},
+										replaceTime =		{ 12, 12, 12 },
+										fieringTime =		{ 1.25, 1.25, 1.25 },
+										dmg_range =			{ 1.5, 1.75, 2.0 },
+										missileSpeed =		{ 7.0, 7.0, 7.0 },
+										missileSpeedAcc =	{ 4.5, 4.5, 4.5 },
+										shieldDamageMul =	{ 1.0, 1.0, 1.0 } }
+							})
+		
+		data.addBoostUpgrade({	cost = 0,
 								name = "boost",
 								info = "missile tower boost",
-								order = 10,
 								duration = 10,
 								cooldown = 3,
-								icon = 57,
-								stats = {range = 		{ upgrade.add, 1.0},
-										dmg =		{ upgrade.func, boostDamage},
-										dmg_range ={ upgrade.mul, 1.1},
-										missileSpeedAcc={ upgrade.mul, 1.25},
-										fieringTime =	{ upgrade.add, -0.25},
-										replaceTime =	{ upgrade.mul, 0.5} }
-							} )
-		-- RANGE
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 0 or 100,
+								iconId = 57,
+								level = 0,
+								maxLevel = 1,
+								stats = {range = 			{ 1.0, func = data.add },
+										damage =			{ 3, func = data.mul },
+										dmg_range = 		{ 1.1, func = data.mul },
+										missileSpeedAcc = 	{ 1.25, func = data.mul },
+										fieringTime = 		{ -0.25, func = data.add },
+										replaceTime = 		{ 0.5, func = data.mul } }
+							})
+		
+		data.addSecondaryUpgrade({	
+								cost = {100,200,300},
 								name = "range",
 								info = "missile tower range",
-								order = 2,
-								icon = 59,
-								value1 = 7 + 1,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",1),
-								stats = {range = 		{ upgrade.add, 1.0}}
-							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 100 or 200,
-								name = "range",
-								info = "missile tower range",
-								order = 2,
-								icon = 59,
-								value1 = 7 + 2,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",2),
-								stats = {range = 		{ upgrade.add, 2.0}}
-							} )
-		upgrade.addUpgrade( {	cost = cTowerUpg.isPermUpgraded("range",1) and 200 or 300,
-								name = "range",
-								info = "missile tower range",
-								order = 2,
-								icon = 59,
-								value1 = 7 + 3,
-								levelRequirement = cTowerUpg.getLevelRequierment("range",3),
-								stats = {range = 		{ upgrade.add, 3.0}}
-							} )
-		-- MARK OF DEATH (amplified by other towers, increases damage take to target with 5% every upgrade)
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
+								infoValues = {"range"},
+								iconId = 59,
+								level = 0,
+								maxLevel = 3,
+								callback = self.handleSubUpgrade,
+								achievementName = "Range",
+								stats = {range = { 1.0, 2.0, 3.0, func = data.add }}
+							})
+		
+		data.addSecondaryUpgrade({	
+								cost = {100,200,300},
 								name = "Blaster",
 								info = "missile tower explosion",
-								order = 3,
-								icon = 39,
-								value1 = 8,
-								levelRequirement = cTowerUpg.getLevelRequierment("Blaster",1),
-								stats ={dmg =		{ upgrade.mul, 1.08},
-										dmg_range= { upgrade.mul, 1.08} }
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "Blaster",
-								info = "missile tower explosion",
-								order = 3,
-								icon = 39,
-								value1 = 16,
-								levelRequirement = cTowerUpg.getLevelRequierment("Blaster",2),
-								stats ={dmg =		{ upgrade.mul, 1.16},
-										dmg_range= { upgrade.mul, 1.16} }
-							} )
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "Blaster",
-								info = "missile tower explosion",
-								order = 3,
-								icon = 39,
-								value1 = 24,
-								levelRequirement = cTowerUpg.getLevelRequierment("Blaster",3),
-								stats ={dmg =		{ upgrade.mul, 1.24},
-										dmg_range= { upgrade.mul, 1.24} }
-							} )
-		-- fuel
-		function fireDamage1() return upgrade.getStats("dmg") * 0.20 end
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "fuel",
-								info = "missile tower fire",
-								order = 4,
-								icon = 38,
-								value1 = 20,--20% fire damage
-								value2 = 1,--1 seconds
-								levelRequirement = cTowerUpg.getLevelRequierment("fuel",1),
-								stats ={fireDPS =		{ upgrade.set, fireDamage1},
-										burnTime =		{ upgrade.add, 1.0} }
-							} )
-		function fireDamage2() return upgrade.getStats("dmg") * 0.22 end
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "fuel",
-								info = "missile tower fire",
-								order = 4,
-								icon = 38,
-								value1 = 22,
-								value2 = 1.75,
-								levelRequirement = cTowerUpg.getLevelRequierment("fuel",2),
-								stats ={fireDPS =		{ upgrade.set, fireDamage2},
-										burnTime =		{ upgrade.add, 1.75} }
-							} )
-		function fireDamage3() return upgrade.getStats("dmg") * 0.24 end
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
-								name = "fuel",
-								info = "missile tower fire",
-								order = 4,
-								icon = 38,
-								value1 = 24,
-								value2 = 2.5,
-								levelRequirement = cTowerUpg.getLevelRequierment("fuel",3),
-								stats ={fireDPS =		{ upgrade.set, fireDamage3},
-										burnTime =		{ upgrade.add, 2.5} }
-							} )
-		--ShieldSmasher
-		--1 of 8 gropus is turtle shielded, mening 15% increase in damage where 1 damage per wave will give 9.2 meaning to increase 1 wave to the same is 2.2
-		--meaning 120% damage increase for shield is needed to neglect damage increase in the other waves (because special case upgrade we give it another 15%) ending in 2.5x dmage
-		upgrade.addUpgrade( {	costFunction = upgrade.calculateCostUpgrade,
+								infoValues = {"damage", "dmg_range"},
+								iconId = 39,
+								level = 0,
+								maxLevel = 3,
+								callback = self.handleSubUpgrade,
+								achievementName = "Blaster",
+								stats = {damage = { 1.08, 1.16, 1.24, func = data.mul },
+										 dmg_range = { 1.08, 1.16, 1.24, func = data.mul }}
+							})
+		
+							
+		data.addSecondaryUpgrade({	
+								cost = {200},
 								name = "shieldSmasher",
 								info = "missile tower shield destroyer",
-								order = 5,
-								icon = 42,
-								value1 = 200,--200% damage increase
-								levelRequirement = cTowerUpg.getLevelRequierment("shieldSmasher",1),
-								stats ={shieldDamageMul =	{ upgrade.mul, 3.0}}
-							} )
---		supportManager.setUpgrade(upgrade)
---		supportManager.addHiddenUpgrades()
---		supportManager.addSetCallbackOnChange(updateStats)
+								infoValues = {"damage", "dmg_range"},
+								iconId = 42,
+								level = 0,
+								maxLevel = 1,
+								callback = self.handleSubUpgrade,
+								achievementName = "forcefieldSmasher",
+								stats = { shieldDamageMul = { 3.0, func = data.mul } }
+							})
 		
-		upgrade.upgrade("upgrade")
-		billboard:setInt("level",upgrade.getLevel("upgrade"))
+		
+		data.buildData()
+
 		if isCircleMap then
 			billboard:setString("targetMods","attackHighDensity;attackVariedTargets;attackPriorityTarget;attackWeakestTarget;attackStrongestTarget")
 			targetMode = 1
@@ -896,48 +594,12 @@ function MissileTower.new()
 			billboard:setInt("currentTargetMode",1)
 		end
 		
-		--model
-		model = Core.getModel(upgrade.getValue("model"))
-		this:addChild(model:toSceneNode())
-		
-		--Hull
-		local hullModel = Core.getModel("tower_resource_hull.mym")
-		
-		--default billboard stats
-		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))
-		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
-		
-		--ComUnitCallbacks
-		comUnitTable["dmgDealt"] = damageDealt
-		comUnitTable["waveChanged"] = waveChanged
-		comUnitTable["upgrade1"] = self.handleUpgrade
-		comUnitTable["upgrade2"] = self.handleBoost
-		comUnitTable["upgrade3"] = self.handleRange
-		comUnitTable["upgrade4"] = self.handleBlaster
-		comUnitTable["upgrade5"] = self.handleFuel
-		comUnitTable["upgrade6"] = self.handleShieldSmasher
-		comUnitTable["NetOwner"] = setNetOwner
-		comUnitTable["NetLaunchMissile"] = NetLaunchMissile
-		comUnitTable["SetTargetMode"] = self.SetTargetMode
-		--comUnitTable["damageDealt"] = handleDamageDealt
-		supportManager.setComUnitTable(comUnitTable)
-		supportManager.addCallbacks()
-	
 		--soulManager and targetSelecter
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})
 		targetSelector.setPosition(this:getGlobalPosition())
-		targetSelector.setRange(upgrade.getValue("range"))
-		
-		initModel(true)
-		setCurrentInfo()
-		
-		cTowerUpg.addUpg("range",self.handleRange)
-		cTowerUpg.addUpg("Blaster",self.handleBlaster)
-		cTowerUpg.addUpg("fuel",self.handleFuel)
-		cTowerUpg.addUpg("shieldSmasher",self.handleShieldSmasher)
-		cTowerUpg.fixAllPermBoughtUpgrades()
-		
-		--this:setIsStatic(true)
+		targetSelector.setRange(data.getValue("range"))
+
+
 		return true
 	end
 	init()

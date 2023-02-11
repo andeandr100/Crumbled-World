@@ -23,7 +23,6 @@ function UpgradeData.new()
 	local stats= {}
 	local timeout = -1
 	local supportTowerIndexes = {} --List of support towers that has the max level support bonus active on this tower
-	local changedLevelCallback = nil
 	local achievementName = nil
 	
 	function self.getStats()
@@ -95,11 +94,7 @@ function UpgradeData.new()
 		if newlevel == nil or newlevel < 0 or newlevel > maxLevel then
 			abort()
 		end
-		level = newlevel
-		
-		if changedLevelCallback then
-			changedLevelCallback()
-		end
+		level = newlevel	
 	end	
 	
 	--Function used to temporary activate one level above
@@ -122,7 +117,6 @@ function UpgradeData.new()
 		iconId = data.iconId
 		stats = data.stats
 		achievementName = data.achievementName
-		changedLevelCallback = data.callback
 	end
 	
 	return self

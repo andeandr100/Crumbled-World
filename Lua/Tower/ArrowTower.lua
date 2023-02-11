@@ -1,5 +1,4 @@
 require("Tower/rotator.lua")
-require("Tower/supportManager.lua")
 require("NPC/state.lua")
 require("Projectile/projectileManager.lua")
 require("Projectile/Arrow.lua")
@@ -18,7 +17,6 @@ function ArrowTower.new()
 	local targetSelector = TargetSelector.new(activeTeam)
 	local projectiles = projectileManager.new()
 	local cData = CampaignData.new()
-	local supportManager = SupportManager.new()
 	local rotator = Rotator.new()
 	local currentGlobalVec = ""
 	--constants
@@ -41,6 +39,7 @@ function ArrowTower.new()
 	local reloadTime = 0.0
 	local reloadTimeLeft = 0.0
 	local boostedOnLevel = 0
+	local boostActive = false
 	--Upgrades
 	local reRotateTowerCostMultiplyer = 0   
 	local isSettingRotation = 0.0
@@ -71,14 +70,6 @@ function ArrowTower.new()
 		end
 	end
 	
-	local function storeWaveChangeStats( waveStr )
-		if isThisReal then
-			tab = {
-				currentTargetAreaOffset = billboard:getMatrix("TargetAreaOffset"),
-			}
-			data.storeWaveChangeStats(waveStr, tab)
-		end
-	end
 	local function SetTargetMode(param)
 		targetMode = math.clamp(tonumber(param),1,4)
 		billboard:setInt("currentTargetMode",targetMode)
@@ -121,41 +112,12 @@ function ArrowTower.new()
 			model:getMesh("scope"..data.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), SCOPE_ROTATION_ON_BOOST)
 		end	
 	end
-	
-	local function restoreWaveChangeStats( wave )
-		if isThisReal then
-			local towerLevel = data.getTowerLevel()
-			local tab = data.restoreWaveChangeStats( wave )	
-			if tab ~= nil then
-				billboard:setMatrix("TargetAreaOffset",tab.currentTargetAreaOffset)
-				SetTargetMode(tab.currentTargetMode)
-			end
-		
-			if towerLevel ~= data.getTowerLevel() then
-				self.handleUpgrade("upgrade;"..tostring(data.getTowerLevel()))
-			else
-				updateMeshesAndparticlesForSubUpgrades()
-			end
-		end
-	end
+
 	--
 	local function restartWave(param)
 		projectiles.clear()
-		supportManager.restartWave()
-		restoreWaveChangeStats( tonumber(param) )
 	end
 
-	local function waveChanged(param)
-		local name
-		local waveCountStr
-		name,waveCountStr = string.match(param, "(.*);(.*)")
-		local waveCount = tonumber(waveCountStr)
-
-		--update and save stats only if we did not just restore this wave
-		if waveCount>=lastRestored then
-			storeWaveChangeStats( tostring(waveCount+1) )
-		end
-	end
 	
 	local function resetModel()
 		--Meshes
@@ -195,10 +157,7 @@ function ArrowTower.new()
 			achievementUnlocked("CrossbowMaxed")
 		end
 	end
-	function self.setTargetAreaOffset(tabStr)
-		local tab = totable(tabStr)
-		billboard:setMatrix("TargetAreaOffset", tab.mat)
-	end
+
 	function self.setRotateTarget(globalVec, isWaveRestart)
 		currentGlobalVec = globalVec
 		if globalVec:sub(1,1)==":" then
@@ -206,8 +165,8 @@ function ArrowTower.new()
 		else
 			if Core.isInMultiplayer() and billboard:getBool("isNetOwner") then
 				comUnit:sendNetworkSyncSafe("setRotateTarget",":"..globalVec)
-				local tab = {mat=billboard:getMatrix("TargetAreaOffset")}
-				comUnit:sendNetworkSyncSafe("setTargetAreaOffset",tabToStrMinimal(tab))
+--				local tab = {mat=billboard:getMatrix("TargetAreaOffset")}
+--				comUnit:sendNetworkSyncSafe("setTargetAreaOffset",tabToStrMinimal(tab))
 			end
 		end
 		
@@ -255,21 +214,19 @@ function ArrowTower.new()
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
-	function self.handleUpgrade(param)
-		print("handleUpgrade("..param..")")
-		local subString, size = split(param, ";")
-		local level = tonumber(subString[2])
-		data.setTowerLevel(level)
+	function self.handleUpgrade()
+		local copyPreviousData = model and rotaterMesh and crossbowMesh
 		
-		
-		local rotaterMatrix = rotaterMesh:getLocalMatrix()--get rotation for rotater
-		local crossbowMatrix = crossbowMesh:getLocalMatrix()--get rotation for engine
-		local rotaterBaseMatrix = model:getMesh( "rotaterBase" ):getLocalMatrix()
+		local rotaterMatrix = copyPreviousData and rotaterMesh:getLocalMatrix() or nil--get rotation for rotater
+		local crossbowMatrix = copyPreviousData and crossbowMesh:getLocalMatrix() or nil--get rotation for engine
+		local rotaterBaseMatrix = copyPreviousData and model:getMesh( "rotaterBase" ):getLocalMatrix() or nil
 	
 	
 		local newModel = Core.getModel( string.format("tower_crossbow_l%d.mym", data.getTowerLevel()) )
 		if newModel then
-			this:removeChild(model:toSceneNode())
+			if model then
+				this:removeChild(model:toSceneNode())
+			end
 			model = newModel
 			this:addChild(model:toSceneNode())
 			billboard:setModel("tower",model);
@@ -279,10 +236,11 @@ function ArrowTower.new()
 		
 		--model:setIsStatic(true)
 		--model:render()
-		rotaterMesh:setLocalMatrix(rotaterMatrix)--set the old rotation
-		crossbowMesh:setLocalMatrix(crossbowMatrix)--set the old rotation
-		model:getMesh( "rotaterBase" ):setLocalMatrix(rotaterBaseMatrix)
-	
+		if copyPreviousData then
+			rotaterMesh:setLocalMatrix(rotaterMatrix)--set the old rotation
+			crossbowMesh:setLocalMatrix(crossbowMatrix)--set the old rotation
+			model:getMesh( "rotaterBase" ):setLocalMatrix(rotaterBaseMatrix)
+		end
 		--instant reload
 		reloadTimeLeft = 0.0
 		--visual changes
@@ -459,6 +417,12 @@ function ArrowTower.new()
 --				upgrade.clearCooldown()
 --			end
 --		end
+		if boostActive ~= data.getBoostActive() then
+			boostActive = data.getBoostActive()	
+			setCurrentInfo()
+			updateMeshesAndparticlesForSubUpgrades()
+		end
+		
 
 		comUnit:setPos(this:getGlobalPosition())
 		--change update speed
@@ -521,16 +485,6 @@ function ArrowTower.new()
 	end
 	
 	--
-	local function setNetOwner(param)
-		if param=="YES" then
-			billboard:setBool("isNetOwner",true)
-		else
-			billboard:setBool("isNetOwner",false)
-		end
-		data.setGameSessionBillboard( Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() ) )
-		data.updateStats()
-	end
-	--
 	local function init()
 		this:createBoundVolumeGroup()
 		this:setBoundingVolumeCanShrink(false)
@@ -550,7 +504,6 @@ function ArrowTower.new()
 		end
 		
 		model = Core.getModel("tower_crossbow_l1.mym")
-		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
 		
 		soundNode = SoundNode.new("bow_release")
@@ -569,16 +522,12 @@ function ArrowTower.new()
 		comUnit:setPos(this:getGlobalPosition())
 		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 		billboard:setDouble("rangePerUpgrade",1.5)
-		billboard:setString("hullName","hull")
-		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))
-		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
 		billboard:setModel("tower",model)
 		billboard:setVec3("Position",this:getGlobalPosition()+Vec3(0,2.3,0))--for locating where the physical attack originated
 		billboard:setString("TargetArea","cone")
 		billboard:setFloat("targetAngleY",math.pi*0.5)
 		local localMat =  model:getGlobalMatrix():inverseM() * model:getMesh( "rotater" ):getGlobalMatrix()
 		localMat:setPosition( localMat:getPosition() + Vec3(0,0.6,0) )
-		billboard:setMatrix("TargetAreaOffset", localMat)
 		billboard:setString("Name", "Arrow tower")
 		billboard:setString("FileName", "Tower/ArrowTower.lua")
 		billboard:setBool("isNetOwner",true)
@@ -590,31 +539,28 @@ function ArrowTower.new()
 		billboard:setDouble("DamageTotal",0)
 	
 		--ComUnitCallbacks
-		comUnitTable["dmgDealt"] = data.addDamage
-		comUnitTable["dmgDealtMarkOfDeath"] = data.addPassivDamage
-		comUnitTable["waveChanged"] = waveChanged
-		comUnitTable["upgrade"] = self.handleUpgrade
-		comUnitTable["boost"] = self.handleBoost
-		comUnitTable["range"] = data.handleSecondaryUpgrade
-		comUnitTable["hardArrow"] = data.handleSecondaryUpgrade
-		comUnitTable["markOfDeath"] = data.handleSecondaryUpgrade
+		comUnitTable["boost"] = data.activateBoost
 		comUnitTable["upgrade6"] = handleRotate
 		comUnitTable["setRotateTarget"] = self.setRotateTarget
-		comUnitTable["setTargetAreaOffset"] = self.setTargetAreaOffset
-		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["NetTarget"] = NetSyncTarget
 		comUnitTable["Retarget"] = handleRetarget
 		comUnitTable["SetTargetMode"] = self.SetTargetMode
 		
-		
 		data.setBillboard(billboard)
 		data.setCanSyncTower(canSyncTower())
-		data.setComUnit(comUnit)
+		data.setComUnit(comUnit, comUnitTable)
+		data.setTowerUpgradeCallback(self.handleUpgrade)
+		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.enableSupportManager()
 		data.addDisplayStats("damage")
 		data.addDisplayStats("RPS")
 		data.addDisplayStats("range")
 		data.addDisplayStats("weakenValue")
-		
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			restartListener:registerEvent("restartWave", restartWave)
+			data.setRestoreFunction(restartListener, nil, nil)
+		end
 		
 		data.addTowerUpgrade({	cost = {200,400,800},
 								name = "upgrade",
@@ -650,7 +596,6 @@ function ArrowTower.new()
 								iconId = 59,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								achievementName = "Range",
 								stats = {range = { 1.5, 3.0, 4.5, func = data.add }}
 							})
@@ -663,7 +608,6 @@ function ArrowTower.new()
 								iconId = 2,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								achievementName = "HardArrow",
 								stats = {RPS = { 0.5, 0.4, 0.3, func = data.mul },
 										damage = { 2.35, 3.4, 5.1, func = data.mul }}
@@ -677,14 +621,14 @@ function ArrowTower.new()
 								iconId = 61,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								achievementName = "MarkOfDeath",
 								stats = {weaken = { 0.08, 0.16, 0.24, func = data.set },
 										weakenValue = { 8, 16, 24, func = data.set },
 										weakenTimer = { 5.0, 5.0, 5.0, func = data.set }}
 							})
 
-
+		
+		data.buildData()
 
 --		function calculateReRotateCost() return 25*reRotateTowerCostMultiplyer end
 --		upgrade.addUpgrade( {	cost = 0,
@@ -697,12 +641,6 @@ function ArrowTower.new()
 							
 							
 							
-		supportManager.setUpgrade(data)
-		supportManager.addHiddenUpgrades()
-		supportManager.addSetCallbackOnChange(data.updateStats)
-		
-		supportManager.setComUnitTable(comUnitTable)
-		supportManager.addCallbacks()
 		
 		if isCircleMap then
 			billboard:setString("targetMods","attackPriorityTarget;attackWeakestTarget;attackStrongestTarget")

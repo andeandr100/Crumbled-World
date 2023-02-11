@@ -1,4 +1,3 @@
-require("Tower/supportManager.lua")
 require("NPC/state.lua")
 require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
@@ -16,7 +15,6 @@ function ElectricTower.new()
 	local self = {}
 	local waveCount = 0
 	local cData = CampaignData.new()
-	local supportManager = SupportManager.new()
 	local damagePerEnergy = 19
 	--data
 	local data = TowerData.new()
@@ -83,12 +81,10 @@ function ElectricTower.new()
 		end
 	end
 	
-	local function storeWaveChangeStats( waveStr )
-		if isThisReal then
-			tab = {}
-			tab["storedEnergy"] = energy
-			data.storeWaveChangeStats(waveStr, tab)
-		end
+	local function storeWaveChangeStats(  )
+		tab = {}
+		tab["storedEnergy"] = energy
+		return tab
 	end
 	
 	local function updateMeshesAndparticlesForSubUpgrades()
@@ -129,27 +125,11 @@ function ElectricTower.new()
 		end
 	end
 	
-	local function restoreWaveChangeStats( wave )
-		if isThisReal then
-			local towerLevel = data.getTowerLevel()
-			local tab = data.restoreWaveChangeStats( wave )	
-			if tab ~= nil then
-				energy = tab.storedEnergy
-				SetTargetMode(tab.currentTargetMode)
-			end
-		
-			if towerLevel ~= data.getTowerLevel() then
-				self.handleUpgrade("upgrade;"..tostring(data.getTowerLevel()))
-			else
-				updateMeshesAndparticlesForSubUpgrades()
-			end
-		end
+	local function restoreWaveChangeStats( tab )
+		energy = tab.storedEnergy
+		SetTargetMode(tab.currentTargetMode)	
 	end
 	
-	local function restartWave(param)
-		supportManager.restartWave()
-		restoreWaveChangeStats( tonumber(param) )
-	end
 	
 	local function doLightning(targetPosition,sphere)
 		if targetPosition:length()>0.01 then
@@ -323,25 +303,19 @@ function ElectricTower.new()
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
-	function self.handleUpgrade(param)
+	function self.handleUpgrade()
 		
-		print("handleUpgrade("..param..")")
-		local subString, size = split(param, ";")
-		local level = tonumber(subString[2])
-
-		data.setTowerLevel(level)
-		
-		local newModel = Core.getModel( "tower_electric_l"..level..".mym" )			
+		local newModel = Core.getModel( "tower_electric_l"..data.getTowerLevel()..".mym" )			
 		if newModel then
 			local matrixList = {}
-			for i=1, level-1, 1 do
+			for i=1, data.getTowerLevel()-1, 1 do
 				matrixList[i] = model:getMesh("ring"..i):getLocalMatrix()
 			end
 		
 			this:removeChild(model:toSceneNode())
 			model = newModel
 			this:addChild(model:toSceneNode())
-			for i=1, level-1, 1 do
+			for i=1, data.getTowerLevel()-1, 1 do
 				model:getMesh("ring"..i):setLocalMatrix( matrixList[i] )
 			end
 			
@@ -365,17 +339,6 @@ function ElectricTower.new()
 		setCurrentInfo()
 	end
 
-	local function waveChanged(param)
-		local name
-		local waveCountStr
-		name,waveCountStr = string.match(param, "(.*);(.*)")
-		local waveCount = tonumber(waveCountStr)
-
-		--update and save stats only if we did not just restore this wave
-		if waveCount>=lastRestored then
-			storeWaveChangeStats( tostring(waveCount+1) )
-		end
-	end
 	local function NetSyncTarget(param)
 		local target = tonumber(Core.getIndexOfNetworkName(param))
 		if target>0 then
@@ -595,17 +558,6 @@ function ElectricTower.new()
 		return true
 	end
 	--
-	local function setNetOwner(param)
-		if param=="YES" then
-			billboard:setBool("isNetOwner",true)
-		else
-			billboard:setBool("isNetOwner",false)
-		end
-		
-		data.setGameSessionBillboard( Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() ) )
-		data.updateStats()
-	end
-	--
 	local function init()
 		----this:setIsStatic(true)
 		Core.setUpdateHz(60.0)
@@ -613,14 +565,9 @@ function ElectricTower.new()
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end
 		
-		if isThisReal then
-			restartListener = Listener("RestartWave")
-			restartListener:registerEvent("restartWave", restartWave)
-		end
 		--
 		--comTimer = 0.0
 		model = Core.getModel("tower_electric_l1.mym")
-		local hullModel = Core.getModel("tower_resource_hull.mym")
 		this:addChild(model:toSceneNode())
 	
 
@@ -635,9 +582,6 @@ function ElectricTower.new()
 		comUnit:setPos(this:getGlobalPosition())
 		comUnit:broadCast(this:getGlobalPosition(),4.0,"shockwave","")
 		billboard:setDouble("rangePerUpgrade",0.75)
-		billboard:setString("hullName","hull")
-		billboard:setVectorVec3("hull3d",createHullList3d(hullModel:getMesh("hull")))
-		billboard:setVectorVec2("hull2d",createHullList2d(hullModel:getMesh("hull")))
 		billboard:setModel("tower",model)
 		billboard:setString("TargetArea","sphere")
 		billboard:setString("Name", "Electric tower")
@@ -651,39 +595,35 @@ function ElectricTower.new()
 		billboard:setDouble("DamageCurrentWave",0)
 	
 		--ComUnitCallbacks
-		comUnitTable["dmgDealt"] = data.addDamage
-		--comUnitTable["dmgLost"] = damageLost --There is no code for this function
-		comUnitTable["waveChanged"] = waveChanged
-		comUnitTable["upgrade"] = self.handleUpgrade
 		comUnitTable["boost"] = self.handleBoost
-		comUnitTable["range"] = data.handleSecondaryUpgrade
-		comUnitTable["ampedSlow"] = data.handleSecondaryUpgrade
-		comUnitTable["energyPool"] = data.handleSecondaryUpgrade
-		comUnitTable["energy"] = data.handleSecondaryUpgrade
 		if isThisReal then
 			comUnitTable["sendMeEnergy"] = sendEnergyTo
 			comUnitTable["requestEnergy"] = doWeHaveEnergyOver
 			comUnitTable["canOfferEnergy"] = someoneCanOfferEnergy
 			comUnitTable["sendEnergyTo"] = recivingEnergy
 		end
-		comUnitTable["NetOwner"] = setNetOwner
 		comUnitTable["NetTarget"] = NetSyncTarget
 		comUnitTable["Retarget"] = handleRetarget
-		comUnitTable["SetTargetMode"] = self.SetTargetMode
-		supportManager.setComUnitTable(comUnitTable)
-		supportManager.addCallbacks()
+		comUnitTable["SetTargetMode"] = self.SetTargetMode	
 		
-
 		data.setBillboard(billboard)
 		data.setCanSyncTower(canSyncTower())
-		data.setComUnit(comUnit)
+		data.setComUnit(comUnit, comUnitTable)
+		data.setTowerUpgradeCallback(self.handleUpgrade)
+		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.enableSupportManager()
 		data.addDisplayStats("damage")
 		data.addDisplayStats("RPS")
 		data.addDisplayStats("range")
 		data.addDisplayStats("slow")
 		data.addDisplayStats("energyPool")
 		data.addDisplayStats("ERPS")
+		if isThisReal then
+			restartListener = Listener("RestartWave")
+			data.setRestoreFunction(restartListener, restoreWaveChangeStats, storeWaveChangeStats)
+		end
 		
+
 		data.addTowerUpgrade({	cost = {200,400,800},
 								name = "upgrade",
 								info = "electric tower level",
@@ -776,12 +716,9 @@ function ElectricTower.new()
 							})
 
 		
-		data.updateStats()
 		
-		supportManager.setUpgrade(data)
-		supportManager.addHiddenUpgrades()
-		supportManager.addSetCallbackOnChange(data.updateStats)
-
+		data.buildData()
+		
 
 		if isCircleMap then
 			billboard:setString("targetMods","attackPriorityTarget;attackHighDensity;attackWeakestTarget;attackStrongestTarget")
@@ -793,7 +730,6 @@ function ElectricTower.new()
 			billboard:setInt("currentTargetMode",5)
 		end
 	
-		self.handleUpgrade("upgrade;1")
 	
 		--ParticleEffects
 		this:addChild(particleSparcleCenter:toSceneNode())

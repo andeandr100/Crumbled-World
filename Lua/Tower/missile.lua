@@ -388,7 +388,7 @@ function Missile.new()
 		timeEnding = true
 	end
 	local function attackSingleTarget(targetIndex,damageMul)
-		local dmg = billboard:getDouble("dmg")*damageMul
+		local dmg = billboard:getDouble("damage")*damageMul
 		comUnit:sendTo(targetIndex,"attack",tostring(dmg))
 		comUnit:sendTo(targetIndex,"physicPushIfDead",position)
 		damageDone = damageDone + dmg
@@ -427,9 +427,9 @@ function Missile.new()
 				comUnit:sendTo("SteamStats","MaxDamageDealt",damageDone)
 				--
 				--
-				if billboard:getDouble("fireDPS")>1.0 and fireStorm then
-					fireStorm.activate(billboard:getDouble("burnTime"),position,billboard:getDouble("fireDPS"),billboard:getDouble("slow"),detonationRange)
-				end
+--				if billboard:getDouble("fireDPS")>1.0 and fireStorm then
+--					fireStorm.activate(billboard:getDouble("burnTime"),position,billboard:getDouble("fireDPS"),billboard:getDouble("slow"),detonationRange)
+--				end
 				doDetonationEffect()
 			else
 				local deltaTime = Core.getDeltaTime()
