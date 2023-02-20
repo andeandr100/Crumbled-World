@@ -4,7 +4,7 @@ require("Game/targetSelector.lua")
 --Predeclaration for the inteligence
 
 LaserBullet = {name="LaserBullet"}
-function LaserBullet.new()
+function LaserBullet.new(targetSelector)
 	local self = {}
 	
 	local speed = 25.0
@@ -17,7 +17,7 @@ function LaserBullet.new()
 	local shieldAreaIndex = 0
 	local playerNode = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 	local comUnit = Core.getComUnit()
-	local billboard = Core.getBillboard()
+	local billboard = comUnit:getBillboard()
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	
@@ -43,7 +43,8 @@ function LaserBullet.new()
 		targetIndex = table[1]
 		damage = billboard:getFloat("damage")
 		range = billboard:getFloat("range")
-		damageWeak = billboard:getFloat("damageWeak-upg")
+		damageWeak = billboard:getFloat("damageWeak")
+		
 		pointLight:setLocalPosition(Vec3())
 		pointLight:setVisible(true)
 		pointLight:setRange(1.5)
@@ -107,19 +108,33 @@ function LaserBullet.new()
 		
 		
 
-		local additionDamage = 0
-		if damageWeak then
-			additionDamage = damage * (1.0 - targetSelector.getTargetHPPercentage()) * (damageWeak-1.0)
-		end
+		
 		
 		if lengthLeft-frameMovment<0.25 then
+			
+			local additionDamage = 0
+			if damageWeak and damageWeak > 1.0 then
+				local hp = targetSelector.getTargetHP()
+				local maxHp = targetSelector.getTargetMaxHP()
+				local hpAfterHalfDamage = math.max(hp-damage*0.5,0)
+				local averageHPercantage =  hpAfterHalfDamage / maxHp
+				additionDamage = damage * (1.0 - averageHPercantage) * (damageWeak-1.0)
+			end
+		
+--			print("Laser damage " .. damage)
+--			print("Laser range " .. range)
+--			print("Laser damageWeak " .. damageWeak)
+--			print("Laser additionDamage " .. additionDamage)
+			local finalDamage = damage + additionDamage
+--			print("Laser finalDamage " .. finalDamage)
 			--direct hit on enemy target
-			comUnit:sendTo(targetIndex,"attack",tostring(damage + additionDamage))
+			comUnit:sendTo(targetIndex,"attack",tostring(finalDamage))
+--			print("LaserBullet target "..tostring(targetIndex).." Damage "..tostring(finalDamage))
 			targetIndex = 0
 		elseif shieldAreaIndex~=targetSelector.getIndexOfShieldCovering(currentPos) then
 			--shield hitt
 			targetIndex = shieldAreaIndex>0 and shieldAreaIndex or targetSelector.getIndexOfShieldCovering(currentPos)
-			comUnit:sendTo(targetIndex,"attack",tostring(damage))--can't do fire damage to shield
+			comUnit:sendTo(targetIndex,"attack",tostring(damage))
 			local oldPosition = currentPos - atVec
 			local futurePosition = currentPos + atVec
 			local hitTime = "0.5"
