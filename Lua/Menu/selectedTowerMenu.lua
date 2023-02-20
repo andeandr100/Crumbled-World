@@ -456,7 +456,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		elseif name=="SupportRange" then
 			return Vec2(0.125,0.5),Vec2(0.25,0.5625), language:getText("support range")
 		elseif name=="weakenValue" then
-			return Vec2(0.625,0.4375),Vec2(0.75,0.5), language:getText("selectedTower weaken")	
+			return Vec2(0.875,0.1875),Vec2(1.0,0.25), language:getText("selectedTower weaken")	
 		elseif name=="supportWeaken" then
 			return Vec2(0.25,0.5),Vec2(0.375,0.5625), language:getText("support weaken")
 		elseif name=="supportGold" then
@@ -500,7 +500,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 						
 						local upgradeValue = ""
 						if info[statName].valueupg ~= 0 then
-							upgradeValue = ( info[statName].valueupg > 0 and "<font color=rgb(0,255,0)>+" or "<font color=rgb(255,0,0)>-" ) .. valueToString(info[statName].valueupg) .. "</font>"
+							upgradeValue = ( info[statName].valueupg > 0 and "<font color=rgb(0,255,0)>+" or "<font color=rgb(255,0,0)>" ) .. valueToString(info[statName].valueupg) .. "</font>"
 						end
 						
 						info[statName].label:setText(valueToString(info[statName].value,2)..upgradeValue)
@@ -532,7 +532,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 						row:add(icon)--Label(PanelSize(Vec2(-0.4,0.166),PanelSizeType.ParentPercent), (array[1] and array[1] or "----")..":", Vec3(1.0)))
 						local upgradeValue = ""
 						if info[name].valueupg ~= 0 then
-							upgradeValue = ( info[name].valueupg > 0 and "<font color=rgb(0,255,0)>+" or "<font color=rgb(255,0,0)>-" ) .. valueToString(info[name].valueupg) .. "</font>"
+							upgradeValue = ( info[name].valueupg > 0 and "<font color=rgb(0,255,0)>+" or "<font color=rgb(255,0,0)>" ) .. valueToString(info[name].valueupg) .. "</font>"
 						end
 						local label = row:add(Label(PanelSize(Vec2(-1)), (info[name].value and valueToString(info[name].value,2) or "-") .. upgradeValue, Vec3(1.0)))
 	
@@ -552,20 +552,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local function towerHideRange()
 		showRange = false
 	end
-	
---	local function updateRangeButton()
---		if showRange and towerInfo and towerInfo.buttonsInfo then
---			for name, data in pairs(towerInfo.buttonsInfo) do
---				if data.name and data.level ~= nil and data.name.value == "range" then
---					if data.level.level == 3 then
---						updateButton(name, nil)
---						return
---					end
---				end
---			end
---		end
---	end
-	
+
 	local function updateTowerName(button)
 		local levelText = " "
 		if buildingBillBoard:exist("level") then
