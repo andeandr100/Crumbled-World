@@ -295,7 +295,7 @@ function TargetSelector.new(pteam)
 		if soulBillboard then
 			local mover = soulBillboard:getNodeMover("nodeMover")
 			if mover and soulBillboard:getBool("isAlive") then
-				retPos = mover:getCurrentPosition()
+				retPos = mover:getCurrentPosition() + soulBillboard:getVec3("aimHeight")
 			end
 		end
 		return retPos
@@ -321,7 +321,7 @@ function TargetSelector.new(pteam)
 		if soulBillboard then
 			local mover = soulBillboard:getNodeMover("nodeMover")
 			if mover and soulBillboard:getBool("isAlive") then
-				retPos = mover:getFuturePosition(time)
+				retPos = mover:getFuturePosition(time) + soulBillboard:getVec3("aimHeight")
 			end
 		end
 		return retPos
