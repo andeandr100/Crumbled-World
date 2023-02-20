@@ -116,6 +116,7 @@ function NpcBase.new()
 		billboard:setNodeMover("nodeMover",mover)
 		billboard:setBool("isAlive",true)
 		billboard:setDouble("hpMax", hpMax)
+		billboard:setVec3("aimHeight", centerOffset)
 		--ComUnitCallbacks
 		--local soul managment
 		soul.defaultStats(hpMax,mover,speed)
