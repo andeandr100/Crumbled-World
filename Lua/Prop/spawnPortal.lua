@@ -27,7 +27,7 @@ function create()
 	
 	spawnportalMesh = SpawnPortalMesh.new(portalSize)
 	--
-	local pLight = PointLight.new(Vec3(0.0,1.25,0.0),Vec3(1.75,0.4,1.75),8.0)
+	local pLight = PointLight.new(Vec3(0.0,1.25,0.0),Vec3(1.75,0.4,1.75),4.0)
 	pLight:setCutOff(0.25)
 	pLight:addFlicker(Vec3(0.075,0.075,0.0),0.1,0.2)
 	pLight:addSinCurve(Vec3(0.4,0.4,0.0),2.0)
