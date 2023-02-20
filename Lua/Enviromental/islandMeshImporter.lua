@@ -31,7 +31,7 @@ function IslandMeshImporter.new()
 		
 		
 		
-		print("Load models")
+		--print("Load models")
 		modelGroupIndex = 1
 		for i=2, #modelGroup do
 			if math.abs( modelDensity - modelGroup[modelGroupIndex].value ) > math.abs( modelDensity - modelGroup[i].value ) then
@@ -39,16 +39,16 @@ function IslandMeshImporter.new()
 			end
 		end
 		
-		print("Islan modelData: "..tostring(modelGroup).."\n")
-		print("modelGroupIndex: "..modelGroupIndex.."\n")
+		--print("Islan modelData: "..tostring(modelGroup).."\n")
+		--print("modelGroupIndex: "..modelGroupIndex.."\n")
 
 		if modelGroup[modelGroupIndex] then
 			local modelInfo = modelGroup[modelGroupIndex].models
-			print("modeinfo: "..tostring(modelInfo).."\n")
+			--print("modeinfo: "..tostring(modelInfo).."\n")
 			for i=1, #modelInfo do
 				
 				
-				print("add mesh\n")
+				--print("add mesh\n")
 				
 				local file = fileNode:getFile(modelInfo[i].modelName)	
 				local fileName = file:getName()
