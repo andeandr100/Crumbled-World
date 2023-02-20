@@ -23,7 +23,7 @@ function BuilderFunctions.new(keyBinds, inCamera)
 			
 			local targetMatrix = towerMatrix
 			local numRangeUpgrades = (CampaignTowerUpg.new(towerBilboard:getString("FileName"),nil).isPermUpgraded("range",1) == true and 2 or 3)
-			print("numRangeUpgrades: "..numRangeUpgrades)
+			--print("numRangeUpgrades: "..numRangeUpgrades)
 			--print("bilboard: "..towerBilboard:toString())
 			if targetAreaName == "sphere" then	
 				local addedRange = towerBilboard:getFloat("rangePerUpgrade")
