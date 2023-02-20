@@ -1,9 +1,8 @@
 require("Tower/rotator.lua")
-
 require("NPC/state.lua")
 require("Projectile/LaserBullet.lua")
 require("Projectile/projectileManager.lua")
-require("Game/campaignTowerUpg.lua")
+require("Game/graphicParticleSystems.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
@@ -15,17 +14,11 @@ require("Tower/TowerData.lua")
 MinigunTower = {}
 function MinigunTower.new()
 	local self = {}
---	local upgrade = Upgrade.new()
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	local projectiles = projectileManager.new()
-	
 	local data = TowerData.new()
 	
-	local smartTargetingRetargetTime = 0.0
-	
-	--Upgrade
---	local cTowerUpg = CampaignTowerUpg.new("Tower/MinigunTower.lua",upgrade)
 	--constants
 	local ROTATEPIPETIMEAFTERFIERING = 1.0
 	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
@@ -61,19 +54,21 @@ function MinigunTower.new()
 	local heatPointLight1
 	local heatPointLight2
 	local particleEffectSmoke
---	local increasedDamageToFire = 0.0
 
 	--effects
 	local particleEffectGun = {}
 	local particleEffectGunLaser = {}
 	local particleEffectTracer = {}
-	local pointLight = PointLight.new(Vec3(0.16,-1.0,0.18),Vec3(5,2.5,0.0),1.25)
+
+	
+	local pointLight = PointLight.new(Vec3(5,2.5,0.0),1.25)
+	pointLight:setVisible(false)
 	local pointLightTimer = -1.0
 	--cummunication
 	local comUnit = Core.getComUnit()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
---	local billboardWaveStats
+
 	--stats
 	local isCircleMap = MapInfo.new().isCricleMap()
 	local mapName = MapInfo.new().getMapName()
@@ -142,16 +137,13 @@ function MinigunTower.new()
 		
 
 		if data.getTowerLevel()==1 then
-			rotationSpeed = math.pi*2.0*(data.getValue("RPS")/3.0)
+			rotationSpeed = math.pi*4.0*(data.getValue("RPS")/3.0)
 		elseif data.getTowerLevel()==2 then
-			rotationSpeed = math.pi*2.0*(data.getValue("RPS")/6.0)
+			rotationSpeed = math.pi*4.0*(data.getValue("RPS")/6.0)
 		else
-			rotationSpeed = math.pi*2.0*(data.getValue("RPS")*0.5/6.0)
+			rotationSpeed = math.pi*4.0*(data.getValue("RPS")*0.5/6.0)
 		end
-		--achivment
-		if data.getIsMaxedOut() then
-			achievementUnlocked("MinigunMaxed")
-		end
+
 	end
 	
 	local function setPipePointLightPos(pLight,num)
@@ -211,8 +203,6 @@ function MinigunTower.new()
 			end
 		end
 	
-
-
 		if overChargeLevel==0 then
 			if heatPointLight1 then
 				heatPointLight1:setVisible(false)
@@ -327,13 +317,11 @@ function MinigunTower.new()
 		local target = targetSelector.getTarget()
 		if target>0 then
 			--start location for bullets
-			if data.getTowerLevel()==3 then
-				activePipe = (activePipe==1) and 0 or 1
-			end
+			activePipe = (data.getTowerLevel()==3 and activePipe == 0) and 1 or 0
 		
-			--print("damage = "..dmg)
 			local targetPosition = targetSelector.getTargetPosition()
-			local length = -(this:getGlobalPosition()-targetPosition):length()
+			
+			local lengthToTarget = (particleEffectTracer[activePipe]:getGlobalPosition()-targetPosition):length() - 0.5
 		
 			--local atVec = (model:getMesh( "tower" ):getGlobalMatrix():inverseM()*targetPosition):normalizeV()
 			local bulletStartPos = engineMesh:getGlobalMatrix() * (data.getTowerLevel()==1 and Vec3(0.0,-0.8,0.0) or Vec3(0,-0.95,0) )
@@ -386,9 +374,15 @@ function MinigunTower.new()
 			end
 			--attackSound:playSound(0.5,this.bulletStartPos)
 			local pipeEnd = (data.getTowerLevel()<2) and Vec3(0.0,-0.8,0.0) or Vec3(0,-0.95,0)
-			particleEffectGun[activePipe]:activate(pipeEnd,Vec3(0,-1,0))
-			particleEffectTracer[activePipe]:setSpawnRadius(math.min(-0.1,length-1.0))-- (-1) is just a magic number for the length of the tracerline
-			particleEffectTracer[activePipe]:activate(Vec3(0.0,-2.0,0.0),Vec3(0,-1,0))
+			
+			particleEffectGun[activePipe]:activate(Vec3(),-pipesMesh:getGlobalMatrix():getUpVec())
+
+			--100 is the velocity the particle effect is moving
+			particleEffectTracer[activePipe]:setCutOfTime(lengthToTarget / 80)
+			particleEffectTracer[activePipe]:activate()
+			
+			
+			
 			--particleEffectHitt:activate( (this:getGlobalMatrix():inverseM()*targetPosition)+Vec3(0.0,0.45,0.0) )
 			--
 			if isUsingMultipleAttackSoundsInOneSound() then
@@ -436,6 +430,10 @@ function MinigunTower.new()
 			--
 			soundLaser:play(0.25,false)
 			--
+			print("Damage " .. billboard:getFloat("damage"))
+			print("Damage " .. billboard:getFloat("damage"))
+			print("Damage " .. billboard:getFloat("damage"))
+			print("Damage " .. billboard:getFloat("damage"))
 			projectiles.launch(LaserBullet,{target,bulletStartPos})
 		end
 	end
@@ -472,16 +470,10 @@ function MinigunTower.new()
 			local previousTarget = targetSelector.getTarget()
 			if targetSelector.selectAllInRange() then
 				targetSelector.filterOutState(state.ignore)
---				if upgrade.getLevel("fireCrit")>0 then
---					targetSelector.scoreState(state.burning,7*upgrade.getLevel("fireCrit"))
---				end
 				if targetMode==4 then
 					--attack close to exit
-					--local pipeAt = -engineMesh:getGlobalMatrix():getUpVec()
 					targetSelector.scoreHP(-5)
 					targetSelector.scoreName("reaper",5)
-					targetSelector.scoreName("skeleton_cf",-10)
-					targetSelector.scoreName("skeleton_cb",-10)
 					targetSelector.scoreClosestToExit(40)
 				elseif targetMode==1 then
 					--attack priority targets
@@ -489,24 +481,20 @@ function MinigunTower.new()
 					targetSelector.scoreSelectedTargets({previousTarget},10)
 					targetSelector.scoreName("reaper",50)
 					targetSelector.scoreName("dino",20)
-					targetSelector.scoreName("skeleton_cf",-20)
-					targetSelector.scoreName("skeleton_cb",-20)
 					targetSelector.scoreClosestToExit(15)
 				elseif targetMode==2 then
 					--attack the weakest unit
 					targetSelector.scoreHP(-30)
 					targetSelector.scoreSelectedTargets({previousTarget},10)
-					targetSelector.scoreName("skeleton_cf",-10)
-					targetSelector.scoreName("skeleton_cb",-10)
 					targetSelector.scoreClosestToExit(10)
 				elseif targetMode==3 then
 					--attackStrongestTarget
 					targetSelector.scoreHP(30)
 					targetSelector.scoreSelectedTargets({previousTarget},10)
-					targetSelector.scoreName("skeleton_cf",-20)
-					targetSelector.scoreName("skeleton_cb",-20)
 					targetSelector.scoreClosestToExit(10)
 				end
+				targetSelector.scoreName("skeleton_cf",-20)
+				targetSelector.scoreName("skeleton_cb",-20)
 				targetSelector.scoreState(state.markOfDeath,10)
 				targetSelector.scoreState(state.highPriority,40)
 			end
@@ -567,30 +555,39 @@ function MinigunTower.new()
 			engineMesh:setLocalMatrix(engineMatrix)--set the old rotation
 		end
 		
-		particleEffectGun[0]:getParent():removeChild( particleEffectGun[0]:toSceneNode() )
-		particleEffectGunLaser[0]:getParent():removeChild( particleEffectGunLaser[0]:toSceneNode() )
+
 		if data.getLevel("overCharge")>0 then
 			particleEffectSmoke[0]:getParent():removeChild( particleEffectSmoke[0]:toSceneNode() )
 		end
-		pointLight:getParent():removeChild( pointLight:toSceneNode() )
-		if heatPointLight1 then heatPointLight1:getParent():removeChild( heatPointLight1:toSceneNode() ) end
-		particleEffectTracer[0]:getParent():removeChild( particleEffectTracer[0]:toSceneNode() )
-	
+
 		
 		if data.getLevel("overCharge")>0 then
 			this:addChild(particleEffectSmoke[0]:toSceneNode())
 		end
-		engineMesh:addChild(pointLight:toSceneNode())
-		pointLight:setVisible(false)
-		if heatPointLight1 then engineMesh:addChild(heatPointLight1:toSceneNode()) end
-		pipesMesh:addChild(particleEffectGun[0]:toSceneNode())
+		pipesMesh:addChild(pointLight:toSceneNode())
+--		pointLight:setVisible(false)
+		
 		model:getMesh( "pipeBoost" ):addChild(particleEffectGunLaser[0]:toSceneNode())
+		
+		if heatPointLight1 then pipesMesh:addChild(heatPointLight1:toSceneNode()) end
+		local particleEffectLocalPos = pipesMesh:getLocalMatrix():getUpVec() * (data.getTowerLevel()==3 and -0.95 or -0.8)
+		pipesMesh:addChild(particleEffectGun[0]:toSceneNode())
+		particleEffectGun[0]:setLocalPosition(particleEffectLocalPos)
+		
 		pipesMesh:addChild(particleEffectTracer[0]:toSceneNode())
+		particleEffectTracer[0]:setLocalPosition(-pipesMesh:getLocalMatrix():getUpVec())
+		
+		
 		if data.getTowerLevel()==3 then
-			pipes2Mesh = model:getMesh( "pipe2" )
-			pipes2Mesh:addChild(particleEffectGun[1]:toSceneNode())
 			model:getMesh( "pipeBoost" ):addChild(particleEffectGunLaser[1]:toSceneNode())
+			
+			pipes2Mesh = model:getMesh( "pipe2" )
+			
+			pipes2Mesh:addChild(particleEffectGun[1]:toSceneNode())
+			particleEffectGun[1]:setLocalPosition(particleEffectLocalPos)
+			
 			pipes2Mesh:addChild(particleEffectTracer[1]:toSceneNode())
+			particleEffectTracer[1]:setLocalPosition(-pipesMesh:getLocalMatrix():getUpVec())
 		end
 		--
 		--instant reload
@@ -614,6 +611,10 @@ function MinigunTower.new()
 	end
 	
 	function self.handleSubUpgrade()
+		print("")
+		print("")
+		print("handleSubUpgrade")
+		print("")
 		updateMeshesAndparticlesForSubUpgrades()
 		setCurrentInfo()
 	end
@@ -648,6 +649,8 @@ function MinigunTower.new()
 		--
 		--ParticleEffects
 		--
+--		particleEffectGun[0] = GraphicParticleSystems.new().createMinigunFireEffect()
+--		particleEffectGun[1] = GraphicParticleSystems.new().createMinigunFireEffect()
 		particleEffectGun[0] = ParticleSystem.new( ParticleEffect.MinigunFire2 )
 		particleEffectGun[0]:setScale(0.80)
 		particleEffectGun[1] = ParticleSystem.new( ParticleEffect.MinigunFire2 )
@@ -659,17 +662,15 @@ function MinigunTower.new()
 		particleEffectGunLaser[1]:setScale(0.80)
 		
 	
-		particleEffectTracer[0] = ParticleSystem.new( ParticleEffect.TracerLine )
-		particleEffectTracer[1] = ParticleSystem.new( ParticleEffect.TracerLine )
+		particleEffectTracer[0] = GraphicParticleSystems.new().createMingunAttackTraceEffect()
+		particleEffectTracer[1] = GraphicParticleSystems.new().createMingunAttackTraceEffect()
 		
-		pointLight:setVisible(false)
 		
-		model:getMesh( "pipe1" ):addChild(particleEffectGun[0]:toSceneNode())
-		model:getMesh( "pipeBoost" ):addChild(particleEffectGunLaser[0]:toSceneNode())
+--		pointLight:setVisible(false)
+		
+
 		model:getMesh( "engine" ):addChild(pointLight:toSceneNode())
 
-		model:getMesh( "pipe1" ):addChild(particleEffectTracer[0]:toSceneNode())
-		--model:getMesh( "pipe2" ):addChild(particleEffectTracer[1]:toSceneNode())
 
 		--Sound
 		soundLaser = SoundNode.new("laser_bullet1")
@@ -735,8 +736,8 @@ function MinigunTower.new()
 		data.setComUnit(comUnit, comUnitTable)
 		data.setTowerUpgradeCallback(self.handleUpgrade)
 		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.setMaxedOutAchivement("MinigunMaxed")
 		data.enableSupportManager()
-		
 		data.addDisplayStats("damage")
 		data.addDisplayStats("RPS")
 		data.addDisplayStats("range")
@@ -838,9 +839,6 @@ function MinigunTower.new()
 		comUnitTable["boost"] = self.handleBoost
 		
 		
-		
-		
-		
 		comUnit:sendTo("SoulManager","addSoul",{pos=this:getGlobalPosition(), hpMax=1.0, name="Tower", team=activeTeam})
 		targetSelector.setPosition(this:getGlobalPosition())
 		targetSelector.setRange(data.getValue("range"))
@@ -877,26 +875,10 @@ function MinigunTower.new()
 		end
 		
 		
-		--Handle communication
-		while comUnit:hasMessage() do
-			local msg = comUnit:popMessage()
-			if comUnitTable[msg.message]~=nil then
-				print("minigun update("..msg.parameter..")")
-				comUnitTable[msg.message](msg.parameter, msg.fromIndex)
-			end
-		end
-
-		if pointLightTimer>0.0 then
-			pointLightTimer = pointLightTimer - Core.getDeltaTime()
-			if pointLightTimer<=0.0 then
-				pointLight:setVisible(false)
-			end
-		end
-		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
-		local pipeAt = -engineMesh:getGlobalMatrix():getUpVec()
-		updateTarget()
-		updateSync()
-		
+--		local gPos = particleEffectTracer[activePipe]:getGlobalPosition()
+--		Core.addDebugLine( gPos,gPos + Vec3(0,3,0), 0.1, Vec3(1))
+--		Core.addDebugSphere(Sphere(gPos, 0.5), 0.1, Vec3(1))
+--		Core.addDebugLine( gPos,gPos - particleEffectTracer[activePipe]:getGlobalMatrix():getUpVec(), 0.02, Vec3(1,0,0))
 		
 		if boostActive ~= data.getBoostActive() then
 			boostActive = data.getBoostActive()	
@@ -919,6 +901,27 @@ function MinigunTower.new()
 				mesh:setTexture(shader,texture,4)
 			end
 		end
+		
+		
+		--Handle communication
+		while comUnit:hasMessage() do
+			local msg = comUnit:popMessage()
+			if comUnitTable[msg.message]~=nil then
+				--print("minigun update("..msg.parameter..")")
+				comUnitTable[msg.message](msg.parameter, msg.fromIndex)
+			end
+		end
+
+--		if pointLightTimer>0.0 then
+--			pointLightTimer = pointLightTimer - Core.getDeltaTime()
+--			if pointLightTimer<=0.0 then
+--				pointLight:setVisible(false)
+--			end
+--		end
+		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
+		local pipeAt = -engineMesh:getGlobalMatrix():getUpVec()
+		updateTarget()
+		updateSync()
 				
 		if not soundManager.isAllStopped() then
 			if targetSelector.isTargetAvailable() then
@@ -933,8 +936,9 @@ function MinigunTower.new()
 			end
 		end
 		if overheated==false and targetSelector.getTargetIfAvailable()>0 then
-			local npcSize = 1.75--target:getNPCSize()
 			local targetAt = targetSelector.getTargetPosition()-engineMesh:getGlobalPosition()
+			
+--			Core.addDebugSphere(Sphere(targetSelector.getTargetPosition(), 0.3), 0.01, Vec3(1))
 			
 			--continue to rotate what ever happens
 			rotator.setFrameDataTargetAndUpdate(targetAt,pipeAt)
@@ -955,14 +959,9 @@ function MinigunTower.new()
 							overheated = true
 							targetSelector.deselect()
 							reloadTimeLeft = data.getValue("cooldown")
-							if not reloadTimeLeft then
-								abort()
-							end
 						end
 					end
-					if not reloadTimeLeft then
-						abort()
-					end
+
 					--if time to attack
 					reloadTimeLeft = (reloadTimeLeft<-Core.getDeltaTime()) and reloadTime or reloadTimeLeft + reloadTime
 					if data.getBoostActive() then
@@ -970,10 +969,9 @@ function MinigunTower.new()
 						overHeatPer = 0.0
 					else
 						attack()
---						data.setUsed()--set value changed
-						pointLightTimer = 0.075
+						pointLightTimer = 0.6
 						pointLight:clear()
-						pointLight:setRange(1.25)
+						pointLight:setRange(2.25)
 						pointLight:pushRangeChange(0.25,0.075)
 						pointLight:setCutOff(0.15)
 						pointLight:setVisible(true)
@@ -988,6 +986,18 @@ function MinigunTower.new()
 				engineMesh:rotate(Vec3(1.0, 0.0, 0.0), rotator.getVerticalRotation())
 			end
 		end
+		if data.getBoostActive() == false then
+			--rotate the pipes
+			if pipeRotateTimer>0.0 then
+				local pipeRotation = (pipeRotateTimer/ROTATEPIPETIMEAFTERFIERING)*Core.getDeltaTime()*rotationSpeed
+				pipeRotateTimer = pipeRotateTimer - Core.getDeltaTime()
+				pipesMesh:rotate(Vec3(0.0, 1.0, 0.0), pipeRotation)
+				if data.getTowerLevel() == 3 then
+					pipes2Mesh:rotate(Vec3(0.0, 1.0, 0.0), pipeRotation)
+				end
+			end
+		end
+		
 		--if we are not fiering the pipe will cooldown
 		if data.getLevel("overCharge")>0 then
 			local mat = model:getMesh( "engine" ):getGlobalMatrix()

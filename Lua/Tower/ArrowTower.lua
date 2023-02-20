@@ -3,7 +3,6 @@ require("NPC/state.lua")
 require("Projectile/projectileManager.lua")
 require("Projectile/Arrow.lua")
 require("Projectile/ArrowMortar.lua")
-require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Tower/TowerData.lua")
@@ -152,10 +151,6 @@ function ArrowTower.new()
 		billboard:setDouble("hittStrength",data.getTowerLevel()+(data.getLevel("hardArrow")>0 and 1 or 0)+(data.getBoostActive() and 1 or 0))
 		reloadTimeLeft  = 0.0
 		updateStats()
-		--achivment
-		if data.getIsMaxedOut() then
-			achievementUnlocked("CrossbowMaxed")
-		end
 	end
 
 	function self.setRotateTarget(globalVec, isWaveRestart)
@@ -303,47 +298,40 @@ function ArrowTower.new()
 					targetSelector.scoreDensity(30)
 					targetSelector.scoreClosestToExit(10)
 					targetSelector.scoreRandom(15)
-				elseif targetMode==1 then
-					--priority targets
-					targetSelector.scoreHP(20)
-					targetSelector.scoreName("dino",10)
-					targetSelector.scoreName("turtle",20)
-					targetSelector.scoreName("reaper",25)
-					targetSelector.scoreState(state.shielded,-10)	--decreased damage against this target
+				else
 					targetSelector.scoreName("skeleton_cf",-20)
 					targetSelector.scoreName("skeleton_cb",-20)
-					
-					if data.getLevel("markOfDeath")>0 then
-						targetSelector.scoreState(state.markOfDeath,-15)	--because we placed the mark, it is therefore better to mark another unit
-					else
-						targetSelector.scoreState(state.markOfDeath,15)		--attack marked unit for damage bonus
+					if targetMode==1 then
+						--priority targets
+						targetSelector.scoreHP(data.getLevel("hardArrow")>0 and 20 or 0)
+						targetSelector.scoreName("dino",10)
+						targetSelector.scoreName("turtle",20)
+						targetSelector.scoreName("reaper",25)
+						targetSelector.scoreState(state.shielded,-10)	--decreased damage against this target
+						targetSelector.scoreState(state.markOfDeath, data.getLevel("markOfDeath")>0 and -15 or 15)	--because we placed the mark, it is therefore better to mark another unit
+
+					elseif targetMode==2 then
+						--attackWeakestTarget
+						targetSelector.scoreHP(-30)
+						targetSelector.scoreClosestToExit(20)
+						targetSelector.scoreState(state.markOfDeath,15)
+					elseif targetMode==3 then
+						--attackStrongestTarget
+						targetSelector.scoreHP(30)
+						targetSelector.scoreState(state.markOfDeath,10)
+						targetSelector.scoreName("reaper",15)
+					elseif targetMode==4 then
+						--closest to exit
+						targetSelector.scoreClosestToExit(40)
+						targetSelector.scoreState(state.markOfDeath,10)
+						targetSelector.scoreName("skeleton_cf",0)
+						targetSelector.scoreName("skeleton_cb",0)
+						targetSelector.scoreHP(-10)
 					end
-				elseif targetMode==2 then
-					--attackWeakestTarget
-					targetSelector.scoreHP(-30)
-					targetSelector.scoreClosestToExit(20)
-					targetSelector.scoreName("skeleton_cf",-10)
-					targetSelector.scoreName("skeleton_cb",-10)
-					targetSelector.scoreState(state.markOfDeath,15)
-				elseif targetMode==3 then
-					--attackStrongestTarget
-					targetSelector.scoreHP(30)
-					targetSelector.scoreState(state.markOfDeath,10)
-					targetSelector.scoreName("reaper",15)
-					targetSelector.scoreName("skeleton_cf",-20)
-					targetSelector.scoreName("skeleton_cb",-20)
-				elseif targetMode==4 then
-					--closest to exit
-					targetSelector.scoreClosestToExit(40)
-					targetSelector.scoreState(state.markOfDeath,10)
-					targetSelector.scoreHP(-10)
+					
 				end
-				
-				if data.getLevel("hardArrow")>0 then
-					targetSelector.scoreHP(20)--we realy want to shoot the strongest unit
-				end
-				targetSelector.scoreState(state.highPriority,30)
-				
+
+				targetSelector.scoreState(state.highPriority,30)				
 				targetSelector.selectTargetAfterMaxScore()
 			end
 			if billboard:getBool("isNetOwner") then
@@ -551,6 +539,7 @@ function ArrowTower.new()
 		data.setComUnit(comUnit, comUnitTable)
 		data.setTowerUpgradeCallback(self.handleUpgrade)
 		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.setMaxedOutAchivement("CrossbowMaxed")
 		data.enableSupportManager()
 		data.addDisplayStats("damage")
 		data.addDisplayStats("RPS")
@@ -605,7 +594,7 @@ function ArrowTower.new()
 								name = "hardArrow",
 								info = "Arrow tower hardArrow",
 								infoValues = {"damage", "RPS"},
-								iconId = 2,
+								iconId = 71,
 								level = 0,
 								maxLevel = 3,
 								achievementName = "HardArrow",
@@ -618,7 +607,7 @@ function ArrowTower.new()
 								name = "markOfDeath",
 								info = "Arrow tower mark of death",
 								infoValues = {"weakenValue"},
-								iconId = 61,
+								iconId = 31,
 								level = 0,
 								maxLevel = 3,
 								achievementName = "MarkOfDeath",

@@ -1,7 +1,6 @@
 require("NPC/state.lua")
 require("Projectile/projectileManager.lua")
 require("Projectile/SwarmBall.lua")
-require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/graphicParticleSystems.lua")
 require("Game/targetSelector.lua")
@@ -101,10 +100,6 @@ function SwarmTower.new()
 		end
 		reloadTimeLeft = 0.0
 		updateStats()
-		--achivment
-		if data.getIsMaxedOut() then
-			achievementUnlocked("SwarmMaxed")
-		end
 	end
 	local function initModel()
 		model:createBoundVolumeGroup()
@@ -383,6 +378,7 @@ function SwarmTower.new()
 		data.setComUnit(comUnit, comUnitTable)
 		data.setTowerUpgradeCallback(self.handleUpgrade)
 		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.setMaxedOutAchivement("SwarmMaxed")
 		data.enableSupportManager()
 		data.addDisplayStats("damage")
 		data.addDisplayStats("RPS")

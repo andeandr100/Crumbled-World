@@ -1,5 +1,4 @@
 require("NPC/state.lua")
-require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
 require("Game/particleEffect.lua")
 require("Game/mapInfo.lua")
@@ -182,10 +181,6 @@ function QuakeTower.new()
 		end
 		reloadTime = (1.0/data.getValue("RPS"))
 		targetSelector.setRange(data.getValue("range"))
-		--achievment
-		if data.getIsMaxedOut() then
-			achievementUnlocked("QuakeMaxed")
-		end
 	end
 	local function fixModel(setDefault)
 		log = model:getMesh("loog")
@@ -581,6 +576,7 @@ function QuakeTower.new()
 		data.setComUnit(comUnit, comUnitTable)
 		data.setTowerUpgradeCallback(self.handleUpgrade)
 		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.setMaxedOutAchivement("QuakeMaxed")
 		data.enableSupportManager()
 		data.addDisplayStats("damage")
 		data.addDisplayStats("RPS")

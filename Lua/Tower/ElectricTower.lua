@@ -1,5 +1,4 @@
 require("NPC/state.lua")
-require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/graphicParticleSystems.lua")
 require("Game/targetSelector.lua")
@@ -280,9 +279,6 @@ function ElectricTower.new()
 		
 		updateStats()
 		--achievment
-		if data.getIsMaxedOut() then
-			achievementUnlocked("ElectricMaxed")
-		end
 	end
 	
 
@@ -330,10 +326,7 @@ function ElectricTower.new()
 		end
 		setCurrentInfo()
 	end
-	function self.handleBoost(param)
-		data.activateBoost()
-		setCurrentInfo()
-	end
+
 	function self.handleSubUpgrade()
 		updateMeshesAndparticlesForSubUpgrades()
 		setCurrentInfo()
@@ -595,7 +588,6 @@ function ElectricTower.new()
 		billboard:setDouble("DamageCurrentWave",0)
 	
 		--ComUnitCallbacks
-		comUnitTable["boost"] = self.handleBoost
 		if isThisReal then
 			comUnitTable["sendMeEnergy"] = sendEnergyTo
 			comUnitTable["requestEnergy"] = doWeHaveEnergyOver
@@ -611,6 +603,7 @@ function ElectricTower.new()
 		data.setComUnit(comUnit, comUnitTable)
 		data.setTowerUpgradeCallback(self.handleUpgrade)
 		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.setMaxedOutAchivement("ElectricMaxed")
 		data.enableSupportManager()
 		data.addDisplayStats("damage")
 		data.addDisplayStats("RPS")
@@ -668,7 +661,6 @@ function ElectricTower.new()
 								iconId = 55,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								stats = {slow =		{ 0.15, 0.28, 0.39, func = data.add},
 										damage =	{ 0.90, 0.81, 0.73, func = data.mul},
 										RPS =		{ 0.75, 0.56, 0.42, func = data.mul},
@@ -683,7 +675,6 @@ function ElectricTower.new()
 								iconId = 41,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								stats = {energyMax = { 1.30, 1.60, 1.90, func = data.mul }}
 							})
 							
@@ -710,7 +701,6 @@ function ElectricTower.new()
 								iconId = 59,
 								level = 0,
 								maxLevel = 3,
-								callback = self.handleSubUpgrade,
 								achievementName = "Range",
 								stats = {range = { 0.75, 1.5, 2.25, func = data.add }}
 							})

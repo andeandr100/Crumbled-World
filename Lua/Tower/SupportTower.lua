@@ -203,10 +203,6 @@ function SwarmTower.new()
 		sendSupporUpgrade()
 		--achievment
 		
-		if data.getIsMaxedOut() then
-			achievementUnlocked("MaxedSupportTower")
-		end
-		
 		if data.getLevel("gold")>0 then
 			--model:getMesh("gold"):setVisible(true)
 			goldUpdateTimer = 0.0
@@ -374,6 +370,7 @@ function SwarmTower.new()
 		data.setComUnit(comUnit, comUnitTable)
 		data.setTowerUpgradeCallback(self.handleUpgrade)
 		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.setMaxedOutAchivement("MaxedSupportTower")
 		data.addDisplayStats("range")
 		data.addDisplayStats("supportDamage")
 		data.addDisplayStats("SupportRange")

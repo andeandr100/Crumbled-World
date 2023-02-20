@@ -285,6 +285,7 @@ function BankTower.new()
 		data.setComUnit(comUnit, comUnitTable)
 		data.setTowerUpgradeCallback(self.handleUpgrade)
 		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.setMaxedOutAchivement("MaxedBankTower")--TODO
 		data.addDisplayStats("range")
 		data.addDisplayStats("supportGoldPerWave")
 		if isThisReal then

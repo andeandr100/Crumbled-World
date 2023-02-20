@@ -1,7 +1,5 @@
-require("Tower/supportManager.lua")
 require("Projectile/projectileManager.lua")
 require("Projectile/missile.lua")
-require("Game/campaignTowerUpg.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Tower/TowerData.lua")
@@ -24,7 +22,6 @@ function MissileTower.new()
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	local projectiles = projectileManager.new(targetSelector)
-	local supportManager = SupportManager.new()
 	local data = TowerData.new()
 	local boostActive = false
 	--model
@@ -226,14 +223,9 @@ function MissileTower.new()
 		updateStats()
 		billboard:setInt("FirestormLevel",0)
 		reloadMissiles()
-		--achievment
-		if data.getIsMaxedOut() then
-			achievementUnlocked("MissileMaxed")
-		end
 	end
 	function restartWave(param)
 		projectiles.clear()
-		supportManager.restartWave()
 	end
 
 	local function initModel(setMissilePos)
@@ -482,19 +474,14 @@ function MissileTower.new()
 		comUnitTable["boost"] = data.activateBoost
 		comUnitTable["NetLaunchMissile"] = NetLaunchMissile
 		comUnitTable["SetTargetMode"] = self.SetTargetMode
-		
-		
-		supportManager.setUpgrade(data)
-		supportManager.addHiddenUpgrades()
-		supportManager.addSetCallbackOnChange(data.updateStats)
-		supportManager.setComUnitTable(comUnitTable)
-		supportManager.addCallbacks()
 	
 		data.setBillboard(billboard)
 		data.setCanSyncTower(canSyncTower())
 		data.setComUnit(comUnit, comUnitTable)
 		data.setTowerUpgradeCallback(self.handleUpgrade)
 		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.setMaxedOutAchivement("MissileMaxed")
+		data.enableSupportManager()
 		data.addDisplayStats("damage")
 		data.addDisplayStats("RPS")
 		data.addDisplayStats("range")

@@ -2,7 +2,6 @@ require("Projectile/projectileManager.lua")
 require("Projectile/CutterBlade.lua")
 require("Projectile/Spear.lua")
 require("NPC/deathManager.lua")
-require("Game/campaignTowerUpg.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
@@ -235,10 +234,6 @@ function BladeTower.new()
 		billboard:setDouble("bladeSpeed",data.getValue("bladeSpeed"))
 		--
 		attackLine = Line3D(this:getGlobalPosition(),this:getGlobalPosition()+(pipeAt*data.getValue("range")))
-		--achievment
-		if data.getIsMaxedOut() then
-			achievementUnlocked("BladeMaxed")
-		end
 	end
 	local function setHeatShader(mesh)
 		mesh:setShader(Core.getShader("minigunPipe"))	
@@ -535,7 +530,6 @@ function BladeTower.new()
 		this:addChild(model:toSceneNode())
 		--
 
-
 		--upgrade
 		deathManager.setEnableSelfDestruct(false)
 		
@@ -576,6 +570,7 @@ function BladeTower.new()
 		data.setComUnit(comUnit, comUnitTable)
 		data.setTowerUpgradeCallback(self.handleUpgrade)
 		data.setUpgradeCallback(self.handleSubUpgrade)
+		data.setMaxedOutAchivement("BladeMaxed")
 		data.enableSupportManager()
 		data.addDisplayStats("damage")
 		data.addDisplayStats("RPS")

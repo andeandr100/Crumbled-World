@@ -26,6 +26,7 @@ function TowerData.new()
 	local updateIndex = 0
 	local lastRestored = -1
 	local supportManager = nil
+	local maxedOutAchivment = nil
 	
 	---
 	--Restore functions
@@ -49,6 +50,10 @@ function TowerData.new()
 	
 	function self.setCanSyncTower(canSync)
 		canSyncTower = canSync
+	end
+	
+	function self.setMaxedOutAchivement(achivment)
+		maxedOutAchivment = achivment
 	end
 	
 	function self.enableSupportManager()
@@ -86,7 +91,7 @@ function TowerData.new()
 	end
 	
 	function self.handleMainUpgrade(param)
-		print("handleMainUpgrade("..param..")")
+--		print("handleMainUpgrade("..param..")")
 		local subString, size = split(param, ";")
 		local upgradeName = subString[1]
 		local level = tonumber(subString[2])
@@ -95,10 +100,14 @@ function TowerData.new()
 		if towerUpgradeCallback then
 			towerUpgradeCallback()
 		end
+		
+		if self.getIsMaxedOut() then
+			achievementUnlocked( maxedOutAchivment )
+		end
 	end
 	
 	function self.handleSecondaryUpgrade( param )
-		print("handleSecondaryUpgrade("..param..")")
+--		print("handleSecondaryUpgrade("..param..")")
 		local subString, size = split(param, ";")
 		local upgradeName = subString[1]
 		local level = tonumber(subString[2])
@@ -121,6 +130,9 @@ function TowerData.new()
 			end
 		end
 		
+		if self.getIsMaxedOut() then
+			achievementUnlocked( maxedOutAchivment )
+		end
 	end
 	
 	function self.setTowerLevel(level)
@@ -294,13 +306,14 @@ function TowerData.new()
 		for key,value in pairs(stats) do
 			billboard:setDouble(key, value)
 			billboard:setDouble(key.."-upg", towerStats[key] and (value - towerStats[key]) or 0.0)
+--			print("billboard "..key.." value "..value)
 		end
 		
 		
-		updateAllUpgradeBillboard()
+		updateAllUpgradeBillboard(towerStats)
 	end
 	
-	function updateAllUpgradeBillboard()
+	function updateAllUpgradeBillboard(towerStats)
 		
 		
 		
@@ -376,15 +389,27 @@ function TowerData.new()
 				--TODO add sort value to get the values in correct order
 				
 				upgrade.stats = {}
+				local currentStats = data.getStats()
 				for key,value in pairs(data.getStats()) do
+					if value.func == self.mul then
+						local factor = level > 1 and (1 + value[level] - value[level-1]) or value[level]
+						upgrade.stats[key] = towerStats[key] * (factor - 1.0)
+					else
+						upgrade.stats[key] = value[level]
+					end
 					local displayValue = (value.func == nil or value.func == self.add or value.func == self.set) and value[level] or (value[level] - 1.0) * 100
-					upgrade.stats[key] = displayValue
+
 				end
 				
 				upgrade.values = {}
 				local infoValues = data.getInfoValues()
 				for i=1, #infoValues do
-					upgrade.values[i] = upgrade.stats[infoValues[i]]
+					local statsValue = currentStats[infoValues[i]]
+					if statsValue then
+						upgrade.values[i] = (statsValue.func == nil or statsValue.func == self.add or statsValue.func == self.set) and statsValue[level] or (statsValue[level] - 1.0) * 100 
+					else
+						upgrade.values[i] = upgrade.stats[infoValues[i]]
+					end
 				end
 				
 			else
