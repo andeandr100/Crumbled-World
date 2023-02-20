@@ -35,7 +35,7 @@ void main()
     //{
         // Diffuse
         vec3 lightDir = normalize(LightPos - FragPos);
-        vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * LightColor;
+        vec3 diffuse = max(dot(Normal, lightDir), 0.17) * Diffuse * LightColor;
         
 		// Specular
         vec3 halfwayDir = normalize(lightDir + viewDir);  
