@@ -1839,27 +1839,27 @@ ParticleEffect = {
 		color =  {
 			color1 =  {
 				a = 1,
-				b = 0.05000000074505806,
-				g = 0.60000002384185791,
+				b = 0.05,
+				g = 0.6,
 				per = 0,
-				r = 0.69999998807907104,
-				size = 0.05000000074505806
+				r = 0.7,
+				size = 0.1
 			},
 			color2 =  {
-				a = 0.40000000596046448,
-				b = 0.05000000074505806,
-				g = 0.10000000149011612,
+				a = 1,
+				b = 0.05,
+				g = 0.1,
 				per = 1,
-				r = 0.60000002384185791,
-				size = 0.02500000037252903
+				r = 0.6,
+				size = 0.1
 			},
 			renderPhase = {GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA, GL_Blend.SRC_ALPHA, GL_Blend.ONE}
 		},
 		emitterSpeedMultiplyer = 1,
 		gravity = 0,
 		lifeTime =  {
-			max = 0.079999998211860657,
-			min = 0.029999999329447746
+			max = 0.1,
+			min = 0.1
 		},
 		spawn =  {
 			OffsetFromGroundPer = 0.75,
@@ -1867,10 +1867,10 @@ ParticleEffect = {
 			minParticles = 0,
 			pattern = "atVector",
 			patternData =  {
-				max = 0.0099999997764825821,
-				min = -0.0099999997764825821
+				max = 0.01,
+				min = -0.01
 			},
-			spawnDuration = 0.02500000037252903,
+			spawnDuration = 0.025,
 			spawnRadius = 1,
 			spawnRate = 500000,
 			spawnSpeed = 5

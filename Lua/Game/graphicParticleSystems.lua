@@ -1,6 +1,6 @@
 
 GraphicParticleSystems = {}
-function GraphicParticleSystems.new(portalSize)
+function GraphicParticleSystems.new()
 	local self = {}
 	local bilboardParticleEffects = Core.getGameSessionBillboard("ParticleEffectStorage")
 	
@@ -74,8 +74,8 @@ function GraphicParticleSystems.new(portalSize)
 			for i=1, particleEffect:getMaxParticles() do 
 				local position = Vec3(math.randomFloat(-1.0,1.0),0,math.randomFloat(-1.0,1.0)):normalizeV() * math.randomFloat(-0.0375,0.0375)
 				local uvCoord = Vec2(0.0,0.75) + Vec2(0, math.randomFloat() > 0.5 and 0.125 or 0.0 )
-				local startColor = Vec4(1.1, 0.3, 0.1, 0.5)
-				local finalColor = Vec4(1.1, 0.6, 0.2, 0.3)
+				local startColor = Vec4(1.1, 0.25, 0.25, 0.3)
+				local finalColor = Vec4(1.1, 0.25, 0.25, 0.3)
 				local startSize = math.randomFloat(0.09,0.098)
 				local finalSize = math.randomFloat(0.13,0.15)
 				local velocity = Vec3()
@@ -90,6 +90,81 @@ function GraphicParticleSystems.new(portalSize)
 		end
 		return particleEffect
 	end
+	
+	function self.createMingunAttackTraceEffect()		
+		local particleEffect = bilboardParticleEffects:getSceneNode("MingunAttackTraceLineEffect")
+		if particleEffect ~= nil then
+			particleEffect = GraphicParticleSystem.new(particleEffect)		
+		else
+			local particleMaxLifeTime = 0.1
+			local shader = Core.getShader("ParticleEffectBasicLine")
+			particleEffect = GraphicParticleSystem.new(1,particleMaxLifeTime,false)
+			particleEffect:setRenderBlendMode(GL_Blend.SRC_ALPHA, GL_Blend.ONE)
+			particleEffect:setShader(shader)
+	
+	
+			local position = Vec3()
+			local uvCoord = Vec2(0,0.38476)
+			--Note GraphicParticleSystem lifeTime in shader is 0-1 in value meaning that in c++ we calculate shader.velocity = Lua.velocity * particleMaxLifeTime
+			local uvCoordAdd = Vec2(0.25,0.04296875) / particleMaxLifeTime
+			local startColor = Vec4(0.7, 0.6, 0.05, 1)
+			local finalColor = Vec4(0.6, 0.1, 0.05, 1)
+			local startSize = 0.15
+			local finalSize = 0.15
+			local velocity = 80
+	
+			particleEffect:addparticle( position, Vec3(velocity, uvCoordAdd.x, uvCoordAdd.y), uvCoord, startColor, finalColor, startSize, finalSize, 0 )
+	
+			particleEffect:compile()
+			particleEffect:setLocalPosition(Vec3())
+			
+			bilboardParticleEffects:setSceneNode("MingunAttackTraceLineEffect", particleEffect:toSceneNode() )
+		end
+		return particleEffect
+	end
+	
+--	function self.createMinigunFireEffect()		
+--		local particleEffect = bilboardParticleEffects:getSceneNode("MinigunFireEffect")
+--		if particleEffect ~= nil then
+--			particleEffect = GraphicParticleSystem.new(particleEffect)		
+--		else
+--			particleEffect = GraphicParticleSystem.new(10,0.2)
+--			particleEffect:setRenderBlendMode(GL_Blend.SRC_ALPHA, GL_Blend.ONE_MINUS_SRC_ALPHA)
+----			particleEffect:setRenderBlendMode(GL_Blend.SRC_ALPHA, GL_Blend.ONE)
+--			
+--	
+----			for i=1, 10 do 
+----				local position = Vec3()
+----				local uvCoord = Vec2(0.25,0) + Vec2(math.randomFloat() > 0.5 and 0.125 or 0.0, math.randomFloat() > 0.5 and 0.125 or 0.0 )
+----				local startColor = Vec4(0.05, 0.05, 0.05, 0.3)
+----				local finalColor = Vec4(0.05, 0.05, 0.05, 0.0)
+----				local startSize = math.randomFloat(0.2,0.25)
+----				local finalSize = math.randomFloat(0.4,0.45)
+----				local velocity = Vec3(math.randomFloat(), 4, math.randomFloat()):normalizeV() * -math.randomFloat(3,4)
+----		
+----				particleEffect:addparticle( position, velocity, uvCoord, startColor, finalColor, startSize, finalSize, 0 )
+----			end
+--			
+--			for i=1, particleEffect:getMaxParticles() do 
+--				local position = Vec3()
+--				local uvCoord = Vec2(0.25,0) + Vec2(math.randomFloat() > 0.5 and 0.125 or 0.0, math.randomFloat() > 0.5 and 0.125 or 0.0 )
+--				local startColor = Vec4(0.6, 0.3, 0.1, 0.3)
+--				local finalColor = Vec4(1.2, 0.6, 0.3, 0.4)
+--				local startSize = math.randomFloat(0.2,0.25)
+--				local finalSize = math.randomFloat(0.4,0.45)
+--				local velocity = Vec3(math.randomFloat(), 4, math.randomFloat()):normalizeV() * -math.randomFloat(3,4)
+--		
+--				particleEffect:addparticle( position, velocity, uvCoord, startColor, finalColor, startSize, finalSize, 0 )
+--			end
+--			
+--			
+--			particleEffect:compile()
+--			particleEffect:setLocalPosition(Vec3())
+--			
+--			bilboardParticleEffects:setSceneNode("MinigunFireEffect", particleEffect:toSceneNode() )
+--		end
+--		return particleEffect
+--	end
 	
 	
 	return self
