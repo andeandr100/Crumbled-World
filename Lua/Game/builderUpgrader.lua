@@ -33,6 +33,9 @@ function towerBuiltSteamStats(script)
 		elseif script:getFileName()=="Tower/SupportTower.lua" then
 			comUnit:sendTo("SteamStats","SupportTowersBuilt",1)
 			comUnit:sendTo("stats","addSupportTowerBuilt","")
+		elseif script:getFileName()=="Tower/BankTower.lua" then
+			comUnit:sendTo("SteamStats","BankTowersBuilt",1)
+			comUnit:sendTo("stats","addBankTowerBuilt","")
 		elseif DEBUG then
 			error("Tower not set for SteamStats. "..script:getFileName())
 		end
