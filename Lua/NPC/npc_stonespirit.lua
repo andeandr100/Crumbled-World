@@ -3,7 +3,7 @@ require("Game/particleEffect.lua")
 --this = SceneNode()
 local npcBase
 function destroy()
-	npcBase.destroy()
+	npcBase = nil
 end
 function create()
 	
@@ -24,15 +24,10 @@ function create()
 	this:addChild(pointLight:toSceneNode())
 	npcBase.addPointLight(pointLight,0.5)
 	--
-	if npcBase.update and type(npcBase.update)=="function" then
-		update = npcBase.update
-	else
-		error("unable to set update function")
-	end
 	return true
 end
 function update()
-	return true
+	return npcBase.update()
 end
 function soulSetCantDie()
 	npcBase.getSoul().soulSetCanDie(false)

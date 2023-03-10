@@ -2,8 +2,7 @@ require("NPC/npcBase.lua")
 --this = SceneNode()
 local npcBase
 function destroy()
-	--print("Destroy = "..tostring(Core.getNetworkName()) )
-	npcBase.destroy()
+	npcBase = nil
 end
 function create()
 	
@@ -18,17 +17,12 @@ function create()
 						endFrame = 18,
 						framePositions = {5,14,10,1}}
 	npcBase.addDeathAnimation(tableAnimationInfo,tableFrame)
-	if npcBase.update and type(npcBase.update)=="function" then
-		update = npcBase.update
-	else
-		error("unable to set update function")
-	end
+	
 	return true
 end
 
 function update()
-	error("this should not be used!!!")
-	return true
+	return npcBase.update()
 end
 function soulSetCantDie()
 	npcBase.getSoul().soulSetCanDie(false)

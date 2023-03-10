@@ -3,7 +3,7 @@ require("NPC/hydraBase.lua")
 --this = SceneNode()
 local npcBase
 function destroy()
-	npcBase.destroy()
+	npcBase = nil
 end
 function create()
 	
@@ -21,14 +21,12 @@ function create()
 
 	--
 	createPushFunctions()
-	if updatePush and type(updatePush)=="function" then
-		update = updatePush
-	else
-		error("unable to set update function")
-	end
+
 	return true
 end
-
+function update()
+	return updatePush()
+end
 function soulSetCantDie()
 	npcBase.getSoul().soulSetCanDie(false)
 end

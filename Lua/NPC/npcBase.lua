@@ -57,19 +57,12 @@ function NpcBase.new()
 	local eventListener
 	local prevState = -1
 	local sentUpdateTimer = 0
-	local tmpUpdate = update
 	local useSubMeshMovment = false
 	
-	function self.destroy()
-		if tmpUpdate and type(tmpUpdate)=="function" then
-			update = tmpUpdate
-		end
-	end
-	
-	local function destroyUpdate()
-		this:destroyTree()
-		return false
-	end
+--	local function destroyUpdate()
+--		this:destroyTree()
+--		return false
+--	end
 
 	function self.init(name,modelName,particleOffset,size,aimHeight,pspeed)
 		--

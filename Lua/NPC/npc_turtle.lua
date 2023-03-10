@@ -6,7 +6,8 @@ local soul
 local soundForceFieldHitt
 local shieldNode
 function destroy()
-	npcBase.destroy()
+	npcBase = nil
+	soul = nil
 	if shieldNode then
 		this:removeChild(shieldNode:toSceneNode())
 		shieldNode = nil

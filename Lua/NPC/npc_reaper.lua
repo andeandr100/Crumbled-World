@@ -12,11 +12,11 @@ local spawnTimeAdd = 2.2
 local spawnTimeAddPerSpawn = 0.5
 local spawnTimeMax = 5.5
 local SpawnCount = 0
-local deathTimer
+local deathTimer = nil
 local isACartMap = false
 
 function destroy()
-	npcBase.destroy()
+	npcBase = nil
 	if reaperCloud then
 		playerNode:removeChild(reaperCloud:toSceneNode())
 		reaperCloud = nil
@@ -34,6 +34,7 @@ function create()
 	
 	npcBase.init("reaper","npc_reaper.mym",1.4,0.6,1.7,1.5)
 	
+	deathTimer = nil
 	--Spawning system
 	nextSpawnState = 0
 	nextSpawnIn = 3.5
@@ -59,49 +60,47 @@ function create()
 end
 
 function update()
-	print("isACartMap::" .. (isACartMap and "true" or "false"))
-	local ret = npcBase.update()
-	--npcBase.mover:getDistanceToExit() is far from a good method
-	if ret and npcBase.getSoul().getHp()>0.0 and ( isACartMap or npcBase.getMover():getDistanceToExit()>15.0 ) then
-		nextSpawnIn = nextSpawnIn - Core.getDeltaTime()
-		if nextSpawnState==0 and nextSpawnIn<0.5 and nextSpawnIn>0.0 then
-			npcBase.getModel():getAnimation():blend("spawn",0.5,PlayMode.stopSameLayer)
-			nextSpawnState = 1
-		end
-		if nextSpawnIn<0.25 or nextSpawnIn>2.0 then
-			local handPos = npcBase.getModel():getMesh("npc_reaper"):getGlobalMatrix()*npcBase.getModel():getAnimation():getBonePosition("hand_l3")
-			handPos = (this:getGlobalMatrix():inverseM()*handPos)
-			reaperSpawnEffect:setEmitterPos(handPos)
-			if nextSpawnState==1 then
-				nextSpawnState=2
-				reaperSpawnEffect:activate(handPos)
-				reaperSpawnEffect:setSpawnRate(1.0)
-				soundReaperSpawn:play(1,false)
+	if deathTimer ~= nil then
+		return updateDeath()
+	else
+		print("isACartMap::" .. (isACartMap and "true" or "false"))
+		local ret = npcBase.update()
+		--npcBase.mover:getDistanceToExit() is far from a good method
+		if ret and npcBase.getSoul().getHp()>0.0 and ( isACartMap or npcBase.getMover():getDistanceToExit()>15.0 ) then
+			nextSpawnIn = nextSpawnIn - Core.getDeltaTime()
+			if nextSpawnState==0 and nextSpawnIn<0.5 and nextSpawnIn>0.0 then
+				npcBase.getModel():getAnimation():blend("spawn",0.5,PlayMode.stopSameLayer)
+				nextSpawnState = 1
 			end
+			if nextSpawnIn<0.25 or nextSpawnIn>2.0 then
+				local handPos = npcBase.getModel():getMesh("npc_reaper"):getGlobalMatrix()*npcBase.getModel():getAnimation():getBonePosition("hand_l3")
+				handPos = (this:getGlobalMatrix():inverseM()*handPos)
+				reaperSpawnEffect:setEmitterPos(handPos)
+				if nextSpawnState==1 then
+					nextSpawnState=2
+					reaperSpawnEffect:activate(handPos)
+					reaperSpawnEffect:setSpawnRate(1.0)
+					soundReaperSpawn:play(1,false)
+				end
+			end
+			if nextSpawnIn<0.0 and this:getParent() then
+				nextSpawnIn = nextSpawnIn + spawnTimeAdd
+				SpawnCount = SpawnCount + 1
+				spawnTimeAdd = math.min(spawnTimeMax,spawnTimeAdd+spawnTimeAddPerSpawn)
+				--
+				npcBase.spawnNPC("NPC/npc_skeletonReaperSpawn.lua", npcBase.getMover():getFuturePosition(1.0))
+				--
+				reaperSpawnEffect:setSpawnRate(0.0)
+				nextSpawnState = 0
+			end
+			local pos = (this:getGlobalPosition()+npcBase.getMover():getCurrentVelocity()*0.1)
+			reaperCloud:setEmitterPos(pos)
 		end
-		if nextSpawnIn<0.0 and this:getParent() then
-			nextSpawnIn = nextSpawnIn + spawnTimeAdd
-			SpawnCount = SpawnCount + 1
-			spawnTimeAdd = math.min(spawnTimeMax,spawnTimeAdd+spawnTimeAddPerSpawn)
-			--
-			npcBase.spawnNPC("NPC/npc_skeletonReaperSpawn.lua", npcBase.getMover():getFuturePosition(1.0))
-			--
-			reaperSpawnEffect:setSpawnRate(0.0)
-			nextSpawnState = 0
-		end
-		local pos = (this:getGlobalPosition()+npcBase.getMover():getCurrentVelocity()*0.1)
-		reaperCloud:setEmitterPos(pos)
+		return ret
 	end
-	return ret
 end
 function createDeadBody()
 
-	--replace death animations
-	if updateDeath and type(updateDeath)=="function" then
-		update = updateDeath
-	else
-		error("unable to set update function")
-	end
 	--replace shader, to start the fading
 	npcBase.getModel():getMesh("npc_reaper"):setShader(Core.getShader("animatedForward"))
 	npcBase.getModel():getMesh("npc_reaper"):setRenderLevel(9)

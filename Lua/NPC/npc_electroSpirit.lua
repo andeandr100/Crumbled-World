@@ -8,7 +8,15 @@ local collisionModel
 local effect
 local pLightRange = 1.1
 function destroy()
-	npcBase.destroy()
+	pointLight:destroy()
+	collisionModel:destroy()
+	effect:destroy();
+	
+	npcBase = nil
+	pointLight = nil
+	collisionModel = nil
+	effect = nil
+	soul = nil
 end
 function create()
 	

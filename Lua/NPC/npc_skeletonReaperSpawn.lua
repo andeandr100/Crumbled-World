@@ -3,7 +3,7 @@ require("NPC/state.lua")
 --this = SceneNode()
 local npcBase
 function destroy()
-	npcBase.destroy()
+	npcBase = nil
 end
 function create()
 	
@@ -23,11 +23,7 @@ function create()
 	--physic animated death
 	npcBase.addDeathRigidBody()
 	--override update function
-	if npcBase.update and type(npcBase.update)=="function" then
-		update = npcBase.update
-	else
-		error("unable to set update function")
-	end
+
 	--no gold is earned from this unit
 	npcBase.setGainGoldOnDeath(false)
 	-- 
@@ -36,7 +32,7 @@ function create()
 	return true
 end
 function update()
-	return true
+	return npcBase.update()
 end
 
 function split(str,sep)

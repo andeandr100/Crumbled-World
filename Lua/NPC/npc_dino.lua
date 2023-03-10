@@ -11,7 +11,7 @@ local prevHpVal = 0.0
 local AchievementLow = false
 --
 function destroy()
-	npcBase.destroy()
+	npcBase = nil
 end
 function create()
 	

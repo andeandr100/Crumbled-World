@@ -3,7 +3,7 @@ require("NPC/hydraBase.lua")
 --this = SceneNode()
 local npcBase
 function destroy()
-	npcBase.destroy()
+	npcBase = nil
 end
 function create()
 	
@@ -13,11 +13,7 @@ function create()
 	npcBase.setLifeValue("2")--this npc will end up with 2 level 1 units
 	--
 	createPushFunctions()
-	if updatePush and type(updatePush)=="function" then
-		update = updatePush
-	else
-		error("unable to set update function")
-	end
+	
 	npcBase.createDeadBody = createDeadBody
 	return true
 end
@@ -33,7 +29,7 @@ function createDeadBody()
 	return true
 end
 function update()
-	return true
+	return updatePush()
 end
 --override gold on death, because there is no gold earned killing this unit
 function soulSetCantDie()
