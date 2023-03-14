@@ -45,6 +45,7 @@ function restartMap()
 	billboard:setInt("missileTowerBuilt", 0)
 	billboard:setInt("quakeTowerBuilt", 0)
 	billboard:setInt("supportTowerBuilt", 0)
+	billboard:setInt("bankTowerBuilt", 0)
 	--
 	billboard:setInt("aliveEnemies", 0)			--not counting spawned enemies
 	billboard:setInt("wave", 0)
@@ -106,6 +107,7 @@ function restartWave(wave)
 		billboard:setInt("missileTowerBuilt", item["missileTowerBuilt"])
 		billboard:setInt("quakeTowerBuilt", item["quakeTowerBuilt"])
 		billboard:setInt("supportTowerBuilt", item["supportTowerBuilt"])
+		billboard:setInt("bankTowerBuilt", item["bankTowerBuilt"])
 		billboard:setInt("killCount", item["killCount"])
 		billboard:setInt("spawnCount", item["spawnCount"])
 		timer = wave<=1 and 0 or item.timer
@@ -184,6 +186,8 @@ function create()
 	comUnitTable["addMissileTowerBuilt"] = handleAddMissileTowerBuilt
 	comUnitTable["addQuakeTowerBuilt"] = handleAddQuakeTowerBuilt
 	comUnitTable["addSupportTowerBuilt"] = handleAddSupportTowerBuilt
+	comUnitTable["addBankTowerBuilt"] = handleAddBankTowerBuilt
+	
 	--
 	comUnitTable["updateTowerValue"] = handleUpdateTowerValue
 	--
@@ -352,6 +356,8 @@ function handleSetwave(inWave)
 		missileTowerBuilt = billboard:getInt("missileTowerBuilt"),
 		quakeTowerBuilt = billboard:getInt("quakeTowerBuilt"),
 		supportTowerBuilt = billboard:getInt("supportTowerBuilt"),
+		bankTowerBuilt = billboard:getInt("bankTowerBuilt"),
+		
 
 		--statistics
 		killCount = billboard:getDouble("killCount"),
@@ -423,6 +429,10 @@ function handleAddQuakeTowerBuilt()
 end
 function handleAddSupportTowerBuilt()
 	billboard:setInt("supportTowerBuilt", billboard:getInt("supportTowerBuilt")+1)
+	handleAddTowerBuilt()
+end
+function handleAddBankTowerBuilt()
+	billboard:setInt("bankTowerBuilt", billboard:getInt("bankTowerBuilt")+1)
 	handleAddTowerBuilt()
 end
 function handleSetBillboardDouble(param)

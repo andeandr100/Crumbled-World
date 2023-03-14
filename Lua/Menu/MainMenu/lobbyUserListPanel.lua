@@ -4,17 +4,17 @@ require("Menu/MainMenu/mainMenuStyle.lua")
 LobbyUserListPanel = {}
 function LobbyUserListPanel.new(panel, client)
 	local self = {}
-	local mainPanel
-	local spectatorPanel
-	local spectatorLabel
-	local userData
+	local mainPanel = nil
+	local spectatorPanel = nil
+	local spectatorLabel = nil
+	local userData = nil
 	local aClient = client
 	local maxPlayers = 128
 	local playerRowPanel = {}
-	local requestPlayerid 
-	local dropDownPanel
-	local kickButton
-	local banButton
+	local requestPlayerid  = nil
+	local dropDownPanel = nil
+	local kickButton = nil
+	local banButton = nil
 	local playerId = -1
 	local labels = {}
 	local spectatorText = Text("")

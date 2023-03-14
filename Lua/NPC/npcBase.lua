@@ -5,11 +5,15 @@ require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 --this = SceneNode()
 --timer = StopWatch()
+aReusedCounter = 0
+aResusedInfo = {}
 NpcBase = {}
 function NpcBase.new()
+	aReusedCounter = aReusedCounter + 1
 	local self = {}
 	local binaryNumPos = {[1]=1,[2]=2,[4]=3,[8]=4,[16]=5,[32]=6,[64]=7,[128]=8,[256]=9,[512]=10,[1024]=11,[2048]=12}
 	local deathManager = DeathManager.new()
+	local runDeathManagerUpdate = false
 	local npcPath = NpcPath.new()
 	local soul = TheSoul.new()
 	local model
@@ -45,9 +49,6 @@ function NpcBase.new()
 	local npcAge = 0.0
 	local npcIsDestroyed = false
 	local isHighPrioCollored = false
-	--debug
-	local startPos
-	local firstUpdate
 	
 	local syncConfirmedDeath = false
 	local networkSyncPlayerId = 0
@@ -59,10 +60,8 @@ function NpcBase.new()
 	local sentUpdateTimer = 0
 	local useSubMeshMovment = false
 	
---	local function destroyUpdate()
---		this:destroyTree()
---		return false
---	end
+
+	aResusedInfo[aReusedCounter] = {}
 
 	function self.init(name,modelName,particleOffset,size,aimHeight,pspeed)
 		--
@@ -83,9 +82,15 @@ function NpcBase.new()
 		end
 		centerOffset = Vec3(0.0,aimHeight,0.0)
 		
---		restartListener = Listener("Restart")
---		restartListener:registerEvent("restart", restartMap)
+		aResusedInfo[aReusedCounter].modelName = modelName
+		aResusedInfo[aReusedCounter].name = name
+		aResusedInfo[aReusedCounter].launcWave = launcWave
+		aResusedInfo[aReusedCounter].playerId = Core.getPlayerId()
+		aResusedInfo[aReusedCounter].networkName = Core.getNetworkName()
 		
+		local history = aResusedInfo
+		
+
 		eventListener = Listener("souls")
 		
 		--stats
@@ -115,9 +120,7 @@ function NpcBase.new()
 		soul.defaultStats(hpMax,mover,speed)
 		soul.setComSystem(comUnit,comUnitTable)
 		soul.setParticleNode(this,Vec3(0.0,particleOffset,0.0),Vec3(0.0,aimHeight*1.4+0.4,0.0))
-		--global lifeManager
---			soulNode = this:findNodeByType(NodeId.soulManager)
---			soulNode:addSoul(0,this,mover,Vec3(0.0,aimHeight,0.0),hpMax,name)
+
 		--Owner
 		spawnOwnerPlayerId = self.getCurrentIslandPlayerId()
 		--
@@ -142,20 +145,15 @@ function NpcBase.new()
 		eventListener:pushEvent("addSoul", npcData )
 		
 		comUnit:sendTo("SoulManager","addSoul",{pos=mover:getCurrentPosition(), hpMax=hpMax, name=name, team=0, aimHeight = centerOffset})
-		--DEBUG
-		startPos = mover:getCurrentPosition()
 		return true
 	end
 	function self.setSubscribed()
 		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
 		eventListener:pushEvent("addSoul", npcData )
 		
-		comUnit:sendTo("SoulManager","addSoul",{pos=mover:getCurrentPosition(), hpMax=hpMax, name=name, team=0, aimHeight = centerOffset})
+		comUnit:sendTo("SoulManager","addSoul",{pos=mover:getCurrentPosition(), hpMax = hpMax, name = name, team=0, aimHeight = centerOffset})
 	end
-	local function endUpdate()
-		--end script
-		return false
-	end
+
 	function self.getCurrentIslandPlayerId()
 		local islandPlayerId = 0--0 is no owner
 		local island = this:findNodeByTypeTowardsRoot(NodeId.island)
@@ -211,11 +209,11 @@ function NpcBase.new()
 		--
 		comUnit:clearMessages()
 		--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),3.0,Vec3(1,0,0))
-		if endUpdate and type(endUpdate)=="function" then
-			update = endUpdate
-		else
-			error("unable to set endupdate as update function")
-		end
+--		if endUpdate and type(endUpdate)=="function" then
+--			update = endUpdate
+--		else
+--			error("unable to set endupdate as update function")
+--		end
 	end
 	function self.NETSyncDeath(param)
 		soul.setHp(-1.0)
@@ -272,7 +270,7 @@ function NpcBase.new()
 		local subMeshList = meshSplitter:splitMesh(model:getMesh(0))
 		local physicNode = this:getPlayerNode():getPhysicNode()--findAllNodeByTypeTowardsLeaf({NodeId.PhysicNode})
 		if not physicNode then
-			abort(no "physicNode")
+			abort("physicNode")
 		end
 		--local playerNode = this:getPlayerNode()
 		local npcCenterPos = this:getGlobalPosition()+centerOffset
@@ -344,15 +342,10 @@ function NpcBase.new()
 	end
 	--returns a number for what kind of ground there is under the localPosition
 	local function whatIsHere(localPosition)
-		local node, localPos = deathManager.collisionAginstTheWorldLocal(localPosition)
-		local globalMatrix = this:getParent():getGlobalMatrix()
-		local globalPos = globalMatrix * localPosition
+		local node = deathManager.collisionAginstTheWorldLocal(localPosition)
 		if node then
-			if node:getNodeType() == NodeId.ropeBridge then
-				return 1--bridge
-			else
-				return 0--island
-			end
+			--return 1--bridge, Depricated
+			return 0--island
 		end
 		return 2--space
 	end
@@ -485,12 +478,8 @@ function NpcBase.new()
 		self.deathCleanup()
 		if deathManager.hasWork() then
 			--success, we have a death animation
-			if deathManager.update and type(deathManager.update)=="function" then
-				update = deathManager.update -- npcBase.update is just our local functions
-				return true
-			else
-				error("unable to set new update function")
-			end
+			runDeathManagerUpdate = true 
+			return true
 		else
 			--destroy this SceneNode if we can
 			if deathManager.enableSelfDestruct then
@@ -500,7 +489,6 @@ function NpcBase.new()
 			end
 			return false--destroy this script
 		end
-		error("This code should never be reached!!!")
 	end
 	local function toBits(num)
 		if num then
@@ -536,11 +524,11 @@ function NpcBase.new()
 		end
 	end
 	function self.update()
---		if syncConfirmedDeath==true then
---			local d1 = self
---			local d2 = syncConfirmedDeath
---			error("this should never happen!!!")
---		end
+		
+		if runDeathManagerUpdate then
+			return deathManager.update()
+		end
+		
 
 		while comUnit:hasMessage() and syncConfirmedDeath==false do
 			local msg = comUnit:popMessage()
@@ -553,15 +541,7 @@ function NpcBase.new()
 			return false
 		end
 		--
---		if billboard:exist("isAlive")==false or billboard:getBool("isAlive")==false then
---			Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),0,Vec3(1,0,0))
---		else
---			if canSyncNPC() then
---				Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,2,0),0,Vec3(0,1,0))
---			else
---				Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,2,0),0,Vec3(1))
---			end
---		end
+
 		--update the movment
 		--if we need to sync up the npc position
 		if Core.isInMultiplayer() and math.abs(NETSpeedMod)>0.05 then
@@ -587,20 +567,10 @@ function NpcBase.new()
 		
 		--if is high priority target make towers close by attack you
 		if toBits(stateOfSoul)[binaryNumPos[state.highPriority]]==1 then
---			if isHighPrioCollored==false then
---				isHighPrioCollored = true
---				if model then
---					model:setColor( Vec3(1.5) )
---				end
---			end
 			if Core.getGameTime()-retargetForHighPpriorityTarget>RETARGET_FOR_HIGH_PRIORITY_TARGET_EVERY then
 				comUnit:broadCast(this:getGlobalPosition(),7.5,"Retarget","")
 				retargetForHighPpriorityTarget = Core.getGameTime()
 			end
---		elseif isHighPrioCollored then
---			if model then
---				model:setColor( Vec3(1.0) )
---			end
 		end
 		
 		--update npc path
@@ -616,7 +586,7 @@ function NpcBase.new()
 
 		if (syncConfirmedDeath or soul.getHp()<=0) then--and soul.canDie() then
 			if not soul.canDie() then
-				error("THIS SHOULD NEVER EVER OCCURE ANYMORE!!!")
+				abort("THIS SHOULD NEVER EVER OCCURE ANYMORE!!!")
 			end
 			--npc is dead
 			if canSyncNPC() or syncConfirmedDeath then
@@ -674,16 +644,7 @@ function NpcBase.new()
 				--generate the dead body
 				--
 				comUnit:broadCast(this:getGlobalPosition(),512.0,"NpcDeath","")
-				if self.createDeadBody()then
-					return true
-				else
-					if endUpdate and type(endUpdate)=="function" then
-						update = endUpdate
-					else
-						error("unable to set new update for dead body")
-					end
-					return false
-				end
+				return self.createDeadBody()
 			else
 				if not canSyncNPC() and syncHealthTimer>10.0 then
 					if Core.isInMultiplayer() then

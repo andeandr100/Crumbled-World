@@ -1,5 +1,7 @@
 require("NPC/state.lua")
 require("Game/mapInfo.lua")
+
+--this = SceneNode()
 SHIELD_RANGE = 3.5
 
 TargetSelector = {}
@@ -16,7 +18,7 @@ function TargetSelector.new(pteam)
 	local team = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	local isCircleMap = MapInfo.new().isCricleMap()
-	---
+	--
 	local soulTableLastUpdatedFrame = 0
 	local soulTable = {}
 	local shieldGenTableLastUpdated = 0
@@ -28,6 +30,9 @@ function TargetSelector.new(pteam)
 	local defaultPipeAt = Vec3()
 	local defaultAngleLimit = math.pi*3
 	local soulTableNamesToUse = {}
+	--
+	local worldMin
+	local worldMax
 	--
 	local storedSettings
 	--
@@ -166,7 +171,7 @@ function TargetSelector.new(pteam)
 	-- purpose:		lists all shile carring units (turtle). max 3
 	local function updateShieldGenTable()
 		if isThisReal and Core.getGameTime()-shieldGenTableLastUpdated>1.0 then
-			shieldGenTableLastUpdatedFrame = Core.getGameTime()
+--			shieldGenTableLastUpdatedFrame = Core.getGameTime()
 			local input = soulManagerBillboard:getTable("shieldGenerators")
 			shieldGenTable = {}
 			for i=1, #input do
@@ -371,24 +376,7 @@ function TargetSelector.new(pteam)
 		return currentTarget
 	end
 	
-	
---	local function isInRange(target)
---		if self.isTargetAlive(target) then
---			local effectiveRange = range + (self.isTargetInStateAShieldGenerator(target) and SHIELD_RANGE or 0.0)
---			local pos = self.getTargetPosition(target)
---			local inRange = (pos-position):length()<=effectiveRange
---			if inRange and defaultAngleLimit<math.pi then
---				local diff = pos-position
---				local targetAt = Vec2(diff.x,diff.z)
---				local angle = Vec2(defaultPipeAt.x,defaultPipeAt.z):angle(targetAt)
---				return defaultAngleLimit>angle
---			end
---			return inRange
---		end
---		return false
---	end
 
-	
 	--
 	--	Selecter functions
 	--

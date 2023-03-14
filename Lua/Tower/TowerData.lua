@@ -96,7 +96,21 @@ function TowerData.new()
 		local upgradeName = subString[1]
 		local level = tonumber(subString[2])
 		
+		
+		billboard:setInt("level",level)
 		towerLevel.setLevel(level)
+		
+		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 and canSyncTower then
+			comUnit:sendNetworkSyncSafe("upgrade","upgrade;"..tostring(level))
+		end
+		
+		--Achievements
+		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
+		if level==3 then
+			achievementUnlocked("Upgrader")
+		end
+		--
+		
 		if towerUpgradeCallback then
 			towerUpgradeCallback()
 		end
@@ -133,22 +147,6 @@ function TowerData.new()
 		if self.getIsMaxedOut() then
 			achievementUnlocked( maxedOutAchivment )
 		end
-	end
-	
-	function self.setTowerLevel(level)
-		billboard:setInt("level",level)
-		towerLevel.setLevel(level)
-		
-		if Core.isInMultiplayer() and Core.getNetworkName():len()>0 and canSyncTower then
-			comUnit:sendNetworkSyncSafe("upgrade","upgrade;"..tostring(level))
-		end
-		
-		--Achievements
-		comUnit:sendTo("stats","addBillboardInt","level"..level..";1")
-		if level==3 then
-			achievementUnlocked("Upgrader")
-		end
-		--
 	end
 	
 	function self.addBoostUpgrade( data )
@@ -525,6 +523,9 @@ function TowerData.new()
 			billboard:setBool("isNetOwner",false)
 		end
 		--set the game sessionBillboard first here after this function we are sure that the builder has set the network id
+		
+		local netName = Core.getNetworkName()
+		
 		billboardWaveStats = Core.getGameSessionBillboard( "tower_"..Core.getNetworkName() )
 		self.updateStats()
 	end

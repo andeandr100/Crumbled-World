@@ -613,6 +613,11 @@ function NpcPanel.new(panel)
 	function self.update()
 		bilboardStats = bilboardStats or Core.getBillboard("stats")
 		if bilboardStats then
+			
+			if Core.getInput():getKeyPressed(Key.l) then
+				comUnit:sendTo("EventManager","spawnNextGroup","")
+			end
+			
 			if not waves then
 				comUnit:sendTo("EventManager","resendWaveData","")
 			end

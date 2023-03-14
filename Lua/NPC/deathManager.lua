@@ -8,14 +8,13 @@ function DeathManager.new()
 	
 	local debugActiveDeathTimer =	0.0
 	
---	local physicManager
+
 	local deadBodyDecayTime =		15
 	local deadBodyStartTime =		20 + deadBodyDecayTime
 	local deadBodyPhysicTimeOut =	2
 	local goldTable =				{}
 	local goldTableSize =			0
 	local enableSelfDestruct = 		true
-	local groundTestEvery = 		0.1
 	--data
 	local animation =				nil
 	local effectList =				{size=0}
@@ -283,6 +282,7 @@ function DeathManager.new()
 				if body.deathAnimationTimer>0 and not body.fallingAnimationVelocity then
 					--animation still running on a ground and we are moving
 					localPos = body.deathPos + (body.deathVec * ( math.sin(math.pi*0.5*(1.0-(body.deathAnimationTimer/body.deathAnimationTimerStart))) * body.deathAnimationDistance))
+					
 					--update position with ground collision
 					if body.groundTestNode then
 						localPos = Vec3(localPos.x,body.groundTestYPos.y,localPos.z)
@@ -292,15 +292,12 @@ function DeathManager.new()
 				body.groundTestTimer = body.groundTestTimer - deltaTime
 				if body.groundTestTimer<0.0 then
 					--test ground collision
-					local gPos = this:getGlobalPosition()
+--					local gPos = this:getGlobalPosition()
 					--Core.addDebugLine(gPos,gPos+Vec3(0,3,0),2,Vec3(1))
 					body.groundTestNode, body.groundTestYPos = self.collisionAginstTheWorldLocal(localPos)
 					--set the timer for next update
-					if body.groundTestNode and not body.groundTestNode:getNodeType()==NodeId.ropeBridge then
-						body.groundTestTimer = body.groundTestTimer + groundTestEvery
-					else
-						body.groundTestTimer = body.groundTestTimer + 0.05
-					end
+					body.groundTestTimer = body.groundTestTimer + 0.1
+					
 					--update position
 					if body.groundTestNode then
 						localPos = Vec3(localPos.x,body.groundTestYPos.y,localPos.z)
@@ -334,27 +331,17 @@ function DeathManager.new()
 						body.startDeadMatrix = body.model:getLocalMatrix()
 					elseif body.lifeTime > self.getDeadBodyDecayTime() then--stage 2 (waiting)
 						--groundTestNode can be failed because the animation is done and it was an edge case, [RESAULT is failed ground test but the npc is still mostly on ground]
-						if body.groundTestNode and body.groundTestNode:getNodeType()==NodeId.ropeBridge then--(if on bridge)
-							--waiting for the body to start decaying, keep moving because we are on a bridge
-							this:setLocalPosition( localPos )
-							--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,2,0),0.1,Vec3(1,0,0))
-						else
-							body.groundTestTimer = 100.0--we are on solid ground no more test needed
-							--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,2,0),0.1,Vec3(0,1,0))
-						end
+						
+						body.groundTestTimer = 100.0--we are on solid ground no more test needed
+						--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,2,0),0.1,Vec3(0,1,0))
+						
 					else--stage 3 (decay)
 						--The body is old time to decay away or get delete
-						--The body is ether on a bride or an island
-						if body.groundTestNode and body.groundTestNode:getNodeType()==NodeId.ropeBridge then
-							--body is on a bridge
-							--fade the model away with alpha
-							this:setLocalPosition( localPos )
-							fadeOut(body,deltaTime,"animated")
-						else
-							--The dead body is on a island. use deafault decay
-							--this:setLocalPosition( localPos ), position is updated by the next function
-							deathAnimation(body)
-						end
+
+						--The dead body is on a island. use deafault decay
+						--this:setLocalPosition( localPos ), position is updated by the next function
+						deathAnimation(body)
+						
 					end
 				else
 					--we have fallen over the world, continue falling

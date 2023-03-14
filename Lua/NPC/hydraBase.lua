@@ -1,6 +1,8 @@
 --this = SceneNode()
 local npcBase
+local runDeathUpdate
 function createHydra(level,scale,pnpcBase)
+	runDeathUpdate= false
 	npcBase = pnpcBase
 	npcBase.init("hydra"..level,"npc_hydra"..level..".mym",0.5*scale,0.6,0.8,1.45)
 	npcBase.getSoul().enableBlood("BloodSplatterSphere",2.5*scale,Vec3(0,0.3*scale,-0.4*scale))
@@ -38,15 +40,19 @@ function spawnHydras(level)
 	end
 end
 function updatePush()
-	pushTimer = pushTimer - Core.getDeltaTime()
-	if pushTimer<0.0 then
-		pushTimer = 1.0
-		local param = tostring(this:getGlobalPosition().x)..";"..this:getGlobalPosition().y..";"..this:getGlobalPosition().z
-		npcBase.getComUnit():broadCast(this:getGlobalPosition(),1.25,"npcPush",param)
-		--forcefully update speed as it can be unsynced
-		updatePushSpeed()
+	if runDeathUpdate then
+		return updateDeathAlphaDeath()
+	else
+		pushTimer = pushTimer - Core.getDeltaTime()
+		if pushTimer<0.0 then
+			pushTimer = 1.0
+			local param = tostring(this:getGlobalPosition().x)..";"..this:getGlobalPosition().y..";"..this:getGlobalPosition().z
+			npcBase.getComUnit():broadCast(this:getGlobalPosition(),1.25,"npcPush",param)
+			--forcefully update speed as it can be unsynced
+			updatePushSpeed()
+		end
+		return npcBase.update()
 	end
-	return npcBase.update()
 end
 function handlePushed(param,fromIndex)
 	local x,y,z = string.match(param, "(.*);(.*);(.*)")
@@ -77,11 +83,12 @@ end
 --this will decrease the clutter of dead bodies, and because making 2 death animations for 4 extra models will cost to much time
 function setUpAlphaDeath()
 	--replace death animations
-	if updateDeathAlphaDeath and type(updateDeathAlphaDeath)=="function" then
-		update = updateDeathAlphaDeath
-	else
-		error("unable to set new update function")
-	end
+	runDeathUpdate = true
+--	if updateDeathAlphaDeath and type(updateDeathAlphaDeath)=="function" then
+--		update = updateDeathAlphaDeath
+--	else
+--		error("unable to set new update function")
+--	end
 	--replace shader, to start the fading
 	npcBase.getModel():getMesh(0):setShader(Core.getShader("animatedForward"))
 	npcBase.getModel():getMesh(0):setRenderLevel(9)
