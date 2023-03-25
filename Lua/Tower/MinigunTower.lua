@@ -758,7 +758,7 @@ function MinigunTower.new()
 								stats = {
 										range =		{ 5.0, 5.0, 5.0 },
 --										damage = 	{ 115, 325, 405},
-										damage = 	{ 115, 325, 4050},
+										damage = 	{ 115, 325, 405},
 										RPS = 		{ 2.5, 2.5, 5.0},
 										rotationSpeed =	{ 1.2, 1.4, 1.6 },
 										damageWeak = { 1.0, 1.0, 1.0 } }

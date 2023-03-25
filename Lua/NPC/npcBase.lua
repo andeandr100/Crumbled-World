@@ -118,7 +118,7 @@ function NpcBase.new()
 		--ComUnitCallbacks
 		--local soul managment
 		soul.defaultStats(hpMax,mover,speed)
-		soul.setComSystem(comUnit,comUnitTable)
+		soul.setComSystem(comUnitTable)
 		soul.setParticleNode(this,Vec3(0.0,particleOffset,0.0),Vec3(0.0,aimHeight*1.4+0.4,0.0))
 
 		--Owner
@@ -140,6 +140,13 @@ function NpcBase.new()
 		restartListener:registerEvent("restart", self.disappear)
 		restartListener = Listener("RestartWave")
 		restartListener:registerEvent("restartWave", self.disappear)
+		
+		--Debug
+		NpcBase.comUnit = comUnit
+		NpcBase.name = name
+		NpcBase.hpMax = hpMax
+		NpcBase.index = comUnit:getIndex()
+		NpcBase.netname = Core.getNetworkName()
 			
 		local npcData = {node=this,id=comUnit:getIndex(),netname=Core.getNetworkName()}
 		eventListener:pushEvent("addSoul", npcData )

@@ -3,9 +3,10 @@ require("Game/Abilities/worldCollision.lua")
 
 --this = SceneNode()
 SlowfieldAbility = {}
-function SlowfieldAbility.new(inCamera, inComUnit)
+function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 	local self = {}
 	local camera = inCamera
+	--comUnit = ComUnit()
 	local comUnit = inComUnit
 	local slowFieldTargetArea = slowFieldTargetArea.new()
 	local keyBindSlowAbility = Core.getBillboard("keyBind"):getKeyBind("SlowAbility")
@@ -13,6 +14,7 @@ function SlowfieldAbility.new(inCamera, inComUnit)
 	local keyAttackAbility = Core.getBillboard("keyBind"):getKeyBind("AttackAbility")
 	local boostSelected = false
 	local abilityHasBeenUsedThisWave = false
+	local userControlled = isUserControlled
 	
 	local lastSlowEffectSent = 0
 	local abilityLast = 8
@@ -54,18 +56,33 @@ function SlowfieldAbility.new(inCamera, inComUnit)
 		return billboardStats:getPanel("MainPanel") == Core.getPanelWithMouseFocus()
 	end
 	
+	function self.isActive()
+		local activeTime = Core.getGameTime() - abilityActivated
+		return activeTime > 0 and activeTime < 12
+	end
+	
+	function self.activate(globalPosition)
+		abilityActivated = Core.getGameTime()
+		abilityHasBeenUsedThisWave = true
+		abilityGlobalPosition = globalPosition
+		boostSelected = false
+	end
+	
 	function self.update()
 		
-		if keyBindSlowAbility:getPressed() then
-			boostSelected = true
-		end
-		
-		if Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) or keyBindBoostBuilding:getPressed() or keyAttackAbility:getPressed() then
-			boostSelected = false
-		end
-		
-		if Core.getInput():getMouseDown(MouseKey.left) and isMouseInMainPanel() == false then
-			boostSelected = false
+		if userControlled then
+			if keyBindSlowAbility:getPressed() then
+				boostSelected = true
+--				comUnit:sendNetworkSync("NetActivateSlowAbility")
+			end
+			
+			if Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) or keyBindBoostBuilding:getPressed() or keyAttackAbility:getPressed() then
+				boostSelected = false
+			end
+			
+			if Core.getInput():getMouseDown(MouseKey.left) and isMouseInMainPanel() == false then
+				boostSelected = false
+			end
 		end
 		
 		if boostSelected and abilityHasBeenUsedThisWave == false then
@@ -74,15 +91,12 @@ function SlowfieldAbility.new(inCamera, inComUnit)
 			slowFieldTargetArea.update(collision, globalposition, false)
 			
 			if collision and Core.getInput():getMouseDown(MouseKey.left) and isMouseInMainPanel() then
-				abilityActivated = Core.getGameTime()
-				abilityHasBeenUsedThisWave = true
-				abilityGlobalPosition = globalposition
-				boostSelected = false
+				comUnit:sendNetworkSync("NetActivateSlowAbility", tostring(globalposition))
+				self.activate(globalposition)
 			end
 
 		else
-			local activeTime = Core.getGameTime() - abilityActivated
-			if activeTime > 0 and activeTime < 12 then
+			if self.isActive() then
 				slowFieldTargetArea.update(true, abilityGlobalPosition, true)
 				
 				if Core.getGameTime() - lastSlowEffectSent > 0.1 then

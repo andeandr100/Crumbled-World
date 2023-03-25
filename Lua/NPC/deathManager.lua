@@ -355,8 +355,7 @@ function DeathManager.new()
 					if body.fallingAnimationPosition.y>100.0 then
 						body.model:getParent():removeChild(body.model:toSceneNode())--this is in global space, must be deleted
 						animation = nil--removes the animation from the list,lets other death obeject to die
-						local comUnit = Core.getComUnit()
-						comUnit:sendTo("SteamAchievement","Falling","")
+						Core.getComUnit():sendTo("SteamAchievement","Falling","")
 					end
 				end
 			end

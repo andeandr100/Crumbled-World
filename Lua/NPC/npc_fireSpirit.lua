@@ -3,17 +3,19 @@ require("Game/particleEffect.lua")
 --this = SceneNode()
 local npcBase
 local soul
-local pointLight
+local spiritPointLight
 local collisionModel
 local effect
 local pLightRange = 1.1
 function destroy()
-	pointLight:destroy()
+	if spiritPointLight then
+		spiritPointLight:destroy()
+		spiritPointLight = nil
+	end
 	collisionModel:destroy()
 	effect:destroy();
 	
 	npcBase = nil
-	pointLight = nil
 	collisionModel = nil
 	effect = nil
 	soul = nil
@@ -22,7 +24,7 @@ function create()
 	
 	npcBase = NpcBase.new()
 	soul = npcBase.getSoul()
-	pointLight = nil
+	spiritPointLight = nil
 	collisionModel = nil
 	effect = nil
 	pLightRange = 1.1
@@ -35,9 +37,9 @@ function create()
 	this:addChild(effect:toSceneNode())
 	effect:activate(Vec3(0,0.65,0))
 	npcBase.addParticleEffect(effect,0.35)
-	--pointlight
-	pointLight = PointLight.new(Vec3(0,0.25,0),Vec3(3.0,1.0,0.0),pLightRange)
-	pointLight:setCutOff(0.1)
+	--spiritPointLight
+	spiritPointLight = PointLight.new(Vec3(0,0.25,0),Vec3(3.0,1.0,0.0),pLightRange)
+	spiritPointLight:setCutOff(0.1)
 	
 	--collisionModel, need to be able to click on this npc
 	collisionModel = Core.getModel("lightSphere.mym")
@@ -47,10 +49,10 @@ function create()
 		meshList[i]:setCanBeRendered(false)
 	end
 	
-	--pointLight:setIsStatic(true)
-	this:addChild(pointLight:toSceneNode())
+	--spiritPointLight:setIsStatic(true)
+	this:addChild(spiritPointLight:toSceneNode())
 	this:addChild(collisionModel:toSceneNode())
-	npcBase.addPointLight(pointLight,0.35)
+	npcBase.addPointLight(spiritPointLight,0.35)
 	--
 	npcBase.getSoul().setResistance(1.33,true,true,0.0)
 	--
@@ -59,7 +61,7 @@ end
 function update()
 	local hpScale = 0.50+(0.50*(soul.getHp()/soul.getMaxHp()))
 	effect:setScale(hpScale)
-	pointLight:setRange(pLightRange*hpScale)
+	spiritPointLight:setRange(pLightRange*hpScale)
 	return npcBase.update()
 end
 --global function

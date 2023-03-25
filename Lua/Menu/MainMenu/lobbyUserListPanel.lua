@@ -37,14 +37,15 @@ function LobbyUserListPanel.new(panel, client)
 	end
 	
 	function self.setReady(clientId, ready)
-		for i=1, #userData do
-			if userData[i].clientId == clientId then
-				userData[i].ready = ready
-				userData[i].readyCheckBox:setSelected(ready)
-				print("ClinetId: "..clientId.."readyCheckBox: "..tostring(ready))
+		if userData then
+			for i=1, #userData do
+				if userData[i].clientId == clientId then
+					userData[i].ready = ready
+					userData[i].readyCheckBox:setSelected(ready)
+					print("ClinetId: "..clientId.."readyCheckBox: "..tostring(ready))
+				end
 			end
 		end
-		
 	end
 	
 	local function changeReady(checkBox)

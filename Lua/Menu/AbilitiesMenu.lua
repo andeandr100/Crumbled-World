@@ -9,7 +9,9 @@ function AbilitesMenu.new()
 	local self = {}
 	local boostAbility = nil
 	local slowfieldAbility = nil
+	local slowFieldAbilityList = {}
 	local attackAbility = nil
+	local attackAbilityList = {}
 	local posterForm	
 	
 	local comUnit
@@ -41,13 +43,15 @@ function AbilitesMenu.new()
 		comUnit:setCanReceiveTargeted(true);
 		comUnit:setCanReceiveBroadcast(true);
 		comUnitTable["waveChanged"] = self.waveChanged	
+		comUnitTable["NetActivateSlowAbility"] = self.netSlowFieldEnabled
+		comUnitTable["NetActivateAttackAbility"] = self.netAttackEnabled
 		
 		if #cameras == 1 then
 			camera = ConvertToCamera(cameras[1])
 
-			slowfieldAbility = SlowfieldAbility.new(camera, comUnit)			
+			slowfieldAbility = SlowfieldAbility.new(camera, comUnit, true)
 			boostAbility = BoostAbility.new(camera, comUnit)
-			attackAbility = AttackAbility.new(camera, comUnit)
+			attackAbility = AttackAbility.new(camera, comUnit, true)
 			posterForm = Form(camera, PanelSize(Vec2(1,0.1), Vec2(3.4,1)));
 			
 			posterForm:setName("Abilities form")
@@ -134,6 +138,36 @@ function AbilitesMenu.new()
 		end
 	end
 	
+	function self.netSlowFieldEnabled(param)
+		local position = tovec3(param)
+		
+		for i=1, #slowFieldAbilityList do
+			if slowFieldAbilityList[i].isActive() == false then
+				slowFieldAbilityList[i].activate(position)
+				return
+			end
+		end
+		
+		local index = #slowFieldAbilityList + 1
+		slowFieldAbilityList[index] = SlowfieldAbility.new(camera, comUnit, false)
+		slowFieldAbilityList[index].activate(position)
+	end
+	
+	function self.netAttackEnabled(param)
+		local position = tovec3(param)
+		
+		for i=1, #attackAbilityList do
+			if attackAbilityList[i].isActive() == false then
+				attackAbilityList[i].activate(position)
+				return
+			end
+		end
+		
+		local index = #attackAbilityList + 1
+		attackAbilityList[index] = AttackAbility.new(camera, comUnit, false)
+		attackAbilityList[index].activate(position)
+	end
+	
 	function self.waveChanged(param)
 		boostAbility.waveChanged()
 		boostButton:setEnabled(true)
@@ -184,6 +218,15 @@ function AbilitesMenu.new()
 		boostAbility.update()
 		slowfieldAbility.update()
 		attackAbility.update()
+		
+		for i=1, #slowFieldAbilityList do
+			slowFieldAbilityList[i].update()
+		end
+		
+		for i=1, #attackAbilityList do
+			attackAbilityList[i].update()
+		end
+	
 	
 		if boostButton:getEnabled() == boostAbility.getBoostHasBeenUsedThisWave() then
 			boostButton:setEnabled(not boostButton:getEnabled())

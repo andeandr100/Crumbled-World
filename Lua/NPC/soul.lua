@@ -30,7 +30,7 @@ function TheSoul.new()
 	local shieldAngleFront = true
 	local bloodInfo
 	local canBeKilled = true
-	local comUnit					--comUnit = ComUnit()
+	local comUnit
 	local bloodSpray
 	local markOfDeathModel = nil
 	--local soulManager
@@ -455,8 +455,8 @@ function TheSoul.new()
 		hp = num
 	end
 	--initiate callbacks
-	function self.setComSystem(pcomUnit,comUnitTable)
-		comUnit = pcomUnit
+	function self.setComSystem(comUnitTable)
+		comUnit = Core.getComUnit()
 		comUnitTable["attack"] = handleAttacked
 		comUnitTable["attackPhysical"] = handleAttackedPhysical
 		comUnitTable["attackBlade"] = handleAttackedBlade

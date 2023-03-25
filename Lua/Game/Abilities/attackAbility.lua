@@ -4,7 +4,7 @@ require("Game/Abilities/worldCollision.lua")
 
 --this = SceneNode()
 AttackAbility = {}
-function AttackAbility.new(inCamera, inComUnit)
+function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 	local self = {}
 	local camera = inCamera
 	local comUnit = inComUnit
@@ -18,6 +18,7 @@ function AttackAbility.new(inCamera, inComUnit)
 	local boostSelected = false
 	local abilityHasBeenUsedThisWave = false
 	local statsBilboard = Core.getBillboard("stats")
+	local userControlled = isUserControlled
 	
 	local lastSlowEffectSent = 0
 	local abilityLast = 12
@@ -96,16 +97,38 @@ function AttackAbility.new(inCamera, inComUnit)
 		return billboardStats:getPanel("MainPanel") == Core.getPanelWithMouseFocus()
 	end
 	
+	function self.isActive()
+		local activeTime = Core.getGameTime() - abilityActivated
+		return activeTime > 0 and activeTime < 15
+	end
+	
+	function self.activate(globalPosition)
+		abilityActivated = Core.getGameTime()
+		abilityHasBeenUsedThisWave = true
+		abilityGlobalPosition = globalPosition
+		boostSelected = false
+		attackEffect.activate(globalPosition)
+		AttackArea.update(false, Vec3())
+		
+		targetSelector.disableRealityCheck()
+	end
+	
 	function self.update()
 		
 		
+		if userControlled then
+			if keyAttackAbility:getPressed() then
+				boostSelected = true
+			end
+			
+			if Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) or keyBindSlowAbility:getPressed() or keyBindBoostBuilding:getPressed() then
+				boostSelected = false
+			end
+			
+			if Core.getInput():getMouseDown(MouseKey.left) and mouseInGameArea() == false then
+				boostSelected = false
+			end
 		
-		if keyAttackAbility:getPressed() then
-			boostSelected = true
-		end
-		
-		if Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) or keyBindSlowAbility:getPressed() or keyBindBoostBuilding:getPressed() then
-			boostSelected = false
 		end
 		
 		if attackEffect.update() then
@@ -116,28 +139,17 @@ function AttackAbility.new(inCamera, inComUnit)
 				impact(0)
 			end
 		end
-		
---		if targetSelector.getIndexOfShieldCovering(attackEffect.getPosition()) > 0 then
---			abort("shield collision")
---		end
 
-		if Core.getInput():getMouseDown(MouseKey.left) and mouseInGameArea() == false then
-			boostSelected = false
-		end
+
+		
 		
 		if boostSelected and abilityHasBeenUsedThisWave == false then
 				
 			local collision, globalposition = mapCollision.mouseWorldCollision(false)
 			
 			if collision and Core.getInput():getMouseDown(MouseKey.left) and mouseInGameArea() then
-				abilityActivated = Core.getGameTime()
-				abilityHasBeenUsedThisWave = true
-				abilityGlobalPosition = globalposition
-				boostSelected = false
-				attackEffect.activate(globalposition)
-				AttackArea.update(false, Vec3())
-				
-				targetSelector.disableRealityCheck()
+				comUnit:sendNetworkSync("NetActivateAttackAbility", tostring(globalposition))
+				self.activate(globalposition)
 			else
 				AttackArea.update(collision, globalposition)			
 			end
