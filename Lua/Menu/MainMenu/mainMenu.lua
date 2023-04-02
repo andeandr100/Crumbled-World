@@ -6,6 +6,9 @@ require("Menu/Campaign/campaignGameMenu.lua")
 require("Menu/MainMenu/multiplayerMenuServerList.lua")
 --this = SceneNode()
 
+local pagePanel
+local campaignPanel
+
 function restore(data)
 	if data.form then
 		data.form:setVisible(false)
@@ -154,8 +157,14 @@ function toglePanelVisible(button,param)
 	print("\n\n\nTogle visible")
 	for i=2, #buttons do
 		print("Button "..i)
+		
 		if buttons[i].panel then
 			if buttons[i].button == button then
+				if i==2 then
+--					pagePanel:setPanelSize(PanelSize(Vec2(-1,-0.95), Vec2(6,4)))
+				else
+--					pagePanel:setPanelSize(PanelSize(Vec2(-1,-0.95), Vec2(4,4)))
+				end
 				print("set visible panel "..i)
 				local childVisible = buttons[i].panel.getChildVisible and buttons[i].panel.getChildVisible()
 				local visible = (not buttons[i].panel:getVisible()) or (childVisible ~= nil and childVisible or false)
@@ -167,7 +176,13 @@ function toglePanelVisible(button,param)
 					print("set visibility "..tostring( visible)..", param")
 					buttons[i].panel:setVisible( visible, param )
 				end
-				pagePanel:setVisible( visible )
+				if i==2 then
+					campaignPanel:setVisible(true)
+					pagePanel:setVisible( false )
+				else
+					campaignPanel:setVisible(false)
+					pagePanel:setVisible( visible )
+				end
 			else
 				buttons[i].panel:setVisible( false )
 			end
@@ -217,33 +232,6 @@ function createTopMenu()
 		buttons[i].button:addEventCallbackExecute(toglePanelVisible)
 	end
 	
---	buttons[8].button = MainMenuStyle.addTopMenuButton(leftTopMenuPanel, Vec2(buttons[8].text:getTextScale().x/2+1,1), buttons[8].text)
-	
---	local button = centerTopPanel:add(Button(PanelSize(Vec2(-1),Vec2(4,1)), "Gjame",ButtonStyle.SQUARE_LIGHT) )
---	local edgeColor = MainMenuStyle.borderColor
---	button:setEdgeColor(edgeColor)
---	button:setEdgeHoverColor(edgeColor)
---	button:setEdgeDownColor(Vec4(edgeColor:toVec3() * 0.8, edgeColor.w))
---	
---	button:setInnerColor(Vec4(0.18,0.18,0.18,1),Vec4(),Vec4(0,0,0,1))
---	button:setInnerHoverColor(Vec4(0.08,0.08,0.08,1),Vec4(0.5,0.5,0.5,1),Vec4(0,0,0,1))
---	button:setInnerDownColor(Vec4(0.08,0.08,0.08,1),Vec4(0.4,0.4,0.4,1),Vec4(0,0,0,1))
---	button:setTextColor(MainMenuStyle.textColor)
---	button:setTextHoverColor(Vec4(1))
---	button:setTextDownColor(Vec4(1))
-	
-	
-	
---	local testPanel = centerTopPanel:add(Panel(PanelSize(Vec2(-1),Vec2(4,1))))
---	local aGradient = Gradient()
---	aGradient:setGradientColorsVertical({Vec3(1.0), Vec3(1,1,0), Vec3(0,1,0), Vec3(0,0,1)})
---	testPanel:setBackground(aGradient)
-	
---	local progresbar = centerTopPanel:add(ProgressBar(PanelSize(Vec2(-1),Vec2(4,1))))
---	progresbar:setColor({Vec3(0,1,0), Vec3(0,0.35,0), Vec3(1,1,0), Vec3(1,1,0),Vec3(0,1,1), Vec3(0,1,1)})
---	progresbar:setValue({0.4,0.2,0.4})
---	centerTopPanel:add(TextField(PanelSize(Vec2(-1),Vec2(4,1))))
-
 end
 
 function changePagePanelSize(panelSize)
@@ -251,22 +239,27 @@ function changePagePanelSize(panelSize)
 end
 
 function createMainArea()
+	
+	local borderSize =  0.00135
 	local mainAreaPanel = form:add(Panel(PanelSize(Vec2(-1))))
 	mainAreaPanel:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
 	pagePanel = mainAreaPanel:add(Panel(PanelSize(Vec2(-1,-0.95), Vec2(4,4))))
 	pagePanel:setVisible(false)
-	
-	
-	local borderSize =  0.00135
 	pagePanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
 	pagePanel:setBorder(DoubleBorder(BorderSize(Vec4(borderSize * 2)),MainMenuStyle.borderColor,BorderSize(Vec4(borderSize * 3)),Vec4(0,0,0,0.5), BorderSize(Vec4(borderSize)),MainMenuStyle.borderColor))
+	
+	
+	campaignPanel = mainAreaPanel:add(Panel(PanelSize(Vec2(-1,-0.95), Vec2(6,4))))
+	campaignPanel:setVisible(false)
+	campaignPanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
+	campaignPanel:setBorder(DoubleBorder(BorderSize(Vec4(borderSize * 2)),MainMenuStyle.borderColor,BorderSize(Vec4(borderSize * 3)),Vec4(0,0,0,0.5), BorderSize(Vec4(borderSize)),MainMenuStyle.borderColor))
 	
 	print("CustomeGameMenu\n")
 	buttons[3].panel = CustomeGameMenu.new(pagePanel)
 	print("Multiplayer\n")
 	buttons[4].panel = MultiplayerMenuServerList.new(pagePanel)
 	print("CustomeGameMenu\n")
-	buttons[2].panel = CampaignGameMenu.new(pagePanel)
+	buttons[2].panel = CampaignGameMenu.new(campaignPanel)
 	print("MapEditorMenu\n")
 	buttons[5].panel = MapEditorMenu.create(pagePanel)
 	print("OptionsMenu\n")
@@ -278,9 +271,6 @@ function createMainArea()
 	
 	buttons[2].button:addEventCallbackExecute(buttons[2].panel.changedVisibility)
 	buttons[3].button:addEventCallbackExecute(buttons[3].panel.changedVisibility)
-	
-	
-	
 	
 	
 	buttons[4].panel.setSingleCampaignButtons(buttons[3].button, buttons[2].button, buttons[5].button)

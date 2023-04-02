@@ -264,7 +264,7 @@ function createTreeView()
 	treeViewPanel:setMargin(BorderSize(Vec4(0.005)))
 	treeViewPanel:setPadding(BorderSize(Vec4(0.01)))
 	treeViewPanel:setLayout(FallLayout())
-	treeViewPanel:setEnableYScroll()
+	treeViewPanel:setEnableScroll()
 	treeViewPanel:setBackground(Sprite(Vec4(0.15, 0.15, 0.15, 0.98)))
 
 	local sceneNode = this:getRootNode():findNodeByTypeTowardsLeafe(NodeId.playerNode)

@@ -32,7 +32,7 @@ function render(data)
 		GL.blendFunc(GL_Blend.SRC_ALPHA,GL_Blend.ONE_MINUS_SRC_ALPHA)
 		GL.depthMask(true)
 		GL.disable(GL_State.CULL_FACE)
-		data:render3D(0)--Space
+		--data:render3D(0)--Space
 		
 		GL.enable(GL_State.BLEND)
 		GL.depthMask(false)

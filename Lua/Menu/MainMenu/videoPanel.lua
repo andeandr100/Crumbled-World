@@ -33,7 +33,7 @@ end
 function VideoPanel.create(mainPanel)
 	local videoPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.8,-0.95))))
 	videoPanel:setLayout(FallLayout(PanelSize(Vec2(0,0.0015))))
-	videoPanel:setEnableYScroll()
+	videoPanel:setEnableScroll()
 	videoPanel:setVisible(false)
 	
 	

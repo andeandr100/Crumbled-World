@@ -400,7 +400,7 @@ function CustomeGameMenu.new(panel)
 		labels[7]:setTag("wave")
 			
 		mapListPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, -1))))
-		mapListPanel:setEnableYScroll()	
+		mapListPanel:setEnableScroll()	
 
 		self.updateMaps()
 	end

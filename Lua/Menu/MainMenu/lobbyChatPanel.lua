@@ -57,7 +57,7 @@ function LobbyChatPanel.new(panel, client)
 		
 		chatHistoryPanel = chatPanel:add(Panel(PanelSize(Vec2(-1,-1))))
 		chatHistoryPanel:setBackground(Gradient(Vec4(1,1,1,0.05), Vec4(1,1,1,0.1)))
-		chatHistoryPanel:setEnableYScroll()
+		chatHistoryPanel:setEnableScroll()
 		chatHistoryPanel:setBorder(Border(BorderSize(Vec4(0.001)),Vec3(0.45)))
 		chatHistoryPanel:setLayout(FlowLayout(Alignment.BOTTOM_LEFT))
 	end

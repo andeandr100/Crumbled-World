@@ -12,7 +12,7 @@ GamePanel.optionsBoxes = {}
 function GamePanel.create(mainPanel)
 	local gamePanel = mainPanel:add(Panel(PanelSize(Vec2(-0.8,-0.95))))
 	gamePanel:setLayout(FallLayout(PanelSize(Vec2(0,0.0015))))
-	gamePanel:setEnableYScroll()
+	gamePanel:setEnableScroll()
 	gamePanel:setVisible(false)
 	
 	

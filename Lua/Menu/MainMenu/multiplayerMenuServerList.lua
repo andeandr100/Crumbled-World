@@ -239,7 +239,7 @@ function MultiplayerMenuServerList.new(panel)
 			
 		serverListPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, -1))))
 		serverListPanel:setLayout(FallLayout())
-		serverListPanel:setEnableYScroll()	
+		serverListPanel:setEnableScroll()	
 		
 		
 	end

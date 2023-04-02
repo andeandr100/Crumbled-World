@@ -120,7 +120,7 @@ function MapEditorMenu.addMapsPanel(panel)
 	headerPanel:add(Label(PanelSize(Vec2(-0.65, -1)), "Name", Vec4(0.95)))
 		
 	local mapListPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, -1))))
-	mapListPanel:setEnableYScroll()	
+	mapListPanel:setEnableScroll()	
 			
 	local count = 0
 	for i=1, #files do

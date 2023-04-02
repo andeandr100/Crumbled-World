@@ -179,7 +179,7 @@ function MapListPanel.new(panel, changeMapCallback)
 		labels[3]:setTag("players")
 			
 		mapListPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, -1))))
-		mapListPanel:setEnableYScroll()	
+		mapListPanel:setEnableScroll()	
 			
 		addRowFunction = addRowButton
 		updateMapList()

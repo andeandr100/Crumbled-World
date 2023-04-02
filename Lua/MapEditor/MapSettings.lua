@@ -122,7 +122,7 @@ function create()
 		quitButton:addEventCallbackExecute(quitForm)
 		
 		local mainArea = form:add(Panel(PanelSize(Vec2(-1,-1))))
-		mainArea:setEnableYScroll()
+		mainArea:setEnableScroll()
 		mainArea:setLayout(FlowLayout())
 		mainArea:getLayout():setPanelSpacing(PanelSize(Vec2(0.002, 0.002)))
 		

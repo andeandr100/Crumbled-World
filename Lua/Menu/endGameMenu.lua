@@ -291,7 +291,7 @@ function initiate()
 	local baseStatsPanel = form:add(Panel(PanelSize(Vec2(-0.9,-1), Vec2(5,3.5))))
 	statsPanel = baseStatsPanel:add(Panel(PanelSize(Vec2(-0.4,-1))))
 	graphPanel = baseStatsPanel:add(Panel(PanelSize(Vec2(-1,-1))))
-	statsPanel:setEnableYScroll()
+	statsPanel:setEnableScroll()
 	
 	setStatsLayout(statsPanel,true)
 	--setGraphLayout(graphPanel)

@@ -7,7 +7,7 @@ AudioPanel = {}
 function AudioPanel.create(mainPanel)
 	local audioPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.8,-0.95))))
 	audioPanel:setLayout(FallLayout(PanelSize(Vec2(0,0.0015))))
-	audioPanel:setEnableYScroll()
+	audioPanel:setEnableScroll()
 	audioPanel:setVisible(false)
 	
 	

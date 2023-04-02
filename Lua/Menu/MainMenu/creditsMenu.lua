@@ -36,14 +36,14 @@ function CreditsMenu.createPage(creditPanel)
 	
 	local panelArea = mainArea:add(Panel(PanelSize(Vec2(-0.85,-0.95))))
 	panelArea:setPadding(BorderSize(Vec4(0.005,0,0.005,0),true))
-	panelArea:setEnableYScroll()
+	panelArea:setEnableScroll()
 	panelArea:setBackground(Sprite(Vec4(0,0,0,0.6)))
 	panelArea:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)),MainMenuStyle.borderColor))
 	panelArea:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
 	
 --	local panelArea = panel:add(Panel(PanelSize(Vec2(-1,-1))))
 --	panelArea:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
---	panelArea:setEnableYScroll()
+--	panelArea:setEnableScroll()
 	
 	CreditsMenu.creditsPanel = panelArea
 	

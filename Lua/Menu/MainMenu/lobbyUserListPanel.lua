@@ -338,7 +338,7 @@ function LobbyUserListPanel.new(panel, client)
 	
 	local function init()
 		mainPanel = panel:add(Panel(PanelSize(Vec2(-1))))
-		mainPanel:setEnableYScroll()
+		mainPanel:setEnableScroll()
 	end
 	
 	init()

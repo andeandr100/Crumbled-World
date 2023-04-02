@@ -36,10 +36,10 @@ function CampaignGameMenu.new(panel)
 	local labels = {}
 	
 	function self.languageChanged()
-		for i=1, #labels do
-			labels[i]:setText(language:getText(labels[i]:getTag()))
-		end
-		gameModeBox.updateLanguage()
+--		for i=1, #labels do
+--			labels[i]:setText(language:getText(labels[i]:getTag()))
+--		end
+--		gameModeBox.updateLanguage()
 --		difficutyBox.updateLanguage()
 	end
 
@@ -173,55 +173,55 @@ function CampaignGameMenu.new(panel)
 --		difficutyBox.setIndex(currentLevel)
 --	end
 	local function changeMapTo(filePath)
-		local mNum = getMapIndex(filePath)
-		if mNum>=1 then
-			local mapFile = File(filePath)
-			
-			if mapFile:isFile() and files[mNum].available then
-				levelInfo.setMapNumber(mNum)
-				levelInfo.setMapName(mapFile:getName())
-				levelInfo.setSead(files[mNum].sead)
-				--set current active map
-				selectedFile = filePath
-				--update GUI
-				mapLabel:setText( mapFile:getName() )
-				local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
-				local imageName = mapInfo and mapInfo.icon or nil
-				local texture = Core.getTexture(imageName and imageName or "noImage")
-				if mapInfo then
-					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
-					levelInfo.setIsCircleMap(mapInfo.gameMode=="Circle")
-					levelInfo.setIsCrystalMap(mapInfo.gameMode=="Crystal")
-					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
-					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
-					levelInfo.setWaveCount(mapInfo.waveCount)
-										levelInfo.setMapSize(mapInfo.mapSize)
-					levelInfo.setLevel(1)
-					--changing default selected map
-					menuPrevSelect:get("campaign"):get("selectedMap"):setString(filePath)
-				end
-				
-				iconImage:setTexture(texture)
-				--
-				if selectedButton then
-					setDefaultButtonColor(selectedButton)
-				end
-				local d1 = files
-				selectedButton = files[mNum].button
-				setSelectedButtonColor(files[mNum].button)
-				--Update hihgscore after map information is set
-				updateHighScorePanel()
-			else
-				--error or not available
-				print("changeMapTo("..filePath..") = false")
-				if filePath~=files[1].file then
-					changeMapTo(files[1].file.getPath())
-				end
-				return false
-			end
-		end
-		print("changeMapTo("..filePath..") = true")
-		return true
+--		local mNum = getMapIndex(filePath)
+--		if mNum>=1 then
+--			local mapFile = File(filePath)
+--			
+--			if mapFile:isFile() and files[mNum].available then
+--				levelInfo.setMapNumber(mNum)
+--				levelInfo.setMapName(mapFile:getName())
+--				levelInfo.setSead(files[mNum].sead)
+--				--set current active map
+--				selectedFile = filePath
+--				--update GUI
+--				mapLabel:setText( mapFile:getName() )
+--				local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
+--				local imageName = mapInfo and mapInfo.icon or nil
+--				local texture = Core.getTexture(imageName and imageName or "noImage")
+--				if mapInfo then
+--					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
+--					levelInfo.setIsCircleMap(mapInfo.gameMode=="Circle")
+--					levelInfo.setIsCrystalMap(mapInfo.gameMode=="Crystal")
+--					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
+--					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
+--					levelInfo.setWaveCount(mapInfo.waveCount)
+--										levelInfo.setMapSize(mapInfo.mapSize)
+--					levelInfo.setLevel(1)
+--					--changing default selected map
+--					menuPrevSelect:get("campaign"):get("selectedMap"):setString(filePath)
+--				end
+--				
+--				iconImage:setTexture(texture)
+--				--
+--				if selectedButton then
+--					setDefaultButtonColor(selectedButton)
+--				end
+--				local d1 = files
+--				selectedButton = files[mNum].button
+--				setSelectedButtonColor(files[mNum].button)
+--				--Update hihgscore after map information is set
+--				updateHighScorePanel()
+--			else
+--				--error or not available
+--				print("changeMapTo("..filePath..") = false")
+--				if filePath~=files[1].file then
+--					changeMapTo(files[1].file.getPath())
+--				end
+--				return false
+--			end
+--		end
+--		print("changeMapTo("..filePath..") = true")
+--		return true
 	end
 	local function customeGameChangedMap(button)
 		if type(button)=="userdata" then
@@ -237,24 +237,112 @@ function CampaignGameMenu.new(panel)
 			label:setTextColor(Vec4(0.5))
 		end
 	end
+--	local function addMapsPanel(panel)
+--		local mapFolder = Core.getDataFolder("Map")
+--		
+--		local mapsPanel = panel:add(Panel(PanelSize(Vec2(-0.75, -1))))
+--		mapsPanel:setBackground(Gradient(Vec4(1,1,1,0.01), Vec4(1,1,1,0.025)))
+--		
+--		local headerPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, 0.035))))
+--		headerPanel:setBackground(Gradient(Vec4(1,1,1,0.05), Vec4(1,1,1,0.1)))
+--		headerPanel:add(Panel(PanelSize(Vec2(-1),Vec2(1))))--spacing
+--		labels[1] = headerPanel:add(Label(PanelSize(Vec2(-0.65, -1)), language:getText("name"), Vec4(0.95)))
+--		labels[2] = headerPanel:add(Label(PanelSize(Vec2(-0.5, -1)), language:getText("type"), Vec3(0.95)))
+--		labels[3] = headerPanel:add(Label(PanelSize(Vec2(-1.0, -1)), language:getText("wave"), Vec3(0.95)))
+--		labels[1]:setTag("name")
+--		labels[2]:setTag("type")
+--		labels[3]:setTag("wave")
+--			
+--		local mapListPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, -1))))
+--		mapListPanel:setEnableScroll()
+--		
+--		local count = 0
+--		for i=1, #files do
+--			
+--			local file = files[i].file
+--			--file = File()
+--			
+--			if file:isFile() then
+--				count = count + 1
+--				
+--				local button = mapListPanel:add(Button(PanelSize(Vec2(-1,0.03)), "", ButtonStyle.SQUARE))
+--				button:setTag(tostring(i)..":"..file:getPath())
+--				
+--				button:setTextColor(Vec3(0.7))
+--				button:setTextHoverColor(Vec3(0.92))
+--				button:setTextDownColor(Vec3(1))
+--				
+--				setDefaultButtonColor(button)
+--				
+--				button:setEdgeHoverColor(Vec4(1,1,1,0.4), Vec4(1,1,1,0.4))
+--				button:setEdgeDownColor(Vec4(1,1,1,0.4), Vec4(1,1,1,0.4))
+--				--
+--				button:setInnerHoverColor(Vec4(1,1,1,0.3), Vec4(1,1,1,0.35), Vec4(1,1,1,0.3))
+--				button:setInnerDownColor(Vec4(1,1,1,0.2), Vec4(1,1,1,0.3), Vec4(1,1,1,0.2))	
+--	
+--				--icon
+--				local icon = Image(PanelSize(Vec2(-1), Vec2(2,1)), Text("icon_table.tga") )
+--				button:add(icon)
+--				
+--				button:setLayout(FlowLayout(Alignment.TOP_LEFT))
+--				
+--				--map name
+--				local label = button:add(Label(PanelSize(Vec2(-0.65, -1)), file:getName(), Vec4(0.85)))
+--				label:setCanHandleInput(false)
+--				setLabelListItemColor(label, campaignData.isMapAvailable(i))
+--				
+--				--type
+--				local mapTypeLabel = button:add(Label(PanelSize(Vec2(-0.5, -1)), files[i].type, Vec3(0.85)))
+--				mapTypeLabel:setCanHandleInput(false)
+--				setLabelListItemColor(mapTypeLabel, campaignData.isMapAvailable(i))
+--				
+--				--wave counter
+--				local waveCountLabel = button:add(Label(PanelSize(Vec2(-1, -1)), tostring(files[i].waveCount), Vec3(0.85)))
+--				waveCountLabel:setCanHandleInput(false)
+--				setLabelListItemColor(waveCountLabel, campaignData.isMapAvailable(i))
+--				
+--				local mapInfoItem = MapInformation.getMapInfoFromFileName(file:getName(), file:getPath())
+--				if mapInfoItem == nil then
+--					mapInfoItem = {mapSize = "-", gameMode = "-"}
+--				end
+--
+--				if campaignData.isMapAvailable(i)>0 then
+--					button:addEventCallbackExecute(customeGameChangedMap)
+--					files[i].available = true
+--					files[i].button = button
+--				else
+--					files[i].available = false
+--					button:setEnabled(false)
+--					files[i].button = button
+--				end
+--				
+--				if count == 1 and mapInfoItem then
+--					firstMapButton = button
+--				end
+--				
+--				--store
+--				campaignList[i] = {button=button, icon=icon, waveLabel=waveCountLabel}
+--			end
+--		end
+--	end
+	
 	local function addMapsPanel(panel)
 		local mapFolder = Core.getDataFolder("Map")
 		
-		local mapsPanel = panel:add(Panel(PanelSize(Vec2(-0.6, -1))))
-		mapsPanel:setBackground(Gradient(Vec4(1,1,1,0.01), Vec4(1,1,1,0.025)))
+		local mapsPanel = panel:add(Panel(PanelSize(Vec2(-0.75, -1))))
+		mapsPanel:setBackground(Gradient(Vec4(1,1,1,0.01), Vec4(1,1,0,0.425)))
 		
-		local headerPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, 0.035))))
-		headerPanel:setBackground(Gradient(Vec4(1,1,1,0.05), Vec4(1,1,1,0.1)))
-		headerPanel:add(Panel(PanelSize(Vec2(-1),Vec2(1))))--spacing
-		labels[1] = headerPanel:add(Label(PanelSize(Vec2(-0.65, -1)), language:getText("name"), Vec4(0.95)))
-		labels[2] = headerPanel:add(Label(PanelSize(Vec2(-0.5, -1)), language:getText("type"), Vec3(0.95)))
-		labels[3] = headerPanel:add(Label(PanelSize(Vec2(-1.0, -1)), language:getText("wave"), Vec3(0.95)))
-		labels[1]:setTag("name")
-		labels[2]:setTag("type")
-		labels[3]:setTag("wave")
-			
-		local mapListPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, -1))))
-		mapListPanel:setEnableYScroll()
+		mapsPanel:setLayout(FreeFormLayout(PanelSize(Vec2(-1))))
+		mapsPanel:setEnableScroll()
+		
+
+		local lastYpos = 300
+		local stepSize = 100
+		for x=3, 2000, stepSize do
+			local newYpos = math.randomInt(3, 600)
+			mapsPanel:add(FreeFormLine(Vec2(x,lastYpos), Vec2(x+stepSize,newYpos), 3))
+			lastYpos = newYpos
+		end
 		
 		local count = 0
 		for i=1, #files do
@@ -265,65 +353,18 @@ function CampaignGameMenu.new(panel)
 			if file:isFile() then
 				count = count + 1
 				
-				local button = mapListPanel:add(Button(PanelSize(Vec2(-1,0.03)), "", ButtonStyle.SQUARE))
-				button:setTag(tostring(i)..":"..file:getPath())
-				
-				button:setTextColor(Vec3(0.7))
-				button:setTextHoverColor(Vec3(0.92))
-				button:setTextDownColor(Vec3(1))
-				
-				setDefaultButtonColor(button)
-				
-				button:setEdgeHoverColor(Vec4(1,1,1,0.4), Vec4(1,1,1,0.4))
-				button:setEdgeDownColor(Vec4(1,1,1,0.4), Vec4(1,1,1,0.4))
-				--
-				button:setInnerHoverColor(Vec4(1,1,1,0.3), Vec4(1,1,1,0.35), Vec4(1,1,1,0.3))
-				button:setInnerDownColor(Vec4(1,1,1,0.2), Vec4(1,1,1,0.3), Vec4(1,1,1,0.2))	
-	
+				local button = Button(PanelSize(Vec2(-1,0.03)), "", ButtonStyle.SQUARE)
 				--icon
 				local icon = Image(PanelSize(Vec2(-1), Vec2(2,1)), Text("icon_table.tga") )
-				button:add(icon)
-				
-				button:setLayout(FlowLayout(Alignment.TOP_LEFT))
-				
-				--map name
-				local label = button:add(Label(PanelSize(Vec2(-0.65, -1)), file:getName(), Vec4(0.85)))
-				label:setCanHandleInput(false)
-				setLabelListItemColor(label, campaignData.isMapAvailable(i))
-				
-				--type
-				local mapTypeLabel = button:add(Label(PanelSize(Vec2(-0.5, -1)), files[i].type, Vec3(0.85)))
-				mapTypeLabel:setCanHandleInput(false)
-				setLabelListItemColor(mapTypeLabel, campaignData.isMapAvailable(i))
-				
 				--wave counter
 				local waveCountLabel = button:add(Label(PanelSize(Vec2(-1, -1)), tostring(files[i].waveCount), Vec3(0.85)))
-				waveCountLabel:setCanHandleInput(false)
-				setLabelListItemColor(waveCountLabel, campaignData.isMapAvailable(i))
 				
-				local mapInfoItem = MapInformation.getMapInfoFromFileName(file:getName(), file:getPath())
-				if mapInfoItem == nil then
-					mapInfoItem = {mapSize = "-", gameMode = "-"}
-				end
-
-				if campaignData.isMapAvailable(i)>0 then
-					button:addEventCallbackExecute(customeGameChangedMap)
-					files[i].available = true
-					files[i].button = button
-				else
-					files[i].available = false
-					button:setEnabled(false)
-					files[i].button = button
-				end
-				
-				if count == 1 and mapInfoItem then
-					firstMapButton = button
-				end
 				
 				--store
 				campaignList[i] = {button=button, icon=icon, waveLabel=waveCountLabel}
 			end
 		end
+	
 	end
 	
 	local function changeGameMode(tag, index)
@@ -541,7 +582,7 @@ function CampaignGameMenu.new(panel)
 		gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.66),Vec3(0.45)})
 		breakLinePanel:setBackground(gradient)
 		
-		local sPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9, -0.95))))
+		local sPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.93, -0.95))))
 		sPanel:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 		
 		--Add map panel

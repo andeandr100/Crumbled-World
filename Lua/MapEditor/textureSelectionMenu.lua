@@ -114,7 +114,7 @@ function TextureSelectionMenu.new(inCallback)
 		MainMenuStyle.createBreakLine(bottomPanel)
 		--add main text area
 		local bodyPanel = bottomPanel:add(Panel(PanelSize(Vec2(-1))))
-		bodyPanel:setEnableYScroll()
+		bodyPanel:setEnableScroll()
 
 		
 		--Buttons

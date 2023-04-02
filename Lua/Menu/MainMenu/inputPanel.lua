@@ -28,7 +28,7 @@ function InputPanel.create(mainPanel)
 	--mainPanel = Panel()
 	local inputPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9,-0.95))))
 	inputPanel:setLayout(FallLayout(PanelSize(Vec2(0,0.0015))))
-	inputPanel:setEnableYScroll()
+	inputPanel:setEnableScroll()
 	
 	InputPanel.keyBinds = Core.getBillboard("keyBind");
 	

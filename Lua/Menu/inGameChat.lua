@@ -177,7 +177,7 @@ function create()
 
 		chatHistoryPanel = form:add(Panel(PanelSize(Vec2(-1,-1))))
 		chatHistoryPanel:setBackground(Gradient(Vec4(0,0,0,0.4), Vec4(0,0,0,0.25)))
-		chatHistoryPanel:setEnableYScroll()
+		chatHistoryPanel:setEnableScroll()
 		chatHistoryPanel:setBorder(Border(BorderSize(Vec4(0.001)),Vec3(0.45)))
 		chatHistoryPanel:setLayout(FlowLayout(Alignment.BOTTOM_LEFT))
 		chatHistoryPanel:setCanHandleInput(false)

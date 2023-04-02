@@ -21,7 +21,7 @@ end
 function LanguagePanel.create(mainPanel)
 	local languagePanel = mainPanel:add(Panel(PanelSize(Vec2(-0.8,-0.95))))
 	languagePanel:setLayout(FallLayout(PanelSize(Vec2(0,0.0015))))
-	languagePanel:setEnableYScroll()
+	languagePanel:setEnableScroll()
 	languagePanel:setVisible(false)
 	
 	LanguagePanel.createLanguageOptions(languagePanel)
@@ -182,7 +182,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	
 	LanguagePanel.panel = langaugeBottomPanel:add(Panel(PanelSize(Vec2(-1))))
 	LanguagePanel.panel:setPadding(BorderSize(Vec4(0.005,0,0.005,0),true))
-	LanguagePanel.panel:setEnableYScroll()
+	LanguagePanel.panel:setEnableScroll()
 	LanguagePanel.panel:setBackground(Sprite(Vec4(0,0,0,0.6)))
 	LanguagePanel.panel:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)),MainMenuStyle.borderColor))
 	

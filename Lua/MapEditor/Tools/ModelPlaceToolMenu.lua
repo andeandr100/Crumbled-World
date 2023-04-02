@@ -187,7 +187,7 @@ function ModelPlaceToolMenu.new(toolPanel, changeModelCallbackString, settingPan
 		local ModelPanel = MenuStyle.createToolMenuFromPanel(toolPanel,"Models", false)
 	
 		modelFolder = Core.getDataFolder("Models")
-		ModelPanel:setEnableYScroll()
+		ModelPanel:setEnableScroll()
 		ModelPanel:setLayout(FallLayout())
 	
 		addModelsToMenu( ModelPanel, modelFolder, "", changeModelCallbackString )
