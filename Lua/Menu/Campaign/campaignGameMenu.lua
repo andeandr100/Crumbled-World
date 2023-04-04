@@ -25,6 +25,8 @@ function CampaignGameMenu.new(panel)
 	local gameModeBox
 	local mainPanel
 	local rewardLabel
+	local campaignPanel
+	local campaignMapData = {}
 	--Game modes
 	local gameModes = levelInfo.getGameModesSinglePlayer()
 	local optionsTooltip = {"default tooltip", "survival tooltip", "rush tooltip", "training tooltip", "leveler tooltip"}
@@ -326,23 +328,100 @@ function CampaignGameMenu.new(panel)
 --		end
 --	end
 	
+	local function addButton(position, enabled)
+	
+		local innerRingColorTop = enabled and Vec3(137.0,86.0,4.0) / 255.0 or Vec3(230.0,230.0,230.0) / 255.0
+		local innerRingColorBottom = enabled and Vec3(253.0, 249.0, 220.0) / 255.0 or Vec3(65.0,65.0,65.0) / 255.0
+		local outerRingColorTop = enabled and Vec3(253.0, 244.0, 201.0) / 255.0 or Vec3(160.0,160.0,160.0) / 255.0
+		local outerRingColorBottom = enabled and Vec3(138.0, 86.0, 2.0) / 255.0 or Vec3(240.0,240.0,240.0) / 255.0
+		
+	
+		local button = FreeFormButton(position, 75, 13, "tmpImage.jpg")
+		button:setColor(innerRingColorTop, innerRingColorBottom, outerRingColorTop, outerRingColorBottom)
+		button:setEnabled( enabled )
+		campaignPanel:add( button )
+	end
+	
+	local function addCampaignData(position,image,unlocked)
+		campaignMapData[#campaignMapData+1] = {position=position,unlocked=unlocked,image=image,connections={}}
+		return #campaignMapData;
+	end
+	
+	local function addConnections(startMap, connections)
+		campaignMapData[startMap].connections = connections
+	end
+	
+
+	
 	local function addMapsPanel(panel)
 		local mapFolder = Core.getDataFolder("Map")
 		
-		local mapsPanel = panel:add(Panel(PanelSize(Vec2(-0.75, -1))))
-		mapsPanel:setBackground(Gradient(Vec4(1,1,1,0.01), Vec4(1,1,0,0.425)))
+		campaignPanel = panel:add(Panel(PanelSize(Vec2(-0.75, -1))))
+		campaignPanel:setBackground(Gradient(Vec4(1,1,1,0.01), Vec4(1,1,0,0.425)))
 		
-		mapsPanel:setLayout(FreeFormLayout(PanelSize(Vec2(-1))))
-		mapsPanel:setEnableScroll()
+		campaignPanel:setLayout(FreeFormLayout(PanelSize(Vec2(-1))))
+		campaignPanel:setEnableScroll()
+		
+		local lines = FreeFormLine()
+		campaignPanel:add(lines)
+		
+		
+		local map1 = addCampaignData(Vec2(-0.5, -0.2),"tmpImage.jpg",true)
+		
+		local map2 = addCampaignData(Vec2(-0.25, -0.45),"tmpImage.jpg",true)
+		local map3 = addCampaignData(Vec2(-0.75, -0.45),"tmpImage.jpg",true)
+		
+		local map4 = addCampaignData(Vec2(-0.2, -0.7),"tmpImage.jpg",true)
+		local map5 = addCampaignData(Vec2(-0.4, -0.7),"tmpImage.jpg",true)
+		local map6 = addCampaignData(Vec2(-0.7, -0.7),"tmpImage.jpg",true)
+		
+		local map7 = addCampaignData(Vec2(-0.2, -0.95),"tmpImage.jpg",true)
+		local map8 = addCampaignData(Vec2(-0.4, -0.95),"tmpImage.jpg",true)
+		local map9 = addCampaignData(Vec2(-0.6, -0.95),"tmpImage.jpg",true)
+		local map10 = addCampaignData(Vec2(-0.8, -0.95),"tmpImage.jpg",true)
+		
+		local map11 = addCampaignData(Vec2(-0.25, -1.2),"tmpImage.jpg",true)
+		local map12 = addCampaignData(Vec2(-0.75, -1.2),"tmpImage.jpg",true)
+		
+		addConnections(map1, {map2, map3})
+		
+		addConnections(map2, {map4, map5})
+		addConnections(map3, {map6})
+		
+		addConnections(map4, {map7, map8})
+		addConnections(map5, {map8, map9})
+		addConnections(map6, {map9, map10})
+		
+		addConnections(map7, {map11})
+		addConnections(map8, {map11})
+		addConnections(map9, {map12})
+		addConnections(map10, {map12})
 		
 
-		local lastYpos = 300
-		local stepSize = 100
-		for x=3, 2000, stepSize do
-			local newYpos = math.randomInt(3, 600)
-			mapsPanel:add(FreeFormLine(Vec2(x,lastYpos), Vec2(x+stepSize,newYpos), 3))
-			lastYpos = newYpos
+
+--		mapsPanel:add( FreeFormSprite(Vec2(150, 150), Vec2(300,300), "tmpImage.jpg") )
+		local color2 = Vec3(253.0, 249.0, 220.0) / 255.0
+		local color1 = Vec3(137.0,86.0,4.0) / 255.0
+		
+
+		local yStepSize = -0.25
+		local yOffset = -0.2	
+		
+		for index=1, #campaignMapData do
+			local mapData = campaignMapData[index]
+			addButton(mapData.position, mapData.unlocked)
+				
+			for i=1, #mapData.connections do
+				lines:addLine(mapData.position, campaignMapData[mapData.connections[i]].position, 8, color1, color2, color1)
+			end
+			
 		end
+		
+		
+
+--		lines:addLine(Vec2(-0.5, yOffset), Vec2(-0.3, yOffset+yStepSize), 8, color1, color2, color1)
+--		lines:addLine(Vec2(-0.5, yOffset), Vec2(-0.7, yOffset+yStepSize), 8, color1, color2, color1)
+		
 		
 		local count = 0
 		for i=1, #files do

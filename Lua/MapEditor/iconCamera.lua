@@ -30,7 +30,7 @@ function IconCamera.create()
 	IconCamera.camera:setDirectionLight(Core.getDirectionalLight(this))
 	IconCamera.camera:setAmbientLight(Core.getAmbientLight(this))
 	IconCamera.camera:setRenderScript("MapEditor/iconCameraRender.lua")
-	IconCamera.camera:setClearColor(Vec4(1,1,1,0))
+	IconCamera.camera:setClearColor(Vec4(0,0,0,0))
 	--get main camera
 	local camera = ConvertToCamera(this:getRootNode():findNodeByName("MainCamera"))
 	
