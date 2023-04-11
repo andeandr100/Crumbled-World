@@ -328,22 +328,30 @@ function CampaignGameMenu.new(panel)
 --		end
 --	end
 	
-	local function addButton(position, enabled)
-	
-		local innerRingColorTop = enabled and Vec3(137.0,86.0,4.0) / 255.0 or Vec3(230.0,230.0,230.0) / 255.0
-		local innerRingColorBottom = enabled and Vec3(253.0, 249.0, 220.0) / 255.0 or Vec3(65.0,65.0,65.0) / 255.0
-		local outerRingColorTop = enabled and Vec3(253.0, 244.0, 201.0) / 255.0 or Vec3(160.0,160.0,160.0) / 255.0
-		local outerRingColorBottom = enabled and Vec3(138.0, 86.0, 2.0) / 255.0 or Vec3(240.0,240.0,240.0) / 255.0
+	local function addButton(mapData)
+
+		local innerRingColorTop = mapData.playedAndWon and Vec3(137.0,86.0,4.0) / 255.0 or Vec3(230.0,230.0,230.0) / 255.0
+		local innerRingColorBottom = mapData.playedAndWon and Vec3(253.0, 249.0, 220.0) / 255.0 or Vec3(65.0,65.0,65.0) / 255.0
+		local outerRingColorTop = mapData.playedAndWon and Vec3(253.0, 244.0, 201.0) / 255.0 or Vec3(160.0,160.0,160.0) / 255.0
+		local outerRingColorBottom = mapData.playedAndWon and Vec3(138.0, 86.0, 2.0) / 255.0 or Vec3(240.0,240.0,240.0) / 255.0
 		
 	
-		local button = FreeFormButton(position, 75, 13, "tmpImage.jpg")
+		local button = FreeFormButton(mapData.position, 75, 11, mapData.texture)
 		button:setColor(innerRingColorTop, innerRingColorBottom, outerRingColorTop, outerRingColorBottom)
-		button:setEnabled( enabled )
+		button:setEnabled( mapData.unlocked )
 		campaignPanel:add( button )
 	end
 	
-	local function addCampaignData(position,image,unlocked)
-		campaignMapData[#campaignMapData+1] = {position=position,unlocked=unlocked,image=image,connections={}}
+	local function addCampaignData(position,fileName,unlocked, playedAndWon)
+	
+		local filePath = "Data/Map/Campaign/" .. fileName .. ".map"
+	
+		local mapFile = File(filePath)
+		local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
+		local imageName = mapInfo and mapInfo.icon or "noImage"
+		local texture = Core.getTexture(imageName and imageName or "noImage")
+	
+		campaignMapData[#campaignMapData+1] = {position=position,unlocked=unlocked,texture=imageName,playedAndWon=playedAndWon,connections={}}
 		return #campaignMapData;
 	end
 	
@@ -356,8 +364,14 @@ function CampaignGameMenu.new(panel)
 	local function addMapsPanel(panel)
 		local mapFolder = Core.getDataFolder("Map")
 		
+		local bgTexture = Core.getTexture("tmpImage.jpg")
+		local background = Sprite(bgTexture,Vec2(0.25,0.0), Vec2(0.75,1.0))
+		
 		campaignPanel = panel:add(Panel(PanelSize(Vec2(-0.75, -1))))
-		campaignPanel:setBackground(Gradient(Vec4(1,1,1,0.01), Vec4(1,1,0,0.425)))
+--		campaignPanel:setBackground(background)
+
+
+		campaignPanel:add(FreeFormSprite(Vec2(),Vec2(-1,-2),"SB1_RB",Vec2(),Vec2(1,3)))	
 		
 		campaignPanel:setLayout(FreeFormLayout(PanelSize(Vec2(-1))))
 		campaignPanel:setEnableScroll()
@@ -366,27 +380,27 @@ function CampaignGameMenu.new(panel)
 		campaignPanel:add(lines)
 		
 		
-		local map1 = addCampaignData(Vec2(-0.5, -0.2),"tmpImage.jpg",true)
+		local map1 = addCampaignData(Vec2(-0.5, -0.2),"Beginning",true, true)
 		
-		local map2 = addCampaignData(Vec2(-0.25, -0.45),"tmpImage.jpg",true)
-		local map3 = addCampaignData(Vec2(-0.75, -0.45),"tmpImage.jpg",true)
+		local map2 = addCampaignData(Vec2(-0.25, -0.45),"Blocked path",true, true)
+		local map3 = addCampaignData(Vec2(-0.75, -0.45),"Bridges",true, true)
 		
-		local map4 = addCampaignData(Vec2(-0.2, -0.7),"tmpImage.jpg",true)
-		local map5 = addCampaignData(Vec2(-0.4, -0.7),"tmpImage.jpg",true)
-		local map6 = addCampaignData(Vec2(-0.7, -0.7),"tmpImage.jpg",true)
+		local map4 = addCampaignData(Vec2(-0.2, -0.7),"Broken mine",true, true)
+		local map5 = addCampaignData(Vec2(-0.5, -0.7),"Centeral",true, false)
+		local map6 = addCampaignData(Vec2(-0.8, -0.7),"Desperado",true, false)
 		
-		local map7 = addCampaignData(Vec2(-0.2, -0.95),"tmpImage.jpg",true)
-		local map8 = addCampaignData(Vec2(-0.4, -0.95),"tmpImage.jpg",true)
-		local map9 = addCampaignData(Vec2(-0.6, -0.95),"tmpImage.jpg",true)
-		local map10 = addCampaignData(Vec2(-0.8, -0.95),"tmpImage.jpg",true)
+		local map7 = addCampaignData(Vec2(-0.15, -0.95),"Divided",true, false)
+		local map8 = addCampaignData(Vec2(-0.15 - (0.7/3), -0.95),"Dock",true, false)
+		local map9 = addCampaignData(Vec2(-0.15 - (0.7/3) * 2, -0.95),"Dump station",false, false)
+		local map10 = addCampaignData(Vec2(-0.85, -0.95),"Edge world",false, false)
 		
-		local map11 = addCampaignData(Vec2(-0.25, -1.2),"tmpImage.jpg",true)
-		local map12 = addCampaignData(Vec2(-0.75, -1.2),"tmpImage.jpg",true)
+		local map11 = addCampaignData(Vec2(-0.25, -1.2),"Endstation",false, false)
+		local map12 = addCampaignData(Vec2(-0.75, -1.2),"Junkyard",false, false)
 		
 		addConnections(map1, {map2, map3})
 		
 		addConnections(map2, {map4, map5})
-		addConnections(map3, {map6})
+		addConnections(map3, {map5, map6})
 		
 		addConnections(map4, {map7, map8})
 		addConnections(map5, {map8, map9})
@@ -403,16 +417,24 @@ function CampaignGameMenu.new(panel)
 		local color2 = Vec3(253.0, 249.0, 220.0) / 255.0
 		local color1 = Vec3(137.0,86.0,4.0) / 255.0
 		
+		local color1Locked = Vec3(65.0,65.0,65.0) / 255.0;
+		local color2Locked = Vec3(230.0,230.0,230.0) / 255.0
+		
 
 		local yStepSize = -0.25
 		local yOffset = -0.2	
 		
 		for index=1, #campaignMapData do
 			local mapData = campaignMapData[index]
-			addButton(mapData.position, mapData.unlocked)
+			addButton(mapData)
 				
 			for i=1, #mapData.connections do
-				lines:addLine(mapData.position, campaignMapData[mapData.connections[i]].position, 8, color1, color2, color1)
+				if mapData.playedAndWon then
+					lines:addLine(mapData.position, campaignMapData[mapData.connections[i]].position, 6, color1, color2, color1)
+				else
+					local colorScale = mapData.unlocked == false and 0.5 or 1.0
+					lines:addLine(mapData.position, campaignMapData[mapData.connections[i]].position, 6, color1Locked * colorScale, color2Locked * colorScale, color1Locked * colorScale)
+				end
 			end
 			
 		end
