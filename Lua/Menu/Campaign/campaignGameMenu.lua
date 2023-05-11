@@ -37,6 +37,8 @@ function CampaignGameMenu.new(panel)
 	local diffNames = {}
 	local labels = {}
 	
+	local selectedMapPath = ""
+	
 	function self.languageChanged()
 --		for i=1, #labels do
 --			labels[i]:setText(language:getText(labels[i]:getTag()))
@@ -174,62 +176,57 @@ function CampaignGameMenu.new(panel)
 --		difficutyBox.setItems(diffNames)
 --		difficutyBox.setIndex(currentLevel)
 --	end
-	local function changeMapTo(filePath)
---		local mNum = getMapIndex(filePath)
---		if mNum>=1 then
---			local mapFile = File(filePath)
---			
---			if mapFile:isFile() and files[mNum].available then
---				levelInfo.setMapNumber(mNum)
---				levelInfo.setMapName(mapFile:getName())
---				levelInfo.setSead(files[mNum].sead)
---				--set current active map
---				selectedFile = filePath
---				--update GUI
---				mapLabel:setText( mapFile:getName() )
---				local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
---				local imageName = mapInfo and mapInfo.icon or nil
---				local texture = Core.getTexture(imageName and imageName or "noImage")
---				if mapInfo then
---					levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
---					levelInfo.setIsCircleMap(mapInfo.gameMode=="Circle")
---					levelInfo.setIsCrystalMap(mapInfo.gameMode=="Crystal")
---					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
---					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
---					levelInfo.setWaveCount(mapInfo.waveCount)
---										levelInfo.setMapSize(mapInfo.mapSize)
---					levelInfo.setLevel(1)
---					--changing default selected map
---					menuPrevSelect:get("campaign"):get("selectedMap"):setString(filePath)
---				end
---				
---				iconImage:setTexture(texture)
---				--
---				if selectedButton then
---					setDefaultButtonColor(selectedButton)
---				end
---				local d1 = files
---				selectedButton = files[mNum].button
---				setSelectedButtonColor(files[mNum].button)
---				--Update hihgscore after map information is set
---				updateHighScorePanel()
---			else
---				--error or not available
---				print("changeMapTo("..filePath..") = false")
---				if filePath~=files[1].file then
---					changeMapTo(files[1].file.getPath())
---				end
---				return false
---			end
---		end
---		print("changeMapTo("..filePath..") = true")
---		return true
+	local function changeMapTo(mNum, filePath, mapFile)
+		
+		if mNum<1 or not mapFile:isFile() then
+			return false
+		end
+		
+		levelInfo.setMapNumber(mNum)
+		levelInfo.setMapName(mapFile:getName())
+		levelInfo.setSead(files[mNum].sead)
+		--set current active map
+		selectedFile = filePath
+		--update GUI
+		mapLabel:setText( mapFile:getName() )
+		local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
+		local imageName = mapInfo and mapInfo.icon or nil
+		local texture = Core.getTexture(imageName and imageName or "noImage")
+		if mapInfo then
+			levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
+			levelInfo.setIsCircleMap(mapInfo.gameMode=="Circle")
+			levelInfo.setIsCrystalMap(mapInfo.gameMode=="Crystal")
+			levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
+			levelInfo.setDifficultyBase(mapInfo.difficultyBase)
+			levelInfo.setWaveCount(mapInfo.waveCount)
+								levelInfo.setMapSize(mapInfo.mapSize)
+			levelInfo.setLevel(1)
+			--changing default selected map
+			menuPrevSelect:get("campaign"):get("selectedMap"):setString(filePath)
+		end
+		
+		iconImage:setTexture(texture)
+
+		--Update hihgscore after map information is set
+		updateHighScorePanel()
+
+		return true
 	end
+	
 	local function customeGameChangedMap(button)
 		if type(button)=="userdata" then
-			local mNum,path = string.match(button:getTag():toString(),"(.*):(.*)")
+			local filePath = button:getTag():toString()
+			
 			--mNum = tonumber(mNum)
-			changeMapTo(path)
+			
+			selectedMapPath = filePath
+			local mNum = getMapIndex(filePath)
+			if mNum>=1 then
+				local mapFile = File(filePath)
+				if mapFile:isFile() then
+					changeMapTo(mNum,filePath,mapFile)
+				end
+			end
 		end
 	end
 	local function setLabelListItemColor(label,available)
@@ -336,9 +333,11 @@ function CampaignGameMenu.new(panel)
 		local outerRingColorBottom = mapData.playedAndWon and Vec3(138.0, 86.0, 2.0) / 255.0 or Vec3(240.0,240.0,240.0) / 255.0
 		
 	
-		local button = FreeFormButton(mapData.position, 75, 11, mapData.texture)
+		local button = FreeFormButton(mapData.position, -0.09, -0.01, mapData.texture)
 		button:setColor(innerRingColorTop, innerRingColorBottom, outerRingColorTop, outerRingColorBottom)
 		button:setEnabled( mapData.unlocked )
+		button:setTag( mapData.filePath )
+		button:addEventCallbackExecute(customeGameChangedMap)
 		campaignPanel:add( button )
 	end
 	
@@ -351,7 +350,7 @@ function CampaignGameMenu.new(panel)
 		local imageName = mapInfo and mapInfo.icon or "noImage"
 		local texture = Core.getTexture(imageName and imageName or "noImage")
 	
-		campaignMapData[#campaignMapData+1] = {position=position,unlocked=unlocked,texture=imageName,playedAndWon=playedAndWon,connections={}}
+		campaignMapData[#campaignMapData+1] = {position=position,unlocked=unlocked,texture=imageName,playedAndWon=playedAndWon,connections={},filePath=filePath}
 		return #campaignMapData;
 	end
 	
@@ -380,36 +379,76 @@ function CampaignGameMenu.new(panel)
 		campaignPanel:add(lines)
 		
 		
-		local map1 = addCampaignData(Vec2(-0.5, -0.2),"Beginning",true, true)
+		local yPos = -0.2
+		local yDiff = -0.25
+		local map1 = addCampaignData(Vec2(-0.5, yPos),"Beginning",true, true)
+		yPos = yPos + yDiff
 		
-		local map2 = addCampaignData(Vec2(-0.25, -0.45),"Blocked path",true, true)
-		local map3 = addCampaignData(Vec2(-0.75, -0.45),"Bridges",true, true)
+		local map2 = addCampaignData(Vec2(-0.5, yPos),"Intrusion",true, true)
+		yPos = yPos + yDiff
 		
-		local map4 = addCampaignData(Vec2(-0.2, -0.7),"Broken mine",true, true)
-		local map5 = addCampaignData(Vec2(-0.5, -0.7),"Centeral",true, false)
-		local map6 = addCampaignData(Vec2(-0.8, -0.7),"Desperado",true, false)
+		local map3 = addCampaignData(Vec2(-0.25, yPos),"Stockpile",true, true)
+		local map4 = addCampaignData(Vec2(-0.75, yPos),"Expansion",true, true)
+		yPos = yPos + yDiff
 		
-		local map7 = addCampaignData(Vec2(-0.15, -0.95),"Divided",true, false)
-		local map8 = addCampaignData(Vec2(-0.15 - (0.7/3), -0.95),"Dock",true, false)
-		local map9 = addCampaignData(Vec2(-0.15 - (0.7/3) * 2, -0.95),"Dump station",false, false)
-		local map10 = addCampaignData(Vec2(-0.85, -0.95),"Edge world",false, false)
+		local map5 = addCampaignData(Vec2(-0.2, yPos),"Repair station",true, true)
+		local map6 = addCampaignData(Vec2(-0.5, yPos),"Edge world",true, false)
+		local map7 = addCampaignData(Vec2(-0.8, yPos),"Bridges",true, false)
+		yPos = yPos + yDiff
 		
-		local map11 = addCampaignData(Vec2(-0.25, -1.2),"Endstation",false, false)
-		local map12 = addCampaignData(Vec2(-0.75, -1.2),"Junkyard",false, false)
+		local map8 = addCampaignData(Vec2(-0.15, yPos),"Spiral",true, false)
+		local map9 = addCampaignData(Vec2(-0.15 - (0.7/3), yPos),"Broken mine",true, false)
+		local map10 = addCampaignData(Vec2(-0.15 - (0.7/3) * 2, yPos),"Town",false, false)
+		local map11 = addCampaignData(Vec2(-0.85, yPos),"Centeral",false, false)
+		yPos = yPos + yDiff
 		
-		addConnections(map1, {map2, map3})
+		local map12 = addCampaignData(Vec2(-0.25, yPos),"Outpost",false, false)
+		local map13 = addCampaignData(Vec2(-0.75, yPos),"Plaza",false, false)
+		yPos = yPos + yDiff
 		
-		addConnections(map2, {map4, map5})
+		local map14 = addCampaignData(Vec2(-0.2, yPos),"Long haul",false, true)
+		local map15 = addCampaignData(Vec2(-0.5, yPos),"Dock",false, false)
+		local map16 = addCampaignData(Vec2(-0.8, yPos),"Lodge",false, false)
+		yPos = yPos + yDiff
+		
+		local map17 = addCampaignData(Vec2(-0.2, yPos),"Crossroad",false, false)
+		local map18 = addCampaignData(Vec2(-0.5, yPos),"Mine",false, false)
+		local map19 = addCampaignData(Vec2(-0.8, yPos),"West river",false, false)
+		yPos = yPos + yDiff
+		
+		local map20 = addCampaignData(Vec2(-0.25, yPos),"Blocked path",false, true)
+		local map21 = addCampaignData(Vec2(-0.75, yPos),"The line",false, false)
+		yPos = yPos + yDiff
+		
+		local map22 = addCampaignData(Vec2(-0.15, yPos),"Dump station",false, false)
+		local map23 = addCampaignData(Vec2(-0.15 - (0.7/3), yPos),"Rifted",false, false)
+		local map24 = addCampaignData(Vec2(-0.15 - (0.7/3) * 2, yPos),"Paths",false, false)
+		local map25 = addCampaignData(Vec2(-0.85, yPos),"Divided",false, false)
+		yPos = yPos + yDiff
+
+		local map26 = addCampaignData(Vec2(-0.2, yPos),"Nature",false, false)
+		local map27 = addCampaignData(Vec2(-0.5, yPos),"Train station",false, false)
+		local map28 = addCampaignData(Vec2(-0.8, yPos),"Desperado",false, false)
+		yPos = yPos + yDiff
+		
+		local map29 = addCampaignData(Vec2(-0.5, yPos),"The end",false, false)
+		--yPos = -2.95
+
+		addConnections(map1, {map2})
+		
+		addConnections(map2, {map3, map4})
+		
 		addConnections(map3, {map5, map6})
+		addConnections(map4, {map6, map7})
 		
-		addConnections(map4, {map7, map8})
 		addConnections(map5, {map8, map9})
 		addConnections(map6, {map9, map10})
+		addConnections(map7, {map10, map11})
 		
-		addConnections(map7, {map11})
-		addConnections(map8, {map11})
+		addConnections(map8, {map12})
 		addConnections(map9, {map12})
-		addConnections(map10, {map12})
+		addConnections(map10, {map13})
+		addConnections(map11, {map13})
 		
 
 
@@ -497,7 +536,9 @@ function CampaignGameMenu.new(panel)
 		levelInfo.setGameMode(gameModeBox.getIndexText())
 		local mapFile = File(selectedFile)
 		if mapFile:exist() then
-			local mNum = tonumber(string.match(selectedButton:getTag():toString(),"(.*):"))
+			
+			local mNum = getMapIndex(selectedMapPath)
+--			local mNum = tonumber(string.match(selectedButton:getTag():toString(),"(.*):"))
 			levelInfo.setMapNumber(mNum)
 			levelInfo.setSead(files[mNum].sead)
 			levelInfo.setMapFileName(selectedFile)
@@ -546,8 +587,16 @@ function CampaignGameMenu.new(panel)
 		infoPanel:setPadding(BorderSize(Vec4(0.005),true))
 		infoPanel:setBackground(Gradient(Vec4(0,0,0,0.9), Vec4(0,0,0,0.9)))
 		
-		iconImage = infoPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("noImage")))
+		local BackgroundImage = infoPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), "SB1_RB"))
+		local texture = Core.getTexture("SB1_RB")
+		
+		
+		BackgroundImage:setUvCoord(Vec2(), Vec2(texture:getSize().y/texture:getSize().x,1.0))
+			
+		
+		iconImage = BackgroundImage:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("noImage")))
 		iconImage:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
+		iconImage:setShader("a2DWorldIcon")
 		
 		mapLabel = infoPanel:add(Label(PanelSize(Vec2(-1, 0.03)), "The island world", Vec3(0.7), Alignment.MIDDLE_CENTER))
 		
@@ -710,7 +759,7 @@ function CampaignGameMenu.new(panel)
 			local index = getMapIndex(menuPrevSelect:get("campaign"):get("selectedMap"):getString())
 			index = index>0 and index or 1--we must select a valid value
 			if files[index].available then
-				changeMapTo(menuPrevSelect:get("campaign"):get("selectedMap"):getString())
+--				changeMapTo(menuPrevSelect:get("campaign"):get("selectedMap"):getString())
 				--
 --				local diffIndex = menuPrevSelect:get("campaign"):get("selectedDifficulty"):getInt()
 --				changeDifficulty("",diffIndex)
@@ -722,7 +771,7 @@ function CampaignGameMenu.new(panel)
 			end
 		end
 		if setDefault then
-			changeMapTo(files[1].file:getPath())
+			--changeMapTo(files[1].file:getPath())
 --			changeDifficulty("",2)
 			changeGameMode("", 1)
 		end
