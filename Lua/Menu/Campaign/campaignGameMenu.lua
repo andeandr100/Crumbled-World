@@ -236,94 +236,7 @@ function CampaignGameMenu.new(panel)
 			label:setTextColor(Vec4(0.5))
 		end
 	end
---	local function addMapsPanel(panel)
---		local mapFolder = Core.getDataFolder("Map")
---		
---		local mapsPanel = panel:add(Panel(PanelSize(Vec2(-0.75, -1))))
---		mapsPanel:setBackground(Gradient(Vec4(1,1,1,0.01), Vec4(1,1,1,0.025)))
---		
---		local headerPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, 0.035))))
---		headerPanel:setBackground(Gradient(Vec4(1,1,1,0.05), Vec4(1,1,1,0.1)))
---		headerPanel:add(Panel(PanelSize(Vec2(-1),Vec2(1))))--spacing
---		labels[1] = headerPanel:add(Label(PanelSize(Vec2(-0.65, -1)), language:getText("name"), Vec4(0.95)))
---		labels[2] = headerPanel:add(Label(PanelSize(Vec2(-0.5, -1)), language:getText("type"), Vec3(0.95)))
---		labels[3] = headerPanel:add(Label(PanelSize(Vec2(-1.0, -1)), language:getText("wave"), Vec3(0.95)))
---		labels[1]:setTag("name")
---		labels[2]:setTag("type")
---		labels[3]:setTag("wave")
---			
---		local mapListPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, -1))))
---		mapListPanel:setEnableScroll()
---		
---		local count = 0
---		for i=1, #files do
---			
---			local file = files[i].file
---			--file = File()
---			
---			if file:isFile() then
---				count = count + 1
---				
---				local button = mapListPanel:add(Button(PanelSize(Vec2(-1,0.03)), "", ButtonStyle.SQUARE))
---				button:setTag(tostring(i)..":"..file:getPath())
---				
---				button:setTextColor(Vec3(0.7))
---				button:setTextHoverColor(Vec3(0.92))
---				button:setTextDownColor(Vec3(1))
---				
---				setDefaultButtonColor(button)
---				
---				button:setEdgeHoverColor(Vec4(1,1,1,0.4), Vec4(1,1,1,0.4))
---				button:setEdgeDownColor(Vec4(1,1,1,0.4), Vec4(1,1,1,0.4))
---				--
---				button:setInnerHoverColor(Vec4(1,1,1,0.3), Vec4(1,1,1,0.35), Vec4(1,1,1,0.3))
---				button:setInnerDownColor(Vec4(1,1,1,0.2), Vec4(1,1,1,0.3), Vec4(1,1,1,0.2))	
---	
---				--icon
---				local icon = Image(PanelSize(Vec2(-1), Vec2(2,1)), Text("icon_table.tga") )
---				button:add(icon)
---				
---				button:setLayout(FlowLayout(Alignment.TOP_LEFT))
---				
---				--map name
---				local label = button:add(Label(PanelSize(Vec2(-0.65, -1)), file:getName(), Vec4(0.85)))
---				label:setCanHandleInput(false)
---				setLabelListItemColor(label, campaignData.isMapAvailable(i))
---				
---				--type
---				local mapTypeLabel = button:add(Label(PanelSize(Vec2(-0.5, -1)), files[i].type, Vec3(0.85)))
---				mapTypeLabel:setCanHandleInput(false)
---				setLabelListItemColor(mapTypeLabel, campaignData.isMapAvailable(i))
---				
---				--wave counter
---				local waveCountLabel = button:add(Label(PanelSize(Vec2(-1, -1)), tostring(files[i].waveCount), Vec3(0.85)))
---				waveCountLabel:setCanHandleInput(false)
---				setLabelListItemColor(waveCountLabel, campaignData.isMapAvailable(i))
---				
---				local mapInfoItem = MapInformation.getMapInfoFromFileName(file:getName(), file:getPath())
---				if mapInfoItem == nil then
---					mapInfoItem = {mapSize = "-", gameMode = "-"}
---				end
---
---				if campaignData.isMapAvailable(i)>0 then
---					button:addEventCallbackExecute(customeGameChangedMap)
---					files[i].available = true
---					files[i].button = button
---				else
---					files[i].available = false
---					button:setEnabled(false)
---					files[i].button = button
---				end
---				
---				if count == 1 and mapInfoItem then
---					firstMapButton = button
---				end
---				
---				--store
---				campaignList[i] = {button=button, icon=icon, waveLabel=waveCountLabel}
---			end
---		end
---	end
+
 	
 	local function addButton(mapData)
 
@@ -713,9 +626,22 @@ function CampaignGameMenu.new(panel)
 		mainPanel = panel:add(Panel(PanelSize(Vec2(-1))))
 		mainPanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 		--
+		
+		
 		--Top menu button panel
-		labels[5] = mainPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("campaign"), Vec3(0.94), Alignment.MIDDLE_CENTER))
+		local topMenuButtons = mainPanel:add(Panel(PanelSize(Vec2(-1,0.03))))
+		topMenuButtons:setLayout(FlowLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
+		local campaignButton = MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("campaign"))
+		local shopButton = MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("Shop"))
+		
+--		labels[5] = mainPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("campaign"), Vec3(0.94), Alignment.MIDDLE_LEFT))
+		labels[5] = topMenuButtons:add(campaignButton)
 		labels[5]:setTag("campaign")
+		
+		topMenuButtons:add(shopButton)
+		shopButton:setTag("campaign")
+		
+		--MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("start game"))
 		
 		
 		local camera = this:getRootNode():findNodeByName("MainCamera")
