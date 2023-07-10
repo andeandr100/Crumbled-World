@@ -456,7 +456,7 @@ function CustomeGameMenu.new(panel)
 		addMapsPanel(sPanel)
 		
 		--add midle Border line
-		sPanel:add(Panel(PanelSize(Vec2(MainMenuStyle.borderSize,-1),PanelSizeType.WindowPercentBasedOny))):setBackground(Sprite(MainMenuStyle.borderColor))
+		sPanel:add(Panel(PanelSize(Vec2(MainMenuStyle.borderSize,-1),PanelSizeType.WindowPercentBasedOnY))):setBackground(Sprite(MainMenuStyle.borderColor))
 		
 		--Add info panel
 		addMapInfoPanel(sPanel)

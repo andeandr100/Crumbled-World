@@ -38,7 +38,7 @@ function MapEditorMenu.create(panel)
 	MapEditorMenu.addMapsPanel(mainAreaPanel)
 	
 	--add midle Border line
-	mainAreaPanel:add(Panel(PanelSize(Vec2(MainMenuStyle.borderSize,-1),PanelSizeType.WindowPercentBasedOny))):setBackground(Sprite(MainMenuStyle.borderColor))
+	mainAreaPanel:add(Panel(PanelSize(Vec2(MainMenuStyle.borderSize,-1),PanelSizeType.WindowPercentBasedOnY))):setBackground(Sprite(MainMenuStyle.borderColor))
 	
 	--Add info panel
 	MapEditorMenu.addMapInfoPanel(mainAreaPanel)
