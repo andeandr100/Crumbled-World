@@ -4,6 +4,7 @@ require("Game/campaignData.lua")
 require("Game/mapInfo.lua")
 require("Game/scoreCalculater.lua")
 require("Menu/MainMenu/settingsCombobox.lua")
+require("Menu/Campaign/FreeFormDesign.lua")
 
 --this = SceneNode()
 
@@ -35,7 +36,7 @@ function CampaignGameMapMenu.new(parentPanel)
 		local imageName = mapInfo and mapInfo.icon or "noImage"
 		local texture = Core.getTexture(imageName and imageName or "noImage")
 	
-		campaignMapData[#campaignMapData+1] = {position=position,unlocked=unlocked,texture=imageName,playedAndWon=playedAndWon,connections={},filePath=filePath}
+		campaignMapData[#campaignMapData+1] = {position=position,unlocked=unlocked,texture=texture,playedAndWon=playedAndWon,connections={},filePath=filePath}
 		return #campaignMapData;
 	end
 	
@@ -149,8 +150,8 @@ function CampaignGameMapMenu.new(parentPanel)
 		local outerRingColorBottom = mapData.playedAndWon and Vec3(138.0, 86.0, 2.0) / 255.0 or Vec3(240.0,240.0,240.0) / 255.0
 		
 	
-		local button = FreeFormButton(mapData.position, -0.09, -0.01, mapData.texture)
-		button:setColor(innerRingColorTop, innerRingColorBottom, outerRingColorTop, outerRingColorBottom)
+		local buttonDesign = FreeFormDesign.getMapButton()
+		local button = FreeFormButton(mapData.position, buttonDesign, mapData.texture, Vec2(), Vec2(1) )
 		button:setEnabled( mapData.unlocked )
 		button:setTag( mapData.filePath )
 		button:addEventCallbackExecute(customeGameChangedMap)
@@ -167,7 +168,7 @@ function CampaignGameMapMenu.new(parentPanel)
 --		campaignPanel:setBackground(background)
 
 
-		campaignPanel:add(FreeFormSprite(Vec2(),Vec2(-1,-2),"SB1_RB",Vec2(),Vec2(1,3)))	
+		campaignPanel:add(FreeFormSprite(PanelSizeType.ParentPercent, Vec2(),Vec2(1,2),"SB1_RB",Vec2(),Vec2(1,3)))	
 		
 		campaignPanel:setLayout(FreeFormLayout(PanelSize(Vec2(-1))))
 		campaignPanel:setEnableScroll()

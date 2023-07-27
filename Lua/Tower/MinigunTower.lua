@@ -8,6 +8,7 @@ require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Game/soundManager.lua")
 require("Tower/TowerData.lua")
+require("Tower/TowerValues.lua")
 
 --this = SceneNode()
 
@@ -18,6 +19,7 @@ function MinigunTower.new()
 	local targetSelector = TargetSelector.new(activeTeam)
 	local projectiles = projectileManager.new()
 	local data = TowerData.new()
+	local towerValues = TowerValues.new()
 	
 	--constants
 	local ROTATEPIPETIMEAFTERFIERING = 1.0
@@ -749,70 +751,11 @@ function MinigunTower.new()
 		
 		
 		
-		data.addTowerUpgrade({	cost = {200,400,800},
-								name = "upgrade",
-								info = "minigun tower level",
-								iconId = 56,
-								level = 1,
-								maxLevel = 3,
-								stats = {
-										range =		{ 5.0, 5.0, 5.0 },
---										damage = 	{ 115, 325, 405},
-										damage = 	{ 115, 325, 405},
-										RPS = 		{ 2.5, 2.5, 5.0},
-										rotationSpeed =	{ 1.2, 1.4, 1.6 },
-										damageWeak = { 1.0, 1.0, 1.0 } }
-							})
-		
-		data.addBoostUpgrade({	cost = 0,
-								name = "boost",
-								info = "minigun tower boost",
-								duration = 10,
-								cooldown = 3,
-								iconId = 57,
-								level = 0,
-								maxLevel = 1,
-								stats = {range = 		{ 0.75, func = data.add },
-										damage =		{ 3, func = data.mul },
-										RPS = 			{ 1.25, func = data.mul },
-										rotationSpeed =	{ 2.5, func = data.mul } }
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "range",
-								info = "minigun tower range",
-								infoValues = {"range"},
-								iconId = 59,
-								level = 0,
-								maxLevel = 3,
-								achievementName = "Range",
-								stats = {range = { 0.75, 1.5, 2.25, func = data.add }}
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "overCharge",
-								info = "minigun tower overcharge",
-								infoValues = {"damage","overheat"},
-								iconId = 63,
-								level = 0,
-								maxLevel = 3,
-								stats = {	damage = 	{ 1.35, 1.7, 2.05, func = data.mul},
-											cooldown =	{ 10.0, 10.0, 10.0, func = data.set},
-											overheat =	{ 13.0, 13.0, 13.0, func = data.set} }
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "overkill",
-								info = "minigun tower overkill",
-								infoValues = {"damageWeak"},
-								iconId = 61,
-								level = 0,
-								maxLevel = 3,
-								stats = { damageWeak = { 1.5, 2.0, 2.5, func = data.mul} }
-							})		
+		data.addTowerUpgrade(towerValues.getTowerAbilityValues("MinigunTower","upgrade"))
+		data.addBoostUpgrade(towerValues.getTowerAbilityValues("MinigunTower","boost"))
+		data.addSecondaryUpgrade(towerValues.getTowerAbilityValues("MinigunTower","range"))
+		data.addSecondaryUpgrade(towerValues.getTowerAbilityValues("MinigunTower","overCharge"))
+		data.addSecondaryUpgrade(towerValues.getTowerAbilityValues("MinigunTower","overkill"))		
 		
 				
 		data.buildData()

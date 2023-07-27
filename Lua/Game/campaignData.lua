@@ -12,7 +12,7 @@ function CampaignData.new()
 	local maps
 	local towers = { "Tower/MinigunTower.lua", "Tower/ArrowTower.lua", "Tower/SwarmTower.lua", "Tower/ElectricTower.lua", "Tower/BladeTower.lua", "Tower/missileTower.lua", "Tower/quakerTower.lua", "Tower/SupportTower.lua" }
 	local towersContent = {
-		["Tower/MinigunTower.lua"] = {"range", "overCharge", "fireCrit"},
+		["Tower/MinigunTower.lua"] = {"range", "overCharge", "overkill"},
 		["Tower/ArrowTower.lua"] = {"range", "hardArrow", "markOfDeath"},
 		["Tower/SwarmTower.lua"] = {"range", "burnDamage", "fuel"},
 		["Tower/ElectricTower.lua"] = {"range", "ampedSlow", "energyPool", "energy"},

@@ -3,6 +3,7 @@ require("Game/targetArea.lua")
 require("Menu/MainMenu/mainMenuStyle.lua")
 require("Menu/MainMenu/settingsCombobox.lua")
 require("Menu/settings.lua")
+require("Tower/TowerValues.lua")
 --comUnit = ComUnit()
 --buildingNodeBillboard = Billboard()
 --buildingBillBoard = Billboard()
@@ -20,6 +21,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	
 	local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
 	tutorialBillboard:setPanel("selectedTowerPanel", inForm)
+	
+	local towerValues = TowerValues.new()
 	
 	--local variabels
 	local keyBinds
@@ -434,40 +437,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		end
 	end
 	
-	
-	
-	local function getUvCoordAndTextFromName(name)
-		if name=="damage" or name=="dmg" then
-			return Vec2(0.25,0.0),Vec2(0.375,0.0625), language:getText("damage")
-		elseif name=="RPS" then
-			return Vec2(0.25,0.25),Vec2(0.375,0.3125), language:getText("attack per second")
-		elseif name=="ERPS" then
-			return Vec2(0.25,0.375),Vec2(0.375,0.4375), language:getText("charges per second")
-		elseif name=="range" then
-			return Vec2(0.375,0.4375),Vec2(0.5,0.5), language:getText("target range")
-		elseif name=="slow" then
-			return Vec2(0.875,0.375),Vec2(1.0,0.4375), language:getText("slow")
-		elseif name=="bladeSpeed" then
-			return Vec2(0.125,0.25),Vec2(0.25,0.3125), language:getText("blade speed")
-		elseif name=="dmg_range" then
-			return Vec2(0.875,0.25),Vec2(1.0,0.3125), language:getText("damage range")
-		elseif name=="supportDamage" then
-			return Vec2(0.0,0.5),Vec2(0.125,0.5625), language:getText("support damage")
-		elseif name=="SupportRange" then
-			return Vec2(0.125,0.5),Vec2(0.25,0.5625), language:getText("support range")
-		elseif name=="weakenValue" then
-			return Vec2(0.875,0.1875),Vec2(1.0,0.25), language:getText("selectedTower weaken")	
-		elseif name=="supportWeaken" then
-			return Vec2(0.25,0.5),Vec2(0.375,0.5625), language:getText("support weaken")
-		elseif name=="supportGold" then
-			return Vec2(0.375,0.5),Vec2(0.5,0.5625), language:getText("support gold")
-		elseif name=="supportGoldPerWave" then
-			return Vec2(0.75,0.5), Vec2(0.875, 0.5625), language:getText("support gold per wave")
-		else
-			return Vec2(0.0,0.25),Vec2(0.125,0.3125), Text("")
-		end
-	end
-	
 	local function valueToString(value, decimalLimit)
 		--could use math.floor(math.log10) to get the 10^x but why complicate a simple issue
 		--2 significants are to little, 3 is almost to much
@@ -525,7 +494,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					if info[name] then	
 						local row = infoPanel:add(Panel(PanelSize(Vec2(-1))))
 						local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
-						local minCoord, maxCoord, text = getUvCoordAndTextFromName(name)
+						local minCoord, maxCoord, text = towerValues.getUvCoordAndTextFromName(name)
 						icon:setUvCoord(minCoord,maxCoord)
 						icon:setToolTip(text)
 						
@@ -738,7 +707,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					
 					local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(5,1)))
 					local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
-					local minCoord, maxCoord, text = getUvCoordAndTextFromName(name)
+					local minCoord, maxCoord, text = towerValues.getUvCoordAndTextFromName(name)
 					icon:setUvCoord(minCoord,maxCoord)
 					icon:setToolTip(text)
 									
