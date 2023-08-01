@@ -1,7 +1,7 @@
 require("Menu/MainMenu/mainMenuStyle.lua")
 require("Menu/Campaign/FreeFormDesign.lua")
 require("Game/campaignData.lua")
-require("Tower/TowerValues.lua")
+
 --this = SceneNode()
 
 CampaignGameShopMenu = {}
@@ -12,12 +12,13 @@ function CampaignGameShopMenu.new(parentPanel)
 	
 	local conf = CampaignData.new()
 	local buttons = {}
-	local towerValues = TowerValues.new()
+	local gameValues = FreeFormDesign.gameValues
 	local towers = {}
 	
 	
 	
 	function self.setVisible(visible)
+		gameValues.reloadConfig()
 		mainPanel:setVisible(visible)
 	end
 	
@@ -30,7 +31,7 @@ function CampaignGameShopMenu.new(parentPanel)
 			local towerTab = towers[buttons[i].towerName]
 			
 			buttons[i].panel:setVisible(i==skillIndex)
-			towers[buttons[i].towerName].crystalLabel:setText(tostring(towerValues.getCrystals()))
+			towers[buttons[i].towerName].crystalLabel:setText(tostring(gameValues.getCrystals()))
 		end
 	end
 	
@@ -127,14 +128,14 @@ function CampaignGameShopMenu.new(parentPanel)
 			local newUnlockLevel = level - 1 
 			
 			ability.unlocked = newUnlockLevel
-			towerValues.addCrystal(crystalCost)
-			towerValues.setUnlockedLevel(towerName, upgradeName, newUnlockLevel)
+			gameValues.addCrystal(crystalCost)
+			gameValues.setUnlockedLevel(towerName, upgradeName, newUnlockLevel)
 			
 			if level > 1 then
 				lineSelectedHandler:removeLine(buttonsPosition[level-1], buttonsPosition[level])
 				lineSelectedHandler:rebuildMesh()
 			end				
-			towers[towerName].crystalLabel:setText(tostring(towerValues.getCrystals()))			
+			towers[towerName].crystalLabel:setText(tostring(gameValues.getCrystals()))			
 			
 			if upgradeName == "upgrade" then
 				local towerData = towers[towerName]
@@ -151,19 +152,19 @@ function CampaignGameShopMenu.new(parentPanel)
 				
 		elseif (unlocked+1) == level then
 			--Buying an ability
-			if towerValues.getCrystals() < crystalCost then
+			if gameValues.getCrystals() < crystalCost then
 				return
 			end
 			
 			ability.unlocked = level
-			towerValues.removeCrystal(crystalCost)
-			towerValues.setUnlockedLevel(towerName, upgradeName, level)
+			gameValues.removeCrystal(crystalCost)
+			gameValues.setUnlockedLevel(towerName, upgradeName, level)
 	
 			if level > 1 then
 				lineSelectedHandler:addLine(buttonsPosition[level-1], buttonsPosition[level])
 				lineSelectedHandler:rebuildMesh()
 			end
-			towers[towerName].crystalLabel:setText(tostring(towerValues.getCrystals()))
+			towers[towerName].crystalLabel:setText(tostring(gameValues.getCrystals()))
 		end
 		
 		if upgradeName == "upgrade" then
@@ -219,111 +220,6 @@ function CampaignGameShopMenu.new(parentPanel)
 	end
 	
 	
-	
-	
-	local function convertValueToPrintedValue(value, func)
-		if func == towerValues.mul then
-			return tostring(value * 100) .. "%"
-		else
-			return tostring(value)
-		end
-	end
-	
-	local function getValuesForToolTip(abilityData, level)
-		local value1 = nil
-		for n=1, #abilityData.infoValues do 
-			local name = abilityData.infoValues[n]
-			local data = abilityData.stats[name]
-
-			if value1 == nil then
-				value1 = convertValueToPrintedValue(data[level], data.func)
-			else
-				return value1, convertValueToPrintedValue(data[level], data.func)
-			end
-		end
-		return (value1==nil and "" or value1), ""
-	end
-	
-	
-	local function buildToolTipPanelForAbility(abilityData, level, upgradeNeeded)
-		
-		
-		local panel = Panel(PanelSize(Vec2(-1)))
-		panel:setLayout(FallLayout())
-		panel:getPanelSize():setFitChildren(true, true)
-		panel:setCanHandleInput(false)
-		
-		local infoValueText = (abilityData.info and abilityData.info or "")
-		local value1, value2 = getValuesForToolTip(abilityData, level)
-		local textLabel = Label(PanelSize(Vec2(-1)), language:getTextWithValues(infoValueText, value1, value2), Vec4(1) )
-		textLabel:setTextHeight(0.015)
-		textLabel:setPanelSizeBasedOnTextSize()
-		panel:add(textLabel)
-		
-		local tempLabel = Label(PanelSize(Vec2(-1)), "999 Requiers Upgrade level 3", Vec3(1.0,0,0))
-		tempLabel:setTextHeight(0.015)
-		tempLabel:setPanelSizeBasedOnTextSize()
-		local warningTextSize = tempLabel:getPanelSize():getSize()
-		local textSize = textLabel:getPanelSize():getSize()
-		
-		local totalPanelSizeInPixel = Vec2( math.max( textSize.x, warningTextSize.x), textSize.y)
-		
-
-		for n=1, #abilityData.infoValues do 
-			local name = abilityData.infoValues[n]
-			local data = abilityData.stats[name]
-			
-	
-			local minCoord, maxCoord, text = towerValues.getUvCoordAndTextFromName(name)
-			local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
-			icon:setUvCoord(minCoord,maxCoord)
-							
-		
-			local fontTag = "<font color=rgb(255,255,255)>"
-			if data[level] > 0 then
-				fontTag = "<font color=rgb(40,255,40)>+"
-			elseif data[level] < 0 then
-				fontTag = "<font color=rgb(255,50,50)>"
-			end
-
-			notifyText = fontTag .. convertValueToPrintedValue(data[level], data.func) .. "</font>\n"
-			
-			local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(5,1)))
-			row:add(icon)
-			row:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
-			panel:add(row)
-
-			
-			totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.025 * Core.getScreenResolution().y )
-		end
-		
-		--crystal cost
-		panel:add(Panel(PanelSize(Vec2(-1,0.01))))
-		local row = panel:add(Panel(PanelSize(Vec2(-1,0.025))))
-		local cost = abilityData.maxLevel == 1 and 3 or level
-		
-		local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table"))
-		icon:setUvCoord(Vec2(0.5,0.375),Vec2(0.625,0.4375))
-		row:setLayout(FlowLayout())
-		row:add(icon)
-		local label = nil
-		if upgradeNeeded then
-			label = row:add(Label(PanelSize(Vec2(-1)), tostring(cost).." Requiers Upgrade level "..level, Vec3(1.0,0,0)))
-		else
-			label = row:add(Label(PanelSize(Vec2(-1)), tostring(cost), Vec3(1.0)))
-		end
-
-		
-		totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.035 * Core.getScreenResolution().y )
-	
-		
-		panel:setPanelSize(PanelSize(totalPanelSizeInPixel, PanelSizeType.Pixel))
-		return panel
-	end
-	
-	
-	
-	
 	local function init()
 	
 		mainPanel:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
@@ -360,7 +256,7 @@ function CampaignGameShopMenu.new(parentPanel)
 		buttons[1] = {}
 		buttons[1].button = passivUpgrades
 		
-		local upgrades = towerValues.getStoreGroupNames()
+		local upgrades = gameValues.getStoreGroupNames()
 		
 		
 		for i=2, 10 do
@@ -401,7 +297,7 @@ function CampaignGameShopMenu.new(parentPanel)
 			localSkillPanel:add(FreeFormSprite(PanelSizeType.WindowPercentBasedOnY, panelOffset - panelBorder, panelOffset + panelBorder + panelSize, Vec3(0.6)))
 			localSkillPanel:add(FreeFormSprite(PanelSizeType.WindowPercentBasedOnY, panelOffset, panelOffset + panelSize, Vec3(0.05)))
 			localSkillPanel:add(FreeFormSprite(PanelSizeType.WindowPercentBasedOnY, panelOffset-Vec2(0,panelBorder.y), panelOffset+Vec2(panelSize.y)+Vec2(panelBorder.x,0),"icon_table",Vec2(0.5,0.375),Vec2(0.625,0.4375))):setColor(Vec3(1.25))
-			local crystalLabel = localSkillPanel:add(FreeFormLabel(PanelSizeType.WindowPercentBasedOnY, panelOffset + Vec2(panelSize.y,0), tostring( towerValues.getCrystals() ), panelSize.y*0.75, Vec4(1), Alignment.TOP_LEFT))
+			local crystalLabel = localSkillPanel:add(FreeFormLabel(PanelSizeType.WindowPercentBasedOnY, panelOffset + Vec2(panelSize.y,0), tostring( gameValues.getCrystals() ), panelSize.y*0.75, Vec4(1), Alignment.TOP_LEFT))
 			crystalLabel:setCanHandleInput(false)
 			
 			local lineSkillLevelSeperator = FreeFormLine()	
@@ -427,7 +323,7 @@ function CampaignGameShopMenu.new(parentPanel)
 			local skillButtonDesign = FreeFormDesign.getSkillButton()
 			
 			
-			local towerData = towerValues.getTowerValues(towerName)
+			local towerData = gameValues.getTowerValues(towerName)
 			towerData.lineSelectedHandler = lineSelectedHandler
 			towerData.crystalLabel = crystalLabel
 			towers[towerName] = towerData	
@@ -471,7 +367,9 @@ function CampaignGameShopMenu.new(parentPanel)
 					
 					if maxLevel > 1 then
 						button:getSecondaryImage():setTexture(Core.getTexture("icon_table"))
-						button:getSecondaryImage():setUvCoord(Vec2(0.625 + (y-1) * 0.125,0.3125), Vec2(0.625 + y * 0.125, 0.375))					
+						button:getSecondaryImage():setUvCoord(Vec2(0.625 + (y-1) * 0.125,0.3125), Vec2(0.625 + y * 0.125, 0.375))
+					else
+						button:getSecondaryImage():setVisible(false)
 					end
 					localSkillPanel:add( button )
 					abilityData.buttons[y] = button
@@ -480,8 +378,8 @@ function CampaignGameShopMenu.new(parentPanel)
 					
 					
 					-- add ToolTip
-					local toolTipPanel, costLabel, CostLabelWarning = buildToolTipPanelForAbility(abilityData, y, false)
-					local toolTipPanelWarning, costLabel, CostLabelWarning = buildToolTipPanelForAbility(abilityData, y, true)
+					local toolTipPanel, costLabel, CostLabelWarning = FreeFormDesign.buildToolTipPanelForAbility(abilityData, y, false)
+					local toolTipPanelWarning, costLabel, CostLabelWarning = FreeFormDesign.buildToolTipPanelForAbility(abilityData, y, true)
 					button:setToolTip(toolTipPanel)
 					
 					abilityData.toolTipPanel[y] = toolTipPanel

@@ -12,7 +12,9 @@ function destroy()
 		spiritPointLight:destroy()
 		spiritPointLight = nil
 	end
-	collisionModel:destroy()
+	if collisionModel then
+		collisionModel:destroy()
+	end
 	effect:destroy();
 	
 	npcBase = nil

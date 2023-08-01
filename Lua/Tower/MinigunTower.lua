@@ -8,7 +8,7 @@ require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Game/soundManager.lua")
 require("Tower/TowerData.lua")
-require("Tower/TowerValues.lua")
+require("Game/gameValues.lua")
 
 --this = SceneNode()
 
@@ -19,7 +19,7 @@ function MinigunTower.new()
 	local targetSelector = TargetSelector.new(activeTeam)
 	local projectiles = projectileManager.new()
 	local data = TowerData.new()
-	local towerValues = TowerValues.new()
+	local gameValues = GameValues.new()
 	
 	--constants
 	local ROTATEPIPETIMEAFTERFIERING = 1.0
@@ -751,11 +751,11 @@ function MinigunTower.new()
 		
 		
 		
-		data.addTowerUpgrade(towerValues.getTowerAbilityValues("MinigunTower","upgrade"))
-		data.addBoostUpgrade(towerValues.getTowerAbilityValues("MinigunTower","boost"))
-		data.addSecondaryUpgrade(towerValues.getTowerAbilityValues("MinigunTower","range"))
-		data.addSecondaryUpgrade(towerValues.getTowerAbilityValues("MinigunTower","overCharge"))
-		data.addSecondaryUpgrade(towerValues.getTowerAbilityValues("MinigunTower","overkill"))		
+		data.addTowerUpgrade(gameValues.getTowerAbilityValues("MinigunTower","upgrade"))
+		data.addBoostUpgrade(gameValues.getTowerAbilityValues("MinigunTower","boost"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("MinigunTower","range"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("MinigunTower","overCharge"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("MinigunTower","overkill"))		
 		
 				
 		data.buildData()

@@ -31,9 +31,7 @@ function CampaignGameMenu.new(panel)
 	end
 	
 	function self.update()
---		if windowShop.getVisible() then
---			windowShop.update()
---		end
+
 	end
 	local function returnFromShopToCampaign()
 		mainPanel:setVisible(true)

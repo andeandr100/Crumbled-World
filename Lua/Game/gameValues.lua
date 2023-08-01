@@ -1,10 +1,13 @@
 require("Tower/UpgradeData.lua")
 require("Tower/supportManager.lua")
+require("Game/campaignData.lua")
 
-TowerValues = {}
-function TowerValues.new()
+GameValues = {}
+function GameValues.new()
 	local self = {}
 	local language = Language()
+	local campaignData = CampaignData.new()
+	local files = campaignData.getMaps()
 	
 	-- function:	add
 	-- purpose:
@@ -23,6 +26,16 @@ function TowerValues.new()
 		return value2
 	end
 	
+	function self.getMapIndex(filePath)
+		for i=1, #files do	
+			local file = files[i].file
+			if file:isFile() and file:getPath()==filePath then
+				return i
+			end
+		end
+		return 0
+	end
+	
 	function self.getStoreGroupNames()
 		return {"Passiv", "MinigunTower", "ArrowTower","SwarmTower", "ElectricTower", "BladeTower", "MissileTower", "QuakerTower", "SupportTower", "BankTower"}
 	end
@@ -37,6 +50,7 @@ function TowerValues.new()
 			upgradeNames = {"boost", "slow", "comet"},
 			boost={	
 						name = "boost",
+						displayName = "Tower Booster",
 						info = "electric tower range",
 						infoValues = {"damage", "range"},
 						iconId = 1,
@@ -47,6 +61,7 @@ function TowerValues.new()
 					},
 			slow={	
 						name = "slow",
+						displayName = "Slow field",
 						info = "electric tower range",
 						infoValues = {"slow", "slowTimer"},
 						iconId = 3,
@@ -57,6 +72,7 @@ function TowerValues.new()
 					},
 			comet={	
 						name = "comet",
+						displayName = "Comet",
 						info = "electric tower range",
 						infoValues = {"range", "damage"},
 						iconId = 2,
@@ -70,6 +86,7 @@ function TowerValues.new()
 			upgradeNames = {"upgrade", "overCharge", "overkill", "range"},
 			upgrade={	cost = {200,400,800},
 						name = "upgrade",
+						displayName = "Upgrade",
 						info = "minigun tower level",
 						infoValues = {"damage", "RPS", "range"},
 						iconId = 56,
@@ -84,6 +101,7 @@ function TowerValues.new()
 					},
 			boost={		cost = 0,
 						name = "boost",
+						displayName = "Boost",
 						info = "minigun tower boost",
 						duration = 10,
 						cooldown = 3,
@@ -98,6 +116,7 @@ function TowerValues.new()
 			range = {	
 						cost = {100,200,300},
 						name = "range",
+						displayName = "Range extension",
 						info = "minigun tower range",
 						infoValues = {"range"},
 						iconId = 59,
@@ -109,6 +128,7 @@ function TowerValues.new()
 			overCharge = {	
 						cost = {100,200,300},
 						name = "overCharge",
+						displayName = "Overcharge",
 						info = "minigun tower overcharge",
 						infoValues = {"damage","overheat"},
 						iconId = 63,
@@ -121,6 +141,7 @@ function TowerValues.new()
 			overkill = {	
 						cost = {100,200,300},
 						name = "overkill",
+						displayName = "Overkill",
 						info = "minigun tower overkill",
 						infoValues = {"damageWeak"},
 						iconId = 61,
@@ -133,6 +154,7 @@ function TowerValues.new()
 			upgradeNames = {"upgrade", "hardArrow", "MarkOfDeath", "range"},
 			upgrade = {	cost = {200,400,800},
 						name = "upgrade",
+						displayName = "Upgrade",
 						info = "Arrow tower level",
 						infoValues = {"damage", "RPS", "range"},
 						iconId = 56,
@@ -146,6 +168,7 @@ function TowerValues.new()
 					},
 			boost = {	cost = 0,
 						name = "boost",
+						displayName = "Boost",
 						info = "minigun tower boost",
 						duration = 10,
 						cooldown = 3,
@@ -159,6 +182,7 @@ function TowerValues.new()
 			range = {	
 						cost = {100,200,300},
 						name = "range",
+						displayName = "Range extension",
 						info = "Arrow tower range",
 						infoValues = {"range"},
 						iconId = 59,
@@ -170,6 +194,7 @@ function TowerValues.new()
 			hardArrow = {	
 						cost = {100,200,300},
 						name = "hardArrow",
+						displayName = "Hard arrow",
 						info = "Arrow tower hardArrow",
 						infoValues = {"damage", "RPS"},
 						iconId = 71,
@@ -182,6 +207,7 @@ function TowerValues.new()
 			MarkOfDeath = {	
 						cost = {100,200,300},
 						name = "markOfDeath",
+						displayName = "Mark of death",
 						info = "Arrow tower mark of death",
 						infoValues = {"weakenValue"},
 						iconId = 31,
@@ -198,6 +224,7 @@ function TowerValues.new()
 			upgradeNames = {"upgrade", "burnDamage", "range"},
 			upgrade = {	cost = {200,400,800},
 						name = "upgrade",
+						displayName = "Upgrade",
 						info = "swarm tower level",
 						infoValues = {"damage", "range"},
 						iconId = 56,
@@ -215,6 +242,7 @@ function TowerValues.new()
 					},
 			boost = {	cost = 0,
 						name = "boost",
+						displayName = "Boost",
 						info = "swarm tower boost",
 						duration = 10,
 						cooldown = 3,
@@ -228,6 +256,7 @@ function TowerValues.new()
 			range = {	
 						cost = {100,200,300},
 						name = "range",
+						displayName = "Range extension",
 						info = "swarm tower range",
 						infoValues = {"range"},
 						iconId = 59,
@@ -239,6 +268,7 @@ function TowerValues.new()
 			burnDamage = {	
 						cost = {100,200,300},
 						name = "burnDamage",
+						displayName = "Heavy impact",
 						info = "swarm tower damage",
 						infoValues = {"damage"},
 						iconId = 2,
@@ -252,6 +282,7 @@ function TowerValues.new()
 			upgradeNames = {"upgrade", "ampedSlow", "energyPool", "energy", "range"},
 			upgrade = {	cost = {200,400,800},
 						name = "upgrade",
+						displayName = "Upgrade",
 						info = "electric tower level",
 						infoValues = {"damage", "RPS", "energyMax", "energyReg", "range"},
 						iconId = 56,
@@ -272,6 +303,7 @@ function TowerValues.new()
 					},
 			boost = {	cost = 0,
 						name = "boost",
+						displayName = "Boost",
 						info = "electric tower boost",
 						duration = 10,
 						cooldown = 3,
@@ -286,8 +318,9 @@ function TowerValues.new()
 			ampedSlow = {	
 						cost = {100,200,300},
 						name = "ampedSlow",
+						displayName = "Amped slow",
 						info = "electric tower slow",
-						infoValues = {"slow","slowRange"},
+						infoValues = {"slow","slowRange", "damage", "RPS"},
 						iconId = 55,
 						level = 0,
 						maxLevel = 3,
@@ -299,6 +332,7 @@ function TowerValues.new()
 			energyPool = {	
 						cost = {100,200,300},
 						name = "energyPool",
+						displayName = "Energy pool",
 						info = "electric tower energy pool",
 						infoValues = {"energyMax"},
 						iconId = 41,
@@ -309,6 +343,7 @@ function TowerValues.new()
 			energy = {	
 						cost = {100,200,300},
 						name = "energy",
+						displayName = "Energy regeneration",
 						info = "electric tower energy regen",
 						infoValues = {"energyReg"},
 						iconId = 50,
@@ -321,6 +356,7 @@ function TowerValues.new()
 			range = {	
 						cost = {100,200,300},
 						name = "range",
+						displayName = "Range extension",
 						info = "electric tower range",
 						infoValues = {"range"},
 						iconId = 59,
@@ -335,6 +371,7 @@ function TowerValues.new()
 			upgradeNames = {"upgrade", "attackSpeed", "electricBlade", "shieldBreaker", "range"},
 			upgrade = {	cost = {200,400,800},
 						name = "upgrade",
+						displayName = "Upgrade",
 						info = "blade tower level",
 						infoValues = {"damage", "RPS", "range"},
 						iconId = 56,
@@ -349,6 +386,7 @@ function TowerValues.new()
 					},
 			boost = {	cost = 0,
 						name = "boost",
+						displayName = "Boost",
 						info = "blade tower boost",
 						duration = 10,
 						cooldown = 3,
@@ -362,6 +400,7 @@ function TowerValues.new()
 			range = {	
 						cost = {100,200,300},
 						name = "range",
+						displayName = "Range extension",
 						info = "blade tower range",
 						infoValues = {"range"},
 						iconId = 59,
@@ -373,6 +412,7 @@ function TowerValues.new()
 			attackSpeed = {	
 						cost = {100,200,300},
 						name = "attackSpeed",
+						displayName = "Attack speed",
 						info = "blade tower attackSpeed",
 						infoValues = {"RPS"},
 						iconId = 58,
@@ -384,6 +424,7 @@ function TowerValues.new()
 			electricBlade = {	
 						cost = {100,200,300},
 						name = "electricBlade",
+						displayName = "Amped slow",
 						info = "blade tower slow",
 						infoValues = {"slow"},
 						iconId = 55,
@@ -396,6 +437,7 @@ function TowerValues.new()
 			shieldBreaker = {	
 						cost = {100},
 						name = "shieldBreaker",
+						displayName = "Shield breaker",
 						info = "blade tower shield",
 						infoValues = {},
 						iconId = 40,
@@ -410,6 +452,7 @@ function TowerValues.new()
 			upgradeNames = {"upgrade", "Blaster", "shieldSmasher", "range"},
 			upgrade = {	cost = {200,400,800},
 						name = "upgrade",
+						displayName = "Upgrade",
 						info = "missile tower level",
 						infoValues = {"damage", "RPS", "dmg_range", "range"},
 						iconId = 56,
@@ -428,6 +471,7 @@ function TowerValues.new()
 					},
 			boost = {	cost = 0,
 						name = "boost",
+						displayName = "Boost",
 						info = "missile tower boost",
 						duration = 10,
 						cooldown = 3,
@@ -444,6 +488,7 @@ function TowerValues.new()
 			range = {	
 						cost = {100,200,300},
 						name = "range",
+						displayName = "Range extension",
 						info = "missile tower range",
 						infoValues = {"range"},
 						iconId = 59,
@@ -455,6 +500,7 @@ function TowerValues.new()
 			Blaster = {	
 						cost = {100,200,300},
 						name = "Blaster",
+						displayName = "High explosion",
 						info = "missile tower explosion",
 						infoValues = {"damage", "dmg_range"},
 						iconId = 39,
@@ -467,6 +513,7 @@ function TowerValues.new()
 			shieldSmasher = {	
 						cost = {200},
 						name = "shieldSmasher",
+						displayName = "Shield smasher",
 						info = "missile tower shield destroyer",
 						infoValues = {},
 						iconId = 42,
@@ -481,6 +528,7 @@ function TowerValues.new()
 			upgradeNames = {"upgrade", "fireCrit", "electricStrike"},
 			upgrade = {	cost = {200,400,800},
 						name = "upgrade",
+						displayName = "Upgrade",
 						info = "quak tower level",
 						infoValues = {"damage", "RPS", "range"},
 						iconId = 56,
@@ -493,6 +541,7 @@ function TowerValues.new()
 					},
 			boost = {	cost = 0,
 						name = "boost",
+						displayName = "Boost",
 						info = "quak tower boost",
 						duration = 10,
 						cooldown = 3,
@@ -506,6 +555,7 @@ function TowerValues.new()
 			fireCrit = {	
 						cost = {100,200,300},
 						name = "fireCrit",
+						displayName = "High impact",
 						info = "quak tower firecrit",
 						infoValues = {"damage"},
 						iconId = 36,
@@ -517,6 +567,7 @@ function TowerValues.new()
 			electricStrike = {	
 						cost = {100,200,300},
 						name = "electricStrike",
+						displayName = "Amped slow",
 						info = "quak tower electric",
 						infoValues = {"damage","slow"},
 						iconId = 50,
@@ -534,6 +585,7 @@ function TowerValues.new()
 			upgradeNames = {"upgrade", "weaken", "gold", "range"},
 			upgrade = {	cost = {200,300,400},
 						name = "upgrade",
+						displayName = "Upgrade",
 						info = "support tower level",
 						infoValues = {"supportDamage", "range"},
 						iconId = 56,
@@ -545,6 +597,7 @@ function TowerValues.new()
 			range = {	
 						cost = {100,200,300},
 						name = "range",
+						displayName = "Range extender",
 						info = "support tower range",
 						infoValues = {"SupportRange"},
 						iconId = 65,
@@ -556,6 +609,7 @@ function TowerValues.new()
 			weaken = {	
 						cost = {100,200,300},
 						name = "weaken",
+						displayName = "Weaken field",
 						info = "support tower weaken",
 						infoValues = {"supportWeaken"},
 						iconId = 66,
@@ -569,6 +623,7 @@ function TowerValues.new()
 			gold = {	
 						cost = {100,200,300},
 						name = "gold",
+						displayName = "Gold area",
 						info = "support tower gold",
 						infoValues = {"supportGold"},
 						iconId = 67,
@@ -583,6 +638,7 @@ function TowerValues.new()
 			upgradeNames = {"upgrade", "gold"},
 			upgrade = {	cost = {500,500,500},
 						name = "upgrade",
+						displayName = "Upgrade",
 						info = "bank tower level",
 						infoValues = {"supportGoldPerWave", "range"},
 						iconId = 56,
@@ -595,6 +651,7 @@ function TowerValues.new()
 			gold = {	
 						cost = {100,200,300},
 						name = "gold",
+						displayName = "Gold area",
 						info = "support tower gold",
 						infoValues = {"supportGold"},
 						iconId = 67,
@@ -634,6 +691,12 @@ function TowerValues.new()
 			return Vec2(0.375,0.5),Vec2(0.5,0.5625), language:getText("support gold")
 		elseif name=="supportGoldPerWave" then
 			return Vec2(0.75,0.5), Vec2(0.875, 0.5625), language:getText("support gold per wave")
+		elseif name=="energyMax" then
+			return Vec2(0.125,0.3125), Vec2(0.25, 0.375), language:getText("support gold per wave")
+		elseif name=="energyReg" then
+			return Vec2(0.25,0.375), Vec2(0.375, 0.4375), language:getText("support gold per wave")	
+		elseif name=="slowRange" then
+			return Vec2(0.875,0.25),Vec2(1.0,0.3125), language:getText("damage range")
 		else
 			return Vec2(0.0,0.25),Vec2(0.125,0.3125), Text("")
 		end
@@ -666,6 +729,70 @@ function TowerValues.new()
 	function self.setUnlockedLevel(towerName, ability, unlockedLevel)
 		campaingDataConfig:get(towerName):get(ability):setInt(unlockedLevel)
 		campaingDataConfig:save()
+		
+	end
+	
+	function self.reloadConfig()
+		campaingDataConfig = Config("CampaignData")
+	end
+	
+	function self.saveConfig()
+		campaingDataConfig:save()
+	end
+	
+	function self.setSelectedMap(filePath)
+		campaingDataConfig:get("SelectedMap"):get("mapPath"):setString(filePath)
+		campaingDataConfig:save()
+	end
+	
+	function self.setSelectedMapDifficulty(difficulty)
+		campaingDataConfig:get("SelectedMap"):get("difficulty"):setInt(difficulty)
+		campaingDataConfig:save()
+	end
+	
+	function self.setSelectedMapGameMode(gameMode)
+		campaingDataConfig:get("SelectedMap"):get("gameMode"):setInt(gameMode)
+		campaingDataConfig:save()
+	end
+	
+	function self.getSelectedMapGameMode()
+		return campaingDataConfig:get("SelectedMap"):get("gameMode", 1):getInt()
+	end
+	
+	function self.getSelectedMapDifficulty()
+		return campaingDataConfig:get("SelectedMap"):get("difficulty", 1):getInt()
+	end
+	
+	function self.getSelectedMap()
+		return campaingDataConfig:get("SelectedMap"):exist("mapPath") and campaingDataConfig:get("SelectedMap"):get("mapPath"):getString() or nil
+	end
+	
+	function self.setLevelCompleted(mapIndex)
+		if mapIndex <= 0 or mapIndex > #files then
+			return
+		end
+		
+		local mapFile = files[mapIndex]
+		
+		local mapStatus = campaingDataConfig:get("maps"):get(mapFile.file:getName())
+		if mapStatus:exist("playedAndWon") == false or mapStatus:get("playedAndWon"):getBool() ~= true then
+			mapStatus:get("playedAndWon"):setBool(true)
+			campaingDataConfig:save()
+		end
+	end
+	
+	
+	function self.setMapUnLockedStatus(fileName, unlocked)
+		local mapStatus = campaingDataConfig:get("maps"):get(fileName)
+		if mapStatus:exist("unlocked") == false or mapStatus:get("unlocked"):getBool() ~= unlocked then
+			mapStatus:get("unlocked"):setBool(unlocked)
+			campaingDataConfig:save()
+		end
+	end
+	
+	function self.getMapStatus(fileName)
+		local mapStatus = campaingDataConfig:get("maps"):get(fileName)
+		return mapStatus:get("playedAndWon", false):getBool(), mapStatus:get("unlocked", false):getBool()
 	end
 	
 	function self.getCrystals()

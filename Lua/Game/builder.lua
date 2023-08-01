@@ -203,7 +203,8 @@ function sendHightScoreToTheServer()
 	highScoreBillBoard:setDouble("gold", statsBilboard:getInt("gold"))
 	
 	
-	highScore:addScore( tabToStrMinimal(towerBuildInfo) )
+	--TODO
+	--highScore.addScore( tabToStrMinimal(towerBuildInfo) )
 end
 
 function addRebuildTowerEvent(textData)

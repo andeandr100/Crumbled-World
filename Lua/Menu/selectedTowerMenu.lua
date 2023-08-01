@@ -3,7 +3,7 @@ require("Game/targetArea.lua")
 require("Menu/MainMenu/mainMenuStyle.lua")
 require("Menu/MainMenu/settingsCombobox.lua")
 require("Menu/settings.lua")
-require("Tower/TowerValues.lua")
+require("Game/gameValues.lua")
 --comUnit = ComUnit()
 --buildingNodeBillboard = Billboard()
 --buildingBillBoard = Billboard()
@@ -22,7 +22,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
 	tutorialBillboard:setPanel("selectedTowerPanel", inForm)
 	
-	local towerValues = TowerValues.new()
+	local gameValues = GameValues.new()
 	
 	--local variabels
 	local keyBinds
@@ -494,7 +494,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					if info[name] then	
 						local row = infoPanel:add(Panel(PanelSize(Vec2(-1))))
 						local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
-						local minCoord, maxCoord, text = towerValues.getUvCoordAndTextFromName(name)
+						local minCoord, maxCoord, text = gameValues.getUvCoordAndTextFromName(name)
 						icon:setUvCoord(minCoord,maxCoord)
 						icon:setToolTip(text)
 						
@@ -707,7 +707,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					
 					local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(5,1)))
 					local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
-					local minCoord, maxCoord, text = towerValues.getUvCoordAndTextFromName(name)
+					local minCoord, maxCoord, text = gameValues.getUvCoordAndTextFromName(name)
 					icon:setUvCoord(minCoord,maxCoord)
 					icon:setToolTip(text)
 									

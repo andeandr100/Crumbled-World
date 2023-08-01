@@ -3,7 +3,7 @@ MapInformation = {}
 MapInformation.mapConfig = nil
 MapInformation.maps = nil
 MapInformation.worker = nil
-MapInformation.functionMapInfoChanged = nil
+MapInformation.functionMapInfoChanged = {}
 
 function MapInformation.init()
 	MapInformation.mapConfig = Config("mapsInfo")
@@ -17,20 +17,23 @@ function MapInformation.init()
 end
 
 function MapInformation.setMapInfoLoadedFunction( aFunction )
-	MapInformation.functionMapInfoChanged = aFunction
+	MapInformation.functionMapInfoChanged[#MapInformation.functionMapInfoChanged+1] = aFunction
 end
 
 function MapInformation.mapInfoLoaded()
 	if MapInformation.mapConfig == nil then
 		MapInformation.init()
+	else
+		MapInformation.mapConfig = Config("mapsInfo")
 	end
 	local d1 = MapInformation.mapConfig
 	local mapConfig = MapInformation.mapConfig:get("data")
+	
 	if mapConfig then
 		MapInformation.mapTables = mapConfig:getTable()
-	
-		if MapInformation.functionMapInfoChanged then
-			MapInformation.functionMapInfoChanged()
+		
+		for n=1, #MapInformation.functionMapInfoChanged do
+			MapInformation.functionMapInfoChanged[n]()
 		end 
 	else
 		

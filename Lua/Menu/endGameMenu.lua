@@ -4,6 +4,7 @@ require("Game/mapInfo.lua")
 require("Game/campaignData.lua")
 require("Game/soundManager.lua")
 require("Game/scoreCalculater.lua")
+require("Game/gameValues.lua")
 --this = SceneNode()
 
 local data
@@ -20,6 +21,7 @@ local input = Core.getInput()
 local comUnitTable = {}
 local mapInfo = MapInfo.new()
 local isVictory
+local gameValues = GameValues.new()
 
 local soundManager = SoundManager.new(nil)
 
@@ -240,6 +242,8 @@ function initiate()
 		if mapInfo.isCampaign() then
 			campaignData.addCrystal( crystalReward )
 			campaignData.setLevelCompleted(mapInfo.getMapNumber(),scoreItem.index,mapInfo.getGameMode())
+			
+			gameValues.setLevelCompleted(mapInfo.getMapNumber())
 		end
 		isVictory = true
 	else

@@ -4,6 +4,14 @@ function create()
 	local mapFolder = Core.getDataFolder("Map")
 	files = mapFolder:getFiles()
 	
+	--This is the first map a user will see if they decide to open the campaign
+	local firstMap = File("Data/Map/Campaign/Beginning.map")
+	if #files > 0 then
+		files[#files+1] = files[1]
+	end
+	files[1] = firstMap
+	
+	
 	--print("load maps info")
 	mapConfig = Config("mapsInfo")
 	maps = mapConfig:get("data"):getTable()
@@ -51,15 +59,15 @@ function update()
 		removeDeadObjects()
 	end
 	
-	--print("load maps info update")
+	print("load maps info update")
 	while index <= #files do
 		local file = files[index]
 		index = index + 1
 		
 		if file and file:isDirectory() then
 			folders[#folders + 1] = file:getPath()
-			--print("Add folder: "..file:getPath())
-			--print("Folders: "..tostring(folders))
+			print("Add folder: "..file:getPath())
+			print("Folders: "..tostring(folders))
 		elseif file then
 		
 			local fileName = file:getName()
@@ -68,10 +76,10 @@ function update()
 				mapsFileTable = {}
 				maps[fileName] = mapsFileTable
 			end
-			--print("gather info from map \""..file:getPath().."\"")
+			print("gather info from map \""..file:getPath().."\"")
 			local loadFileData = file:isFile()
 	
-			--print("mapsFileTable: "..tostring(mapsFileTable))
+			print("mapsFileTable: "..tostring(mapsFileTable))
 			
 			--check if the file is in the data table and is the latest version
 			for i=1, #mapsFileTable do

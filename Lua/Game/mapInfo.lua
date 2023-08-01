@@ -7,16 +7,16 @@ function MapInfo.new()
 	local FIRSTTIMEVICTORYBONUS = 2
 	local FIRSTTIMEGAMEMODEVICTORYBONUS = 1
 	local BASEBONUS = 1
-	local billboard = false
+	local billboard
 	local actualLevel = 1
 	local addPerLevel = 0.0
 	local difficultyBase = 0.0
 
 	function self.getGameModesSinglePlayer()
-		return {"default", "survival", "leveler"}
+		return {"default", "survival"}
 	end
 	function self.getGameModesMultiPlayer()
-		return {"default", "leveler"}
+		return {"default", "survival"}
 	end
 	function self.setLevel(level,notSave)
 		--1 = 0.70
