@@ -6,7 +6,6 @@ layout (location = 0) in vec4 position;
 layout (location = 1) in vec3 normal; 
 layout (location = 2) in vec2 uvCoord; 
 layout (location = 3) in vec3 tagent; 
-//layout (location = 7) in mat4 modelMatrix; 
 
 out vec2 textCoord;
 out vec3 worldPos0;

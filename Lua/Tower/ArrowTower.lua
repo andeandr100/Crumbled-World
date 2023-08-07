@@ -558,7 +558,7 @@ function ArrowTower.new()
 		data.addBoostUpgrade(gameValues.getTowerAbilityValues("ArrowTower","boost"))
 		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("ArrowTower","range"))
 		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("ArrowTower","hardArrow"))	
-		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("ArrowTower","markOfDeath"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("ArrowTower","MarkOfDeath"))
 
 		
 		data.buildData()

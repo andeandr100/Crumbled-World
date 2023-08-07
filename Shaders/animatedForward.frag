@@ -34,8 +34,7 @@ vec3 ApplyLight( vec3 worlPos, vec3 surfaceColor, vec3 normal, float Specular, v
 	vec4 lightSpace_pos = lighProjCamView * vec4(worlPos,1);
 	vec4 lightPos = lightSpace_pos-vec4(0,0,bias,0);
 	if( lightSpace_pos.w > 0.0 ){
-		//shadowFactor = textureProj( shadowMap, lightPos );
-		
+
 		shadowFactor += textureProjOffset(shadowMap, lightPos, ivec2(-1, 1));
         shadowFactor += textureProjOffset(shadowMap, lightPos, ivec2(1, 1));
         shadowFactor += textureProjOffset(shadowMap, lightPos, ivec2(1, -1));

@@ -387,9 +387,9 @@ function SwarmTower.new()
 		
 	
 		data.addTowerUpgrade(gameValues.getTowerAbilityValues("SupportTower","upgrade"))
-		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("SupportTower","upgrade"))
-		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("SupportTower","upgrade"))
-		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("SupportTower","upgrade"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("SupportTower","range"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("SupportTower","weaken"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("SupportTower","gold"))
 		
 		data.buildData()
 		
