@@ -4,6 +4,7 @@ require("Game/particleEffect.lua")
 require("Game/mapInfo.lua")
 require("Game/soundManager.lua")
 require("Tower/TowerData.lua")
+require("Game/gameValues.lua")
 
 --this = SceneNode()
 
@@ -19,6 +20,7 @@ function QuakeTower.new()
 	local RELOADING = 2		--pulling up the log
 	local READY = 4			--waiting for an enemy to enter attack range
 	local HOLD_READY = 8	--enemies are in range but holding back to attack
+	local gameValues = GameValues.new()
 	--upgrades
 	local data = TowerData.new()
 	local boostActive = false
@@ -27,6 +29,7 @@ function QuakeTower.new()
 	local log
 	local cogs
 	--targeting
+	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	local reloadTimeLeft = 0.0
 	local reloadTime = 3.0
@@ -588,62 +591,10 @@ function QuakeTower.new()
 		end
 	
 		
-		data.addTowerUpgrade({	cost = {200,400,800},
-								name = "upgrade",
-								info = "quak tower level",
-								iconId = 56,
-								level = 1,
-								maxLevel = 3,
-								stats = {
-										range =				{ 2.75, 2.75, 2.75 },
-										damage = 			{ 215, 580, 1200},
-										RPS = 				{ 0.28, 0.34, 0.4} }
-							})
-							
-
-		
-		data.addBoostUpgrade({	cost = 0,
-								name = "boost",
-								info = "quak tower boost",
-								duration = 10,
-								cooldown = 3,
-								iconId = 57,
-								level = 0,
-								maxLevel = 1,
-								stats = {range = 		{ 0.4, func = data.add },
-										damage =		{ 3, func = data.mul },
-										RPS = 			{ 1.35, func = data.mul } }
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "fireCrit",
-								info = "quak tower firecrit",
-								infoValues = {"damage"},
-								iconId = 36,
-								level = 0,
-								maxLevel = 3,
-								callback = self.handleSubUpgrade,
-								achievementName = "Range",
-								stats = {damage = { 1.3, 1.6, 1.9, func = data.mul }}
-							})
-							
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "electricStrike",
-								info = "quak tower electric",
-								infoValues = {"damage","slow"},
-								iconId = 50,
-								level = 0,
-								maxLevel = 3,
-								callback = self.handleSubUpgrade,
-								achievementName = "ElectricStorm",
-								stats = {damage = 	{ 1.3, 1.6, 1.9, func = data.mul },
-										slow = 		{ 0.15, 0.28, 0.39, func = data.set },
-										slowTimer = { 2.0, 2.0, 2.0, func = data.set },
-										count = 	{ 7, 7, 7, func = data.set } }
-							})
-
+		data.addTowerUpgrade(gameValues.getTowerAbilityValues("QuakerTower","upgrade"))
+		data.addBoostUpgrade(gameValues.getTowerAbilityValues("QuakerTower","boost"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("QuakerTower","fireCrit"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("QuakerTower","electricStrike"))
 		
 		data.buildData()
 

@@ -6,6 +6,7 @@ require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Tower/TowerData.lua")
+require("Game/gameValues.lua")
 
 --this = SceneNode()
 BladeTower = {}
@@ -18,6 +19,7 @@ function BladeTower.new()
 	local projectiles = projectileManager.new(targetSelector)
 	local deathManager = DeathManager.new()
 	local boostActive = false
+	local gameValues = GameValues.new()
 	--
 	local electricPointLight1
 	local electricPointLight2
@@ -582,86 +584,12 @@ function BladeTower.new()
 			data.setRestoreFunction(restartListener, nil, nil)
 		end
 	
-		data.addTowerUpgrade({	cost = {200,400,800},
-								name = "upgrade",
-								info = "blade tower level",
-								iconId = 56,
-								level = 1,
-								maxLevel = 3,
-								stats = {
-										range =			{ 10.0, 10.0, 10.0 },
-										damage = 		{ 150, 480, 1135},
-										RPS = 			{ 1.0/2.5, 1.0/2.5, 1.0/2.5},
-										bladeSpeed =	{ 10.5, 10.5, 10.5 },
-										shieldBypass =	{ 0.0, 0.0, 0.0 } }
-							})
-							
-
-		
-		data.addBoostUpgrade({	cost = 0,
-								name = "boost",
-								info = "blade tower boost",
-								duration = 10,
-								cooldown = 3,
-								iconId = 57,
-								level = 0,
-								maxLevel = 1,
-								stats = {shieldBypass = { 1.0, func = data.add },
-										damage =		{ 3, func = data.mul },
-										RPS = 			{ 2.0, func = data.mul } }
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "range",
-								info = "blade tower range",
-								infoValues = {"range"},
-								iconId = 59,
-								level = 0,
-								maxLevel = 3,
-								callback = self.handleSubUpgrade,
-								achievementName = "Range",
-								stats = {range = { 1.5, 3.0, 4.5, func = data.add }}
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "attackSpeed",
-								info = "blade tower attackSpeed",
-								infoValues = {"RPS"},
-								iconId = 58,
-								level = 0,
-								maxLevel = 3,
-								callback = self.handleSubUpgrade,
-								achievementName = "BladeSpeed",
-								stats = {RPS = { 1.15, 1.3, 1.45, func = data.mul }}
-							})
-							
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "electricBlade",
-								info = "blade tower slow",
-								infoValues = {"slow"},
-								iconId = 55,
-								level = 0,
-								maxLevel = 3,
-								callback = self.handleSubUpgrade,
-								achievementName = "ElectricBlade",
-								stats = {slow = 	{ 0.20, 0.36, 0.49, func = data.set },
-										slowTimer = { 2.0, 2.0, 2.0, func = data.set }}
-							})
-						
-		data.addSecondaryUpgrade({	
-								cost = {100},
-								name = "shieldBreaker",
-								info = "blade tower shield",
-								iconId = 40,
-								level = 0,
-								maxLevel = 1,
-								callback = self.handleSubUpgrade,
-								achievementName = "shieldBreaker",
-								stats = {shieldBypass = { 1, func = data.set }}
-							})
+		data.addTowerUpgrade(gameValues.getTowerAbilityValues("BladeTower","upgrade"))
+		data.addBoostUpgrade(gameValues.getTowerAbilityValues("BladeTower","boost"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("BladeTower","range"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("BladeTower","attackSpeed"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("BladeTower","electricBlade"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("BladeTower","shieldBreaker"))
 		
 		
 		data.buildData()

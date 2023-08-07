@@ -3,6 +3,7 @@ require("Projectile/missile.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Tower/TowerData.lua")
+require("Game/gameValues.lua")
 
 --this = SceneNode()
 MissileTower = {}
@@ -17,6 +18,7 @@ function MissileTower.new()
 	local reloadTimeLeft = 0.0
 	local targetHistory = {}
 	local targetHistoryCount = 0
+	local gameValues = GameValues.new()
 	
 	local waveCount = 0
 	local activeTeam = 1
@@ -493,81 +495,11 @@ function MissileTower.new()
 		end
 		
 		
-		data.addTowerUpgrade({	cost = {200,400,800},
-								name = "upgrade",
-								info = "missile tower level",
-								iconId = 56,
-								level = 1,
-								maxLevel = 3,
-								stats = {
-										range =				{ 7.0, 7.0, 7.0 },
-										damage = 			{ 270, 570, 980},
-										RPS = 				{ 3.0/12.0, 4.0/12.0, 5.0/12.0},
-										replaceTime =		{ 12, 12, 12 },
-										fieringTime =		{ 1.25, 1.25, 1.25 },
-										dmg_range =			{ 1.5, 1.75, 2.0 },
-										missileSpeed =		{ 7.0, 7.0, 7.0 },
-										missileSpeedAcc =	{ 4.5, 4.5, 4.5 },
-										shieldDamageMul =	{ 1.0, 1.0, 1.0 } }
-							})
-		
-		data.addBoostUpgrade({	cost = 0,
-								name = "boost",
-								info = "missile tower boost",
-								duration = 10,
-								cooldown = 3,
-								iconId = 57,
-								level = 0,
-								maxLevel = 1,
-								stats = {range = 			{ 1.0, func = data.add },
-										damage =			{ 3, func = data.mul },
-										dmg_range = 		{ 1.1, func = data.mul },
-										missileSpeedAcc = 	{ 1.25, func = data.mul },
-										fieringTime = 		{ -0.25, func = data.add },
-										replaceTime = 		{ 0.5, func = data.mul } }
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "range",
-								info = "missile tower range",
-								infoValues = {"range"},
-								iconId = 59,
-								level = 0,
-								maxLevel = 3,
-								callback = self.handleSubUpgrade,
-								achievementName = "Range",
-								stats = {range = { 1.0, 2.0, 3.0, func = data.add }}
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "Blaster",
-								info = "missile tower explosion",
-								infoValues = {"damage", "dmg_range"},
-								iconId = 39,
-								level = 0,
-								maxLevel = 3,
-								callback = self.handleSubUpgrade,
-								achievementName = "Blaster",
-								stats = {damage = { 1.08, 1.16, 1.24, func = data.mul },
-										 dmg_range = { 1.08, 1.16, 1.24, func = data.mul }}
-							})
-		
-							
-		data.addSecondaryUpgrade({	
-								cost = {200},
-								name = "shieldSmasher",
-								info = "missile tower shield destroyer",
-								infoValues = {"damage", "dmg_range"},
-								iconId = 42,
-								level = 0,
-								maxLevel = 1,
-								callback = self.handleSubUpgrade,
-								achievementName = "forcefieldSmasher",
-								stats = { shieldDamageMul = { 3.0, func = data.mul } }
-							})
-		
+		data.addTowerUpgrade(gameValues.getTowerAbilityValues("MissileTower","upgrade"))
+		data.addBoostUpgrade(gameValues.getTowerAbilityValues("MissileTower","boost"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("MissileTower","range"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("MissileTower","Blaster"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("MissileTower","shieldSmasher"))
 		
 		data.buildData()
 

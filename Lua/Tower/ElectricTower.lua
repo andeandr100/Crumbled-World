@@ -5,6 +5,7 @@ require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Game/soundManager.lua")
 require("Tower/TowerData.lua")
+require("Game/gameValues.lua")
 
 --this = SceneNode()
 ElectricTower = {}
@@ -15,6 +16,7 @@ function ElectricTower.new()
 	local waveCount = 0
 	local cData = CampaignData.new()
 	local damagePerEnergy = 19
+	local gameValues = GameValues.new()
 	--data
 	local data = TowerData.new()
 	--model
@@ -617,95 +619,13 @@ function ElectricTower.new()
 		end
 		
 
-		data.addTowerUpgrade({	cost = {200,400,800},
-								name = "upgrade",
-								info = "electric tower level",
-								iconId = 56,
-								level = 1,
-								maxLevel = 3,
-								stats = {range =	{ 4.0, 4.0, 4.0 },
-										damage = 	{ 575*1.30, 1370*1.30, 2700*1.30 },
-										minDamage = { 145, 340, 675 },
-										RPS = 		{ 3.0/3.0, 4.0/3.0, 5.0/3.0 },
-										slow = 		{ 0.0, 0.0, 0.0},
-										slowTimer = { 2.0, 2.0, 2.0},
-										slowRange = { 0.0, 0.0, 0.0},
-										attackCost ={ 575/damagePerEnergy, 1370/damagePerEnergy, 2700/damagePerEnergy },
-										energyMax = { (575/damagePerEnergy)*10.0, (1370/damagePerEnergy)*10.0, (2700/damagePerEnergy)*10.0},
-										energyReg =	{ (575/damagePerEnergy)*5/36*1.05, (575/damagePerEnergy)*6.5/36*1.05, (575/damagePerEnergy)*8/36*1.05},--0.021/g  [1.25 is just a magic number to increase regen]
-										ERPS = 		{ ((575/damagePerEnergy)*5/36*1.05) / (575/damagePerEnergy), ((1370/damagePerEnergy)*6.5/36*1.05) / (1370/damagePerEnergy), ((2700/damagePerEnergy)*8/36*1.05) / (2700/damagePerEnergy)},
-										equalizer =	{ 0.0, 0.0, 0.0} }
-							})
-		
-		data.addBoostUpgrade({	cost = 0,
-								name = "boost",
-								info = "electric tower boost",
-								duration = 10,
-								cooldown = 3,
-								iconId = 57,
-								level = 0,
-								maxLevel = 1,
-								stats = {range = 		{ 1.0, func = data.add },
-										damage =		{ 2, func = data.mul },
-										RPS = 			{ 1.5, func = data.mul },
-										attackCost =	{ 0.0, func = data.set } }
-							})
-		
-		
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "ampedSlow",
-								info = "electric tower slow",
-								infoValues = {"slow","slowRange"},
-								iconId = 55,
-								level = 0,
-								maxLevel = 3,
-								stats = {slow =		{ 0.15, 0.28, 0.39, func = data.add},
-										damage =	{ 0.90, 0.81, 0.73, func = data.mul},
-										RPS =		{ 0.75, 0.56, 0.42, func = data.mul},
-										slowRange = { 0.75, 1.25, 1.75, func = data.add} }
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "energyPool",
-								info = "electric tower energy pool",
-								infoValues = {"energyMax"},
-								iconId = 41,
-								level = 0,
-								maxLevel = 3,
-								stats = {energyMax = { 1.30, 1.60, 1.90, func = data.mul }}
-							})
-							
+		data.addTowerUpgrade(gameValues.getTowerAbilityValues("ElectricTower","upgrade"))
+		data.addBoostUpgrade(gameValues.getTowerAbilityValues("ElectricTower","boost"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("ElectricTower","ampedSlow"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("ElectricTower","energyPool"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("ElectricTower","energy"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("ElectricTower","range"))
 
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "energy",
-								info = "electric tower energy regen",
-								infoValues = {"energyReg"},
-								iconId = 50,
-								level = 0,
-								maxLevel = 3,
-								callback = self.handleSubUpgrade,
-								stats = {energyReg ={ 1.15, 1.30, 1.45, func = data.mul},
-										ERPS =		{ 1.15, 1.30, 1.45, func = data.mul},
-										equalizer =	{ 1.0, 1.0, 1.0, func = data.add} }
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "range",
-								info = "electric tower range",
-								infoValues = {"range"},
-								iconId = 59,
-								level = 0,
-								maxLevel = 3,
-								achievementName = "Range",
-								stats = {range = { 0.75, 1.5, 2.25, func = data.add }}
-							})
-
-		
 		
 		data.buildData()
 		

@@ -2,6 +2,7 @@ require("NPC/state.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Tower/TowerData.lua")
+require("Game/gameValues.lua")
 --this = SceneNode()
 BankTower = {}
 function BankTower.new()
@@ -13,6 +14,7 @@ function BankTower.new()
 	local goldEarned = 0
 	local cData = CampaignData.new()
 	local coins = {}
+	local gameValues = GameValues.new()
 	--local range = 2.5
 	
 	local data = TowerData.new()
@@ -295,27 +297,8 @@ function BankTower.new()
 		end
 
 
-		data.addTowerUpgrade({	cost = {500,500,500},
-								name = "upgrade",
-								info = "bank tower level",
-								iconId = 56,
-								level = 1,
-								maxLevel = 3,
-								stats = {
-										range =					{ TOWERRANGE, TOWERRANGE, TOWERRANGE },
-										supportGoldPerWave = 	{ 50, 105, 160} }
-							})
-							
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "gold",
-								info = "support tower gold",
-								iconId = 67,
-								level = 0,
-								maxLevel = 3,
-								achievementName = "UpgradeSupportGold",
-								stats = {supportGold =	{ 1, 2, 3, func = data.set} }
-							})
+		data.addTowerUpgrade(gameValues.getTowerAbilityValues("BankTower","upgrade"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("BankTower","gold"))
 		
 		
 		data.buildData()

@@ -5,6 +5,8 @@ require("Projectile/SwarmBall.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
+require("Game/gameValues.lua")
+
 --this = SceneNode()
 SwarmTower = {}
 function SwarmTower.new()
@@ -16,6 +18,7 @@ function SwarmTower.new()
 	local goldEarned = 0
 	local range = 2.5
 	local boostActive = false
+	local gameValues = GameValues.new()
 	
 	local data = TowerData.new()
 	--Weaken
@@ -383,52 +386,10 @@ function SwarmTower.new()
 		end
 		
 	
-		data.addTowerUpgrade({	cost = {200,300,400},
-								name = "upgrade",
-								info = "support tower level",
-								iconId = 56,
-								level = 1,
-								maxLevel = 3,
-								stats = { range =		  { TOWERRANGE, TOWERRANGE, TOWERRANGE },
-										  supportDamage = { 10, 20, 30}}
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "range",
-								info = "support tower range",
-								iconId = 65,
-								level = 0,
-								maxLevel = 3,
-								achievementName = "UpgradeSupportRange",
-								stats = {SupportRange = { 10, 20, 30, func = data.set }}
-							})
-							
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "weaken",
-								info = "support tower weaken",
-								iconId = 66,
-								level = 0,
-								maxLevel = 3,
-								achievementName = "UpgradeSupportMarkOfDeath",
-								stats = {weaken =		{ 0.08, 0.16, 0.24, func = data.set},
-										 supportWeaken ={ 8, 16, 24, func = data.set},
-										 weakenTimer =	{ 1, 1, 1, func = data.set} }
-							})
-							
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "gold",
-								info = "support tower gold",
-								iconId = 67,
-								level = 0,
-								maxLevel = 3,
-								achievementName = "UpgradeSupportGold",
-								stats = {supportGold =	{ 1, 2, 3, func = data.set} }
-							})
-							
-							
+		data.addTowerUpgrade(gameValues.getTowerAbilityValues("SupportTower","upgrade"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("SupportTower","upgrade"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("SupportTower","upgrade"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("SupportTower","upgrade"))
 		
 		data.buildData()
 		

@@ -6,6 +6,7 @@ require("Projectile/ArrowMortar.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Tower/TowerData.lua")
+require("Game/gameValues.lua")
 
 --this = SceneNode()
 ArrowTower = {}
@@ -18,6 +19,8 @@ function ArrowTower.new()
 	local cData = CampaignData.new()
 	local rotator = Rotator.new()
 	local currentGlobalVec = ""
+	local gameValues = GameValues.new()
+	
 	--constants
 	local RECOIL_ON_ATTACK = math.pi/18.0	 	 --default kickback
 	local SCOPE_ROTATION_ON_BOOST = math.pi*30/180 --rotation to avoid ammo coger when boost is activated
@@ -551,70 +554,11 @@ function ArrowTower.new()
 			data.setRestoreFunction(restartListener, nil, nil)
 		end
 		
-		data.addTowerUpgrade({	cost = {200,400,800},
-								name = "upgrade",
-								info = "Arrow tower level",
-								iconId = 56,
-								level = 1,
-								maxLevel = 3,
-								stats = {
-										range =		{ 9.0, 9.0, 9.0 },
-										damage = 	{ 360, 955, 1920},
-										RPS = 		{ 1.0/1.5, 1.0/1.3, 1.0/1.1},
-										targetAngle =	{ math.pi*0.175, math.pi*0.175, math.pi*0.175 }  }
-							})
-		
-		data.addBoostUpgrade({	cost = 0,
-								name = "boost",
-								info = "minigun tower boost",
-								duration = 10,
-								cooldown = 3,
-								iconId = 57,
-								level = 0,
-								maxLevel = 1,
-								stats = {range = 			{ 1.5, func = data.add },
-										damage =			{ 3, func = data.mul },
-										detonationRange = 	{ 2.25, func = data.set } }
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "range",
-								info = "Arrow tower range",
-								infoValues = {"range"},
-								iconId = 59,
-								level = 0,
-								maxLevel = 3,
-								achievementName = "Range",
-								stats = {range = { 1.5, 3.0, 4.5, func = data.add }}
-							})
-							
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "hardArrow",
-								info = "Arrow tower hardArrow",
-								infoValues = {"damage", "RPS"},
-								iconId = 71,
-								level = 0,
-								maxLevel = 3,
-								achievementName = "HardArrow",
-								stats = {RPS = { 0.5, 0.4, 0.3, func = data.mul },
-										damage = { 2.35, 3.4, 5.1, func = data.mul }}
-							})
-							
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "markOfDeath",
-								info = "Arrow tower mark of death",
-								infoValues = {"weakenValue"},
-								iconId = 31,
-								level = 0,
-								maxLevel = 3,
-								achievementName = "MarkOfDeath",
-								stats = {weaken = { 0.08, 0.16, 0.24, func = data.set },
-										weakenValue = { 8, 16, 24, func = data.set },
-										weakenTimer = { 5.0, 5.0, 5.0, func = data.set }}
-							})
+		data.addTowerUpgrade(gameValues.getTowerAbilityValues("ArrowTower","upgrade"))
+		data.addBoostUpgrade(gameValues.getTowerAbilityValues("ArrowTower","boost"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("ArrowTower","range"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("ArrowTower","hardArrow"))	
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("ArrowTower","markOfDeath"))
 
 		
 		data.buildData()

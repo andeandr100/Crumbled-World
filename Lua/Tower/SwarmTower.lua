@@ -6,6 +6,7 @@ require("Game/graphicParticleSystems.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
 require("Tower/TowerData.lua")
+require("Game/gameValues.lua")
 
 --this = SceneNode()
 SwarmTower = {}
@@ -22,6 +23,7 @@ function SwarmTower.new()
 	local dmgDone = 0
 	local waveCount = 0
 	local projectiles = projectileManager.new(targetSelector)
+	local gameValues = GameValues.new()
 
 	local data = TowerData.new()
 	--model
@@ -390,73 +392,10 @@ function SwarmTower.new()
 		end
 		
 		
-		data.addTowerUpgrade({	cost = {200,400,800},
-								name = "upgrade",
-								info = "swarm tower level",
-								iconId = 56,
-								level = 1,
-								maxLevel = 3,
-								stats = {
-										range =				{ 6.5, 6.5, 6.5 },
-										damage = 			{ 120, 370, 890},
-										RPS = 				{ 1.0/2.25, 1.0/2.25, 1.0/2.25},
-										fireballSpeed =		{ 5.5, 5.5, 5.5 },
-										fireballLifeTime =	{ 13.0, 13.0, 13.0 },
-										fieringTime =		{ 2.25, 2.25, 2.25 },
-										targeting =			{ 1, 1, 1 },
-										detonationRange =	{ 0.5, 1.0, 1.5 } }
-							})
-							
-
-		
-		data.addBoostUpgrade({	cost = 0,
-								name = "boost",
-								info = "swarm tower boost",
-								duration = 10,
-								cooldown = 3,
-								iconId = 57,
-								level = 0,
-								maxLevel = 1,
-								stats = {range = 		{ 0.75, func = data.add },
-										damage =		{ 3, func = data.mul },
-										RPS = 			{ 2.0, func = data.mul } }
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "range",
-								info = "swarm tower range",
-								infoValues = {"range"},
-								iconId = 59,
-								level = 0,
-								maxLevel = 3,
-								achievementName = "Range",
-								stats = {range = { 0.75, 1.5, 2.25, func = data.add }}
-							})
-		
-		data.addSecondaryUpgrade({	
-								cost = {100,200,300},
-								name = "burnDamage",
-								info = "swarm tower damage",
-								infoValues = {"damage"},
-								iconId = 2,
-								level = 0,
-								maxLevel = 3,
-								achievementName = "burnDamage",
-								stats = {damage = { 1.3, 1.6, 1.9, func = data.mul }}
-							})
-
---		data.addSecondaryUpgrade({	
---								cost = {100,200,300},
---								name = "burnDamage",
---								info = "swarm tower range",
---								infoValues = {"damage"},
---								iconId = 2,
---								level = 0,
---								maxLevel = 3,
---								achievementName = "FireDPS",
---								stats = {damage = { 1.3, 1.6, 1.9, func = data.mul }}
---							})
+		data.addTowerUpgrade(gameValues.getTowerAbilityValues("SwarmTower","upgrade"))
+		data.addBoostUpgrade(gameValues.getTowerAbilityValues("SwarmTower","boost"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("SwarmTower","range"))
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("SwarmTower","burnDamage"))
 
 		
 		data.buildData()
