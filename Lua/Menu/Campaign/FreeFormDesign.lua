@@ -2,13 +2,15 @@ require("Menu/MainMenu/mainMenuStyle.lua")
 require("Game/gameValues.lua")
 --this = SceneNode()
 
-local pixelWidth = 1800
+local pixelWidth = 600
 
 FreeFormDesign = {}
 
-FreeFormDesign.steps = 28
+FreeFormDesign.steps = 56
 FreeFormDesign.stepSize = (math.pi*2.0) / FreeFormDesign.steps
 FreeFormDesign.gameValues = GameValues.new()
+FreeFormDesign.scale = 1.0
+FreeFormDesign.colorScale = 1.0
 
 function FreeFormDesign.getColorYfunc(value, colors)
 --	return Vec3(value)
@@ -30,11 +32,11 @@ function FreeFormDesign.addCircleYcolor(designModel, innerRadius, width, colors,
 
 	local finalColor = {}
 	for n=1, #colors do
-		finalColor[n] = Vec4(colors[n], alpha)
+		finalColor[n] = Vec4(colors[n] * FreeFormDesign.colorScale, alpha)
 	end
 
-	innerRadius = innerRadius / pixelWidth
-	width = width / pixelWidth
+	innerRadius = (innerRadius / pixelWidth) * FreeFormDesign.scale
+	width = (width / pixelWidth) * FreeFormDesign.scale
 	
 	local colFunc = FreeFormDesign.getColorYfunc
 	local outerRadius = innerRadius + width
@@ -59,8 +61,10 @@ end
 	
 function FreeFormDesign.addCircle(designModel, innerRadius, width, innerColor, outerColor)	
 
-	innerRadius = innerRadius / pixelWidth
-	width = width / pixelWidth
+	innerRadius = (innerRadius / pixelWidth) * FreeFormDesign.scale
+	width = (width / pixelWidth) * FreeFormDesign.scale
+	innerColor = innerColor * FreeFormDesign.colorScale
+	outerColor = outerColor * FreeFormDesign.colorScale
 	
 	
 	local outerRadius = innerRadius + width
@@ -81,7 +85,8 @@ end
 
 function FreeFormDesign.addCircleInterior(designModel, innerRadius, outerColor, centerColor)	
 
-	innerRadius = innerRadius / pixelWidth
+	innerRadius = (innerRadius / pixelWidth) * FreeFormDesign.scale
+	outerColor = outerColor * FreeFormDesign.colorScale
 
 	for  r=0, FreeFormDesign.steps do
 		local r1 = FreeFormDesign.stepSize * r
@@ -97,8 +102,10 @@ end
 
 function FreeFormDesign.addQuadEdge(designModel, innerDistance, width, innerColor, outerColor)	
 	
-	innerDistance = innerDistance / pixelWidth
-	width = width / pixelWidth
+	innerDistance = (innerDistance / pixelWidth)* FreeFormDesign.scale
+	width = (width / pixelWidth) * FreeFormDesign.scale
+	innerColor = innerColor * FreeFormDesign.colorScale
+	outerColor = outerColor * FreeFormDesign.colorScale
 	
 	--P1 --- P2
 	-- |	 |
@@ -126,50 +133,97 @@ function FreeFormDesign.addQuadEdge(designModel, innerDistance, width, innerColo
 end
 
 function FreeFormDesign.addQuad(designModel, p1, p2, p3, p4, color)	
-	designModel:addQuad(p1/pixelWidth, p2/pixelWidth, p3/pixelWidth, p4/pixelWidth, color, color, color, color)
+	color = color * FreeFormDesign.colorScale
+	designModel:addQuad((p1/pixelWidth)*FreeFormDesign.scale, (p2/pixelWidth)*FreeFormDesign.scale, (p3/pixelWidth)*FreeFormDesign.scale, (p4/pixelWidth)*FreeFormDesign.scale, color, color, color, color)
 end
 
 function FreeFormDesign.getSkillButton()
-	local buttonDesign = FreeFormButtonDesign(PanelSizeType.WindowPercentBasedOnX)
+	local buttonDesign = FreeFormButtonDesign(PanelSizeType.ParentPercentBasedOnY)
+	FreeFormDesign.scale = 1.0
+	FreeFormDesign.colorScale = 1.0
 		
-	buttonDesign:setBackgroundMesh()
-	FreeFormDesign.addCircleInterior(buttonDesign, 57, Vec3(0.09,0.1,0.098), Vec3())
+	local blackColor = Vec3(0.09,0.1,0.098)
+	local darGrayColor = Vec3(0.027)
+	local grayColor = Vec3(0.227)
 	
-	FreeFormDesign.addCircle( buttonDesign, 57, 3, Vec3(0.09,0.1,0.098), Vec3(0.027))
-	FreeFormDesign.addCircle( buttonDesign, 60, 3, Vec3(0.227), Vec3(0.227))
-	FreeFormDesign.addCircle( buttonDesign, 63, 2, Vec3(0.227), Vec3(0.027))
-	FreeFormDesign.addCircle( buttonDesign, 65, 3, Vec3(0.027), Vec3(0.09,0.1,0.098))
+	local redColor = Vec3(0.6,0.2,0.2)
 	
 	
+	buttonDesign:setDisabledMesh()
+	FreeFormDesign.colorScale = 0.4
 	
-	FreeFormDesign.addQuadEdge( buttonDesign, 50, 3, Vec3(0.227), Vec3(0.027))
-	FreeFormDesign.addQuadEdge( buttonDesign, 46, 4, Vec3(0.027), Vec3(0.027))
-	FreeFormDesign.addQuadEdge( buttonDesign, 43, 3, Vec3(0.027), Vec3(0.227))
+	FreeFormDesign.addCircleInterior(buttonDesign, 57, blackColor, Vec3())	
+	FreeFormDesign.addCircle( buttonDesign, 57, 3, blackColor, darGrayColor)
+	FreeFormDesign.addCircle( buttonDesign, 60, 3, grayColor*0.7, grayColor*0.7)
+	FreeFormDesign.addCircle( buttonDesign, 63, 2, grayColor*0.7, darGrayColor)
+	FreeFormDesign.addCircle( buttonDesign, 65, 3, darGrayColor, blackColor)
+	
+	FreeFormDesign.addQuadEdge( buttonDesign, 50, 3, grayColor, darGrayColor)
+	FreeFormDesign.addQuadEdge( buttonDesign, 46, 4, darGrayColor, darGrayColor)
+	FreeFormDesign.addQuadEdge( buttonDesign, 43, 3, darGrayColor, grayColor)
+	
+	
+	----------------------------------------------------------------------------------
+		
+	buttonDesign:setDefaultMesh()
+	FreeFormDesign.colorScale = 1.1
+	FreeFormDesign.addCircleInterior(buttonDesign, 57, blackColor, Vec3())
+	
+	FreeFormDesign.addCircle( buttonDesign, 57, 3, blackColor, darGrayColor)
+	FreeFormDesign.addCircle( buttonDesign, 60, 3, grayColor, grayColor)
+	FreeFormDesign.addCircle( buttonDesign, 63, 2, grayColor, darGrayColor)
+	FreeFormDesign.addCircle( buttonDesign, 65, 3, darGrayColor, blackColor)
+	
+	FreeFormDesign.addQuadEdge( buttonDesign, 50, 3, grayColor, darGrayColor)
+	FreeFormDesign.addQuadEdge( buttonDesign, 46, 4, darGrayColor, darGrayColor)
+	FreeFormDesign.addQuadEdge( buttonDesign, 43, 3, darGrayColor, grayColor)
 	
 	FreeFormDesign.addQuad( buttonDesign, Vec2(-43, -43), Vec2(43, -43), Vec2(-43, 43), Vec2(43, 43), Vec3(0.15))
+	
+	
+	----------------------------------------------------------------------------------
+	
+	buttonDesign:setSelectedMesh()
+	FreeFormDesign.colorScale = 1.3
+	FreeFormDesign.addCircleInterior(buttonDesign, 57, blackColor, Vec3())
+	
+	FreeFormDesign.addCircle( buttonDesign, 57, 3, blackColor, darGrayColor)
+	FreeFormDesign.addCircle( buttonDesign, 60, 3, grayColor, grayColor)
+	FreeFormDesign.addCircle( buttonDesign, 63, 2, grayColor, darGrayColor)
+	FreeFormDesign.addCircle( buttonDesign, 65, 3, darGrayColor, blackColor)
+	
+	FreeFormDesign.addQuadEdge( buttonDesign, 50, 3, grayColor, darGrayColor)
+	FreeFormDesign.addQuadEdge( buttonDesign, 46, 4, darGrayColor, darGrayColor)
+	FreeFormDesign.addQuadEdge( buttonDesign, 43, 3, darGrayColor, grayColor)
+	
+	FreeFormDesign.addQuad( buttonDesign, Vec2(-43, -43), Vec2(43, -43), Vec2(-43, 43), Vec2(43, 43), Vec3(0.15))
+	
+	--Change Color
+	blackColor = Vec3(0.1,0.027,0.027)
+	
+	--Add Read border
+	FreeFormDesign.addQuadEdge( buttonDesign, 46, 2, blackColor, redColor)
+	FreeFormDesign.addQuadEdge( buttonDesign, 48, 2, redColor, blackColor)
+	
+	----------------------------------------------------------------------------------
 	
 	buttonDesign:setMouseHoverMesh()
 	FreeFormDesign.addCircle( buttonDesign, 65, 1, Vec4(0.09,0.1,0.098,1), Vec4(1,1,1,0.7))
 	FreeFormDesign.addCircle( buttonDesign, 66, 6, Vec4(1,1,1,0.7), Vec4(1,1,1,0))
 	
-	FreeFormDesign.addQuadEdge( buttonDesign, 46, 2, Vec3(0.1,0.027,0.027)*1.2, Vec3(0.6,0.2,0.2)*1.2)
-	FreeFormDesign.addQuadEdge( buttonDesign, 48, 2, Vec3(0.6,0.2,0.2)*1.2, Vec3(0.1,0.027,0.027)*1.2)
+	FreeFormDesign.addQuadEdge( buttonDesign, 46, 2, blackColor*1.2, redColor*1.2)
+	FreeFormDesign.addQuadEdge( buttonDesign, 48, 2, redColor*1.2, blackColor*1.2)
 	
 	
+	----------------------------------------------------------------------------------
 	
-	
-	
-	buttonDesign:setPressedMesh()
-	--Add Read border
---	FreeFormDesign.addQuadEdge( buttonDesign, 46, 2, Vec3(0.1,0.027,0.027), Vec3(0.6,0.2,0.2))
---	FreeFormDesign.addQuadEdge( buttonDesign, 48, 2, Vec3(0.6,0.2,0.2), Vec3(0.1,0.027,0.027))
 	
 	
 	buttonDesign:setButtonAreaSquare( Vec2(-48)/pixelWidth, Vec2(48)/pixelWidth)
 	
 	buttonDesign:setImageDefaultTexture(Core.getTexture("icon_table"))
 	buttonDesign:setImageDefaultUvCoord(Vec2(), Vec2(0.125,0.0625))
-	buttonDesign:setImageSize(Vec2(96)/pixelWidth)
+	buttonDesign:setImageSize(Vec2(92)/pixelWidth)
 	
 	buttonDesign:enableImage()
 	buttonDesign:enableSecondaryImage()
@@ -182,7 +236,7 @@ local function rgb(red, green, blue)
 end
 
 function FreeFormDesign.getMapButton(playedAndWon, unlocked)
-	local buttonDesign = FreeFormButtonDesign(PanelSizeType.WindowPercentBasedOnX)
+	local buttonDesign = FreeFormButtonDesign(PanelSizeType.ParentPercentBasedOnY)
 		
 	
 	local outerRingColor = {rgb(255,222,127),rgb(255,249,215),rgb(255,230,155),rgb(252,216,119),rgb(207,163,72),rgb(137,85,1),rgb(179,127,43),rgb(135,83,0)}
@@ -207,25 +261,26 @@ function FreeFormDesign.getMapButton(playedAndWon, unlocked)
 		end
 	end
 	
-	buttonDesign:setBackgroundMesh()
+	FreeFormDesign.scale = 0.8
+	FreeFormDesign.colorScale = 1.0
+	
+	buttonDesign:setDefaultMesh()
 	FreeFormDesign.addCircleInterior( buttonDesign, 75, circleBackgroundColor, circleBackgroundColor)
 	FreeFormDesign.addCircleYcolor( buttonDesign, 75, 3, innerRingColor, 1.0)
 	FreeFormDesign.addCircleYcolor( buttonDesign, 78, 7, outerRingColor, 1.0)
 	FreeFormDesign.addCircleYcolor( buttonDesign, 77.7, 0.6, outerRingColor,0.5)--overlapping midle ring color 
-	FreeFormDesign.addCircle( buttonDesign, 73, 2.1, Vec4(0,0,0,0), coverColor)--inner edge to black
-	FreeFormDesign.addCircle( buttonDesign, 84.9, 2.1, coverColor, Vec4(0,0,0,0))--outer edge to black
+	FreeFormDesign.addCircle( buttonDesign, 73, 2.1, Vec4(0,0,0,0), Vec4(innerRingColor[1],1.0))--inner edge to black
+	FreeFormDesign.addCircle( buttonDesign, 84.9, 2.1, Vec4(outerRingColor[1],0.5), Vec4(0,0,0,0))--outer edge to black
 	
 
 	local scale = 1.3
 	
 	buttonDesign:setMouseHoverMesh()
-	--FreeFormDesign.addCircleInterior( buttonDesign, 75 * scale, circleBackgroundColor, circleBackgroundColor)
-	FreeFormDesign.addCircleYcolor( buttonDesign, 75 * scale, 3 * scale, innerRingColor, 1.0)
-	FreeFormDesign.addCircleYcolor( buttonDesign, 78 * scale, 7 * scale, outerRingColor, 1.0)
-	FreeFormDesign.addCircleYcolor( buttonDesign, 77.7 * scale, 0.6 * scale, outerRingColor,0.5)--overlapping midle ring color 
-	FreeFormDesign.addCircle( buttonDesign, 73 * scale, 2.1 * scale, Vec4(0,0,0,0), coverColor)--inner edge to black
-	FreeFormDesign.addCircle( buttonDesign, 84.9 * scale, 2.1 * scale, coverColor, Vec4(0,0,0,0))--outer edge to black
-	
+	FreeFormDesign.addCircleYcolor( buttonDesign, 75, 3*scale, innerRingColor, 1.0)
+	FreeFormDesign.addCircleYcolor( buttonDesign, 75+3*scale, 7*scale, outerRingColor, 1.0)
+	FreeFormDesign.addCircleYcolor( buttonDesign, 74.7+3*scale, 0.6, outerRingColor,0.4)--overlapping midle ring color 
+	FreeFormDesign.addCircle( buttonDesign, 73, 2.1, Vec4(0,0,0,0), Vec4(innerRingColor[1],0.7))--inner edge to black
+	FreeFormDesign.addCircle( buttonDesign, 77.9+7*scale, 2.1, Vec4(outerRingColor[1],0.5), Vec4(0,0,0,0))--outer edge to black
 	
 	buttonDesign:setButtonAreaCircle( Vec2(), 85/pixelWidth)
 	

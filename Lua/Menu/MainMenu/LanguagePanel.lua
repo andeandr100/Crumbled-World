@@ -35,7 +35,7 @@ end
 
 function LanguagePanel.changeLanguageComboBox(comboBox)
 	print("---- change language to "..comboBox:getText():toString().." ----")
-	language:setGlobalLanguage(comboBox:getText():toString())
+	language:setLanguage(comboBox:getText():toString())
 	settingsListener:pushEvent("LanguageChanged")
 	--Call mainMenu.lua functio
 	if languageChanged then
@@ -123,7 +123,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	label:setTag("language")
 	LanguagePanel.labels[1] = label
 	languageComboBox = LanguagePanel.addComboBox( rowPanel, Vec2(-0.45,-1), allLanguageges, LanguagePanel.changeLanguage)
-	languageComboBox:setText(language:getGlobalLanguage())
+	languageComboBox:setText(language:getLanguage())
 	languageComboBox:addEventCallbackChanged(LanguagePanel.changeLanguageComboBox)
 	languageComboBox:setTag(Settings.islandSmoke.configName)
 	
@@ -138,7 +138,7 @@ function LanguagePanel.createLanguageOptions(panel)
 	LanguagePanel.labels[2] = languageButton
 	
 	
-	LanguagePanel.editLanguage = language:getGlobalLanguage()
+	LanguagePanel.editLanguage = language:getLanguage()
 	
 	editPanel = panel:add(Panel(PanelSize(Vec2(-1))))
 	editPanel:setLayout(FallLayout(PanelSize(Vec2(0,0.0015))))
@@ -153,14 +153,14 @@ function LanguagePanel.createLanguageOptions(panel)
 	editLanguageComboBox:setTag(Settings.islandSmoke.configName)
 
 	
-	rowPanel, label = OptionsMenuStyle.addRow(editPanel, language:getText("add new language"))
-	label:setTag("add new language")
-	LanguagePanel.labels[4] = label
-	addLanguageTextField = rowPanel:add(MainMenuStyle.createTextField(Vec2(-0.45,-1),Vec2(), ""))
-	local addNewLanguageButton = rowPanel:add(MainMenuStyle.createButton(Vec2(-1),Vec2(3,1), language:getText("add")))
-	addNewLanguageButton:addEventCallbackExecute(addLanguage)
-	addNewLanguageButton:setTag("add")
-	LanguagePanel.labels[5] = addNewLanguageButton
+--	rowPanel, label = OptionsMenuStyle.addRow(editPanel, language:getText("add new language"))
+--	label:setTag("add new language")
+--	LanguagePanel.labels[4] = label
+--	addLanguageTextField = rowPanel:add(MainMenuStyle.createTextField(Vec2(-0.45,-1),Vec2(), ""))
+--	local addNewLanguageButton = rowPanel:add(MainMenuStyle.createButton(Vec2(-1),Vec2(3,1), language:getText("add")))
+--	addNewLanguageButton:addEventCallbackExecute(addLanguage)
+--	addNewLanguageButton:setTag("add")
+--	LanguagePanel.labels[5] = addNewLanguageButton
 	
 	--add spacing
 --	editPanel:add(Panel(PanelSize(Vec2(-1,0.04))))
@@ -170,15 +170,15 @@ function LanguagePanel.createLanguageOptions(panel)
 	local buttonPanel = langaugeBottomPanel:add(Panel(PanelSize(Vec2(-1,0.03))))
 	
 	
-	local saveButton = buttonPanel:add( MainMenuStyle.createButton(Vec2(-1),Vec2(3,1), language:getText("save")) )
-	saveButton:addEventCallbackExecute(LanguagePanel.saveChanges)
-	saveButton:setTag("save")
-	LanguagePanel.labels[6] = saveButton
-	
-	local saveButton = buttonPanel:add( MainMenuStyle.createButton(Vec2(-1),Vec2(5,1), language:getText("send to developer")) )
-	saveButton:addEventCallbackExecute(LanguagePanel.sendToDeveloper)
-	saveButton:setTag("send to developer")
-	LanguagePanel.labels[7] = saveButton
+--	local saveButton = buttonPanel:add( MainMenuStyle.createButton(Vec2(-1),Vec2(3,1), language:getText("save")) )
+--	saveButton:addEventCallbackExecute(LanguagePanel.saveChanges)
+--	saveButton:setTag("save")
+--	LanguagePanel.labels[6] = saveButton
+--	
+--	local saveButton = buttonPanel:add( MainMenuStyle.createButton(Vec2(-1),Vec2(5,1), language:getText("send to developer")) )
+--	saveButton:addEventCallbackExecute(LanguagePanel.sendToDeveloper)
+--	saveButton:setTag("send to developer")
+--	LanguagePanel.labels[7] = saveButton
 	
 	LanguagePanel.panel = langaugeBottomPanel:add(Panel(PanelSize(Vec2(-1))))
 	LanguagePanel.panel:setPadding(BorderSize(Vec4(0.005,0,0.005,0),true))
@@ -613,36 +613,36 @@ function addSpace()
 end
 
 function addLanguageHeader(text)
-	LanguagePanel.panel:add(Label(PanelSize(Vec2(-1,0.035)), text, Vec3(0.94), Alignment.MIDDLE_LEFT))
+--	LanguagePanel.panel:add(Label(PanelSize(Vec2(-1,0.035)), text, Vec3(0.94), Alignment.MIDDLE_LEFT))
 end
 
 function addLanguageRow(name)
 	
-	local englishText = LanguagePanel.language:getText( name, "English" )
-	local editText = LanguagePanel.language:getText( name, LanguagePanel.editLanguage, false )
-	local finalEnglishText = (englishText == Text("")) and name or englishText
-	
-	
-	
-	local textScale = Text(finalEnglishText):getTextScale(false).x/2
-	local textField = nil
-	
-	if textScale > 6 then
-		local label = LanguagePanel.panel:add(Label(PanelSize(Vec2(-1,0.025 * (1 + math.floor(textScale / 18.5)))),finalEnglishText, Vec3(0.8), Alignment.MIDDLE_LEFT))
-		label:setTextHeight(0.0125)
-		label:setParseTags(false)
-		textField = LanguagePanel.panel:add( MainMenuStyle.createTextField(Vec2(-1,0.025),Vec2(), editText ) )
-	else
-		local rowPanel = LanguagePanel.panel:add(Panel(PanelSize(Vec2(-1,0.025))))
-		rowPanel:setLayout(FlowLayout(PanelSize(Vec2(0.01,0))))
-		local label = rowPanel:add(Label(PanelSize(Vec2(-1,-1), Vec2(6,1)), finalEnglishText, Vec3(0.8), Alignment.MIDDLE_RIGHT))
-		label:setParseTags(false)
-		
-		textField = rowPanel:add(MainMenuStyle.createTextField(Vec2(-1,-1),Vec2(), editText ) )
-	end
-	
-
-	LanguagePanel.rows[#LanguagePanel.rows + 1] = {name=name, textField=textField}
+--	local englishText = LanguagePanel.language:getText( name, "English" )
+--	local editText = LanguagePanel.language:getText( name, LanguagePanel.editLanguage, false )
+--	local finalEnglishText = (englishText == Text("")) and name or englishText
+--	
+--	
+--	
+--	local textScale = Text(finalEnglishText):getTextScale(false).x/2
+--	local textField = nil
+--	
+--	if textScale > 6 then
+--		local label = LanguagePanel.panel:add(Label(PanelSize(Vec2(-1,0.025 * (1 + math.floor(textScale / 18.5)))),finalEnglishText, Vec3(0.8), Alignment.MIDDLE_LEFT))
+--		label:setTextHeight(0.0125)
+--		label:setParseTags(false)
+--		textField = LanguagePanel.panel:add( MainMenuStyle.createTextField(Vec2(-1,0.025),Vec2(), editText ) )
+--	else
+--		local rowPanel = LanguagePanel.panel:add(Panel(PanelSize(Vec2(-1,0.025))))
+--		rowPanel:setLayout(FlowLayout(PanelSize(Vec2(0.01,0))))
+--		local label = rowPanel:add(Label(PanelSize(Vec2(-1,-1), Vec2(6,1)), finalEnglishText, Vec3(0.8), Alignment.MIDDLE_RIGHT))
+--		label:setParseTags(false)
+--		
+--		textField = rowPanel:add(MainMenuStyle.createTextField(Vec2(-1,-1),Vec2(), editText ) )
+--	end
+--	
+--
+--	LanguagePanel.rows[#LanguagePanel.rows + 1] = {name=name, textField=textField}
 end
 
 function LanguagePanel.updateClientName()

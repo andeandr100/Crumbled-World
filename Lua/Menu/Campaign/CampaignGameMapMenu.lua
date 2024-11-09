@@ -300,7 +300,7 @@ function CampaignGameMapMenu.new(parentPanel)
 		mapHandler.fillMapPanel(campaignPanel, customeGameChangedMap)
 		
 		--add midle Border line
-		mainPanel:add(Panel(PanelSize(Vec2(MainMenuStyle.borderSize,-1),PanelSizeType.WindowPercentBasedOnY))):setBackground(Sprite(MainMenuStyle.borderColor))
+		mainPanel:add(Panel(PanelSize(Vec2(MainMenuStyle.borderSize,-1),PanelSizeType.ParentPercentBasedOnY))):setBackground(Sprite(MainMenuStyle.borderColor))
 		
 		--Add info panel
 		addMapInfoPanel()

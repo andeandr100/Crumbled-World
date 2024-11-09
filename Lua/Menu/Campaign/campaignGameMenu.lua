@@ -1,9 +1,4 @@
-
-
-
-
 require("Menu/Campaign/shop.lua")
-
 
 require("Menu/Campaign/CampaignGameMapMenu.lua")
 require("Menu/Campaign/CampaignGameShopMenu.lua")
@@ -23,9 +18,6 @@ function CampaignGameMenu.new(panel)
 	local campaignMap
 	local campaingShop
 	
-
-
-	
 	function self.languageChanged()
 		
 	end
@@ -33,6 +25,7 @@ function CampaignGameMenu.new(panel)
 	function self.update()
 
 	end
+	
 	local function returnFromShopToCampaign()
 		mainPanel:setVisible(true)
 	end
@@ -52,24 +45,19 @@ function CampaignGameMenu.new(panel)
 		--CampaignGameMenu.mapTable = {}
 		selectedFile = ""
 		
-		
-		
 		--Options panel
 		mainPanel = panel:add(Panel(PanelSize(Vec2(-1))))
 		mainPanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 		--
 		
-		
 		--Top menu button panel
 		local topMenuButtons = mainPanel:add(Panel(PanelSize(Vec2(-1,0.04))))
 		topMenuButtons:setLayout(FlowLayout(Alignment.MIDDLE_CENTER, PanelSize(Vec2(0,0.01))))
 
-		local textScale = language:getText("campaign"):getTextScale() 
+		local textScale = language:getText("menu.button.campaign"):getTextScale() 
 		
-		
-
-		local campaignButton = MainMenuStyle.addTopMenuButton(topMenuButtons, Vec2(textScale.x/2+3,1), language:getText("campaign"))
-		local shopButton = MainMenuStyle.addTopMenuButton(topMenuButtons, Vec2(textScale.x/2+3,1), "Shop")
+		local campaignButton = MainMenuStyle.addTopMenuButton(topMenuButtons, Vec2(textScale.x/2+3,1), language:getText("menu.button.campaign"))
+		local shopButton = MainMenuStyle.addTopMenuButton(topMenuButtons, Vec2(textScale.x/2+3,1), language:getText("menu.button.shop"))
 		
 
 		local buttonIcon = campaignButton:add(Image(PanelSize(Vec2(-1),Vec2(1)), "icon_table.tga"))
@@ -78,7 +66,6 @@ function CampaignGameMenu.new(panel)
 		buttonIcon = shopButton:add(Image(PanelSize(Vec2(-1),Vec2(1)), "icon_table.tga"))
 		buttonIcon:setUvCoord(Vec2(),Vec2(0.125,0.0625))
 		
---		labels[5] = mainPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("campaign"), Vec3(0.94), Alignment.MIDDLE_LEFT))
 		labels[5] = campaignButton
 		labels[5]:setTag("campaign")
 		
@@ -87,12 +74,6 @@ function CampaignGameMenu.new(panel)
 		campaignButton:addEventCallbackExecute(buttonPressed)
 		shopButton:addEventCallbackExecute(buttonPressed)
 		
-
---		local camera = this:getRootNode():findNodeByName("MainCamera")
---		if camera then
---			windowShop = Shop.new(camera, updateCrystalButton, panel, labels[5])
---			windowShop.setGoBackCallback(returnFromShopToCampaign)
---		end
 		
 		--shop = Shop.new(mainAreaPanel)
 		
@@ -103,13 +84,7 @@ function CampaignGameMenu.new(panel)
 		breakLinePanel:setBackground(gradient)
 		
 		local sPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.93, -0.95))))
-		
-		
-		
-		
 		campaignMap = CampaignGameMapMenu.new(sPanel)
-		
-
 		campaingShop = CampaignGameShopMenu.new(sPanel)		
 		
 		
@@ -124,9 +99,11 @@ function CampaignGameMenu.new(panel)
 	--
 	function self.isVisible()
 	end
+	
 	function self.getVisible()
 		return mainPanel:getVisible()
 	end
+	
 	function self.getChildVisible()
 		return false--windowShop.getVisible()
 	end
@@ -140,12 +117,9 @@ function CampaignGameMenu.new(panel)
 			print("mainPanel:setVisible("..tostring(set)..")\n")
 			mainPanel:setVisible(set)
 			campaignMap.setVisible(set and true or false)
---			windowShop.setVisible(false)
-
 		else
 			print("mainPanel:setVisible("..tostring(set2)..")\n")
 			mainPanel:setVisible(set2)
---			windowShop.setVisible(false)
 			campaignMap.setVisible(set2 and true or false)
 		end
 	end

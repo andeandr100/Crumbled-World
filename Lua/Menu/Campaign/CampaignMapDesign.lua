@@ -63,7 +63,6 @@ function CampaignMapDesign.new(parentPanel)
 		local rowData = {}
 		if map2 == nil then
 			rowData = { addCampaignData(Vec2(-0.5, yPos),map1) }
-			
 		elseif map3 == nil then
 			rowData = { addCampaignData(Vec2(-0.25, yPos),map1),
 						addCampaignData(Vec2(-0.75, yPos),map2) }
@@ -134,7 +133,7 @@ function CampaignMapDesign.new(parentPanel)
 	
 	local function addMapsPanel()
 
-		campaignPanel:setLayout(FreeFormLayout(PanelSize(Vec2(-1))))
+		campaignPanel:setLayout(FreeFormLayout(PanelSize(Vec2(-1, -3.45),PanelSizeType.ParentPercent)))
 		campaignPanel:setEnableScroll()
 		
 		local lines = FreeFormLine()
@@ -142,18 +141,18 @@ function CampaignMapDesign.new(parentPanel)
 		
 		gameValues.setMapUnLockedStatus("Beginning", true)
 		
-		addMaps("Beginning")
-		addMaps("Intrusion")
+		addMaps("Beginning")--Video 1
+		addMaps("Intrusion")--Video 2
 		addMaps("Stockpile", "Expansion")
-		addMaps("Repair station", "Edge world", "Bridges")
-		addMaps("Spiral", "Broken mine", "Town","Centeral")
+		addMaps("Repair station", "Edge world", "Bridges") --Video 3
+		addMaps("Spiral", "Broken mine", "Town","Centeral") 
 		addMaps("Outpost", "Plaza")
-		addMaps("Long haul", "Dock", "Lodge")
-		addMaps("Crossroad", "Mine", "West river")
+		addMaps("Long haul", "Dock", "Lodge") --Video 4
+		addMaps("Crossroad", "Mine", "West river") 
 		addMaps("Blocked path", "The line")
-		addMaps("Dump station", "Rifted", "Paths","Divided")
+		addMaps("Dump station", "Rifted", "Paths","Divided") --Video 5
 		addMaps("Nature", "Train station", "Desperado")
-		addMaps("The end")
+		addMaps("The end") --Video 6
 		
 		addConnections()
 				

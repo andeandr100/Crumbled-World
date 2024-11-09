@@ -440,8 +440,8 @@ function CustomeGameMenu.new(panel)
 		mainPanel = panel:add(Panel(PanelSize(Vec2(-1))))
 		mainPanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 		--Top menu button panel
-		labels[4] = mainPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("custome game"), Vec3(0.94), Alignment.MIDDLE_CENTER))
-		labels[4]:setTag("custome game")
+		labels[4] = mainPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("main menu.custome game"), Vec3(0.94), Alignment.MIDDLE_CENTER))
+		labels[4]:setTag("main menu.custome game")
 		
 		--Add BreakLine
 		local breakLinePanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))

@@ -34,22 +34,6 @@ function Shop.new(camera, updateCrystalButton, inPanel)
 	local function createBorderPanel()
 		--Options panel
 		mainPanel = inPanel:add(Panel(PanelSize(Vec2(-1))))
---		mainPanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
-		--
---		--Top menu button panel
---		local aLabel = mainPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("campaign"), Vec3(0.94), Alignment.MIDDLE_CENTER))
---		aLabel:setTag("Shop")
---		
---		--shop = Shop.new(mainAreaPanel)
---		
---		--Add BreakLine
---		local breakLinePanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
---		local gradient = Gradient()
---		gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.66),Vec3(0.45)})
---		breakLinePanel:setBackground(gradient)
---		
---		local sPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9, -0.95))))
---		sPanel:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 		mainPanel:setVisible(false)
 		
 		return mainPanel
@@ -60,12 +44,10 @@ function Shop.new(camera, updateCrystalButton, inPanel)
 	end
 	
 	function self.setVisible(visible)
---		form:setVisible(visible)
 		mainPanel:setVisible(visible)
 	end
 	
 	function self.getVisible()
---		return form:getVisible()
 		return mainPanel:getVisible()
 	end
 	
@@ -80,8 +62,6 @@ function Shop.new(camera, updateCrystalButton, inPanel)
 		breakLinePanel:setBackground(Sprite(Vec3(0.45)))
 	end
 	
-	
-	
 	local function updateUpgradeText()
 		for i=1, #textUpgList do
 			local label = textUpgList[i].label
@@ -94,10 +74,8 @@ function Shop.new(camera, updateCrystalButton, inPanel)
 				countBought = countBought + ( ( (upgLevel== 4 and towerUpgInfo[towerName][n].permaUppgrade ) or towerUpgInfo[towerName][n][upgLevel]) and ShopFunction.isUpgradeBought( towerUpgInfo[towerName][n], towerName, upgLevel) and 1 or 0 ) 
 				countExist = countExist + ( towerUpgInfo[towerName][n][upgLevel] and 1 or 0 )
 			end
-			
 			label:setText( tostring(countBought) .. "/" .. ( upgLevel==4 and "1" or tostring(countExist)) )
 		end
-	
 	end
 	
 	local function buyUpGrade(tag)
@@ -120,7 +98,6 @@ function Shop.new(camera, updateCrystalButton, inPanel)
 		data.buy(towerName,upgName,permUnlocked)
 		
 		--update labels
---		predefinedUpdateButtonFunction()
 		updateUpgradeText()
 		
 		crystalCountLabel:setText(tostring(data.getCrystal()))

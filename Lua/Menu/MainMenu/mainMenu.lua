@@ -32,13 +32,13 @@ function languageChanged()
 	
 	print("---- languageChanged ----")
 	
-	buttons[1].text = language:getText("exit")
-	buttons[2].text = language:getText("campaign")
-	buttons[3].text = language:getText("custome game")
-	buttons[4].text = language:getText("multiplayer")
-	buttons[5].text = language:getText("map editor")
-	buttons[6].text = language:getText("options")
-	buttons[7].text = language:getText("credits")
+	buttons[1].text = language:getText("menu.button.exit")
+	buttons[2].text = language:getText("menu.button.campaign")
+	buttons[3].text = language:getText("menu.button.custom game")
+	buttons[4].text = language:getText("menu.button.multiplayer")
+	buttons[5].text = language:getText("menu.button.map editor")
+	buttons[6].text = language:getText("menu.button.options")
+	buttons[7].text = language:getText("menu.button.credits")
 --	buttons[8].text = Text("c-2")
 	
 	
@@ -177,7 +177,7 @@ function toglePanelVisible(button,param)
 					buttons[i].panel:setVisible( visible, param )
 				end
 				if i==2 then
-					campaignPanel:setVisible(true)
+					campaignPanel:setVisible(visible)
 					pagePanel:setVisible( false )
 				else
 					campaignPanel:setVisible(false)
@@ -202,23 +202,21 @@ function createTopMenu()
 	local topPanel = MainMenuStyle.createTopMenu(form, PanelSize(Vec2(1,0.027),PanelSizeType.WindowPercentBasedOnX))
 	
 	buttons = {}
-	buttons[1] = {text = language:getText("exit")}
-	buttons[2] = {text = language:getText("campaign")}
-	buttons[3] = {text = language:getText("custome game")}--Singleplayer
-	buttons[4] = {text = language:getText("multiplayer")}
-	buttons[5] = {text = language:getText("map editor")}
-	buttons[6] = {text = language:getText("options")}
-	buttons[7] = {text = language:getText("credits")}
+	buttons[1] = {text = language:getText("menu.button.exit")}
+	buttons[2] = {text = language:getText("menu.button.campaign")}
+	buttons[3] = {text = language:getText("menu.button.custom game")}--Singleplayer
+	buttons[4] = {text = language:getText("menu.button.multiplayer")}
+	buttons[5] = {text = language:getText("menu.button.map editor")}
+	buttons[6] = {text = language:getText("menu.button.options")}
+	buttons[7] = {text = language:getText("menu.button.credits")}
 --	buttons[8] = {text = Text("c-2") }
 
 	
-	print("button 1\n")
 	buttons[1].button = MainMenuStyle.addTopMenuButton(topPanel, Vec2(buttons[1].text:getTextScale().x/2+1,1), buttons[1].text)
 	buttons[1].button:addEventCallbackExecute(quitGame)
 	
 	local leftTopMenuPanel = topPanel:add(Panel(PanelSize(Vec2(-1))))
 	leftTopMenuPanel:setLayout(FlowLayout(Alignment.TOP_RIGHT))
-	print("button 7\n")
 	buttons[7].button = MainMenuStyle.addTopMenuButton(leftTopMenuPanel, Vec2(buttons[7].text:getTextScale().x/2+1,1), buttons[7].text)
 	buttons[7].button:addEventCallbackExecute(toglePanelVisible)
 	
@@ -227,7 +225,6 @@ function createTopMenu()
 	
 	
 	for i=2, 6 do
-		print("button "..i.."\n")
 		buttons[i].button = MainMenuStyle.addTopMenuButton(centerTopPanel, Vec2(buttons[i].text:getTextScale().x/2+1,1), buttons[i].text)
 		buttons[i].button:addEventCallbackExecute(toglePanelVisible)
 	end
@@ -254,17 +251,11 @@ function createMainArea()
 	campaignPanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
 	campaignPanel:setBorder(DoubleBorder(BorderSize(Vec4(borderSize * 2)),MainMenuStyle.borderColor,BorderSize(Vec4(borderSize * 3)),Vec4(0,0,0,0.5), BorderSize(Vec4(borderSize)),MainMenuStyle.borderColor))
 	
-	print("CustomeGameMenu\n")
 	buttons[3].panel = CustomeGameMenu.new(pagePanel)
-	print("Multiplayer\n")
 	buttons[4].panel = MultiplayerMenuServerList.new(pagePanel)
-	print("CustomeGameMenu\n")
 	buttons[2].panel = CampaignGameMenu.new(campaignPanel)
-	print("MapEditorMenu\n")
 	buttons[5].panel = MapEditorMenu.create(pagePanel)
-	print("OptionsMenu\n")
 	buttons[6].panel = OptionsMenu.create(pagePanel)
-	print("CreditsMenu\n")
 	buttons[7].panel = CreditsMenu.create(pagePanel)
 
 	--

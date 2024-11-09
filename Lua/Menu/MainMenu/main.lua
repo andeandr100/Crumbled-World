@@ -5,7 +5,7 @@ function create()
 	
 	LOG("=== LOAD LANGUAGE ===")
 	local language = Language()
-	language:setGlobalLanguage(Settings.Language.getSettings())
+	language:setLanguage(Settings.Language.getSettings())
 
 	LOG("=== LOAD SETTINGS ===")
 	this:loadLuaScriptAndRunOnce("settings.lua")

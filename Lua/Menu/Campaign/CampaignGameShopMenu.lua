@@ -8,15 +8,11 @@ CampaignGameShopMenu = {}
 function CampaignGameShopMenu.new(parentPanel)
 	local self = {}
 	local mainPanel = parentPanel:add(Panel(PanelSize(Vec2(-1))))
-	--mainPanel = Panel()
-	
 	local conf = CampaignData.new()
 	local buttons = {}
 	local gameValues = FreeFormDesign.gameValues
 	local towers = {}
-	
-	
-	
+
 	function self.setVisible(visible)
 		gameValues.reloadConfig()
 		mainPanel:setVisible(visible)
@@ -51,27 +47,14 @@ function CampaignGameShopMenu.new(parentPanel)
 		end
 	
 		local buttonData = totable(freeFormButton:getTag():toString())
-		
 		local towerName = buttonData.towerName 
 		local upgradeName = buttonData.upgradeName
 		local level = buttonData.level
-		
-		
-		
-		
-		
-		
 		local debugData = towers[towerName][upgradeName]
 		local unlockedLevel = towers[towerName][upgradeName].unlocked
 		local upgradeLevel = towers[towerName]["upgrade"] ~= nil and towers[towerName]["upgrade"].unlocked or -1
 		local toolTipPanel = towers[towerName][upgradeName].toolTipPanel[level]
 		local toolTipPanelWarning = towers[towerName][upgradeName].toolTipPanelWarning[level]
-		
-		
-	
-		
---		freeFormButton:setEnabled(abilityButtonEnabled(towerName, upgradeName, level))
-		
 		local boughtColor = Vec4(1)
 		local canBeBoughtColor = Vec4(0.4,0.4,0.4,1)
 		local unavailableColor = Vec4(0.1,0.1,0.1,1)
@@ -79,31 +62,37 @@ function CampaignGameShopMenu.new(parentPanel)
 		if upgradeName == "upgrade" or towerName == "Passiv" then
 			if unlockedLevel >= level then
 				freeFormButton:setEnabled(true)
+				freeFormButton:setSelected(true)
 				freeFormButton:getImage():setColor( boughtColor )
 				freeFormButton:getSecondaryImage():setColor( boughtColor )
 			elseif (unlockedLevel+1) == level then
 				freeFormButton:setEnabled(true)
+				freeFormButton:setSelected(false)
 				freeFormButton:getImage():setColor( canBeBoughtColor )
 				freeFormButton:getSecondaryImage():setColor( canBeBoughtColor )
 			else
 				freeFormButton:setEnabled(false)
+				freeFormButton:setSelected(false)
 				freeFormButton:getImage():setColor( unavailableColor )
 				freeFormButton:getSecondaryImage():setColor( unavailableColor )
 			end
 			
 		else
 			if unlockedLevel >= level then
+				freeFormButton:setSelected(true)
 				freeFormButton:setToolTip(toolTipPanel)
 				freeFormButton:getImage():setColor( boughtColor )
 				freeFormButton:getSecondaryImage():setColor( boughtColor )
 			elseif upgradeLevel >= level and (unlockedLevel+1) == level then
 				freeFormButton:setToolTip(toolTipPanel)
 				freeFormButton:setEnabled(true)
+				freeFormButton:setSelected(false)
 				freeFormButton:getImage():setColor( canBeBoughtColor )
 				freeFormButton:getSecondaryImage():setColor( canBeBoughtColor )
 			else
 				freeFormButton:setToolTip(toolTipPanelWarning)
 				freeFormButton:setEnabled(false)
+				freeFormButton:setSelected(false)
 				freeFormButton:getImage():setColor( unavailableColor )
 				freeFormButton:getSecondaryImage():setColor( unavailableColor )
 			end
@@ -284,7 +273,6 @@ function CampaignGameShopMenu.new(parentPanel)
 			buttons[n].panel:setVisible(n==1)
 			buttons[n].panel:setLayout(FreeFormLayout(PanelSize(Vec2(-1))))
 			buttons[n].towerName = towerName
---			buttons[i].panel:setBackground(Sprite(Vec3(i*0.1)))
 
 
 			local localSkillPanel = buttons[n].panel 
@@ -294,10 +282,10 @@ function CampaignGameShopMenu.new(parentPanel)
 			local panelOffset = Vec2(0.03,0.03) + panelBorder
 			local panelSize = Vec2(0.13,0.045) * 1.2
 			
-			localSkillPanel:add(FreeFormSprite(PanelSizeType.WindowPercentBasedOnY, panelOffset - panelBorder, panelOffset + panelBorder + panelSize, Vec3(0.6)))
-			localSkillPanel:add(FreeFormSprite(PanelSizeType.WindowPercentBasedOnY, panelOffset, panelOffset + panelSize, Vec3(0.05)))
-			localSkillPanel:add(FreeFormSprite(PanelSizeType.WindowPercentBasedOnY, panelOffset-Vec2(0,panelBorder.y), panelOffset+Vec2(panelSize.y)+Vec2(panelBorder.x,0),"icon_table",Vec2(0.5,0.375),Vec2(0.625,0.4375))):setColor(Vec3(1.25))
-			local crystalLabel = localSkillPanel:add(FreeFormLabel(PanelSizeType.WindowPercentBasedOnY, panelOffset + Vec2(panelSize.y,0), tostring( gameValues.getCrystals() ), panelSize.y*0.75, Vec4(1), Alignment.TOP_LEFT))
+			localSkillPanel:add(FreeFormSprite(PanelSizeType.ParentPercentBasedOnY, panelOffset - panelBorder, panelOffset + panelBorder + panelSize, Vec3(0.6)))
+			localSkillPanel:add(FreeFormSprite(PanelSizeType.ParentPercentBasedOnY, panelOffset, panelOffset + panelSize, Vec3(0.05)))
+			localSkillPanel:add(FreeFormSprite(PanelSizeType.ParentPercentBasedOnY, panelOffset-Vec2(0,panelBorder.y), panelOffset+Vec2(panelSize.y)+Vec2(panelBorder.x,0),"icon_table",Vec2(0.5,0.375),Vec2(0.625,0.4375))):setColor(Vec3(1.25))
+			local crystalLabel = localSkillPanel:add(FreeFormLabel(PanelSizeType.ParentPercentBasedOnY, panelOffset + Vec2(panelSize.y,0), tostring( gameValues.getCrystals() ), panelSize.y*0.75, Vec4(1), Alignment.TOP_LEFT))
 			crystalLabel:setCanHandleInput(false)
 			
 			local lineSkillLevelSeperator = FreeFormLine()	
