@@ -88,7 +88,7 @@ function MultiplayerMenuServerList.new(panel)
 				local imageName = mapInfoData and mapInfoData.icon or nil
 				iconImage:setTexture(Core.getTexture(imageName and imageName or "noImage"))
 				
-				local options = {"easy", "normal", "hard", "extreme", "insane"}
+				local options = {"settings.easy", "settings.normal", "settings.hard", "settings.extreme", "settings.insane"}
 				local difficultyText = (tab.info.difficulty > 0 and tab.info.difficulty < 6) and language:getText(options[tab.info.difficulty]) or ""
 				
 				--set information				
@@ -208,7 +208,7 @@ function MultiplayerMenuServerList.new(panel)
 		iconImage = infoPanel:add(Image(PanelSize(Vec2(-1), Vec2(1)), Text("noImage")))
 		iconImage:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 		
-		local infoField = {{name="serverNameLabel",text="server name"},{name="playerLabel",text="players"},{name="mapLabel",text="map name"},{name="difficulty",text="difficulty"}}
+		local infoField = {{name="serverNameLabel",text="multiplayer.server name"},{name="playerLabel",text="multiplayer.players"},{name="mapLabel",text="custom-game.map name"},{name="difficulty",text="custom-game.difficulty"}}
 		for i=1, #infoField do
 			local row = infoPanel:add(Panel(PanelSize(Vec2(-1,0.03))))
 			labelsSpecial[#labelsSpecial + 1] = row:add(Label(PanelSize(Vec2(-1),Vec2(5,1)), language:getText(infoField[i].text)+":", Vec3(0.7)))
@@ -217,12 +217,12 @@ function MultiplayerMenuServerList.new(panel)
 			serverInfo[infoField[i].name] = row:add(Label(PanelSize(Vec2(-1)), "", Vec3(0.7)))
 		end
 		
-		joinButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03),Vec2(4,1), language:getText("join server")))
+		joinButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03),Vec2(4,1), language:getText("multiplayer.join server")))
 		joinButton:addEventCallbackExecute(joinClicked)
 		joinButton:setEnabled(false)
 		
 		labels[#labels+1] = joinButton
-		labels[#labels]:setTag("join server")
+		labels[#labels]:setTag("multiplayer.join server")
 	end
 	
 	local function addServersPanel(bodyPanel)
@@ -234,8 +234,8 @@ function MultiplayerMenuServerList.new(panel)
 		
 		local headerPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, 0.035))))
 		headerPanel:setBackground(Gradient(Vec4(1,1,1,0.05), Vec4(1,1,1,0.1)))
-		labelsSpecial[#labelsSpecial+1] = headerPanel:add(Label(PanelSize(Vec2(-0.65, -1)), language:getText("servers")+":", Vec4(0.95)))
-		labelsSpecial[#labelsSpecial]:setTag("servers")
+		labelsSpecial[#labelsSpecial+1] = headerPanel:add(Label(PanelSize(Vec2(-0.65, -1)), language:getText("multiplayer.servers")+":", Vec4(0.95)))
+		labelsSpecial[#labelsSpecial]:setTag("multiplayer.servers")
 			
 		serverListPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, -1))))
 		serverListPanel:setLayout(FallLayout())
@@ -332,8 +332,8 @@ function MultiplayerMenuServerList.new(panel)
 		customeGamePanel = mainPanel:add(Panel(PanelSize(Vec2(-1))))
 		customeGamePanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 		--Top menu button panel
-		labels[#labels+1] = customeGamePanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("server browser"), Vec3(0.94), Alignment.MIDDLE_CENTER))
-		labels[#labels]:setTag("server browser")
+		labels[#labels+1] = customeGamePanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("multiplayer.server browser"), Vec3(0.94), Alignment.MIDDLE_CENTER))
+		labels[#labels]:setTag("multiplayer.server browser")
 		
 		--Add BreakLine
 		local breakLinePanel = customeGamePanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
@@ -358,15 +358,15 @@ function MultiplayerMenuServerList.new(panel)
 		--add bottom buttons
 		local bottomPanel = customeGamePanel:add(Panel(PanelSize(Vec2(-1))))
 		bottomPanel:setLayout(FlowLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0.01))))
-		local button = bottomPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(6,1), language:getText("create server")))
+		local button = bottomPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(6,1), language:getText("multiplayer.create server")))
 		button:addEventCallbackExecute(evenClickedCreateLobby)
 		labels[#labels+1] = button
-		labels[#labels]:setTag("create server")
+		labels[#labels]:setTag("multiplayer.create server")
 		
-		button = bottomPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(6,1), language:getText("direct connect")))
+		button = bottomPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(6,1), language:getText("multiplayer.direct connect")))
 		button:addEventCallbackExecute(eventClickedDirectConnect)
 		labels[#labels+1] = button
-		labels[#labels]:setTag("direct connect")
+		labels[#labels]:setTag("multiplayer.direct connect")
 		
 		
 		mainPanel:setVisible(false)

@@ -171,23 +171,24 @@ function CustomeGameMenu.new(panel)
 		
 		mapLabel = infoPanel:add(Label(PanelSize(Vec2(-1, 0.03)), "The island world", Vec3(0.7), Alignment.MIDDLE_CENTER))
 		
+		
 		--difficulty
 		local rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		labels[1] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("difficulty"), Vec3(0.7)))
-		labels[1]:setTag("difficulty")
-		local optionsNames = {"easy", "normal", "hard", "extreme", "insane"}
-		difficutyBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), optionsNames, "difficulty", optionsNames[2], changeDifficulty )
+		labels[1] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("custom-game.difficulty"), Vec3(0.7)))
+		labels[1]:setTag("custom-game.difficulty")
+		local optionsNames = {"settings.easy", "settings.normal", "settings.hard", "settings.extreme", "settings.insane"}
+		difficutyBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), optionsNames, "general.difficulty", optionsNames[2], changeDifficulty )
 		
 		
 		--Game mode		
 		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		labels[2] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("game mode"), Vec3(0.7)))
-		labels[2]:setTag("game mode")
+		labels[2] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("custom-game.game mode"), Vec3(0.7)))
+		labels[2]:setTag("custom-game.game mode")
 		local optionsTooltip = {"default tooltip", "survival tooltip", "training tooltip", "leveler tooltip"}
-		gameModeBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), gameModes, "game mode", gameModes[1], changeGameMode, optionsTooltip )
+		gameModeBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), gameModes, "general.game mode", gameModes[1], changeGameMode, optionsTooltip )
 		
-		local startAGameButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("start game")))
-		startAGameButton:setTag("start game")
+		local startAGameButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("custom-game.start game")))
+		startAGameButton:setTag("custom-game.start game")
 		startAGameButton:addEventCallbackExecute(startMap)
 		labels[3] = startAGameButton
 		
@@ -372,10 +373,6 @@ function CustomeGameMenu.new(panel)
 				local button, waveCountLabel = addRowButton(file, count)
 				files[i].button = button
 				files[i].waveCountLabel = waveCountLabel
-				
---				if selectedMapButton == nil and MapInformation.getMapInfoFromFileName(file:getName(), file:getPath()) then
---					selectedMapButton = button
---				end
 			end
 		end
 		--update wave count
@@ -391,13 +388,15 @@ function CustomeGameMenu.new(panel)
 		local headerPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, 0.035))))
 		headerPanel:setBackground(Gradient(Vec4(1,1,1,0.05), Vec4(1,1,1,0.1)))
 		headerPanel:add(Panel(PanelSize(Vec2(-1),Vec2(1))))--spacing
-		--heaterPanel:add(Label(PanelSize(Vec2(-1), Vec2(1))))
-		labels[5] = headerPanel:add(Label(PanelSize(Vec2(-0.65, -1)), language:getText("name"), Vec4(0.95)))
-		labels[6] = headerPanel:add(Label(PanelSize(Vec2(-0.5, -1)), language:getText("type"), Vec3(0.95)))
-		labels[7] = headerPanel:add(Label(PanelSize(Vec2(-1.0, -1)), language:getText("wave"), Vec3(0.95)))
-		labels[5]:setTag("name")
-		labels[6]:setTag("type")
-		labels[7]:setTag("wave")
+
+		labels[5] = headerPanel:add(Label(PanelSize(Vec2(-0.65, -1)), language:getText("custom-game.name"), Vec4(0.95)))
+		labels[6] = headerPanel:add(Label(PanelSize(Vec2(-0.5, -1)), language:getText("custom-game.type"), Vec3(0.95)))
+		labels[7] = headerPanel:add(Label(PanelSize(Vec2(-1.0, -1)), language:getText("custom-game.wave"), Vec3(0.95)))
+		labels[5]:setTag("custom-game.name")
+		labels[6]:setTag("custom-game.type")
+		labels[7]:setTag("custom-game.wave")
+
+			
 			
 		mapListPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, -1))))
 		mapListPanel:setEnableScroll()	
@@ -440,8 +439,8 @@ function CustomeGameMenu.new(panel)
 		mainPanel = panel:add(Panel(PanelSize(Vec2(-1))))
 		mainPanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 		--Top menu button panel
-		labels[4] = mainPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("main menu.custome game"), Vec3(0.94), Alignment.MIDDLE_CENTER))
-		labels[4]:setTag("main menu.custome game")
+		labels[4] = mainPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("button.custom game"), Vec3(0.94), Alignment.MIDDLE_CENTER))
+		labels[4]:setTag("button.custom game")
 		
 		--Add BreakLine
 		local breakLinePanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))

@@ -175,23 +175,15 @@ function LobbyUserListPanel.new(panel, client)
 			dropDownPanel = Panel(PanelSize(Vec2(1,0.03),Vec2(3,1)))
 			
 			
-			kickButton = dropDownPanel:add(MainMenuStyle.createMenuButton(Vec2(-1,0.03),Vec2(), language:getText("kick")))
+			kickButton = dropDownPanel:add(MainMenuStyle.createMenuButton(Vec2(-1,0.03),Vec2(), language:getText("multiplayer.kick")))
 			kickButton:addEventCallbackExecute(kickPlayer)
---			banButton = dropDownPanel:add(MainMenuStyle.createMenuButton(Vec2(-1,0.03),Vec2(), language:getText("ban")))
---			banButton:addEventCallbackExecute(banPlayer)
 			
 			labels[1] = kickButton
-			labels[1]:setTag("kick")
+			labels[1]:setTag("multiplayer.kick")
 			
---			labels[2] = banButton
---			labels[2]:setTag("ban")
 		end
 		
 		kickButton:setTag(button:getTag():toString())
---		banButton:setTag(button:getTag():toString())
-		
-		
-		
 		
 		--openDropDownPanel
 		button:openDropDownPanel(Core.getInput():getMousePos(), dropDownPanel, Vec4(0.0, 0.0, 0.0, 0.8), Vec4(0.45, 0.45, 0.45, 1.0), true)
@@ -203,7 +195,7 @@ function LobbyUserListPanel.new(panel, client)
 			mainPanel:clear()
 			playerRowPanel = {}
 			numUsers = 0
-			spectatorText = language:getText("spectator")
+			spectatorText = language:getText("multiplayer.spectator")
 			
 					
 			--Create the row panel for all players
@@ -212,7 +204,7 @@ function LobbyUserListPanel.new(panel, client)
 				playerRowPanel[i] = mainPanel:add(Panel(PanelSize(Vec2(-1,0.03))))
 			end
 			
-			spectatorLabel = mainPanel:add(Label(PanelSize(Vec2(-1,0.03)),language:getText("spectators")+":", Vec4(0.85)))
+			spectatorLabel = mainPanel:add(Label(PanelSize(Vec2(-1,0.03)),language:getText("multiplayer.spectators")+":", Vec4(0.85)))
 			spectatorLabel:setVisible(false)
 			
 	

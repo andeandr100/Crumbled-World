@@ -55,7 +55,7 @@ function Shop.new(camera, updateCrystalButton, inPanel)
 		shopPanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 		
 		--Top menu button panel
-		shopPanel:add(Label(PanelSize(Vec2(-1,0.04)),  language:getText("shop"), Vec3(0.94), Alignment.MIDDLE_CENTER))
+		shopPanel:add(Label(PanelSize(Vec2(-1,0.04)),  language:getText("button.shop"), Vec3(0.94), Alignment.MIDDLE_CENTER))
 		
 		--Add BreakLine
 		local breakLinePanel = shopPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
@@ -377,7 +377,7 @@ function Shop.new(camera, updateCrystalButton, inPanel)
 		
 		--close
 		bottomLeft:add(Panel(PanelSize(Vec2(-1,0.03),Vec2(3,1))))--spacing
-		local button = bottomLeft:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(5,1), language:getText("back") ))
+		local button = bottomLeft:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(5,1), language:getText("general.back") ))
 		button:addEventCallbackExecute( closeClicked )
 		
 		bottomRight:setLayout(FlowLayout(Alignment.MIDDLE_CENTER,PanelSize(Vec2(-1,-1))))

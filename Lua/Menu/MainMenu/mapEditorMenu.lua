@@ -18,8 +18,8 @@ function MapEditorMenu.create(panel)
 	local mapEditorPanel = panel:add(Panel(PanelSize(Vec2(-1))))
 	mapEditorPanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 	--Top menu button panel
-	MapEditorMenu.labels[1] = mapEditorPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("map editor"), Vec3(0.94), Alignment.MIDDLE_CENTER))
-	MapEditorMenu.labels[1]:setTag("map editor")
+	MapEditorMenu.labels[1] = mapEditorPanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("button.map editor"), Vec3(0.94), Alignment.MIDDLE_CENTER))
+	MapEditorMenu.labels[1]:setTag("button.map editor")
 	
 	--Add BreakLine
 	local breakLinePanel = mapEditorPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
@@ -44,10 +44,10 @@ function MapEditorMenu.create(panel)
 	MapEditorMenu.addMapInfoPanel(mainAreaPanel)
 	
 	newMapRowPanel:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
-	local createNewMapButton = newMapRowPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(5.4,1), language:getText("create a new map")))
+	local createNewMapButton = newMapRowPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(5.4,1), language:getText("map-editor.new map")))
 	createNewMapButton:addEventCallbackExecute(MapEditorMenu.createNewMap)
 	MapEditorMenu.labels[2] = createNewMapButton
-	MapEditorMenu.labels[2]:setTag("create a new map")
+	MapEditorMenu.labels[2]:setTag("map-editor.new map")
 	
 	--set ther first map as selected
 	if MapEditorMenu.firstButton then
@@ -70,10 +70,10 @@ function MapEditorMenu.addMapInfoPanel(panel)
 	
 	MapEditorMenu.mapLabel = infoPanel:add(Label(PanelSize(Vec2(-1, 0.03)), "The island world", Vec3(0.7)))
 	
-	local startAGameButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(5,1), language:getText("edit map")))
+	local startAGameButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(5,1), language:getText("map-editor.edit map")))
 	startAGameButton:addEventCallbackExecute(MapEditorMenu.loadmap)
 	MapEditorMenu.labels[3] = startAGameButton
-	MapEditorMenu.labels[3]:setTag("edit map")
+	MapEditorMenu.labels[3]:setTag("map-editor.edit map")
 end
 
 function MapEditorMenu.changedMap(button)

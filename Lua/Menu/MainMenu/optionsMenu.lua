@@ -26,12 +26,7 @@ function OptionsMenu.create(panel)
 	local gradient = Gradient()
 	gradient:setGradientColorsHorizontal({Vec3(0.45),Vec3(0.66),Vec3(0.45)})
 	
---	OptionsMenu.bgSprite = Sprite(Core.getTexture("gt_grass_d"), Vec2(), Vec2(1))
---	optionsPanel:setBackground(OptionsMenu.bgSprite)
-	
 	breakLinePanel:setBackground(gradient)
-	
-
 	OptionsMenu.createPages(optionsPanel)
 	
 	togleVisibleOptionsPanel(gameButton)
@@ -94,11 +89,11 @@ end
 
 function OptionsMenu.languageChanged()
 	
-	OptionsMenu.updateButton(videoButton, "video")
-	OptionsMenu.updateButton(inputButton, "keybind")
-	OptionsMenu.updateButton(gameButton, "game")
-	OptionsMenu.updateButton(audioButton, "audio")
-	OptionsMenu.updateButton(languageButton, "language")
+	OptionsMenu.updateButton(videoButton, "general.video")
+	OptionsMenu.updateButton(inputButton, "general.keybind")
+	OptionsMenu.updateButton(gameButton, "general.game")
+	OptionsMenu.updateButton(audioButton, "general.audio")
+	OptionsMenu.updateButton(languageButton, "general.language")
 	
 	VideoPanel.languageChanged()
 	GamePanel.languageChanged()
@@ -118,11 +113,11 @@ function OptionsMenu.TopMenu(optionsPanel)
 	audioButton = MainMenuStyle.addTopMenuButton(topPanel, Vec2(4,1), "")
 	languageButton = MainMenuStyle.addTopMenuButton(topPanel, Vec2(4,1), "")
 	
-	OptionsMenu.updateButton(inputButton, "keybind")
-	OptionsMenu.updateButton(videoButton, "video")
-	OptionsMenu.updateButton(gameButton, "game")
-	OptionsMenu.updateButton(audioButton, "audio")
-	OptionsMenu.updateButton(languageButton, "language")
+	OptionsMenu.updateButton(inputButton, "general.keybind")
+	OptionsMenu.updateButton(videoButton, "general.video")
+	OptionsMenu.updateButton(gameButton, "general.game")
+	OptionsMenu.updateButton(audioButton, "general.audio")
+	OptionsMenu.updateButton(languageButton, "general.language")
 	
 	inputButton:addEventCallbackExecute(togleVisibleOptionsPanel)
 	videoButton:addEventCallbackExecute(togleVisibleOptionsPanel)
@@ -151,10 +146,6 @@ function OptionsMenu.createPages(optionsPanel)
 end
 
 function OptionsMenu.update()
-	
---	OptionsMenu.offset = OptionsMenu.offset + Vec2(Core.getRealDeltaTime() * 0.05)
---	OptionsMenu.bgSprite:setUvCoord(OptionsMenu.offset + Vec2(), OptionsMenu.offset + Vec2(1))
-	
 	InputPanel.update()
 	GamePanel.update()
 	VideoPanel.update()

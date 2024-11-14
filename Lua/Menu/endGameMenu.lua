@@ -117,7 +117,7 @@ function addheader(panel, text)
 	background:setBackground(Sprite(Vec4(1,1,1,0.15)))
 	background:setBackground(Gradient(	Vec4(1,0.5,0,0.2),		Vec4(1,0.75,0.45,0.0),
 										Vec4(1,0.6,0.2,0.2),	Vec4(1,0.90,0.60,0.0)))
-	local textLabel = background:add(Label( PanelSize(Vec2(-0.5,-1)), Text(text), Vec3(1,0.7,0) ))
+	local textLabel = background:add(Label( PanelSize(Vec2(-0.5,-1)), Text(language:getText(text)), Vec3(1,0.7,0) ))
 	--
 	local label = background:add( Label(PanelSize(Vec2(-1)), Text("")) )
 	label:setTextColor(Vec3(1))
@@ -131,7 +131,7 @@ function addLine(panel,index,text)
 											Vec4(1,1,1,0.1),	Vec4(1,1,1,0.0)))
 	end
 	--
-	local textLabel = background:add(Label( PanelSize(Vec2(-0.5,-1)), Text(text) ))
+	local textLabel = background:add(Label( PanelSize(Vec2(-0.5,-1)), Text(language:getText(text)) ))
 	textLabel:setTextColor(Vec3(1))
 	--
 	local label = background:add( Label(PanelSize(Vec2(-1)), Text("")) )
@@ -173,31 +173,31 @@ local function numberToSmalString(num)
 	return string.format("%.0fe+%.0f",math.floor(num/math.pow(10,exp)),exp)
 end
 function setStatsLayout(panel)
-	menuItems[1] = { label=addheader(panel,"Gold"), key=1}
-	menuItems[2] = { label=addLine(panel,2,language:getText("Total gold earned")), key=2}
-	menuItems[3] = { label=addLine(panel,4,language:getText("From kills")), key=3}
-	menuItems[4] = { label=addLine(panel,5,language:getText("From waves")), key=4}
-	menuItems[5] = { label=addLine(panel,6,language:getText("From towers")), key=5}
-	menuItems[6] = { label=addLine(panel,7,language:getText("Spent in towers")), key=6}
-	menuItems[7] = { label=addLine(panel,8,language:getText("Lost from selling")), key=7}
+	menuItems[1] = { label=addheader(panel,"end-screen.gold"), key=1}
+	menuItems[2] = { label=addLine(panel,2,"end-screen.total gold earned"), key=2}
+	menuItems[3] = { label=addLine(panel,4,"end-screen.from kills"), key=3}
+	menuItems[4] = { label=addLine(panel,5,"end-screen.from waves"), key=4}
+	menuItems[5] = { label=addLine(panel,6,"end-screen.from towers"), key=5}
+	menuItems[6] = { label=addLine(panel,7,"end-screen.spent on towers"), key=6}
+	menuItems[7] = { label=addLine(panel,8,"end-screen.lost from selling"), key=7}
 	--
-	menuItems[8] = { label=addheader(panel,"Score"), key=8}
-	menuItems[9] = { label=addLine(panel,9,"From gold:")}
-	menuItems[10] = { label=addLine(panel,10,"Total tower value:"), key=9}
-	menuItems[11] = { label=addLine(panel,11,"From life left:"), key=10, multiplyer=SCOREPERLIFE}
+	menuItems[8] = { label=addheader(panel,"end-screen.score.score"), key=8}
+	menuItems[9] = { label=addLine(panel,9,"end-screen.score.from gold"}
+	menuItems[10] = { label=addLine(panel,10,"end-screen.score.total tower value", key=9}
+	menuItems[11] = { label=addLine(panel,11,"end-screen.score.from life left", key=10, multiplyer=SCOREPERLIFE}
 	--
-	addheader(panel,"Towers")
-	menuItems[12] = { label=addLine(panel,10,"Built:"), key=11}
-	menuItems[13] = { label=addLine(panel,11,"walls:"), key=12}
-	menuItems[14] = { label=addLine(panel,12,"sold:"), key=13}
-	menuItems[15] = { label=addLine(panel,13,"Upgrades:"), key=14}
-	menuItems[16] = { label=addLine(panel,14,"Sub upgrades:"), key=15}
-	menuItems[17] = { label=addLine(panel,15,"Boosted:"), key=16}
+	addheader(panel,"end-screen.towers.towers")
+	menuItems[12] = { label=addLine(panel,10,"end-screen.towers.built"), key=11}
+	menuItems[13] = { label=addLine(panel,11,"end-screen.towers.walls"), key=12}
+	menuItems[14] = { label=addLine(panel,12,"end-screen.towers.sold"), key=13}
+	menuItems[15] = { label=addLine(panel,13,"end-screen.towers.upgrades"), key=14}
+	menuItems[16] = { label=addLine(panel,14,"end-screen.towers.sub upgrades"), key=15}
+	menuItems[17] = { label=addLine(panel,15,"end-screen.towers.boosted"), key=16}
 	--
-	addheader(panel,"Enemies")
-	menuItems[18] = { label=addLine(panel,16,"Spawned:"), key=17}
-	menuItems[19] = { label=addLine(panel,17,"Killed:"), key=18}
-	menuItems[20] = { label=addLine(panel,18,"Damage:"), key=19}
+	addheader(panel,"end-screen.enemies.enemies")
+	menuItems[18] = { label=addLine(panel,16,"end-screen.enemies.spawned"), key=17}
+	menuItems[19] = { label=addLine(panel,17,"end-screen.enemies.killed"), key=18}
+	menuItems[20] = { label=addLine(panel,18,"end-screen.enemies.damage"), key=19}
 end
 function setGraphLayout()
 	
@@ -339,22 +339,22 @@ function initiate()
 	--
 	--
 	if mapInfo.isCampaign() and isVictory then
-		nextMapButton = buttonRow:add( MainMenuStyle.createButton( calculateButtonSize(), nil, "NextMap"))
+		nextMapButton = buttonRow:add( MainMenuStyle.createButton( calculateButtonSize(), nil, "ingame.button.next map"))
 		nextMapButton:addEventCallbackExecute(startNextMap)
 	end
 	--
 	if not isVictory then
 		if mapInfo.isRestartWaveEnabled() then
-			restartWaveButton = buttonRow:add( MainMenuStyle.createButton( calculateButtonSize(), nil, language:getText("restart last wave")))
+			restartWaveButton = buttonRow:add( MainMenuStyle.createButton( calculateButtonSize(), nil, language:getText("ingame.button.restart last wave")))
 			restartWaveButton:addEventCallbackExecute(restartWave)
 		end
 		if Core.isInMultiplayer()==false then
-			restartMapButton = buttonRow:add( MainMenuStyle.createButton( calculateButtonSize(), nil, language:getText("restart map")))
+			restartMapButton = buttonRow:add( MainMenuStyle.createButton( calculateButtonSize(), nil, language:getText("ingame.button.restart map")))
 			restartMapButton:addEventCallbackExecute(restartMap)
 		end
 	end
 	--
-	quitToMenuButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-1,-1), nil, language:getText("quit to menu")))
+	quitToMenuButton = buttonRow:add( MainMenuStyle.createButton( Vec2(-1,-1), nil, language:getText("ingame.button.quit to menu")))
 	quitToMenuButton:addEventCallbackExecute(quitToMainMenu)
 	--
 	

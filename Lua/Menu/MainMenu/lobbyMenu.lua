@@ -109,18 +109,18 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		
 		if isHost then
 			lobbyUserPanel.setIsRead(true)
-			buttonStart:setText(language:getText("start"))
-			labels[1]:setTag("start")
+			buttonStart:setText(language:getText("multiplayer.start"))
+			labels[1]:setTag("multiplayer.start")
 		else
-			local ready = (buttonStart:getTag() == Text("ready"))
+			local ready = (buttonStart:getTag() == Text("multiplayer.ready"))
 			lobbyUserPanel.setIsRead(ready)
 		
 			if ready then
-				buttonStart:setText(language:getText("not ready"))
-				labels[1]:setTag("not ready")
+				buttonStart:setText(language:getText("multiplayer.not ready"))
+				labels[1]:setTag("multiplayer.not ready")
 			else
-				buttonStart:setText(language:getText("ready"))
-				labels[1]:setTag("ready")
+				buttonStart:setText(language:getText("multiplayer.ready"))
+				labels[1]:setTag("multiplayer.ready")
 			end
 		end
 	end
@@ -169,32 +169,31 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 				self.setIsHost(false)
 			end
 			if serverName~=DEFAULT_SERVER_NAME then
-				serverNameLabel:setText(Text("Server: ")+serverName)
+				serverNameLabel:setText( language:getText("multiplayer.server") + Text(": ")+serverName)
 			end
 			
 			--Update buttons based on we are the server
 			if isServer then
-				buttonStart:setText(language:getText("start"))
+				buttonStart:setText(language:getText("multiplayer.start"))
 				buttonStart:clearEvents()
 				buttonStart:addEventCallbackExecute(eventClickedStartGame)
-				labels[1]:setTag("start")
-				buttonQuit:setText(language:getText("quit"))
+				labels[1]:setTag("multiplayer.start")
+				buttonQuit:setText(language:getText("multiplayer.quit"))
 				buttonEditLobbySettings:setVisible(true)
 				buttonQuit:addEventCallbackExecute(quitLobby)
-				labels[2]:setTag("quit")
+				labels[2]:setTag("multiplayer.quit")
 			else
-				buttonStart:setText(language:getText("ready"))
+				buttonStart:setText(language:getText("multiplayer.ready"))
 				buttonStart:clearEvents()
 				buttonStart:addEventCallbackExecute(setIsReady)
-				labels[1]:setTag("ready")
-				buttonQuit:setText(language:getText("leave"))
+				labels[1]:setTag("multiplayer.ready")
+				buttonQuit:setText(language:getText("multiplayer.leave"))
 				buttonEditLobbySettings:setVisible(false)		
 				buttonQuit:addEventCallbackExecute(quitLobby)
-				labels[2]:setTag("leave")
+				labels[2]:setTag("multiplayer.leave")
 			end
 		else
 			if server then
-				print("Stop server")
 				server:stop()
 				server:removeFromGlobalServerList()
 				server = nil
@@ -346,36 +345,36 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		iconImage:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 	
 		--Map name		
-		local rowPanel = addTableRow( infoPanel, "map name" )
+		local rowPanel = addTableRow( infoPanel, "custom-game.map name" )
 		mapNameLabel = rowPanel:add(Label(PanelSize(Vec2(-1)),"",Vec3(0.7)))
 		
 		
 		--Players
-		rowPanel = addTableRow( infoPanel, "players" )
+		rowPanel = addTableRow( infoPanel, "multiplayer.players" )
 		playersLabel = rowPanel:add(Label(PanelSize(Vec2(-1)),"",Vec3(0.7)))
 		
 		--Game mode difficulty
-		rowPanel = addTableRow( infoPanel, "game mode" )
+		rowPanel = addTableRow( infoPanel, "custom-game.game mode" )
 		local gameModeOptions = mapInfo.getGameModesMultiPlayer()
-		comboBoxGameMode = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-1)), gameModeOptions, "game mode", gameModeOptions[1], clickedChangeGameMode )
+		comboBoxGameMode = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-1)), gameModeOptions, "custom-game.game mode", gameModeOptions[1], clickedChangeGameMode )
 		gameModeLabel = rowPanel:add(Label(PanelSize(Vec2(-1),Vec2(4.5,1)), "Co-op", Vec3(0.7)))
 		
 		--Map difficulty
-		rowPanel = addTableRow( infoPanel, "difficulty" )
-		local options = {"easy", "normal", "hard", "extreme", "insane"}
-		comboBoxDifficutyBox = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-1, 0.03)), options, "difficulty", options[2], clickedChangeDifficulty )
+		rowPanel = addTableRow( infoPanel, "custom-game.difficulty" )
+		local options = {"settings.easy", "settings.normal", "settings.hard", "settings.extreme", "settings.insane"}
+		comboBoxDifficutyBox = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-1, 0.03)), options, "custom-game.difficulty", options[2], clickedChangeDifficulty )
 		
 		downloadPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		labelsSpecial[4] = downloadPanel:add(Label(PanelSize(Vec2(-1),Vec2(3.5,1)), language:getText("download") + ":", Vec3(0.7)))
-		labelsSpecial[4]:setTag("download")
+		labelsSpecial[4] = downloadPanel:add(Label(PanelSize(Vec2(-1),Vec2(3.5,1)), language:getText("multiplayer.download") + ":", Vec3(0.7)))
+		labelsSpecial[4]:setTag("multiplayer.download")
 		downloadPanel:setVisible(false)
 		downloadProgressBar = downloadPanel:add(ProgressBar(PanelSize(Vec2(-1))))
 		downloadProgressBar:setColor(Vec4(0.4,0.4,0.4,1.0), Vec4(0.1,0.1,0.1,1.0))
 		
-		buttonEditLobbySettings = infoPanel:add(MainMenuStyle.createButton(Vec2(-1, 0.03),Vec2(4,1), language:getText("edit settings")))
+		buttonEditLobbySettings = infoPanel:add(MainMenuStyle.createButton(Vec2(-1, 0.03),Vec2(4,1), language:getText("multiplayer.edit settings")))
 		buttonEditLobbySettings:addEventCallbackExecute(showMapSelctionPanel)
 		labels[3] = buttonEditLobbySettings
-		labels[3]:setTag("edit settings")
+		labels[3]:setTag("multiplayer.edit settings")
 		
 		self.setIsHost(isHost)
 	end
@@ -388,8 +387,8 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		
 		local headerPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, 0.035))))
 		headerPanel:setBackground(Gradient(Vec4(1,1,1,0.05), Vec4(1,1,1,0.1)))
-		labelsSpecial[5] = headerPanel:add(Label(PanelSize(Vec2(-0.65, -1)), language:getText("players")+":", Vec4(0.95)))
-		labelsSpecial[5]:setTag("players")
+		labelsSpecial[5] = headerPanel:add(Label(PanelSize(Vec2(-0.65, -1)), language:getText("multiplayer.players")+":", Vec4(0.95)))
+		labelsSpecial[5]:setTag("multiplayer.players")
 			
 		mapListPanel = mapsPanel:add(Panel(PanelSize(Vec2(-1, -0.6))))
 		mapListPanel:setBackground(Gradient(Vec4(1,1,1,0.05), Vec4(1,1,1,0.1)))
@@ -652,7 +651,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 			buttonStart:setEnabled(lobbyUserPanel.isAllUsersReady())
 			
 		else
-			local text = lobbyUserPanel.getIsRead() and "not ready" or "ready"
+			local text = language.getText(lobbyUserPanel.getIsRead() and "multiplayer.not ready" or "multiplayer.ready")
 			buttonStart:setText( language:getText(text) )
 			labels[1]:setTag(text)
 			
@@ -677,7 +676,7 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		customeGamePanel = panel:add(Panel(PanelSize(Vec2(-1))))
 		customeGamePanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 		--Top menu button panel
-		serverNameLabel = customeGamePanel:add(Label(PanelSize(Vec2(-1,0.04)), "Lobby", Vec3(0.94), Alignment.MIDDLE_CENTER))
+		serverNameLabel = customeGamePanel:add(Label(PanelSize(Vec2(-1,0.04)), language:getText("multiplayer.lobby"), Vec3(0.94), Alignment.MIDDLE_CENTER))
 		
 		--Add BreakLine
 		local breakLinePanel = customeGamePanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
@@ -693,17 +692,17 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 		--add bottom buttons
 		local bottomPanel = customeGamePanel:add(Panel(PanelSize(Vec2(-1))))
 		bottomPanel:setLayout(FlowLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0.01))))
-		buttonStart = bottomPanel:add( MainMenuStyle.createButton( Vec2(-1,0.03), Vec2(6,1), language:getText("start")))
+		buttonStart = bottomPanel:add( MainMenuStyle.createButton( Vec2(-1,0.03), Vec2(6,1), language:getText("multiplayer.start")))
 		
-		buttonQuit = bottomPanel:add( MainMenuStyle.createButton( Vec2(-1,0.03), Vec2(6,1), language:getText("close")))
+		buttonQuit = bottomPanel:add( MainMenuStyle.createButton( Vec2(-1,0.03), Vec2(6,1), language:getText("multiplayer.close")))
 				
 		customeGamePanel:setVisible(false)
 		
 		labels[1] = buttonStart
-		labels[1]:setTag("start")
+		labels[1]:setTag("multiplayer.start")
 		
 		labels[2] = buttonStart
-		labels[2]:setTag("close")
+		labels[2]:setTag("multiplayer.close")
 		
 		
 		client:setUserName(Settings.multiplayerName.getSettings())

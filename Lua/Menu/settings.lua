@@ -28,7 +28,7 @@ end
 
 
 Settings.fullscreen = {}
-Settings.fullscreen.options = {"fullscreen", "windowed"}
+Settings.fullscreen.options = {"settings.fullscreen", "settings.windowed"}
 Settings.fullscreen.configName = "fullscreen"
 function Settings.fullscreen.getSettings()
 	if Settings.config:get(Settings.fullscreen.configName, true):getBool() then
@@ -73,7 +73,7 @@ end
 
 
 Settings.vsync = {}
-Settings.vsync.options = {"enabled", "disabled"}
+Settings.vsync.options = {"settings.enabled", "settings.disabled"}
 Settings.vsync.configName = "vsync"
 function Settings.vsync.getSettings()
 	return Settings.config:get(Settings.vsync.configName,true):getBool() and "enabled" or "disabled"
@@ -89,7 +89,7 @@ end
 
 
 Settings.shadow = {}
-Settings.shadow.options = {"soft shadow", "hard shadow", "disabled"}
+Settings.shadow.options = {"settings.soft shadow", "settings.hard shadow", "settings.disabled"}
 Settings.shadow.configName = "shadow"
 function Settings.shadow.getSettings()
 	return Settings.config:get(Settings.shadow.configName,"soft shadow"):getString()
@@ -115,7 +115,7 @@ end
 
 
 Settings.shadowResolution = {}
-Settings.shadowResolution.options = {"highest", "high", "normal", "low", "lowest"}
+Settings.shadowResolution.options = {"settings.highest", "settings.high", "settings.normal", "settings.low", "settings.lowest"}
 Settings.shadowResolution.configName = "shadowResolution"
 function Settings.shadowResolution.getSettings()
 	return Settings.config:get(Settings.shadowResolution.configName, "normal"):getString()
@@ -153,7 +153,7 @@ end
 
 
 Settings.ambientOcclusion = {}
-Settings.ambientOcclusion.options = {"enabled", "disabled"}
+Settings.ambientOcclusion.options = {"settings.enabled", "settings.disabled"}
 Settings.ambientOcclusion.configName = "ambientOcclusion"
 function Settings.ambientOcclusion.getSettings()
 	return Settings.config:get(Settings.ambientOcclusion.configName, true):getBool() and Settings.ambientOcclusion.options[1] or Settings.ambientOcclusion.options[2]
@@ -187,7 +187,7 @@ end
 
 
 Settings.Antialiasing = {}
-Settings.Antialiasing.options = {"enabled", "disabled"}
+Settings.Antialiasing.options = {"settings.enabled", "settings.disabled"}
 Settings.Antialiasing.configName = "Antialiasing"
 function Settings.Antialiasing.getSettings()
 	return Settings.config:get(Settings.Antialiasing.configName, true):getBool() and Settings.Antialiasing.options[1] or Settings.Antialiasing.options[2]
@@ -199,7 +199,7 @@ end
 
 
 Settings.glow = {}
-Settings.glow.options = {"enabled", "disabled"}
+Settings.glow.options = {"settings.enabled", "settings.disabled"}
 Settings.glow.configName = "glow"
 function Settings.glow.getSettings()
 	return Settings.config:get(Settings.glow.configName, true):getBool() and Settings.glow.options[1] or Settings.glow.options[2]
@@ -210,7 +210,7 @@ end
 
 
 Settings.dynamicLights = {}
-Settings.dynamicLights.options = {"enabled", "disabled"}
+Settings.dynamicLights.options = {"settings.enabled", "settings.disabled"}
 Settings.dynamicLights.configName = "dynamicLights"
 function Settings.dynamicLights.getSettings()
 	return Settings.config:get(Settings.dynamicLights.configName, true):getBool() and Settings.dynamicLights.options[1] or Settings.dynamicLights.options[2]
@@ -226,7 +226,7 @@ end
 
 
 Settings.islandSmoke = {}
-Settings.islandSmoke.options = {"visible", "hidden"}
+Settings.islandSmoke.options = {"settings.visible", "settings.hidden"}
 Settings.islandSmoke.configName = "islandSmoke"
 function Settings.islandSmoke.getSettings()
 	return Settings.config:get(Settings.islandSmoke.configName, true):getBool() and Settings.islandSmoke.options[1] or Settings.islandSmoke.options[2]
@@ -239,7 +239,7 @@ end
 
 
 Settings.towerMenu = {}
-Settings.towerMenu.options = {"visible", "hidden"}
+Settings.towerMenu.options = {"settings.visible", "settings.hidden"}
 Settings.towerMenu.configName = "towerMenu"
 function Settings.towerMenu.getSettings()
 	return Settings.config:get(Settings.towerMenu.configName, true):getBool() and Settings.towerMenu.options[1] or Settings.towerMenu.options[2]
@@ -251,7 +251,7 @@ end
 
 
 Settings.floatingStones = {}
-Settings.floatingStones.options = {"visible", "hidden"}
+Settings.floatingStones.options = {"settings.visible", "settings.hidden"}
 Settings.floatingStones.configName = "floatingStones"
 function Settings.floatingStones.getSettings()
 	return Settings.config:get(Settings.floatingStones.configName, true):getBool() and Settings.floatingStones.options[1] or Settings.floatingStones.options[2]
@@ -303,7 +303,7 @@ end
 
 
 Settings.healthBar = {}
-Settings.healthBar.options = {"always", "when damaged", "hidden"}
+Settings.healthBar.options = {"settings.always", "settings.when damaged", "settings.hidden"}
 Settings.healthBar.configName = "healthBar"
 function Settings.healthBar.getSettings()
 	return getActiveOptionStr(Settings.healthBar, 2)
@@ -317,7 +317,7 @@ end
 
 
 Settings.DeathAnimation = {}
-Settings.DeathAnimation.options = {"Animated", "Disabled"}
+Settings.DeathAnimation.options = {"settings.animated", "settings.disabled"}
 Settings.DeathAnimation.configName = "DeathAnimation"
 function Settings.DeathAnimation.getSettings()
 	return getActiveOptionStr(Settings.DeathAnimation, 2)
@@ -327,7 +327,7 @@ function Settings.DeathAnimation.getValue()
 end
 
 Settings.corpseTimer = {}
-Settings.corpseTimer.options = {"High", "Normal", "Low", "None"}
+Settings.corpseTimer.options = {"settings.high", "settings.medium", "settings.low", "settings.none"}
 Settings.corpseTimer.optionsInt = {High=8, Normal=3, Low=1, None=0}
 Settings.corpseTimer.configName = "corpseTimer"
 function Settings.corpseTimer.getSettings()

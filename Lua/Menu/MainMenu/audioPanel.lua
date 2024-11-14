@@ -19,10 +19,11 @@ function AudioPanel.create(mainPanel)
 end
 
 function AudioPanel.languageChanged()
-	VolumeLabel:setText(language:getText("volume"))
-	masterVolumeLabel:setText(language:getText("master volume"))
-	effectVolume:setText(language:getText("effect volume"))
-	musicVolume:setText(language:getText("music volume"))
+
+	VolumeLabel:setText(language:getText("sound.volume"))
+	masterVolumeLabel:setText(language:getText("sound.master"))
+	effectVolume:setText(language:getText("sound.effect"))
+	musicVolume:setText(language:getText("sound.music"))
 end
 
 function AudioPanel.changeGain(slider)

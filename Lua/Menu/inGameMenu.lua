@@ -195,7 +195,7 @@ function create()
 			mainPanel:setVisible(false)
 			backgroundPanel = mainPanel
 
-			textPanels[1] = mainPanel:add(Label(PanelSize(Vec2(0.17,1), Vec2(5,1)), language:getText("menu"), MainMenuStyle.textColorHighLighted, Alignment.MIDDLE_CENTER ))
+			textPanels[1] = mainPanel:add(Label(PanelSize(Vec2(0.17,1), Vec2(5,1)), language:getText("ingame.button.menu"), MainMenuStyle.textColorHighLighted, Alignment.MIDDLE_CENTER ))
 			textPanels[1]:setTag("menu")
 			
 			MainMenuStyle.createBreakLine(mainPanel)
@@ -203,7 +203,7 @@ function create()
 			connectionIssueForm = ConnectionIssueForm.new()
 			
 			
-			local maxXScale = math.max( ( Core.isInEditor() and language:getText("quit to map editor"):getTextScale().x or language:getText("quit to menu"):getTextScale().x), language:getText("quit to desktop"):getTextScale().x )
+			local maxXScale = math.max( ( Core.isInEditor() and language:getText("ingame.button.quit to map editor"):getTextScale().x or language:getText("ingame.button.quit to menu"):getTextScale().x), language:getText("ingame.button.quit to desktop"):getTextScale().x )
 			--button layou require us to take only the half x text scale
 			local scale = Vec2(maxXScale / 2 + 0.5, 1)
 			--0.17/5 magic number from before language support was added
@@ -215,25 +215,25 @@ function create()
 			
 			local buttonSize = Vec2(-1,0.07)	
 			
-			continueButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("continue")))
-			optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("options")))
-			tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("tutorial"))) or nil
-			launchWavesButton = mapInfo.getGameMode()=="training" and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("launch waves"))) or nil
-			RestartWaveButton = mapInfo.isRestartWaveEnabled() and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("revert wave"))) or nil
-			RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("restart"))) or nil
+			continueButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.continue")))
+			optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.options")))
+			tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.tutorial"))) or nil
+			launchWavesButton = mapInfo.getGameMode()=="training" and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.launch waves"))) or nil
+			RestartWaveButton = mapInfo.isRestartWaveEnabled() and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.revert wave"))) or nil
+			RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.restart"))) or nil
 			quitToMenuButton = nil
 			quitToEditorButton = nil
 			
 			if mapInfo.getGameMode()=="training" then
-				textList[#textList + 1] = "launch waves"
+				textList[#textList + 1] = "ingame.button.launch waves"
 			end
 			
 			if Core.isInEditor() then
-				quitToEditorButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("quit to map editor")))
-				textList[#textList + 1] = "quit to map editor"
+				quitToEditorButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to map editor")))
+				textList[#textList + 1] = "ingame.button.quit to map editor"
 			else
-				quitToMenuButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("quit to menu")))
-				textList[#textList + 1] = "quit to menu"
+				quitToMenuButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to menu")))
+				textList[#textList + 1] = "ingame.button.quit to menu"
 			end
 			
 			
@@ -247,36 +247,36 @@ function create()
 			mainPanel:setPanelSize(PanelSize(Vec2((maxSize * 1.05)/Core.getRenderResolution().x,-1)))
 			mainPanel:getPanelSize():setFitChildren(false, true)
 			
-			local quitToDesktopButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("quit to desktop")))
+			local quitToDesktopButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to desktop")))
 			
 			continueButton:addEventCallbackExecute(toggleVisible)
 			textPanels[2] = continueButton
-			textPanels[2]:setTag("continue")
+			textPanels[2]:setTag("ingame.button.continue")
 			optionsButton:addEventCallbackExecute(toggleOptionsVisible)
 			textPanels[3] = optionsButton
-			textPanels[3]:setTag("options")
+			textPanels[3]:setTag("ingame.button.options")
 			quitToDesktopButton:addEventCallbackExecute(quitToDesktop)
 			textPanels[4] = quitToDesktopButton
-			textPanels[4]:setTag("quit to desktop")
+			textPanels[4]:setTag("ingame.button.quit to desktop")
 			if quitToMenuButton then
 				quitToMenuButton:addEventCallbackExecute(quitToMainMenu)
 				textPanels[5] = quitToMenuButton
-				textPanels[5]:setTag("quit to menu")
+				textPanels[5]:setTag("ingame.button.quit to menu")
 			elseif quitToEditorButton then
 				quitToEditorButton:addEventCallbackExecute(quitToMapeditor)
 				textPanels[5] = quitToEditorButton
-				textPanels[5]:setTag("quit to map editor")
+				textPanels[5]:setTag("ingame.button.quit to map editor")
 			end
 			
 			if launchWavesButton then
 				textPanels[#textPanels + 1] = launchWavesButton
-				textPanels[#textPanels]:setTag("launch waves")
+				textPanels[#textPanels]:setTag("ingame.button.launch waves")
 				launchWavesButton:addEventCallbackExecute(launchWaveCallback)
 				launchWavesButton:setEnabled(false)
 			end
 			if RestartWaveButton then
 				textPanels[#textPanels + 1] = RestartWaveButton
-				textPanels[#textPanels]:setTag("revert wave")
+				textPanels[#textPanels]:setTag("ingame.button.revert wave")
 				RestartWaveButton:addEventCallbackExecute(restartWave)
 				RestartWaveButton:addEventCallbackExecute(toggleVisible)
 				RestartWaveButton:setEnabled(false)
@@ -289,7 +289,7 @@ function create()
 			end
 			if tutorialButton then
 				textPanels[#textPanels + 1] = tutorialButton
-				textPanels[#textPanels]:setTag("tutorial")
+				textPanels[#textPanels]:setTag("ingame.button.tutorial")
 				tutorialButton:addEventCallbackExecute(showTutorialFunc)
 			end
 			

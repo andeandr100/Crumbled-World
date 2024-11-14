@@ -54,10 +54,10 @@ function CampaignGameMenu.new(panel)
 		local topMenuButtons = mainPanel:add(Panel(PanelSize(Vec2(-1,0.04))))
 		topMenuButtons:setLayout(FlowLayout(Alignment.MIDDLE_CENTER, PanelSize(Vec2(0,0.01))))
 
-		local textScale = language:getText("menu.button.campaign"):getTextScale() 
+		local textScale = language:getText("button.campaign"):getTextScale() 
 		
-		local campaignButton = MainMenuStyle.addTopMenuButton(topMenuButtons, Vec2(textScale.x/2+3,1), language:getText("menu.button.campaign"))
-		local shopButton = MainMenuStyle.addTopMenuButton(topMenuButtons, Vec2(textScale.x/2+3,1), language:getText("menu.button.shop"))
+		local campaignButton = MainMenuStyle.addTopMenuButton(topMenuButtons, Vec2(textScale.x/2+3,1), language:getText("button.campaign"))
+		local shopButton = MainMenuStyle.addTopMenuButton(topMenuButtons, Vec2(textScale.x/2+3,1), language:getText("button.shop"))
 		
 
 		local buttonIcon = campaignButton:add(Image(PanelSize(Vec2(-1),Vec2(1)), "icon_table.tga"))

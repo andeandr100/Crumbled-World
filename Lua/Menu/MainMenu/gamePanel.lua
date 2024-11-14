@@ -6,7 +6,7 @@ require("Menu/settings.lua")
 
 GamePanel = {}
 GamePanel.labels = {}
-GamePanel.labelsText =  { "game", "health bar", "death animation", "corpse timer", "tower menu", "player", "name", "cursor", "Consent", "4"}
+GamePanel.labelsText =  { "options.game", "options.health bar", "options.death animation", "options.corpse timer", "options.tower menu", "options.player", "options.name", "options.cursor", "options.consent", "----"}
 GamePanel.optionsBoxes = {}
 
 function GamePanel.create(mainPanel)

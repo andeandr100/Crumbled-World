@@ -127,7 +127,7 @@ function bindNewKey(button)
 	if InputPanel.rebindKey then
 		InputPanel.rebindKeyId = tonumber(id)
 		InputPanel.rebindKeyButton = button
-		button:setText( language:getText("press key"))
+		button:setText( language:getText("input.press key"))
 	end
 end
 

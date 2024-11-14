@@ -44,7 +44,7 @@ function DirectConnectWindow.new(camera)
 		
 		titlePanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0))))
 		--Top menu button panel
-		mapNameLabel = titlePanel:add(Label(PanelSize(Vec2(-1,0.035)), language:getText("direct connect"), Vec3(0.94), Alignment.MIDDLE_CENTER))
+		mapNameLabel = titlePanel:add(Label(PanelSize(Vec2(-1,0.035)), language:getText("multiplayer.direct connect"), Vec3(0.94), Alignment.MIDDLE_CENTER))
 		
 		--Add BreakLine
 		local breakLinePanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
@@ -104,9 +104,9 @@ function DirectConnectWindow.new(camera)
 		textField = bottomPanel:add(TextField(PanelSize(Vec2(-0.8,-1), Vec2(9,1))))
 		textField:addEventCallbackExecute(joinClicked)
 		bottomPanel:add(Panel(PanelSize(Vec2(-0.1,-0.05))))--spacing
-		local button = bottomPanel:add(Button(PanelSize(Vec2(-0.5,-1), Vec2(3,1)), language:getText("join server")))
+		local button = bottomPanel:add(Button(PanelSize(Vec2(-0.5,-1), Vec2(3,1)), language:getText("multiplayer.join server")))
 		button:addEventCallbackExecute(joinClicked)
-		button = bottomPanel:add(Button(PanelSize(Vec2(-1,-1), Vec2(3,1)), language:getText("quit")))
+		button = bottomPanel:add(Button(PanelSize(Vec2(-1,-1), Vec2(3,1)), language:getText("multiplayer.quit")))
 		button:addEventCallbackExecute(closeClicked)
 		
 	end

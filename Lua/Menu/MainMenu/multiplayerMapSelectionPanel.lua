@@ -32,7 +32,7 @@ function MultiplayerMapSelectionPanel.new(panel, inServerListPanel, inLobbyMenu)
 			labels[i]:setText(language:getText(labels[i]:getTag()))
 		end
 		
-		serverInfoButton:setToolTip(language:getText("port forward"))
+		serverInfoButton:setToolTip(language:getText("multiplayer.port forward"))
 		
 		if comboBoxDifficutyBox then
 			comboBoxDifficutyBox.updateLanguage()
@@ -48,7 +48,7 @@ function MultiplayerMapSelectionPanel.new(panel, inServerListPanel, inLobbyMenu)
 	function self.setVisible(visible)
 		mainPanel:setVisible(visible)	
 		if visible then
-			local text = lobbyMenu.getServer() and "save settings" or "start server"
+			local text = lobbyMenu.getServer() and "multiplayer.save settings" or "multiplayer.start server"
 			startServerButton:setText( language:getText(text) )
 			startServerButton:setTag(text)
 			serverNameTextField:setKeyboardOwner()
@@ -113,23 +113,23 @@ function MultiplayerMapSelectionPanel.new(panel, inServerListPanel, inLobbyMenu)
 		--iconImage:setBorder(Border( BorderSize(Vec4(0.0015), true), Vec3(0)))
 		iconImage:setBorder(Border( BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 		
-		mapNameLabel = infoPanel:add(Label(PanelSize(Vec2(-1, 0.03)), language:getText("map name"), Vec3(0.7)))
+		mapNameLabel = infoPanel:add(Label(PanelSize(Vec2(-1, 0.03)), language:getText("custom-game.map name"), Vec3(0.7)))
 		labels[#labels + 1] = mapNameLabel
-		labels[#labels]:setTag("map name")	
+		labels[#labels]:setTag("custom-game.map name")	
 		
 		--Game Mode
-		local gameModePanel = addTableRow( infoPanel, "game mode" )
+		local gameModePanel = addTableRow( infoPanel, "custom-game.game mode" )
 		local gameModeOptions = MapInfo.new().getGameModesMultiPlayer()
-		comboBoxGameMode = SettingsComboBox.new(gameModePanel, PanelSize(Vec2(-1)), gameModeOptions, "game mode", gameModeOptions[3], nil )
+		comboBoxGameMode = SettingsComboBox.new(gameModePanel, PanelSize(Vec2(-1)), gameModeOptions, "custom-game.game mode", gameModeOptions[3], nil )
 		gameModeLabel = gameModePanel:add(Label(PanelSize(Vec2(-1),Vec2(4.5,1)), "Co-op", Vec3(0.7)))
 		
 		--difficulty
-		local difficultyPanel = addTableRow( infoPanel, "difficulty" )
-		local difficultOptions = {"easy", "normal", "hard", "extreme", "insane"}
-		comboBoxDifficutyBox = SettingsComboBox.new(difficultyPanel, PanelSize(Vec2(-1)), difficultOptions, "difficulty", difficultOptions[2], nil )
+		local difficultyPanel = addTableRow( infoPanel, "custom-game.difficulty" )
+		local difficultOptions = {"settings.easy", "settings.normal", "settings.hard", "settings.extreme", "settings.insane"}
+		comboBoxDifficutyBox = SettingsComboBox.new(difficultyPanel, PanelSize(Vec2(-1)), difficultOptions, "custom-game.difficulty", difficultOptions[2], nil )
 		
 		--difficulty
-		local playersPanel = addTableRow( infoPanel, "players" )
+		local playersPanel = addTableRow( infoPanel, "multiplayer.players" )
 		playersLabel = playersPanel:add(Label(PanelSize(Vec2(-1),Vec2(4.5,1)), "", Vec3(0.7)))
 		
 	end
@@ -173,20 +173,20 @@ function MultiplayerMapSelectionPanel.new(panel, inServerListPanel, inLobbyMenu)
 		mainPanel:setLayout(FallLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 
 		--Top menu button panel
-		local serverLabel = mainPanel:add(Label(PanelSize(Vec2(-0.9,0.04)), language:getText("create server"), Vec3(0.94), Alignment.MIDDLE_CENTER))
+		local serverLabel = mainPanel:add(Label(PanelSize(Vec2(-0.9,0.04)), language:getText("multiplayer.create server"), Vec3(0.94), Alignment.MIDDLE_CENTER))
 		serverLabel:setLayout(FlowLayout(Alignment.BOTTOM_RIGHT))
 		labels[#labels + 1] = serverLabel
-		labels[#labels]:setTag("create server")
+		labels[#labels]:setTag("multiplayer.create server")
 		
 		serverInfoButton = serverLabel:add(MainMenuStyle.createButton(Vec2(-1,-0.9), Vec2(1,1), "!"))
-		serverInfoButton:setToolTip(language:getText("port forward"))
+		serverInfoButton:setToolTip(language:getText("multiplayer.port forward"))
 		
 		--Add BreakLine
 		MainMenuStyle.createBreakLine(mainPanel)
 		
 		local serverNameRow = mainPanel:add(Panel(PanelSize(Vec2(-0.9,0.03))))
-		labels[#labels + 1] = serverNameRow:add(Label(PanelSize(Vec2(-1),Vec2(6,1)), language:getText("server name"), MainMenuStyle.textColor ))
-		labels[#labels]:setTag("server name")
+		labels[#labels + 1] = serverNameRow:add(Label(PanelSize(Vec2(-1),Vec2(6,1)), language:getText("multiplayer.server name"), MainMenuStyle.textColor ))
+		labels[#labels]:setTag("multiplayer.server name")
 		serverNameTextField = serverNameRow:add(MainMenuStyle.createTextField(Vec2(-1), Vec2(),""))
 		serverNameTextField:setWhiteList("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ _-<>[]()!#+%&=1234567890?;:$@\"/,.*~^|")
 		
@@ -210,15 +210,15 @@ function MultiplayerMapSelectionPanel.new(panel, inServerListPanel, inLobbyMenu)
 		
 		--Add buttons
 		buttonPanel:setLayout(FlowLayout(Alignment.TOP_CENTER, PanelSize(Vec2(0.01))))
-		startServerButton = buttonPanel:add(MainMenuStyle.createButton(Vec2(-1), Vec2(6,1), language:getText("start server")))
+		startServerButton = buttonPanel:add(MainMenuStyle.createButton(Vec2(-1), Vec2(6,1), language:getText("multiplayer.start server")))
 		startServerButton:addEventCallbackExecute(startServer)
 		labels[#labels + 1] = startServerButton
-		labels[#labels]:setTag("start server")
+		labels[#labels]:setTag("multiplayer.start server")
 		
-		local backButton = buttonPanel:add(MainMenuStyle.createButton(Vec2(-1), Vec2(6,1), language:getText("back")))
+		local backButton = buttonPanel:add(MainMenuStyle.createButton(Vec2(-1), Vec2(6,1), language:getText("general.back")))
 		backButton:addEventCallbackExecute(returnToServListPanel)
 		labels[#labels + 1] = backButton
-		labels[#labels]:setTag("back")
+		labels[#labels]:setTag("general.back")
 		
 		mainPanel:setVisible(false)			
 		

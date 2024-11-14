@@ -6,7 +6,7 @@ require("Menu/settings.lua")
 
 VideoPanel = {}
 VideoPanel.labels = {}
-VideoPanel.labelsText =  { "screen", "window mode", "resolution", "render scale", "vsync", "graphic", "shadow", "shadow resolution", "ambient occlusion", "antialiasing", "glow", "dynamic lights", "model density", "island smoke", "floating stones" }
+VideoPanel.labelsText =  { "options.screen", "options.window mode", "options.resolution", "options.render scale", "options.vsync", "options.graphic", "options.shadow", "options.shadow resolution", "options.ambient occlusion", "options.antialiasing", "options.glow", "options.dynamic lights", "options.model density", "options.island smoke", "options.floating stones" }
 VideoPanel.optionsBoxes = {}
 
 function VideoPanel.destroy()
@@ -113,11 +113,11 @@ function VideoPanel.createResolutionOptions(panel)
 	
 	local labels = VideoPanel.labels
 	
-	labels[1] = OptionsMenuStyle.addOptionsHeader( panel, "Screen" )
+	labels[1] = OptionsMenuStyle.addOptionsHeader( panel, "options.screen" )
 	
 	local rowPanel
 	
-	rowPanel, labels[2] = OptionsMenuStyle.addRow(panel, "Window mode")
+	rowPanel, labels[2] = OptionsMenuStyle.addRow(panel, "options.window mode")
 	conf = Settings.fullscreen
 	VideoPanel.optionsBoxes[1] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), VideoPanel.changedSettingsBool )
 	
@@ -125,11 +125,11 @@ function VideoPanel.createResolutionOptions(panel)
 	labels[3] = nil
 	VideoPanel.optionsBoxes[2] = nil
 	
-	rowPanel, labels[4] = OptionsMenuStyle.addRow(panel, "Render scale")
+	rowPanel, labels[4] = OptionsMenuStyle.addRow(panel, "options.render scale")
 	conf = Settings.renderScale
 	VideoPanel.optionsBoxes[3] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), VideoPanel.changedSettingsInt )
 	
-	rowPanel, labels[5] = OptionsMenuStyle.addRow(panel, "Vsync")
+	rowPanel, labels[5] = OptionsMenuStyle.addRow(panel, "options.vsync")
 	conf = Settings.vsync
 	VideoPanel.optionsBoxes[4] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), VideoPanel.changeVSync )
 
@@ -139,45 +139,45 @@ end
 
 function VideoPanel.createGraphicOptions(panel)
 	local labels = VideoPanel.labels
-	labels[6] = OptionsMenuStyle.addOptionsHeader( panel, "Graphic" )
+	labels[6] = OptionsMenuStyle.addOptionsHeader( panel, "options.graphic" )
 	
 	local rowPanel
 	
-	rowPanel, labels[14] = OptionsMenuStyle.addRow(panel, "Island smoke")
+	rowPanel, labels[14] = OptionsMenuStyle.addRow(panel, "options.island smoke")
 	conf = Settings.islandSmoke
 	GamePanel.optionsBoxes[12] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
 	
-	rowPanel, labels[15] = OptionsMenuStyle.addRow(panel, "Floating stones")
+	rowPanel, labels[15] = OptionsMenuStyle.addRow(panel, "options.floating stones")
 	conf = Settings.floatingStones
 	GamePanel.optionsBoxes[13] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
 	
 	
 	
-	rowPanel, labels[7] = OptionsMenuStyle.addRow(panel, "Shadow")
+	rowPanel, labels[7] = OptionsMenuStyle.addRow(panel, "options.shadow")
 	conf = Settings.shadow
 	VideoPanel.optionsBoxes[5] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), VideoPanel.changedSettingsInt )
 	
-	rowPanel, labels[8] = OptionsMenuStyle.addRow(panel, "Shadow Resolution")
+	rowPanel, labels[8] = OptionsMenuStyle.addRow(panel, "options.shadow Resolution")
 	conf = Settings.shadowResolution
 	VideoPanel.optionsBoxes[6] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), VideoPanel.changedSettingsInt )
 	
-	rowPanel, labels[9] = OptionsMenuStyle.addRow(panel, "Ambient occlusion")
+	rowPanel, labels[9] = OptionsMenuStyle.addRow(panel, "options.ambient occlusion")
 	conf = Settings.ambientOcclusion
 	VideoPanel.optionsBoxes[7] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), VideoPanel.changedSettingsBool )
 	
-	rowPanel, labels[10] = OptionsMenuStyle.addRow(panel, "Antialiasing")
+	rowPanel, labels[10] = OptionsMenuStyle.addRow(panel, "options.antialiasing")
 	conf = Settings.Antialiasing
 	VideoPanel.optionsBoxes[8] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), VideoPanel.changedSettingsBool )
 	
-	rowPanel, labels[11] = OptionsMenuStyle.addRow(panel, "Glow")
+	rowPanel, labels[11] = OptionsMenuStyle.addRow(panel, "options.glow")
 	conf = Settings.glow
 	VideoPanel.optionsBoxes[9] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), VideoPanel.changedSettingsBool )
 	
-	rowPanel, labels[12] = OptionsMenuStyle.addRow(panel, "Dynamic lights")
+	rowPanel, labels[12] = OptionsMenuStyle.addRow(panel, "options.dynamic lights")
 	conf = Settings.dynamicLights
 	VideoPanel.optionsBoxes[10] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), VideoPanel.changedSettingsBool )
 	
-	rowPanel, labels[13] = OptionsMenuStyle.addRow(panel, "Model density")
+	rowPanel, labels[13] = OptionsMenuStyle.addRow(panel, "options.model density")
 	conf = Settings.modelDensity
 	VideoPanel.optionsBoxes[11] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), VideoPanel.changedSettingsInt )
 	

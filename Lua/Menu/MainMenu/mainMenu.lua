@@ -32,13 +32,13 @@ function languageChanged()
 	
 	print("---- languageChanged ----")
 	
-	buttons[1].text = language:getText("menu.button.exit")
-	buttons[2].text = language:getText("menu.button.campaign")
-	buttons[3].text = language:getText("menu.button.custom game")
-	buttons[4].text = language:getText("menu.button.multiplayer")
-	buttons[5].text = language:getText("menu.button.map editor")
-	buttons[6].text = language:getText("menu.button.options")
-	buttons[7].text = language:getText("menu.button.credits")
+	buttons[1].text = language:getText("button.exit")
+	buttons[2].text = language:getText("button.campaign")
+	buttons[3].text = language:getText("button.custom game")
+	buttons[4].text = language:getText("button.multiplayer")
+	buttons[5].text = language:getText("button.map editor")
+	buttons[6].text = language:getText("button.options")
+	buttons[7].text = language:getText("button.credits")
 --	buttons[8].text = Text("c-2")
 	
 	
@@ -202,13 +202,13 @@ function createTopMenu()
 	local topPanel = MainMenuStyle.createTopMenu(form, PanelSize(Vec2(1,0.027),PanelSizeType.WindowPercentBasedOnX))
 	
 	buttons = {}
-	buttons[1] = {text = language:getText("menu.button.exit")}
-	buttons[2] = {text = language:getText("menu.button.campaign")}
-	buttons[3] = {text = language:getText("menu.button.custom game")}--Singleplayer
-	buttons[4] = {text = language:getText("menu.button.multiplayer")}
-	buttons[5] = {text = language:getText("menu.button.map editor")}
-	buttons[6] = {text = language:getText("menu.button.options")}
-	buttons[7] = {text = language:getText("menu.button.credits")}
+	buttons[1] = {text = language:getText("button.exit")}
+	buttons[2] = {text = language:getText("button.campaign")}
+	buttons[3] = {text = language:getText("button.custom game")}--Singleplayer
+	buttons[4] = {text = language:getText("button.multiplayer")}
+	buttons[5] = {text = language:getText("button.map editor")}
+	buttons[6] = {text = language:getText("button.options")}
+	buttons[7] = {text = language:getText("button.credits")}
 --	buttons[8] = {text = Text("c-2") }
 
 	
