@@ -5,7 +5,7 @@ local npcBase
 local soul
 local spiritPointLight
 local collisionModel
-local effect
+local electricEffect
 local pLightRange = 1.1
 function destroy()
 	if spiritPointLight then
@@ -15,12 +15,13 @@ function destroy()
 	if collisionModel then
 		collisionModel:destroy()
 	end
-	effect:destroy();
+	if electricEffect then
+		electricEffect:destroy();
+	end
 	
 	npcBase = nil
-	
 	collisionModel = nil
-	effect = nil
+	electricEffect = nil
 	soul = nil
 end
 function create()
@@ -29,19 +30,19 @@ function create()
 	soul = npcBase.getSoul()
 	spiritPointLight = nil
 	collisionModel = nil
-	effect = nil
+	electricEffect = nil
 	pLightRange = 1.1
 	
 	npcBase.init("electroSpirit",nil,0.2,0.6,0.75,2.0)
 	npcBase.setDefaultState(state.electrecuted)
 	--particle effect
-	effect = ParticleSystem.new(ParticleEffect.SparkSpirit)
-	this:addChild(effect:toSceneNode())
-	effect:activate(Vec3(0,0.65,0))
+	electricEffect = ParticleSystem.new(ParticleEffect.SparkSpirit)
+	this:addChild(electricEffect:toSceneNode())
+	electricEffect:activate(Vec3(0,0.65,0))
 	-- DEBUG START
-	effect:setEmitterLine(Line3D(Vec3(0,0.65,0),Vec3(0,0.65,0)))--this should not be needed
+	electricEffect:setEmitterLine(Line3D(Vec3(0,0.65,0),Vec3(0,0.65,0)))--this should not be needed
 	-- DEBUG END
-	npcBase.addParticleEffect(effect,0.35)
+	npcBase.addParticleEffect(electricEffect,0.35)
 	--pointlight
 	spiritPointLight = PointLight.new(Vec3(0,0.25,0),Vec3(0.0,3.0,3.0),1.1)
 	spiritPointLight:setCutOff(0.1)
@@ -64,7 +65,7 @@ function create()
 end
 function update()
 	local hpScale = 0.50+(0.50*(soul.getHp()/soul.getMaxHp()))
-	effect:setScale(hpScale)
+	electricEffect:setScale(hpScale)
 	spiritPointLight:setRange(pLightRange*hpScale)
 	return npcBase.update()
 end

@@ -98,9 +98,9 @@ end
 function Settings.shadow.getShaderDefinition()
 	local text = Settings.shadow.getSettings()
 	print("Shadow: "..text.."\n")
-	if text == "soft shadow" then
+	if text == "settings.soft shadow" then
 		return "SOFT_SHADOW"
-	elseif text == "hard shadow" then
+	elseif text == "settings.hard shadow" then
 		return "SHADOW"
 	else
 		return nil
@@ -124,9 +124,9 @@ end
 function Settings.shadowResolution.getShaderDefinition()
 	local text = Settings.shadowResolution.getSettings()
 
-	if text == "low" or text == "lowest" then
+	if text == "settings.low" or text == "settings.lowest" then
 		return "SHADOW_LOW"
-	elseif text == "high" or text == "highest" then
+	elseif text == "settings.high" or text == "settings.highest" then
 		return "SHADOW_HIGH"
 	else
 		return "SHADOW_NORMAL"
@@ -135,15 +135,15 @@ end
 
 function Settings.shadowResolution.getValue()
 	local text = Settings.shadowResolution.getSettings()
-	if text == "normal" then
+	if text == "settings.normal" then
 		return 1.0
-	elseif text == "low" then
+	elseif text == "settings.low" then
 		return 0.5
-	elseif text == "lowest" then
+	elseif text == "settings.lowest" then
 		return 0.25
-	elseif text == "high" then
+	elseif text == "settings.high" then
 		return 1.5
-	elseif text == "highest" then
+	elseif text == "settings.highest" then
 		return 2.0
 	else
 		return 1.0

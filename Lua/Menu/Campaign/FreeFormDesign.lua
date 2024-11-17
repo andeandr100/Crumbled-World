@@ -3,6 +3,7 @@ require("Game/gameValues.lua")
 --this = SceneNode()
 
 local pixelWidth = 600
+local toolTipPanelSpacing = 0.0025
 
 FreeFormDesign = {}
 
@@ -369,73 +370,66 @@ function FreeFormDesign.getValuesForToolTip(abilityData, level)
 	return (value1==nil and "" or value1), ""
 end
 
-
-function FreeFormDesign.buildToolTipPanelForAbility(abilityData, level, upgradeNeeded)
-	
-	
+-- Create tool tip base panel
+local function createToolBasePanel()
 	local panel = Panel(PanelSize(Vec2(-1)))
-	panel:setLayout(FallLayout())
+	panel:setLayout(FallLayout(PanelSize(Vec2(toolTipPanelSpacing),PanelSizeType.WindowPercentBasedOnY)))
 	panel:getPanelSize():setFitChildren(true, true)
 	panel:setCanHandleInput(false)
-	
-	
-	local abilityDislayName = abilityData.displayName..(abilityData.maxLevel == 1 and "" or (" "..level))
-	local nameLabel = Label(PanelSize(Vec2(-1)), "<b>"..abilityDislayName, Vec4(1) )
+	return panel
+end
+
+local function addTooTipHeader(panel, headerText)
+	local nameLabel = panel:add( Label(PanelSize(Vec2(-1)), headerText, Vec4(1) ))
 	nameLabel:setTextHeight(0.017)
 	nameLabel:setPanelSizeBasedOnTextSize()
-	panel:add(nameLabel)
-	local nameLabelSize = nameLabel:getPanelSize():getSize()
-	
-	local tempLabel = Label(PanelSize(Vec2(-1)), "999 Requiers \"Upgrade 3\"", Vec3(1.0,0,0))
-	tempLabel:setTextHeight(0.015)
-	tempLabel:setPanelSizeBasedOnTextSize()
-	local warningTextSize = tempLabel:getPanelSize():getSize()
-	
-	
-	local totalPanelSizeInPixel = Vec2( math.max(warningTextSize.x, nameLabelSize.x), nameLabelSize.y )
-	
-	if abilityData.name ~= "upgrade" then
-		local infoValueText = (abilityData.info and abilityData.info or "")
-		local value1, value2 = FreeFormDesign.getValuesForToolTip(abilityData, level)
-		local textLabel = Label(PanelSize(Vec2(-1)), language:getTextWithValues(infoValueText, value1, value2), Vec4(1) )
-		textLabel:setTextHeight(0.015)
-		textLabel:setPanelSizeBasedOnTextSize()
-		panel:add(textLabel)
-		local textSize = textLabel:getPanelSize():getSize()
-		totalPanelSizeInPixel = Vec2( math.max( textSize.x, totalPanelSizeInPixel.x), totalPanelSizeInPixel.y + textSize.y)
-	end
-	
-	
-	for n=1, #abilityData.infoValues do 
-		local name = abilityData.infoValues[n]
-		local data = abilityData.stats[name]
-		
+	return nameLabel:getPanelSize():getSize()
+end
 
-		local minCoord, maxCoord, text = FreeFormDesign.gameValues.getUvCoordAndTextFromName(name)
-		local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
-		icon:setUvCoord(minCoord,maxCoord)
-					
-					
-		local valueStr, fontStr = FreeFormDesign.convertValueToPrintedValue(data[level], name, data.func, true)
-		notifyText = fontStr .. valueStr .. "</font>\n"
-		
-		local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(5,1)))
-		row:add(icon)
-		row:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
-		panel:add(row)
+local function addToolTipText(panel, totalPanelSizeInPixel, toolTipText)
+	local textLabel = panel:add( Label(PanelSize(Vec2(-1)), toolTipText, Vec4(1) ) )
+	textLabel:setTextHeight(0.015)
+	textLabel:setPanelSizeBasedOnTextSize()
+	local textSize = textLabel:getPanelSize():getSize()
+	return Vec2( math.max( textSize.x, totalPanelSizeInPixel.x), totalPanelSizeInPixel.y + textSize.y + Core.getScreenResolution().y * toolTipPanelSpacing )
+end
 
-		
-		totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.025 * Core.getScreenResolution().y )
-	end
+-- Add a line break to a panel
+local function addLineBreaker(panel, totalPanelSizeInPixel)	
+	local line = panel:add(Panel(PanelSize(Vec2(-1,0.001))))
+	line:setBackground(Sprite(Vec3(0)))
+	return totalPanelSizeInPixel + Vec2(0, Core.getScreenResolution().y * (toolTipPanelSpacing + 0.001 ) )
+end
+
+local function addAbility(panel, abilityData, index, level)
+
+
+	local name = abilityData.infoValues[index]
+	local data = abilityData.stats[name]
+
+	local minCoord, maxCoord, text = FreeFormDesign.gameValues.getUvCoordAndTextFromName(name)
+	local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
+	icon:setUvCoord(minCoord,maxCoord)
+				
+				
+	local valueStr, fontStr = FreeFormDesign.convertValueToPrintedValue(data[level], name, data.func, true)
+	notifyText = fontStr .. valueStr .. "</font>\n"
 	
+	
+	panel:add(icon)
+	panel:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
+end
+
+local function addCrystalCost(panel, totalPanelSizeInPixel, abilityData, level, upgradeNeeded)
 	--crystal cost
-	panel:add(Panel(PanelSize(Vec2(-1,0.01))))
 	local row = panel:add(Panel(PanelSize(Vec2(-1,0.025))))
-	local cost = abilityData.maxLevel == 1 and 3 or level
+	row:setLayout(FlowLayout())
 	
+	
+	local cost = abilityData.maxLevel == 1 and 3 or level
 	local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table"))
 	icon:setUvCoord(Vec2(0.5,0.375),Vec2(0.625,0.4375))
-	row:setLayout(FlowLayout())
+	
 	row:add(icon)
 	local label = nil
 	if upgradeNeeded then
@@ -445,8 +439,64 @@ function FreeFormDesign.buildToolTipPanelForAbility(abilityData, level, upgradeN
 	end
 
 	
-	totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.035 * Core.getScreenResolution().y )
+	return totalPanelSizeInPixel + Vec2(0, (0.025+toolTipPanelSpacing) * Core.getScreenResolution().y )
+end
 
+function FreeFormDesign.buildToolTipPanelForTower(towerName)
+
+	local towerTextName = "tower.shop."..towerName
+	local panel = createToolBasePanel()
+	local totalPanelSizeInPixel = addTooTipHeader(panel, language:getText(towerTextName..".name"))
+	
+	totalPanelSizeInPixel = addLineBreaker(panel, totalPanelSizeInPixel)
+
+	totalPanelSizeInPixel = addToolTipText(panel, totalPanelSizeInPixel, language:getText(towerTextName..".tooltip") )
+
+	panel:setPanelSize(PanelSize(totalPanelSizeInPixel + Vec2(3), PanelSizeType.Pixel))
+	return panel
+end
+
+function FreeFormDesign.buildToolTipPanelForAbility(abilityData, level, upgradeNeeded)
+	
+	local panel = createToolBasePanel()
+	
+	totalPanelSizeInPixel = addTooTipHeader(panel, abilityData.displayName..(abilityData.maxLevel == 1 and "" or (" "..level)) )
+	
+	totalPanelSizeInPixel = Vec2(math.max(totalPanelSizeInPixel.x, Core.getScreenResolution().y * 0.2), totalPanelSizeInPixel.y)
+	
+	totalPanelSizeInPixel = addLineBreaker(panel, totalPanelSizeInPixel)
+
+	if abilityData.name ~= "upgrade" then
+		local infoValueText = (abilityData.toolTip and abilityData.toolTip or "no tool tip")
+		local value1, value2 = FreeFormDesign.getValuesForToolTip(abilityData, level)
+		local toolTipText = language:getTextWithValues(infoValueText, value1, value2)
+		
+		totalPanelSizeInPixel = addToolTipText(panel, totalPanelSizeInPixel, toolTipText )
+	else
+		local toolTipText = language:getTextWithValues(abilityData.toolTip, tostring(level))
+		totalPanelSizeInPixel = addToolTipText(panel, totalPanelSizeInPixel, toolTipText )
+	end
+	
+	totalPanelSizeInPixel = addLineBreaker(panel, totalPanelSizeInPixel)
+	
+	
+	for n=1, #abilityData.infoValues, 2 do 
+		local row = panel:add( Panel(PanelSize(Vec2(-1,0.025),Vec2(5,1))) )
+		row:setLayout(FlowLayout())
+		
+		local column1 = row:add(Panel(PanelSize(Vec2(-0.5,-1))))
+		local column2 = row:add(Panel(PanelSize(Vec2(-1))))
+		
+		addAbility(column1, abilityData, n, level )
+		
+		if n+1 <= #abilityData.infoValues then
+			addAbility(column2, abilityData, n+1, level )
+		end
+		
+		totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, Core.getScreenResolution().y * (0.025 + toolTipPanelSpacing) )
+	end
+	
+	totalPanelSizeInPixel = addCrystalCost(panel, totalPanelSizeInPixel, abilityData, level, upgradeNeeded)
 	
 	panel:setPanelSize(PanelSize(totalPanelSizeInPixel, PanelSizeType.Pixel))
 	return panel

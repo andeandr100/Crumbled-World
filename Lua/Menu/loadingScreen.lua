@@ -74,7 +74,7 @@ end
 function resize()
 	
 	
-	winResolution = Core.getScreenResolution()
+	winResolution = Core.getRenderResolution()
 	
 	--set background image position and size
 	local backgroundSize = Vec2(winResolution.x, winResolution.x * (texture:getSize().y/texture:getSize().x));
@@ -96,7 +96,7 @@ function resize()
 	borderBottom:setSize(Vec2(winResolution.x, borderHeight))
 	
 
-	local winRes = Core.getScreenResolution()
+	local winRes = Core.getRenderResolution()
 	local height = winRes.y * 0.07
 	movingObj:setSize(Vec2(height))
 	movingObj:setPosition(winRes - Vec2(height))

@@ -5,35 +5,35 @@ require("Game/campaignData.lua")
 ShopFunction = {}
 ShopFunction.data = CampaignData.new()
 ShopFunction.towerUpgInfo = { ["Tower/MinigunTower.lua"]={
-			{text="minigun tower range",[1]={["value1"]="5.75"},[2]={["value1"]="6.5"},[3]={["value1"]="7.25"}, permaUppgrade=true, iconIndex=59, name="range" },
-			{text="minigun tower overcharge",[1]={["value1"]="35"},[2]={["value1"]="70"},[3]={["value1"]="105"}, permaUppgrade=true, iconIndex=63, name="overCharge"},
+			{text="tower.shop.shop.common.range",[1]={["value1"]="5.75"},[2]={["value1"]="6.5"},[3]={["value1"]="7.25"}, permaUppgrade=true, iconIndex=59, name="range" },
+			{text="tower.shop.shop.common.overcharge",[1]={["value1"]="35"},[2]={["value1"]="70"},[3]={["value1"]="105"}, permaUppgrade=true, iconIndex=63, name="overCharge"},
 			{text="minigun tower firecrit",[1]={["value1"]="20"},[2]={["value1"]="40"},[3]={["value1"]="60"}, permaUppgrade=true, iconIndex=36, name="fireCrit"}
 		},
 		["Tower/ArrowTower.lua"]={
-			{text="Arrow tower range",[1]={["value1"]="10.5"},[2]={["value1"]="12"},[3]={["value1"]="13.5"}, permaUppgrade=true, iconIndex=59, name="range" },
+			{text="tower.shop.shop.common.range",[1]={["value1"]="10.5"},[2]={["value1"]="12"},[3]={["value1"]="13.5"}, permaUppgrade=true, iconIndex=59, name="range" },
 			{text="Arrow tower hardArrow",[1]={["value1"]="135",["value2"]="50"},[2]={["value1"]="240",["value2"]="60"},[3]={["value1"]="410",["value2"]="70"}, permaUppgrade=true, iconIndex=54, name="hardArrow"},
 			{text="Arrow tower mark of death",[1]={["value1"]="8"},[2]={["value1"]="16"},[3]={["value1"]="24"}, permaUppgrade=true, iconIndex=61, name="markOfDeath"}
 		},
 		["Tower/SwarmTower.lua"]={
-			{text="swarm tower range",[1]={["value1"]="7.25"},[2]={["value1"]="8"},[3]={["value1"]="8.75"}, permaUppgrade=true, iconIndex=59, name="range"},
+			{text="tower.shop.shop.common.range",[1]={["value1"]="7.25"},[2]={["value1"]="8"},[3]={["value1"]="8.75"}, permaUppgrade=true, iconIndex=59, name="range"},
 			{text="swarm tower damage",[1]={["value1"]="30"},[2]={["value1"]="60"},[3]={["value1"]="90"}, permaUppgrade=true, iconIndex=2, name="burnDamage"},
 			{text="swarm tower fire",[1]={["value1"]="22",["value2"]="15"},[2]={["value1"]="38",["value2"]="30"},[3]={["value1"]="52",["value2"]="45"}, permaUppgrade=true, iconIndex=38, name="fuel"}
 		},
 		["Tower/ElectricTower.lua"]={
-			{text="electric tower range",[1]={["value1"]="4.75"},[2]={["value1"]="5.5"},[3]={["value1"]="6.25"}, permaUppgrade=true, iconIndex=59 , name="range"},
+			{text="tower.shop.shop.common.range",[1]={["value1"]="4.75"},[2]={["value1"]="5.5"},[3]={["value1"]="6.25"}, permaUppgrade=true, iconIndex=59 , name="range"},
 			{text="electric tower slow",[1]={["value1"]="15",["value2"]="0.75"},[2]={["value1"]="30",["value2"]="1.25"},[3]={["value1"]="45",["value2"]="1.75"}, permaUppgrade=true, iconIndex=55, name="ampedSlow"},
 			{text="electric tower energy pool",[1]={["value1"]="30"},[2]={["value1"]="60"},[3]={["value1"]="90"}, permaUppgrade=true, iconIndex=41, name="energyPool"},
 			{text="electric tower energy regen",[1]={["value1"]="15"},[2]={["value1"]="30"},[3]={["value1"]="45"}, permaUppgrade=true, iconIndex=50, name="energy"}
 		},
 		["Tower/BladeTower.lua"]={
-			{text="Arrow tower range",[1]={["value1"]="10.5"},[2]={["value1"]="12"},[3]={["value1"]="13.5"}, permaUppgrade=true, iconIndex=59, name="range" },
+			{text="tower.shop.shop.common.range",[1]={["value1"]="10.5"},[2]={["value1"]="12"},[3]={["value1"]="13.5"}, permaUppgrade=true, iconIndex=59, name="range" },
 			{text="blade tower attackSpeed",[1]={["value1"]="15"},[2]={["value1"]="30"},[3]={["value1"]="45"}, permaUppgrade=true, iconIndex=58, name="attackSpeed"},
 			{text="blade tower firecrit",[1]={["value1"]="25"},[2]={["value1"]="50"},[3]={["value1"]="75"}, permaUppgrade=true, iconIndex=36, name="masterBlade"},
 			{text="blade tower slow",[1]={["value1"]="20"},[2]={["value1"]="36"},[3]={["value1"]="49"}, permaUppgrade=true, iconIndex=55, name="electricBlade"},
 			{text="blade tower shield", [1]={}, permaUppgrade=true, iconIndex=40, name="shieldBreaker"}
 		},
 		["Tower/missileTower.lua"]={
-			{text="missile tower range",[1]={["value1"]="8"},[2]={["value1"]="9"},[3]={["value1"]="10"}, permaUppgrade=true, iconIndex=59, name="range" },
+			{text="tower.shop.shop.common.range",[1]={["value1"]="8"},[2]={["value1"]="9"},[3]={["value1"]="10"}, permaUppgrade=true, iconIndex=59, name="range" },
 			{text="missile tower explosion",[1]={["value1"]="8"},[2]={["value1"]="16"},[3]={["value1"]="24"}, permaUppgrade=true, iconIndex=39, name="Blaster"},
 			{text="missile tower fire",[1]={["value1"]="20",["value2"]="1"},[2]={["value1"]="22",["value2"]="1.75"},[3]={["value1"]="24",["value2"]="2.5"}, permaUppgrade=true, iconIndex=38, name="fuel"},
 			{text="missile tower shield destroyer", [1]={}, permaUppgrade=true, iconIndex=42, name="shieldSmasher"}
@@ -45,7 +45,7 @@ ShopFunction.towerUpgInfo = { ["Tower/MinigunTower.lua"]={
 			{text="free sub upgrade", permaUppgrade=true, iconIndex=53, name="freeUpgrade"}
 		},
 		["Tower/SupportTower.lua"]={
-			{text="support tower range",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}, permaUppgrade=true, iconIndex=59, name="range" },
+			{text="tower.shop.shop.common.range",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}, permaUppgrade=true, iconIndex=59, name="range" },
 			--{text="support tower damage",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}, permaUppgrade=true, iconIndex=64, name="damage"},
 			{text="support tower weaken",[1]={["value1"]="10"},[2]={["value1"]="20"},[3]={["value1"]="30"}, permaUppgrade=true, iconIndex=66, name="weaken"},
 			{text="support tower gold",[1]={["value1"]="1"},[2]={["value1"]="2"},[3]={["value1"]="3"}, permaUppgrade=true, iconIndex=67, name="gold"}

@@ -269,6 +269,7 @@ function CampaignGameShopMenu.new(parentPanel)
 		for n=1, 10 do
 			local towerName = upgrades[n]
 			buttons[n].button:addEventCallbackExecute(setVisibleSkillTree)
+			buttons[n].button:setToolTip(FreeFormDesign.buildToolTipPanelForTower(towerName))
 			buttons[n].panel = skillPanel:add(Panel(PanelSize(Vec2(-1, -1))))
 			buttons[n].panel:setVisible(n==1)
 			buttons[n].panel:setLayout(FreeFormLayout(PanelSize(Vec2(-1))))
@@ -303,9 +304,6 @@ function CampaignGameShopMenu.new(parentPanel)
 			local lineSelectedHandler = FreeFormLine()	
 			FreeFormDesign.setLineDesignSelected(lineSelectedHandler)
 			localSkillPanel:add(lineSelectedHandler)
-			
-			
-			
 			
 			
 			local skillButtonDesign = FreeFormDesign.getSkillButton()
