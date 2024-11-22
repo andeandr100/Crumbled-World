@@ -76,7 +76,7 @@ function init()
 	local bilboard = Core.getGlobalBillboard("Paths")
 	bilboard:clear();
 	
-	print( "PathNode bilboard clear id: "..this:getId().."\n" )
+	--print( "PathNode bilboard clear id: "..this:getId().."\n" )
 
 	spawns = {}
 	ends = {}
@@ -91,24 +91,24 @@ function init()
 	end
 	
 	
-	print("railPaths: "..tostring(railPaths).."\n")
+	--print("railPaths: "..tostring(railPaths).."\n")
 	--print("playernode: "..tostring(this:getPlayerNode()))
 	local islands = this:getPlayerNode():findAllNodeByTypeTowardsLeaf(NodeId.island)
 	
 	local data = {pathData.spawnAreas, pathData.pathPoints, pathData.targetAreas, pathData.railPaths}
 	local maxId = 0
-	print("islands: "..tostring(islands).."\n")
-	print("local data = "..tostring(data).."\n")
-	print("size = "..#data.."\n")
+	--print("islands: "..tostring(islands).."\n")
+	--print("local data = "..tostring(data).."\n")
+	--print("size = "..#data.."\n")
 	for i=1, #data  do
 		local pointData = data[i]
-		print("local pointData = "..tostring(pointData).."\n")
-		print("size = "..#pointData.."\n")
+		--print("local pointData = "..tostring(pointData).."\n")
+		--print("size = "..#pointData.."\n")
 		for n=1, #pointData do
 			local islandPtr = getIslandFromId(islands, pointData[n].islandId)
 			if islandPtr == nil then
-				print("Island "..pointData[n].islandId.." not found\n")
-				print("Islands registerd: "..tostring(islands).."\n\n")	
+				--print("Island "..pointData[n].islandId.." not found\n")
+				--print("Islands registerd: "..tostring(islands).."\n\n")	
 				--abort()
 				return false				
 			end
@@ -213,11 +213,11 @@ function init()
 			end
 		end
 	end
-	print("\n==========================\n\n")
-	print("spawns: "..tostring(spawns).."\n")
-	print("ends: "..tostring(ends).."\n")
-	print("points: "..tostring(points).."\n")
-	print("paths: "..tostring(paths).."\n")
+	--print("\n==========================\n\n")
+	--print("spawns: "..tostring(spawns).."\n")
+	--print("ends: "..tostring(ends).."\n")
+	--print("points: "..tostring(points).."\n")
+	--print("paths: "..tostring(paths).."\n")
 	
 	
 	
@@ -228,24 +228,24 @@ function init()
 	bilboard:setTable("railPaths", railPaths)
 	bilboard:setTable("railPaths", railPaths)
 	
-	print("\n==========================\n\n")
+	--print("\n==========================\n\n")
 
 	buildNode = this:getPlayerNode():findNodeByTypeTowardsLeafe(NodeId.buildNode)
 	if buildNode then
 		for groupId = 1, maxGroupId do
 			local groupPath = paths[groupId]
 			if groupPath then
-				print("group "..groupId.."\n")
+				--print("group "..groupId.."\n")
 				for pointId = 1, maxId do
 					
 					local startPoint = points[pointId]
 					if groupPath[pointId] then
-						print("start point id "..pointId.."\n")
+						--print("start point id "..pointId.."\n")
 						
 						for n = 1, #groupPath[pointId] do
 							local endPoint = points[groupPath[pointId][n]]
 							
-							print("add path id "..pointId..", id2 "..groupPath[pointId][n].."\n")
+							--print("add path id "..pointId..", id2 "..groupPath[pointId][n].."\n")
 
 							local node1 = startPoint.island:toSceneNode()
 							local node2 = endPoint.island:toSceneNode()
@@ -297,36 +297,36 @@ function init()
 		spawnPortals = {}
 		
 		for i=1, #spawns do
-			print("Finding spawn portal from spawn "..i.."\n")
+			--print("Finding spawn portal from spawn "..i.."\n")
 			local nodes = spawns[i].island:findAllNodeByNameTowardsLeaf("spawn_portal")
 			
 			if #nodes > 0 then
 				for n=1, #nodes do
-					print("found spawn portal\n")
+					--print("found spawn portal\n")
 					local inList = false
 					for n=1, #spawnPortals do
 						if spawnPortals[n] == nodes[n] then
 							inList = true
-							print("In list allready\n")
+							--print("In list allready\n")
 						end
 					end
 					
 					if not inList then
 						spawnPortals[#spawnPortals+1] = nodes[n]
-						print("add portal to list\n")
+						--print("add portal to list\n")
 					else
-						print("portal is allready added to list\n")
+						--print("portal is allready added to list\n")
 					end
 				end
 			else
 				nodes = this:getRootNode():findAllNodeByNameTowardsLeaf("spawn_portal")
-				print("num spawn portal in tree: "..#nodes.."\n")
-				print("No Spawn portal was found\n")
+				--print("num spawn portal in tree: "..#nodes.."\n")
+				--print("No Spawn portal was found\n")
 			end
 			
 		end
 		
-		print("spawnPortals: "..tostring(spawnPortals).."\n")
+		--print("spawnPortals: "..tostring(spawnPortals).."\n")
 		
 		bilboard:setTable("spawnPortals", spawnPortals)
 		
@@ -366,7 +366,7 @@ function findNextPointFromSpawn(spawn)
 	if returnPoint then
 		return returnPoint
 	elseif #ends > 0 then
-		print("set random end as end point for the spawn portal\n")
+		--print("set random end as end point for the spawn portal\n")
 		return ends[math.randomInt(1, #ends)]
 	else
 		return nil
@@ -375,21 +375,21 @@ end
 
 function rotateSpawnPortals()
 	local navMesh = ConvertToNavMesh( this:findNodeByType(NodeId.navMesh) )
-	if navMesh then
-		print("navMesh Found\n")
-		print("SceneId: "..navMesh:getNodeType())
+	--if navMesh then
+		--print("navMesh Found\n")
+		--print("SceneId: "..navMesh:getNodeType())
 		--print("navMesh: "..tostring(navMesh:getHull()))
-		print("")
-	end
+		--print("")
+	--end
 	
-	print("Num portals: "..#spawnPortals.."\n")
+	--print("Num portals: "..#spawnPortals.."\n")
 		
 	for i=1, #spawnPortals do
 		local spawnPortal = spawnPortals[i]
 		local spawn = nil
 		for n=1, #spawns do
 			local distance = (spawnPortal:getGlobalPosition() - (spawns[n].island:getGlobalMatrix() * spawns[n].position)):length()
-			print("distance to spawn"..n..": "..distance.."\n")
+			--print("distance to spawn"..n..": "..distance.."\n")
 			if distance < 2.0 then
 				spawn = spawns[n]
 			end
@@ -398,27 +398,27 @@ function rotateSpawnPortals()
 		
 		local nextPoint = findNextPointFromSpawn(spawn)
 		
-		if spawn then
-			print("Spawn Found\n")
-		end
-		if nextPoint then
-			print("nextPoint Found\n")
-		end
+		--if spawn then
+		--	print("Spawn Found\n")
+		--end
+		--if nextPoint then
+		--	print("nextPoint Found\n")
+		--end
 		
 		
 		if spawn and nextPoint and navMesh then
-			print("navMesh Found\n")
-			print("SceneId: "..navMesh:getNodeType())
+			--print("navMesh Found\n")
+			--print("SceneId: "..navMesh:getNodeType())
 			--print("navMesh: "..tostring(navMesh:getHull()))
-			print("spawn: "..tostring(spawn))
-			print("nextPoint: "..tostring(nextPoint))
-			print("")
+			--print("spawn: "..tostring(spawn))
+			--print("nextPoint: "..tostring(nextPoint))
+			--print("")
 			local path = navMesh:getPath(0.8, spawn, nextPoint)
 			
-			print("Path size: "..#path.."\n")
+			--print("Path size: "..#path.."\n")
 			
 			if path and #path > 1 then
-				print("all well\n")
+				--print("all well\n")
 --				Core.addDebugLine(path[2].island:getGlobalMatrix() * path[2].position + Vec3(0,1,0), path[1].island:getGlobalMatrix() * path[1].position + Vec3(0,1,0), 500.0, Vec3(0,0,1))
 --				Core.addDebugSphere(Sphere(path[1].island:getGlobalMatrix() * path[1].position + Vec3(0,1,0), 0.5), 500.0, Vec3(0,0,1))
 				
@@ -437,8 +437,8 @@ function rotateSpawnPortals()
 				end
 				spawnPortals[i]:setLocalMatrix(newLocalMatrix)
 			end
-		else
-			print("Missing data\n")
+		--else
+		--	print("Missing data\n")
 		end
 	end
 end

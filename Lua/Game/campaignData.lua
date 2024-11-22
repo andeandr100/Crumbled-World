@@ -309,7 +309,6 @@ function CampaignData.new()
 	end
 	function self.clear(towerName,upgradeName,permUnlocked)
 		if permUnlocked then
-			print("========================================")
 			print("==> self.clear("..towerName..","..upgradeName..","..tostring(permUnlocked)..")")
 			local upgCount = self.getBoughtUpg(towerName,upgradeName,permUnlocked)
 			campaingDataConfig:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):setInt(0)

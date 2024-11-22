@@ -54,31 +54,30 @@ function DiffBalancer.new()
 		--Badness meter
 		local B = 0
 		if isCrystal then
-			print("LLP = "..tostring(LLP))
-			print("LGP = "..tostring(LGP))
+			--print("LLP = "..tostring(LLP))
+			--print("LGP = "..tostring(LGP))
 			B = B + (0.5*LLP*LGP)
 		elseif isCart then
 			B = B + (0.5*LGP)
 		end
-		print("ESAS= "..tostring(ESAS))
-		print("S= "..tostring(S))
-		print("CEWP= "..tostring(CEWP))
-		print("LSP = "..tostring(LSP))
+		--print("ESAS= "..tostring(ESAS))
+		--print("S= "..tostring(S))
+		--print("CEWP= "..tostring(CEWP))
+		--print("LSP = "..tostring(LSP))
 		B = B + (0.5*CEWP*LSP)
-		print("B = "..tostring(B))
+		--print("B = "..tostring(B))
 		return B
 	end
 	
 	function self.getHandicap(pWave)
 		if mapInfo.isCampaign() and pWave>0 then
-			print("============================")
 			bilboardStats = bilboardStats or Core.getBillboard("stats")
 			wave = pWave
 			local LLP = getLLP()
 			local B = calculateBaseValue(wave)
 			local W = 0;
 			if isCrystal then
-				print("TL = "..tostring(TL))
+				--print("TL = "..tostring(TL))
 				W = W + (0.4*TL*B*LLP)
 			elseif isCart then
 				W = W + (0.2*B)

@@ -38,9 +38,9 @@ function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
 	
 	local label = createLabel( panel, startValue )
 	
-	panel:setToolTip(language:getText(toolTipText))
+	panel:setToolTip(language:getText("tooltip."..toolTipText))
 	
-	toolTips[#toolTips + 1] = {panel=panel, text=toolTipText}
+	toolTips[#toolTips + 1] = {panel=panel, text="tooltip."..toolTipText}
 	
 	return label, image
 end
@@ -162,12 +162,12 @@ end
 
 local function updateGoldToolTip()
 
-	local goldTextList = {	{text=language:getText("Total gold earned"),	billName="goldGainedTotal", color="40,255,40" }, 
-							{text=language:getText("From kills"), 			billName="goldGainedFromKills", color="40,255,40" }, 
-							{text=language:getText("From waves"), 			billName="goldGainedFromWaves", color="40,255,40" }, 
-							{text=language:getText("From towers"), 			billName="goldGainedFromSupportTowers", color="40,255,40" }, 
-							{text=language:getText("Spent in towers"), 		billName="goldInsertedToTowers", color="255,255,40" }, 
-							{text=language:getText("Lost from selling"),	billName="goldLostFromSelling", color="255,40,40"},
+	local goldTextList = {	{text=language:getText("tooltip.total gold earned"),	billName="goldGainedTotal", color="40,255,40" }, 
+							{text=language:getText("tooltip.from kills"), 			billName="goldGainedFromKills", color="40,255,40" }, 
+							{text=language:getText("tooltip.from waves"), 			billName="goldGainedFromWaves", color="40,255,40" }, 
+							{text=language:getText("tooltip.from towers"), 			billName="goldGainedFromSupportTowers", color="40,255,40" }, 
+							{text=language:getText("tooltip.spent in towers"), 		billName="goldInsertedToTowers", color="255,255,40" }, 
+							{text=language:getText("tooltip.lost from selling"),	billName="goldLostFromSelling", color="255,40,40"},
 --							{text="towersBuilt",		billName="towersBuilt", color="40,255,40"},
 --							{text="wallTowerBuilt",		billName="wallTowerBuilt", color="40,255,40"},
 --							{text="towersSold",		billName="towersSold", color="40,255,40"},
@@ -215,13 +215,13 @@ local function updateGoldToolTip()
 	toolTips[toolTipsIndexGold].panel:setToolTip(toolPanel)
 end
 local function updateScoreToolTip()
-	local scoreTextList = {	{text="Score from total tower value",	billName="totalTowerValue", 		color="40,255,40" }, 
-							{text="Score from gold", 				billName="gold", 					color="40,255,40" }, 
-							{text="Score from interest", 			billName="goldGainedFromInterest", 	color="40,255,40" }, 
-							{text="Score from life", 				billName="life", 					color="40,255,40" }
+	local scoreTextList = {	{text=language:getText("tooltip.score from total tower value"),	billName="totalTowerValue", 		color="40,255,40" }, 
+							{text=language:getText("tooltip.score from gold"), 				billName="gold", 					color="40,255,40" }, 
+							{text=language:getText("tooltip.score from interest"), 			billName="goldGainedFromInterest", 	color="40,255,40" }, 
+							{text=language:getText("tooltip.score from life"), 				billName="life", 					color="40,255,40" }
 						}
 	if statsBilboard:getInt("scorePreviousBestGame")>=0 then
-		scoreTextList[#scoreTextList+1] = {text="Score in your best game",		billName="scorePreviousBestGame", 	color="40,255,40" }
+		scoreTextList[#scoreTextList+1] = {text=language:getText("tooltip.score in your best game"),		billName="scorePreviousBestGame", 	color="40,255,40" }
 	end
 	local toolPanel = Panel(PanelSize(Vec2(1)))
 	toolPanel:setLayout(FlowLayout())
@@ -322,9 +322,9 @@ function init()
 		--filler Panel
 		local mainPanel = form:add(Panel(PanelSize(Vec2(-1))))
 		
-		MenuButton = MainMenuStyle.addTopMenuButton( topPanel, Vec2(4,1), language:getText("menu"))
+		MenuButton = MainMenuStyle.addTopMenuButton( topPanel, Vec2(4,1), language:getText("ingame.button.menu"))
 		MenuButton:addEventCallbackExecute(toggleInGameMenu)
-		MenuButton:setTag("menu")
+		MenuButton:setTag("ingame.button.menu")
 		
 		--create NPC panel
 		npcPanel = NpcPanel.new(topPanel)
@@ -355,7 +355,7 @@ function init()
 		
 		--Game speed
 		time = Core.getTimeSpeed()			
-		timeLabel = createSpeedButton(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed", toogleSpeed)
+		timeLabel = createSpeedButton(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "tooltip.game speed", toogleSpeed)
 --			timeLabel = createStat(Vec2(0.125, 0.25),Vec2(0.25,0.3125), tostring(time).."x", "game speed")
 --			--Score
 --			to be used When implemented

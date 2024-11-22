@@ -92,21 +92,23 @@ function create()
 		return false
 	end
 	
+	local panelSpacing = PanelSize(Vec2(0.002,0.002),PanelSizeType.WindowPercentBasedOnY)
+	
 	form = Form( camera, PanelSize(Vec2(1, 1)), Alignment.TOP_LEFT);
 	
 	form:getPanelSize():setFitChildren(false, false);
 	form:setLayout(FlowLayout(Alignment.MIDDLE_CENTER, PanelSize(Vec2(0,0.001))));
 	form:setRenderLevel(200)
 	form:setVisible(true)
-	form:setBackground(Sprite(Vec4(0,0,0,0.6)))
+	form:setBackground(Sprite(Vec4(0,0,0,0.7)))
 	form:addEventCallbackOnClick(hideForm)
 	
-	local formPanel = form:add(Panel(PanelSize(Vec2(1,0.45),Vec2(1.1,1))))
+	local formPanel = form:add(Panel(PanelSize(Vec2(1,0.65),Vec2(1.1,1))))
 		
 	formPanel:setPadding(BorderSize(Vec4(0.003), true))
 	formPanel:setBackground(Gradient(Vec4(MainMenuStyle.backgroundTopColor:toVec3(), 0.9), Vec4(MainMenuStyle.backgroundDownColor:toVec3(), 0.75)))
 	formPanel:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize),true), MainMenuStyle.borderColor))
-	formPanel:setLayout(FallLayout(Alignment.TOP_CENTER));	
+	formPanel:setLayout(FallLayout(Alignment.TOP_CENTER, panelSpacing));	
 	
 	
 	--Header
@@ -134,7 +136,7 @@ function create()
 	
 	--Body
 	local mainPanel = formPanel:add(Panel(PanelSize(Vec2(-1))))
-	mainPanel:setLayout(FallLayout(Alignment.TOP_CENTER))
+	mainPanel:setLayout(FallLayout(Alignment.TOP_CENTER,panelSpacing))
 	
 	
 	tutorialIndex = 1
@@ -143,17 +145,17 @@ function create()
 	if fileName=="Data/Map/Campaign/Beginning.map" then
 		images[1] = Core.getTexture("tutorial1.png")
 		for i=1, 6 do
-			tutorialTexts[i] = language:getText("tutorial "..i)
+			tutorialTexts[i] = language:getText("tutorial.part-"..i)
 		end
 	elseif fileName=="Data/Map/Campaign/Intrusion.map" then
 		images[1] = Core.getTexture("tutorial2_1.png")
-		tutorialTexts[1] = language:getText("tutorial 7")
-		tutorialTexts[2] = language:getText("tutorial 8")
-		tutorialTexts[3] = language:getText("tutorial 9")
+		tutorialTexts[1] = language:getText("tutorial.part-7")
+		tutorialTexts[2] = language:getText("tutorial.part-8")
+		tutorialTexts[3] = language:getText("tutorial.part-9")
 	elseif fileName=="Data/Map/Campaign/Expansion.map" then
 		images[1] = Core.getTexture("tutorial3_1.png")
-		tutorialTexts[1] = language:getText("tutorial 10")
-		tutorialTexts[2] = language:getText("tutorial 11")
+		tutorialTexts[1] = language:getText("tutorial.part-10")
+		tutorialTexts[2] = language:getText("tutorial.part-11")
 	end
 	local textureSize = images[1]:getSize()
 	
@@ -173,11 +175,11 @@ function create()
 	
 	--
 	local infoAndButtonPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9,-1))))
-	infoAndButtonPanel:setLayout(FallLayout(Alignment.BOTTOM_CENTER))
+	infoAndButtonPanel:setLayout(FallLayout(Alignment.BOTTOM_CENTER, panelSpacing))
 	
 	--create next button
 	local buttonPanel = infoAndButtonPanel:add(Panel(PanelSize(Vec2(-1,0.03))))
-	buttonPanel:setLayout(FlowLayout(Alignment.BOTTOM_RIGHT))
+	buttonPanel:setLayout(FlowLayout(Alignment.BOTTOM_RIGHT, panelSpacing))
 	nextButton = buttonPanel:add(MainMenuStyle.createButton(Vec2(-1),Vec2(4,1), "Next"))
 	nextButton:addEventCallbackExecute(next)
 	

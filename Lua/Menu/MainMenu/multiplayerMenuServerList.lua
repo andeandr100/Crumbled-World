@@ -104,7 +104,7 @@ function MultiplayerMenuServerList.new(panel)
 	local function updateServerList()
 		--Check if it's time to do a server update check
 		if serverUpdateTime < Core.getGameTime() then
-			print("\n\n\n\n\n\n\n\n\n\nupdateServerList()\n\n\n\n\n")
+			--print("\n\n\n\n\n\n\n\n\n\nupdateServerList()\n\n\n\n\n")
 			updateServerListBool = false
 			serverUpdateTime = Core.getGameTime() + 10
 			local tmpServerList = serverTime and Core.getServerList(serverTime) or Core.getServerList()

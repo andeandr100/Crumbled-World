@@ -71,10 +71,8 @@ function IslandInfo.new(camera)
 		local difficult = {Easy=1,Normal=2,Hard=3,Extreme=4,Insane=5}--"Impossible #"
 		if difficult[gameDifficultyComboBox:getText()] then
 			mapInfo.setLevel(tonumber(difficult[gameDifficultyComboBox:getText()]))
-			--print("difficulty == "..difficult[gameDifficultyComboBox:getText()].."\n")
 		else
 			mapInfo.setLevel(5+tonumber(string.match(gameDifficultyComboBox:getText(), " (.*)")))
-			--print("difficulty == "..5+tonumber(string.match(gameDifficultyComboBox:getText(), " (.*)")).."\n")
 		end
 	end
 	local function gameModeNormalClick()
@@ -188,13 +186,13 @@ function IslandInfo.new(camera)
 		--add all difficulty levels available
 		print("gameDifficultyComboBox:clear()\n")
 		gameDifficultyComboBox:clearItems()
-		addItem( "Easy")			--0.70
-		addItem( "Normal")			--0.75
-		addItem( "Hard" )			--0.80
-		addItem( "Extreme" )		--0.85
-		addItem( "Insane" )			--0.90
+		addItem( "settings.easy")			--0.70
+		addItem( "settings.normal")			--0.75
+		addItem( "settings.hard" )			--0.80
+		addItem( "settings.extreme" )		--0.85
+		addItem( "settings.insane" )			--0.90
 		for i=6, cData.getLevelCompleted(activeMapFile)+1 do
-			addItem( "Impossible "..(i-5) )--Unlock the next dificulty level each time you beat the last
+			addItem( "settings.impossible "..(i-5) )--Unlock the next dificulty level each time you beat the last
 		end
 		--load and set map icon
 		local image = File(filePath, "icon.jpg")

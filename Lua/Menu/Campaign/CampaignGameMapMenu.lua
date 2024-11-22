@@ -125,6 +125,7 @@ function CampaignGameMapMenu.new(parentPanel)
 		local mapFile = File(selectedFile)
 		if mapFile:exist() then
 			
+			local mapName = selectedMapPath
 			local mNum = gameValues.getMapIndex(selectedMapPath)
 
 			levelInfo.setMapNumber(mNum)
@@ -223,9 +224,9 @@ function CampaignGameMapMenu.new(parentPanel)
 --		--	Difficulties
 --		--
 		local rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		labels[1] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("difficulty"), Vec3(0.7)))
-		labels[1]:setTag("difficulty")
-		local optionsNames = {"normal", "hard", "extreme", "insane"}
+		labels[1] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("custom-game.difficulty"), Vec3(0.7)))
+		labels[1]:setTag("custom-game.difficulty")
+		local optionsNames = {"settings.normal", "settings.hard", "settings.extreme", "settings.insane"}
 		local difficultLevel = 1
 		difficutyBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), optionsNames, "difficulty", optionsNames[difficultLevel], changeDifficulty )
 		--
@@ -233,8 +234,8 @@ function CampaignGameMapMenu.new(parentPanel)
 		--
 		--Game mode		
 		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		labels[2] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("game mode"), Vec3(0.7)))
-		labels[2]:setTag("game mode")
+		labels[2] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("custom-game.game mode"), Vec3(0.7)))
+		labels[2]:setTag("custom-game.game mode")
 		local defaultMode = 1
 		gameModeBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), gameModes, "game mode", gameModes[defaultMode], changeGameMode, optionsTooltip )
 		
@@ -253,10 +254,10 @@ function CampaignGameMapMenu.new(parentPanel)
 		--
 		--	start button
 		--
-		local startAGameButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("start game")))
+		local startAGameButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("custom-game.start game")))
 		startAGameButton:addEventCallbackExecute(startMap)
 		labels[4] = startAGameButton
-		labels[4]:setTag("start game")
+		labels[4]:setTag("custom-game.start game")
 		
 		--	Spacing
 		local highScorePanel = infoPanel:add(Panel(PanelSize(Vec2(-1,-0.85))))
@@ -269,8 +270,8 @@ function CampaignGameMapMenu.new(parentPanel)
 		--add header
 		local scoreHeader = borderPanel:add(Panel(PanelSize(Vec2(-1,-0.1))))
 		local labelColor = Vec4(0.9,0.9,0.9,1.0)
-		scoreHeader:add(Label(PanelSize(Vec2(-0.65,-1)), language:getText("name"), labelColor))
-		scoreHeader:add(Label(PanelSize(Vec2(-0.5,-1)), language:getText("score"), labelColor))
+		scoreHeader:add(Label(PanelSize(Vec2(-0.65,-1)), language:getText("custom-game.name"), labelColor))
+		scoreHeader:add(Label(PanelSize(Vec2(-0.5,-1)), language:getText("score.score"), labelColor))
 		local scoreLine = borderPanel:add(Panel(PanelSize(Vec2(-1,1),PanelSizeType.Pixel)))		
 		scoreLine:setBackground(Sprite(Vec3(0.3)))
 		scoreArea = borderPanel:add(Panel(PanelSize(Vec2(-1))))
@@ -313,6 +314,7 @@ function CampaignGameMapMenu.new(parentPanel)
 		--set previous selected settings or a default setting
 		if selectedMap then
 			if gameValues.getMapIndex(selectedMap) >= 1 and File(selectedMap):isFile() then
+		
 				changeMapTo(gameValues.getMapIndex(selectedMap), selectedMap, File(selectedMap))
 			end
 			changeDifficulty("",gameValues.getSelectedMapDifficulty())

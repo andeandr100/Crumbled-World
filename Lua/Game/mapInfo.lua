@@ -13,11 +13,12 @@ function MapInfo.new()
 	local difficultyBase = 0.0
 
 	function self.getGameModesSinglePlayer()
-		return {"default", "survival"}
+		return {"custom-game.game-mode.default", "custom-game.game-mode.survival"}
 	end
 	function self.getGameModesMultiPlayer()
-		return {"default", "survival"}
+		return {"custom-game.game-mode.default", "custom-game.game-mode.survival"}
 	end
+	
 	function self.setLevel(level,notSave)
 		--1 = 0.70
 		--2 = 0.75
@@ -124,7 +125,15 @@ function MapInfo.new()
 		return billboard:getDouble("SpawnWindow")
 	end
 	function self.getGameMode()
-		return billboard:getString("GameMode")
+		local languageStringGameMode = billboard:getString("GameMode")
+		
+		if languageStringGameMode == "custom-game.game-mode.default" then
+			return "default"
+		elseif languageStringGameMode == "custom-game.game-mode.survival" then
+			return "survival"
+		else
+			return "undefined-game-mode"
+		end
 	end
 	function self.getTowerSettings()
 		return billboard:getTable("TowerSettings")

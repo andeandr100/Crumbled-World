@@ -117,6 +117,8 @@ function restartWave(wave)
 	end
 	updateScore()
 end
+
+
 function create()
 	local mapInfo = MapInfo.new()
 	--

@@ -44,9 +44,9 @@ function VideoPanel.create(mainPanel)
 	local labels = VideoPanel.labels	
 	for i=1, #labels do
 		if labels[i] then
-			print("")
-			print("index: "..i)
-			print("value: "..VideoPanel.labelsText[i])
+			--print("")
+			--print("index: "..i)
+			--print("value: "..VideoPanel.labelsText[i])
 			labels[i]:setText(language:getText(VideoPanel.labelsText[i]))
 		end
 	end

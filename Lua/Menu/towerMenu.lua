@@ -157,14 +157,14 @@ end
 function destroy()
 	
 	if form then
-		print("Destroy form\n")
+		--print("Destroy form\n")
 		form:setVisible(false)
 		form:destroy()
 		form = nil
 	end
 	
 	if posterForm then
-		print("Destroy posterForm\n")
+		--print("Destroy posterForm\n")
 		posterForm:setVisible(false)
 		posterForm:destroy()
 		posterForm = nil
@@ -194,7 +194,7 @@ function create()
 	
 	
 	
-	print("TOWERMENU:::Create()\n")
+	--print("TOWERMENU:::Create()\n")
 	if this:getNodeType() == NodeId.playerNode then
 		
 		local menuNode = this:addChild(SceneNode.new())
@@ -207,7 +207,7 @@ function create()
 		--Move this script to the camera node
 		--this:removeScript(this:getCurrentScript():getName());
 		menuNode:loadLuaScript(this:getCurrentScript():getFileName());
-		print("TOWERMENU:::Create()->return=false\n")
+		--print("TOWERMENU:::Create()->return=false\n")
 		menuNode:loadLuaScript("Menu/AbilitiesMenu.lua")
 		return false
 	else
@@ -274,11 +274,11 @@ function create()
 				buildings[numBuildings].towerNode = SceneNode.new()
 	
 				local scriptName = buildingBillboard:getString(tostring(numBuildings))
-				print("\n\nTower id: "..numBuildings.." script name: "..scriptName.."\n")
+				--print("\n\nTower id: "..numBuildings.." script name: "..scriptName.."\n")
 				local luaScript = buildings[numBuildings].towerNode:loadLuaScript(scriptName)
 				buildings[numBuildings].towerNode:update()
 
-				print("Tower loaded\n")
+				--print("Tower loaded\n")
 				if luaScript then
 					luaScript:setName("tower");
 					luaScript:setScriptNetworkId("menu_tower_"..numBuildings)
@@ -286,7 +286,7 @@ function create()
 				end
 				
 	
-				print("Tower loaded\n")					
+				--print("Tower loaded\n")					
 
 				local start
 				local x = (numBuildings-1)%4
@@ -328,7 +328,7 @@ function create()
 			settingsListener:registerEvent("Changed", settingsChanged)
 			settingsChanged()
 		else
-			print("No camera was ever found\n");
+			print("No camera was ever found");
 		end
 		
 		for i=1, #buildings do
@@ -364,7 +364,7 @@ function create()
 --		buildings[9] = {name="Support tower", range=2.5,cost = 200}
 		
 	end
-	print("TOWERMENU:::Create()->return=true\n")
+	--print("TOWERMENU:::Create()->return=true\n")
 	return true
 end
 

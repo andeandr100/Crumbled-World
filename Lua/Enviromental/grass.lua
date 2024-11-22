@@ -7,12 +7,12 @@ function create()
 	grassListener = Listener("Grass node")
 	grassListener:registerEvent("Change", changed)
 	
-	print("\n")
-	print("############################\n")
-	print("############################\n")
-	print("############################\n")
-	print("############################\n")
-	print("\n")
+	--print("\n")
+	--print("############################\n")
+	--print("############################\n")
+	--print("############################\n")
+	--print("############################\n")
+	--print("\n")
 	
 	return true
 end
@@ -38,7 +38,7 @@ function saveFunction(export)
 	
 	if grassData then
 		for islandId,islandData in pairs(grassData) do
-			print("Island "..islandId.."\n")
+			--print("Island "..islandId.."\n")
 			outData[islandId] = {}
 			--copy local straw data
 			if not export then
@@ -47,11 +47,11 @@ function saveFunction(export)
 			--copy the 
 			
 			for key,subIsland in pairs(islandData) do
-				print("3 key: "..key.."\n")
+				--print("3 key: "..key.."\n")
 				outData[islandId][key] = {}
 				if key ~= "island" then
 					for subKey,subIslandData in pairs(subIsland) do
-						print("3 sub key: "..subKey.."\n")
+						--print("3 sub key: "..subKey.."\n")
 						if subKey == "straw" then
 							if not export then
 								outData[islandId][key].straw = subIslandData
@@ -75,7 +75,7 @@ function saveFunction(export)
 			end
 		end
 	end
-	print("Num straw: "..count.."\n")
+	--print("Num straw: "..count.."\n")
 
 	return "table="..tabToStrMinimal(outData)
 end
@@ -113,11 +113,11 @@ function load(inData)
 	
 		local initData = totable( inData )
 		
-		print("File node found")
-		print("Island id list: \n")
-		for i=1, #islandList do
-			print("\t\tislandId = "..islandList[i]:getIslandId().."\n")
-		end
+		--print("File node found")
+		--print("Island id list: \n")
+		--for i=1, #islandList do
+		--	print("\t\tislandId = "..islandList[i]:getIslandId().."\n")
+		--end
 		--print("init data: "..tostring(initData).."\n")
 		for islandId,islandData in pairs(initData) do	
 			

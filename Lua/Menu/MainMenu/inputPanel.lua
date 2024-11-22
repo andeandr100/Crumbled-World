@@ -35,10 +35,10 @@ function InputPanel.create(mainPanel)
 	local keys = InputPanel.keyBinds:getKeys()
 	
 	local groupedKeys = {}
-	print("Sort goups\n")
+	--print("Sort goups\n")
 	--Group keyBinds by group and name
 	for i=1, #keys do
-		print("Key: "..keys[i].."\n")
+		--print("Key: "..keys[i].."\n")
 		local keyBind = InputPanel.keyBinds:getKeyBind(keys[i])
 		local groupName = keyBind:getGroupName()
 		local subGroupName = keyBind:getSubGroupName()
@@ -55,9 +55,9 @@ function InputPanel.create(mainPanel)
 	end
 	local count = 1
 	local function addInputGroup(groupName, group)
-		print("Goup: "..groupName.."\n")
-		InputPanel.labels[count] = OptionsMenuStyle.addOptionsHeader( inputPanel, language:getText( string.lower(groupName)) )
-		InputPanel.labels[count]:setTag( string.lower(groupName) )
+		--print("Goup: "..groupName.."\n")
+		InputPanel.labels[count] = OptionsMenuStyle.addOptionsHeader( inputPanel, language:getText( "keybind." .. string.lower(groupName)) )
+		InputPanel.labels[count]:setTag( "keybind." .. string.lower(groupName) )
 		count = count + 1
 		for subGroupName, subGroup in pairs(group) do
 			local nameList = {}
@@ -68,9 +68,9 @@ function InputPanel.create(mainPanel)
 				local name = nameList[i]
 				local keyBind = subGroup[name]
 				
-				print("name: "..name.."\n")
-				rowPanel, InputPanel.labels[count] = OptionsMenuStyle.addRow(inputPanel, InputPanel.getKeyBindName(name) )
-				InputPanel.labels[count]:setTag( name )
+				--print("name: "..name.."\n")
+				rowPanel, InputPanel.labels[count] = OptionsMenuStyle.addRow(inputPanel, InputPanel.getKeyBindName("keybind." .. name) )
+				InputPanel.labels[count]:setTag( "keybind." .. name )
 				InputPanel.addKeyBindButton( rowPanel, Vec2(-0.45,-1), keyBind:getKeyBindName(0), name, 0)
 				InputPanel.addKeyBindButton( rowPanel, Vec2(-0.9,-1), keyBind:getKeyBindName(1), name, 1)
 				count = count + 1				
@@ -122,7 +122,7 @@ end
 function bindNewKey(button)
 	local keyBindName,id = string.match(button:getTag():toString(),"([^,]+);([^,]+)")
 	InputPanel.rebindKey = InputPanel.keyBinds:getKeyBind(keyBindName)
-	print("\nKeyName: "..keyBindName.."\n\n")
+	--print("\nKeyName: "..keyBindName.."\n\n")
 	InputPanel.form:setVisible(true)
 	if InputPanel.rebindKey then
 		InputPanel.rebindKeyId = tonumber(id)

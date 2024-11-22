@@ -73,9 +73,7 @@ function CustomeGameMenu.new(panel)
 			
 			local panels = mapTable[file:getPath()]
 			local mapInfoItem = MapInformation.getMapInfoFromFileName(file:getName(), file:getPath()) 
-			
-			print("Update "..file:getPath().." found "..(panels and "Panels" or "nil").." and "..(mapInfoItem and "mapInfoItem" or "nil").."\n")
-			
+
 			if panels and mapInfoItem then
 				panels.gameMode:setText(mapInfoItem.gameMode)
 			end

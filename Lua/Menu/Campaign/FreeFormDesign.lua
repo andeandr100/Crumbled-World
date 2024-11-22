@@ -337,21 +337,24 @@ end
 
 -----------------------------------------------------------------
 
-function FreeFormDesign.convertValueToPrintedValue(value, name, func, addPercentage)
+function FreeFormDesign.convertValueToPrintedValue(data, name, level)
 	
+	local value = data[level]
+	local func = data.func
+	local suffix = (data.suffix and data.suffix or "")
 	local greenColor = "<font color=rgb(40,255,40)>+"
 	if func == FreeFormDesign.gameValues.mul then
 		if value < 1 then
-			return tostring(math.round((1-value) * 100)) .. (addPercentage and "%" or ""), "<font color=rgb(255,50,50)>-"
+			return tostring(math.round((1-value) * 100)) .. suffix, "<font color=rgb(255,50,50)>-"
 		else
-			return tostring(math.round((value-1) * 100)) .. (addPercentage and "%" or ""), greenColor
+			return tostring(math.round((value-1) * 100)) .. suffix, greenColor
 		end
 		
 	elseif name == "slow" then
-		return tostring(math.round(value * 100)) .. (addPercentage and "%" or ""), greenColor
+		return tostring(math.round(value * 100)) .. suffix, greenColor
 	else
 		local roundedValue = value >= 10 and math.round(value) or (math.round(value * 10) / 10)
-		return tostring(roundedValue), greenColor
+		return tostring(roundedValue) .. suffix, greenColor
 	end
 end
 
@@ -362,9 +365,9 @@ function FreeFormDesign.getValuesForToolTip(abilityData, level)
 		local data = abilityData.stats[name]
 
 		if value1 == nil then
-			value1 = FreeFormDesign.convertValueToPrintedValue(data[level], name, data.func)
+			value1 = FreeFormDesign.convertValueToPrintedValue(data, name, level)
 		else
-			return value1, FreeFormDesign.convertValueToPrintedValue(data[level], name, data.func)
+			return value1, FreeFormDesign.convertValueToPrintedValue(data, name, level)
 		end
 	end
 	return (value1==nil and "" or value1), ""
@@ -412,7 +415,7 @@ local function addAbility(panel, abilityData, index, level)
 	icon:setUvCoord(minCoord,maxCoord)
 				
 				
-	local valueStr, fontStr = FreeFormDesign.convertValueToPrintedValue(data[level], name, data.func, true)
+	local valueStr, fontStr = FreeFormDesign.convertValueToPrintedValue(data, name, level)
 	notifyText = fontStr .. valueStr .. "</font>\n"
 	
 	
@@ -478,10 +481,11 @@ function FreeFormDesign.buildToolTipPanelForAbility(abilityData, level, upgradeN
 	end
 	
 	totalPanelSizeInPixel = addLineBreaker(panel, totalPanelSizeInPixel)
-	
+
+	totalPanelSizeInPixel:maximize(Vec2(Core.getScreenResolution().y * 0.025 * 15,0))
 	
 	for n=1, #abilityData.infoValues, 2 do 
-		local row = panel:add( Panel(PanelSize(Vec2(-1,0.025),Vec2(5,1))) )
+		local row = panel:add( Panel(PanelSize(Vec2(-1,0.025),Vec2(15,1))) )
 		row:setLayout(FlowLayout())
 		
 		local column1 = row:add(Panel(PanelSize(Vec2(-0.5,-1))))

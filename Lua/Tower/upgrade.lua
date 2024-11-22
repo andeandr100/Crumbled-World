@@ -336,36 +336,27 @@ function Upgrade.new()
 		--
 		upgraded.version = upgraded.version and upgraded.version + 1 or 1
 		billboard:setTable("upgraded",upgraded)
-		--print("=======================================\n")
-		--print(tostring(upgraded).."\n")
-		--print("self.fixBillboardAndStats() - END\n")
 	end
 	-- function:	upgradeOnly
 	-- purpose:		a fake upgrade to allow us to se what effect this upgrade will have
 	function self.upgradeOnly( name, toBillboard )
-		--print("self.upgradeOnly("..name..") - BEG\n")
 		--upgrade name
 		local order = upgradesAvailable[name][1].order
 		if upgraded[order] then
---			print("has been upgraded before")
 			--has been upgraded before
 			upgraded[order] = getCopyOfTable(upgradesAvailable[name][upgraded[order].level+1])
 		else
---			print("not listed, grab level 1 version of it")
 			--not listed, grab level 1 version of it
 			upgraded[order] = getCopyOfTable(upgradesAvailable[name][1])
 		end
-		--value = value + upgraded[order].cost
 		subUpgradeCount = subUpgradeCount + ((name=="upgrade" or name=="boost" or name=="calculate" or name=="range" or name=="gold" or name=="supportRange" or name=="supportDamage" or name=="smartTargeting") and 0 or 1)
 		subUpgradeCountTotal = subUpgradeCountTotal + ((name=="upgrade" or name=="boost" or name=="calculate" or name=="gold" or name=="supportRange" or name=="supportDamage") and 0 or 1)
 		--calculate the stats
 		self.calculateStats( name, toBillboard )
-		--print("self.upgradeOnly("..name..") - END\n")
 	end
 	-- function:	degrade
 	-- purpose:		degrades an upgrade(usefull when going back in time or rolling back time based upgrades)
 	function self.degrade( name )
-		--print("self.degrade("..name..")\n")
 		--degrade is only leagal for boost
 		self.degradeOnly( name, true )
 		--recalculate the cost
@@ -377,10 +368,7 @@ function Upgrade.new()
 		end
 		--fix cooldown timer
 		if upgradesAvailable[name][1].cooldown then
-			--upgradesAvailable[name][1].startWaveCooldown = Core.getBillboard("stats"):getInt("wave")
 			upgradesAvailable[name][1].isOnCoolDown = true
-			--self.timer = upgradesAvailable[name][1].cooldown
-			--self.timerName = ""
 		end
 		self.fixBillboardAndStats()
 		if isInXpMode then
@@ -393,7 +381,6 @@ function Upgrade.new()
 		--degrade name
 		local order = upgradesAvailable[name][1].order
 		local currentLevel = upgraded[order].level
-		--value = value - upgraded[order].cost
 		subUpgradeCount = subUpgradeCount - ((name=="upgrade" or name=="boost" or name=="calculate" or name=="range" or name=="gold" or name=="supportRange" or name=="supportDamage" or name=="smartTargeting") and 0 or 1)
 		subUpgradeCountTotal = subUpgradeCountTotal - ((name=="upgrade" or name=="boost" or name=="calculate" or name=="gold" or name=="supportRange" or name=="supportDamage") and 0 or 1)
 		if currentLevel==1 then
