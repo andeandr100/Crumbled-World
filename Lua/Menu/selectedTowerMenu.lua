@@ -969,11 +969,14 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			infopanelRight:setLayout(FallLayout(Alignment.BOTTOM_RIGHT))
 			local targetModsString = buildingBillBoard:getString("targetMods")
 			
-			for splitedStr in (targetModsString .. ";"):gmatch("([^;]*);") do 
-				targetModes[#targetModes + 1] = language:getText( splitedStr )
-			end
+			
 			
 			if targetModsString ~= "" then
+				
+				for splitedStr in (targetModsString .. ";"):gmatch("([^;]*);") do 
+					targetModes[#targetModes + 1] = language:getText( splitedStr )
+				end
+				
 				retargetPanel:setVisible(true)
 				targetComboBox = SettingsComboBox.new(retargetPanel,PanelSize(Vec2(-1)), targetModes, "targeting", "WeakestUnit", changedTargetSystem)
 				targetComboBox.setIndex(buildingBillBoard:getInt("currentTargetMode"))	
