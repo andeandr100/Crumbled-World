@@ -182,9 +182,9 @@ function setStatsLayout(panel)
 	menuItems[7] = { label=addLine(panel,8,"end-screen.lost from selling"), key=7}
 	--
 	menuItems[8] = { label=addheader(panel,"end-screen.score.score"), key=8}
-	menuItems[9] = { label=addLine(panel,9,"end-screen.score.from gold"}
-	menuItems[10] = { label=addLine(panel,10,"end-screen.score.total tower value", key=9}
-	menuItems[11] = { label=addLine(panel,11,"end-screen.score.from life left", key=10, multiplyer=SCOREPERLIFE}
+	menuItems[9] = { label=addLine(panel,9,"end-screen.score.from gold") }
+	menuItems[10] = { label=addLine(panel,10,"end-screen.score.total tower value"), key=9}
+	menuItems[11] = { label=addLine(panel,11,"end-screen.score.from life left"), key=10, multiplyer=SCOREPERLIFE}
 	--
 	addheader(panel,"end-screen.towers.towers")
 	menuItems[12] = { label=addLine(panel,10,"end-screen.towers.built"), key=11}
