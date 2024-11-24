@@ -1,7 +1,11 @@
 require("Game/campaignData.lua")
 require("Menu/MainMenu/mapInformation.lua")
+require("Game/gameValues.lua")
+
 --this = SceneNode()
 MapInfo = {}
+MapInfo.gameValue = GameValues.new()
+
 function MapInfo.new()
 	local self = {}
 	local FIRSTTIMEVICTORYBONUS = 2
@@ -11,6 +15,8 @@ function MapInfo.new()
 	local actualLevel = 1
 	local addPerLevel = 0.0
 	local difficultyBase = 0.0
+	
+	
 
 	function self.getGameModesSinglePlayer()
 		return {"custom-game.game-mode.default", "custom-game.game-mode.survival"}
@@ -43,13 +49,12 @@ function MapInfo.new()
 		end
 	end
 	function self.getReward()
-		local cData = CampaignData.new()
 		local reward = BASEBONUS
-		if cData.hasMapBeenBeaten(self.getMapNumber())==false then
+		local mapName = billboard:getString("mapName")
+		local hasMapBeenBeaten = MapInfo.gameValue.getMapStatus(mapName)
+		
+		if hasMapBeenBeaten==false then
 			reward = reward + FIRSTTIMEVICTORYBONUS
-		end
-		if cData.hasMapModeBeenBeaten( self.getMapNumber(), self.getGameMode() )==false then
-			reward = reward + FIRSTTIMEGAMEMODEVICTORYBONUS
 		end
 		return reward
 	end

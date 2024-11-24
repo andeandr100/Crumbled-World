@@ -177,6 +177,13 @@ function CampaignGameShopMenu.new(parentPanel)
 		updateButtonState(button)
 		updateButtonState(ability.buttons[level+1])
 		
+		
+		--Update main tower button color based if the first upgrade level is unlocked or not
+		if towerName ~= "passiv" and upgradeName == "upgrade" and level == 1 then
+			local colorScale = towers[towerName][upgradeName].unlocked == 0 and 0.3 or 1.0
+			towers[towerName].towerButton:setImageColor(Vec4(Vec3(colorScale),1.0))
+		end
+		
 	end
 	
 	local function buttonEvent(freeFormButton)
@@ -252,7 +259,15 @@ function CampaignGameShopMenu.new(parentPanel)
 			local x = (i-1)%4
 			local y =3-math.floor(((i-1)/4))
 			local minCoord = Vec2(x/4.0, y/4.0)
+			local colorScale = 1.0
 			
+			local towerName = upgrades[i]
+			local towerData = gameValues.getTowerValues(towerName)
+
+			local unlockedLevel = towerData["upgrade"].unlocked
+			if unlockedLevel == 0 then
+				colorScale = 0.3
+			end
 
 			local button = towerButtonMenu:add(Button(PanelSize(Vec2(-1,-0.95), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, minCoord, minCoord+Vec2(1.0/4.0, 1.0/4.0) ))
 			button:setInnerColor(Vec4(0,0,0,0.15),Vec4(0.2,0.2,0.2,0.35), Vec4(0.1,0.1,0.1,0.3))
@@ -261,6 +276,9 @@ function CampaignGameShopMenu.new(parentPanel)
 			button:setEdgeHoverColor(Vec4(1,1,1,1),Vec4(0.8,0.8,0.8,1))
 			button:setEdgeDownColor(Vec4(0.8,0.8,0.8,1),Vec4(0.6,0.6,0.6,1))
 			button:setTag(""..i)
+			button:setImageColor(Vec4(Vec3(colorScale),1.0))
+			
+			
 			
 			buttons[i] = {}
 			buttons[i].button = button
@@ -313,6 +331,9 @@ function CampaignGameShopMenu.new(parentPanel)
 			towerData.lineSelectedHandler = lineSelectedHandler
 			towerData.crystalLabel = crystalLabel
 			towers[towerName] = towerData	
+			towers[towerName].towerButton = buttons[n].button
+
+			
 			
 			local skillCount = #towerData.upgradeNames
 			local skillDistance = 1 / (skillCount+1)

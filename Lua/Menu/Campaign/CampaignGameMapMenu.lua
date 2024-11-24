@@ -68,6 +68,12 @@ function CampaignGameMapMenu.new(parentPanel)
 		end
 	end
 	
+	local function updateRewardInfo()
+		if rewardLabel then	
+			rewardLabel:setText( tostring(levelInfo.getReward()) )
+		end
+	end
+	
 	local function changeMapTo(mNum, filePath, mapFile)
 	
 		
@@ -92,7 +98,7 @@ function CampaignGameMapMenu.new(parentPanel)
 			levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
 			levelInfo.setDifficultyBase(mapInfo.difficultyBase)
 			levelInfo.setWaveCount(mapInfo.waveCount)
-								levelInfo.setMapSize(mapInfo.mapSize)
+			levelInfo.setMapSize(mapInfo.mapSize)
 			levelInfo.setLevel(1)
 			--changing default selected map
 --			menuPrevSelect:get("campaign"):get("selectedMap"):setString(filePath)
@@ -103,6 +109,8 @@ function CampaignGameMapMenu.new(parentPanel)
 
 		--Update hihgscore after map information is set
 		updateHighScorePanel()
+		
+		updateRewardInfo()
 
 		return true
 	end
@@ -120,6 +128,11 @@ function CampaignGameMapMenu.new(parentPanel)
 	
 	local function startMap(button)
 		button:clearEvents()	
+		
+		
+		local mapName = levelInfo.getMapName()
+		
+		
 		levelInfo.setIsCampaign(true)
 		levelInfo.setGameMode(gameModeBox.getIndexText())
 		local mapFile = File(selectedFile)
@@ -132,6 +145,7 @@ function CampaignGameMapMenu.new(parentPanel)
 			levelInfo.setSead(files[mNum].sead)
 			levelInfo.setMapFileName(selectedFile)
 			levelInfo.setMapName(mapFile:getName())
+			
 			if mapFile:isFile() then
 				mapLabel:setText( mapFile:getName() )
 				local mapInfo = MapInformation.getMapInfoFromFileName(mapFile:getName(), mapFile:getPath())
@@ -163,15 +177,7 @@ function CampaignGameMapMenu.new(parentPanel)
 		end
 	end
 	
-	local function updateRewardInfo()
-		if rewardLabel then	
-			if gameModeBox.getIndexText()~="survival" then
-				rewardLabel:setText( tostring(levelInfo.getReward()) )
-			else
-				rewardLabel:setText( "6" )
-			end
-		end
-	end
+	
 	
 	local function changeGameMode(tag, index)
 		if index<=0 or index>#gameModes then
@@ -244,7 +250,7 @@ function CampaignGameMapMenu.new(parentPanel)
 		--
 		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
 		rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), "Reward", Vec3(0.7)))--language:getText("reward")
-		rewardLabel = rowPanel:add(Label(PanelSize(Vec2(-0.5,-1)), "3", Vec3(0.7)))
+		rewardLabel = rowPanel:add(Label(PanelSize(Vec2(-0.5,-1)), "?", Vec3(0.7)))
 		--	Crystal
 		local image = rowPanel:add(Image(PanelSize(Vec2(-1),Vec2(1)), Text("icon_table.tga")))
 		image:setUvCoord(Vec2(0.5, 0.375),Vec2(0.625, 0.4375))
@@ -278,8 +284,6 @@ function CampaignGameMapMenu.new(parentPanel)
 		scoreArea:setLayout(GridLayout(9,1))
 		
 		
-		
-		
 		--
 		--	shop button
 		--
@@ -298,13 +302,16 @@ function CampaignGameMapMenu.new(parentPanel)
 		menuPrevSelect = Config("menuPrevSelect")
 		
 		campaignPanel = mainPanel:add(Panel(PanelSize(Vec2(-0.75, -1))))
-		mapHandler.fillMapPanel(campaignPanel, customeGameChangedMap)
+		
 		
 		--add midle Border line
 		mainPanel:add(Panel(PanelSize(Vec2(MainMenuStyle.borderSize,-1),PanelSizeType.ParentPercentBasedOnY))):setBackground(Sprite(MainMenuStyle.borderColor))
 		
 		--Add info panel
 		addMapInfoPanel()
+		
+		--Load and fill the maps
+		mapHandler.fillMapPanel(campaignPanel, customeGameChangedMap)
 		
 		
 		MapInformation.setMapInfoLoadedFunction(mapHandler.mapInfoLoaded)

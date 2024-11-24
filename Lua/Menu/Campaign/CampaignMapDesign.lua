@@ -16,6 +16,10 @@ function CampaignMapDesign.new(parentPanel)
 	local yDiff = -0.28
 	local rowInfo = {}
 	
+	function self.getGameValues()
+		return gameValues
+	end
+	
 	local function addCampaignData(position,fileName)
 	
 		local playedAndWon, unlocked = gameValues.getMapStatus(fileName)
@@ -43,6 +47,7 @@ function CampaignMapDesign.new(parentPanel)
 		local buttonDesign = FreeFormDesign.getMapButton(mapData.playedAndWon, mapData.unlocked)
 		local button = FreeFormButton(mapData.position, buttonDesign, Core.getTexture("noImage"), Vec2(), Vec2(1) )
 		button:getImage():setShader(Core.getShader("a2DWorldIcon"))
+		mapData.button = button
 
 		if mapData.unlocked then
 			button:getImage():setTexture(mapData.texture)
@@ -210,6 +215,8 @@ function CampaignMapDesign.new(parentPanel)
 		campaignPanel = panel
 		
 		addMapsPanel()
+		
+		changeMapFunc(campaignMapData[1].button)
 	end
 	
 	return self
