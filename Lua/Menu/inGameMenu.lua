@@ -127,186 +127,182 @@ function create()
 	
 	if this:getNodeType() == NodeId.playerNode then
 		local menuNode = this:getRootNode():addChild(SceneNode.new())
-		--camera = Camera()
 		menuNode:setSceneName("In game menu")
 		menuNode:createWork()
 				
 		--Move this script to the camera node
-		--this:removeScript(this:getCurrentScript():getName());
 		menuNode:loadLuaScript(this:getCurrentScript():getFileName());
 		return false
-	else
-		restartListener = Listener("Restart")
-		restartListener:registerEvent("reloadeMap", reloadeMap)
-		restartListener:registerEvent("restart", restartMapCallback)
-		
-		stateBillboard = Core.getGameSessionBillboard("state")
-		stateBillboard:setBool("inMenu", false)		
-		
-		statsBillboard = Core.getBillboard("stats")
-		
-		Core.setScriptNetworkId("InGameMenu")
-		comUnit = Core.getComUnit()
-		comUnit:setName("InGameMenu")
-		comUnit:setCanReceiveTargeted(true)
-		comUnit:setCanReceiveBroadcast(false)
-		
-		comUnitTable = {}
-		comUnitTable["toggleMenuVisibility"] = toggleVisible
-		comUnitTable["hide"] = hideWindow
-		comUnitTable["NETclientInfo"] = manageClientInfo
-		
-		local rootNode = this:getRootNode();
-		--camera = Camera()
-		local camera = ConvertToCamera( rootNode:findNodeByName("MainCamera") )
-		
-		local keyBinds = Core.getBillboard("keyBind")
-		keyBindInfo = keyBinds:getKeyBind("Info screen")
-		keyBind = KeyBind("Menu", "control", "toogle menu")
-		keyBind:setKeyBindKeyboard(0, Key.escape)
-		
-		settingsListener = Listener("Settings")
-		settingsListener:registerEvent("LanguageChanged",languageChanged)
-		
-		fileName = mapInfo.getMapFileName()
-		
-		local showTutorial = (fileName=="Data/Map/Campaign/Beginning.map" or fileName=="Data/Map/Campaign/Intrusion.map" or fileName=="Data/Map/Campaign/Expansion.map")
-		gameSpeed = 1
-		gamePaused = false
-	
-		if camera then
-			form = Form( camera, PanelSize(Vec2(1)), Alignment.TOP_LEFT)
-			form:setName("InGameMenu form")
-			form:setRenderLevel(12)
-			form:setVisible(false)
-			form:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
-			form:addEventCallbackOnClick(toggleVisible)
-			
-			if Core.isInMultiplayer() then
-				client = Core.getNetworkClient()
-				infoScreen = InfoScreen.new(camera)
-			end
-			
-			mainPanel = form:add(Panel(PanelSize(Vec2(0.17,1))))
-			mainPanel:getPanelSize():setFitChildren(false, true);
-			mainPanel:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
-			mainPanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
-			mainPanel:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
-			mainPanel:setVisible(false)
-			backgroundPanel = mainPanel
-
-			textPanels[1] = mainPanel:add(Label(PanelSize(Vec2(0.17,1), Vec2(5,1)), language:getText("ingame.button.menu"), MainMenuStyle.textColorHighLighted, Alignment.MIDDLE_CENTER ))
-			textPanels[1]:setTag("menu")
-			
-			MainMenuStyle.createBreakLine(mainPanel)
-			
-			connectionIssueForm = ConnectionIssueForm.new()
-			
-			
-			local maxXScale = math.max( ( Core.isInEditor() and language:getText("ingame.button.quit to map editor"):getTextScale().x or language:getText("ingame.button.quit to menu"):getTextScale().x), language:getText("ingame.button.quit to desktop"):getTextScale().x )
-			--button layou require us to take only the half x text scale
-			local scale = Vec2(maxXScale / 2 + 0.5, 1)
-			--0.17/5 magic number from before language support was added
-					
-			
-			
-			
-			
-			
-			local buttonSize = Vec2(-1,0.07)	
-			
-			continueButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.continue")))
-			optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.options")))
-			tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.tutorial"))) or nil
-			launchWavesButton = mapInfo.getGameMode()=="training" and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.launch waves"))) or nil
-			RestartWaveButton = mapInfo.isRestartWaveEnabled() and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.revert wave"))) or nil
-			RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.restart"))) or nil
-			quitToMenuButton = nil
-			quitToEditorButton = nil
-			
-			if mapInfo.getGameMode()=="training" then
-				textList[#textList + 1] = "ingame.button.launch waves"
-			end
-			
-			if Core.isInEditor() then
-				quitToEditorButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to map editor")))
-				textList[#textList + 1] = "ingame.button.quit to map editor"
-			else
-				quitToMenuButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to menu")))
-				textList[#textList + 1] = "ingame.button.quit to menu"
-			end
-			
-			
-			local tmpLabel = Label(PanelSize(Vec2(-1)),"-")
-			tmpLabel:setTextHeight(0.035)
-			local maxSize = 16
-			for i=1, #textList do
-				tmpLabel:setText(language:getText(textList[i]))
-				maxSize = math.max(maxSize, tmpLabel:getTextSizeInPixel().x)
-			end
-			mainPanel:setPanelSize(PanelSize(Vec2((maxSize * 1.05)/Core.getRenderResolution().x,-1)))
-			mainPanel:getPanelSize():setFitChildren(false, true)
-			
-			local quitToDesktopButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to desktop")))
-			
-			continueButton:addEventCallbackExecute(toggleVisible)
-			textPanels[2] = continueButton
-			textPanels[2]:setTag("ingame.button.continue")
-			optionsButton:addEventCallbackExecute(toggleOptionsVisible)
-			textPanels[3] = optionsButton
-			textPanels[3]:setTag("ingame.button.options")
-			quitToDesktopButton:addEventCallbackExecute(quitToDesktop)
-			textPanels[4] = quitToDesktopButton
-			textPanels[4]:setTag("ingame.button.quit to desktop")
-			if quitToMenuButton then
-				quitToMenuButton:addEventCallbackExecute(quitToMainMenu)
-				textPanels[5] = quitToMenuButton
-				textPanels[5]:setTag("ingame.button.quit to menu")
-			elseif quitToEditorButton then
-				quitToEditorButton:addEventCallbackExecute(quitToMapeditor)
-				textPanels[5] = quitToEditorButton
-				textPanels[5]:setTag("ingame.button.quit to map editor")
-			end
-			
-			if launchWavesButton then
-				textPanels[#textPanels + 1] = launchWavesButton
-				textPanels[#textPanels]:setTag("ingame.button.launch waves")
-				launchWavesButton:addEventCallbackExecute(launchWaveCallback)
-				launchWavesButton:setEnabled(false)
-			end
-			if RestartWaveButton then
-				textPanels[#textPanels + 1] = RestartWaveButton
-				textPanels[#textPanels]:setTag("ingame.button.revert wave")
-				RestartWaveButton:addEventCallbackExecute(restartWave)
-				RestartWaveButton:addEventCallbackExecute(toggleVisible)
-				RestartWaveButton:setEnabled(false)
-			end
-			if RestartButton then
-				textPanels[#textPanels + 1] = RestartButton
-				textPanels[#textPanels]:setTag("restart")
-				RestartButton:addEventCallbackExecute(restartMap)
-				RestartButton:addEventCallbackExecute(toggleVisible)
-			end
-			if tutorialButton then
-				textPanels[#textPanels + 1] = tutorialButton
-				textPanels[#textPanels]:setTag("ingame.button.tutorial")
-				tutorialButton:addEventCallbackExecute(showTutorialFunc)
-			end
-			
-			
-			
-			--Options form
-			optionsForm = Form( camera, PanelSize(Vec2(-1,-0.8), Vec2(4,4)), Alignment.MIDDLE_CENTER);
-			optionsForm:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))));
-			optionsForm:setRenderLevel(12)
-			optionsForm:setVisible(false)
-			optionsForm:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
-			optionsForm:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
-			
-			local optionsPanel = OptionsMenu.create(optionsForm)
-			optionsPanel:setVisible(true)
-		end
 	end
+	
+	restartListener = Listener("Restart")
+	restartListener:registerEvent("reloadeMap", reloadeMap)
+	restartListener:registerEvent("restart", restartMapCallback)
+	
+	stateBillboard = Core.getGameSessionBillboard("state")
+	stateBillboard:setBool("inMenu", false)		
+	
+	statsBillboard = Core.getBillboard("stats")
+	
+	Core.setScriptNetworkId("InGameMenu")
+	comUnit = Core.getComUnit()
+	comUnit:setName("InGameMenu")
+	comUnit:setCanReceiveTargeted(true)
+	comUnit:setCanReceiveBroadcast(false)
+	
+	comUnitTable = {}
+	comUnitTable["toggleMenuVisibility"] = toggleVisible
+	comUnitTable["hide"] = hideWindow
+	comUnitTable["NETclientInfo"] = manageClientInfo
+	
+	local rootNode = this:getRootNode();
+	--camera = Camera()
+	local camera = ConvertToCamera( rootNode:findNodeByName("MainCamera") )
+	
+	local keyBinds = Core.getBillboard("keyBind")
+	keyBindInfo = keyBinds:getKeyBind("Info screen")
+	keyBind = KeyBind("Menu", "control", "toogle menu")
+	keyBind:setKeyBindKeyboard(0, Key.escape)
+	
+	settingsListener = Listener("Settings")
+	settingsListener:registerEvent("LanguageChanged",languageChanged)
+	
+	fileName = mapInfo.getMapFileName()
+	
+	local showTutorial = (fileName=="Data/Map/Campaign/Beginning.map" or fileName=="Data/Map/Campaign/Intrusion.map" or fileName=="Data/Map/Campaign/Expansion.map")
+	gameSpeed = 1
+	gamePaused = false
+
+	if not camera then
+		return false
+	end
+	
+	form = Form( camera, PanelSize(Vec2(1)), Alignment.TOP_LEFT)
+	form:setName("InGameMenu form")
+	form:setRenderLevel(12)
+	form:setVisible(false)
+	form:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
+	form:addEventCallbackOnClick(toggleVisible)
+	
+	if Core.isInMultiplayer() then
+		client = Core.getNetworkClient()
+		infoScreen = InfoScreen.new(camera)
+	end
+	
+	mainPanel = form:add(Panel(PanelSize(Vec2(0.17,1))))
+	mainPanel:getPanelSize():setFitChildren(false, true);
+	mainPanel:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
+	mainPanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
+	mainPanel:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
+	mainPanel:setVisible(false)
+	backgroundPanel = mainPanel
+
+	textPanels[1] = mainPanel:add(Label(PanelSize(Vec2(0.17,1), Vec2(5,1)), language:getText("ingame.button.menu"), MainMenuStyle.textColorHighLighted, Alignment.MIDDLE_CENTER ))
+	textPanels[1]:setTag("menu")
+	
+	MainMenuStyle.createBreakLine(mainPanel)
+	
+	connectionIssueForm = ConnectionIssueForm.new()
+	
+	
+	local maxXScale = math.max( ( Core.isInEditor() and language:getText("ingame.button.quit to map editor"):getTextScale().x or language:getText("ingame.button.quit to menu"):getTextScale().x), language:getText("ingame.button.quit to desktop"):getTextScale().x )
+	--button layou require us to take only the half x text scale
+	local scale = Vec2(maxXScale / 2 + 0.5, 1)
+	--0.17/5 magic number from before language support was added
+			
+	local buttonSize = Vec2(-1,0.07)	
+	
+	continueButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.continue")))
+	optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.options")))
+	tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.tutorial"))) or nil
+	launchWavesButton = mapInfo.getGameMode()=="training" and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.launch waves"))) or nil
+	RestartWaveButton = mapInfo.isRestartWaveEnabled() and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.revert wave"))) or nil
+	RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.restart"))) or nil
+	quitToMenuButton = nil
+	quitToEditorButton = nil
+	
+	if mapInfo.getGameMode()=="training" then
+		textList[#textList + 1] = "ingame.button.launch waves"
+	end
+	
+	if Core.isInEditor() then
+		quitToEditorButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to map editor")))
+		textList[#textList + 1] = "ingame.button.quit to map editor"
+	else
+		quitToMenuButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to menu")))
+		textList[#textList + 1] = "ingame.button.quit to menu"
+	end
+	
+	
+	local tmpLabel = Label(PanelSize(Vec2(-1)),"-")
+	tmpLabel:setTextHeight(0.035)
+	local maxSize = 16
+	for i=1, #textList do
+		tmpLabel:setText(language:getText(textList[i]))
+		maxSize = math.max(maxSize, tmpLabel:getTextSizeInPixel().x)
+	end
+	mainPanel:setPanelSize(PanelSize(Vec2((maxSize * 1.05)/Core.getRenderResolution().x,-1)))
+	mainPanel:getPanelSize():setFitChildren(false, true)
+	
+	local quitToDesktopButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to desktop")))
+	
+	continueButton:addEventCallbackExecute(toggleVisible)
+	textPanels[2] = continueButton
+	textPanels[2]:setTag("ingame.button.continue")
+	optionsButton:addEventCallbackExecute(toggleOptionsVisible)
+	textPanels[3] = optionsButton
+	textPanels[3]:setTag("ingame.button.options")
+	quitToDesktopButton:addEventCallbackExecute(quitToDesktop)
+	textPanels[4] = quitToDesktopButton
+	textPanels[4]:setTag("ingame.button.quit to desktop")
+	if quitToMenuButton then
+		quitToMenuButton:addEventCallbackExecute(quitToMainMenu)
+		textPanels[5] = quitToMenuButton
+		textPanels[5]:setTag("ingame.button.quit to menu")
+	elseif quitToEditorButton then
+		quitToEditorButton:addEventCallbackExecute(quitToMapeditor)
+		textPanels[5] = quitToEditorButton
+		textPanels[5]:setTag("ingame.button.quit to map editor")
+	end
+	
+	if launchWavesButton then
+		textPanels[#textPanels + 1] = launchWavesButton
+		textPanels[#textPanels]:setTag("ingame.button.launch waves")
+		launchWavesButton:addEventCallbackExecute(launchWaveCallback)
+		launchWavesButton:setEnabled(false)
+	end
+	if RestartWaveButton then
+		textPanels[#textPanels + 1] = RestartWaveButton
+		textPanels[#textPanels]:setTag("ingame.button.revert wave")
+		RestartWaveButton:addEventCallbackExecute(restartWave)
+		RestartWaveButton:addEventCallbackExecute(toggleVisible)
+		RestartWaveButton:setEnabled(false)
+	end
+	if RestartButton then
+		textPanels[#textPanels + 1] = RestartButton
+		textPanels[#textPanels]:setTag("restart")
+		RestartButton:addEventCallbackExecute(restartMap)
+		RestartButton:addEventCallbackExecute(toggleVisible)
+	end
+	if tutorialButton then
+		textPanels[#textPanels + 1] = tutorialButton
+		textPanels[#textPanels]:setTag("ingame.button.tutorial")
+		tutorialButton:addEventCallbackExecute(showTutorialFunc)
+	end
+	
+	
+	
+	--Options form
+	optionsForm = Form( camera, PanelSize(Vec2(-1,-0.8), Vec2(4,4)), Alignment.MIDDLE_CENTER);
+	optionsForm:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))));
+	optionsForm:setRenderLevel(12)
+	optionsForm:setVisible(false)
+	optionsForm:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
+	optionsForm:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
+	
+	local optionsPanel = OptionsMenu.create(optionsForm)
+	optionsPanel:setVisible(true)
+
 	return true
 end
 -- function:	getBetween
