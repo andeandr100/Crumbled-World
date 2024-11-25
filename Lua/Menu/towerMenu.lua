@@ -1,7 +1,13 @@
 require("Menu/MainMenu/mainMenuStyle.lua")
 require("Menu/settings.lua")
 require("Menu/towerImage.lua")
+require("Game/mapInfo.lua")
+require("Game/gameValues.lua")
 --this = SceneNode()
+
+local mapInfo = MapInfo.new()
+local gameValues = GameValues.new()
+
 
 function restore(data)
 	if data.posterForm then
@@ -167,7 +173,6 @@ function destroy()
 		--print("Destroy posterForm\n")
 		posterForm:setVisible(false)
 		posterForm:destroy()
-		posterForm = nil
 	end
 
 end
@@ -192,179 +197,156 @@ function create()
 		return false
 	end
 	
-	
-	
-	--print("TOWERMENU:::Create()\n")
+
 	if this:getNodeType() == NodeId.playerNode then
-		
+		--This script init itself again under a new node and add the Ability menu
 		local menuNode = this:addChild(SceneNode.new())
-		--camera = Camera()
 		menuNode:setSceneName("Tower menu")
-	
-		
 		menuNode:createWork()
-				
-		--Move this script to the camera node
-		--this:removeScript(this:getCurrentScript():getName());
 		menuNode:loadLuaScript(this:getCurrentScript():getFileName());
-		--print("TOWERMENU:::Create()->return=false\n")
 		menuNode:loadLuaScript("Menu/AbilitiesMenu.lua")
 		return false
-	else
-		statsOrder =  {"damage","rps","range","slow","fireDPS","burnTime","dmg_range","supportGoldPerWave"}
-		buildings = {}
-		buildings[1] = {name="Wall tower", cost=0}
-		buildings[2] = {name="Minigun tower", range=0,damage=0,rps=0,cost=10}
-		buildings[3] = {name="Arrow tower", range=0,damage=0,rps=0,cost=200}
-		buildings[4] = {name="Swarm tower", range=0,damage=0, burnTime=0, fireDPS=0,cost=0}
-		buildings[5] = {name="Electric tower", range=0,damage=0,rps=0, slow=-1,cost=0}
-		buildings[6] = {name="Blade tower", damage=0, rps=0,cost=0}
-		buildings[7] = {name="Missile tower", range=0,damage=0,dmg_range=-1,cost = 0}
-		buildings[8] = {name="Quake tower", range=0,damage=0,dmg_range=-1,cost = 0}
-		buildings[9] = {name="Support tower", range=0,cost = 0}
-		buildings[10]= {name="Bank tower", range=0,supportGoldPerWave=-1,cost = 0}
-		
-		local keyBinds = Core.getBillboard("keyBind")
-		local keyBind = {}
-		for i = 1, 10 do
-			keyBind[i] = keyBinds:getKeyBind("Building " .. i)
-		end
-		
-		local rootNode = this:getRootNode();
-		local cameras = rootNode:findAllNodeByNameTowardsLeaf("MainCamera")
-	
-		comUnit = Core.getComUnit()
-		comUnit:setName("builderMenu")
-		
-		posetHideTime = -1
-		towerTexture = Core.getTexture("icon_tower_table")
-		
-		if #cameras == 1 then
-			local camera = ConvertToCamera(cameras[1])
-			
-			form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
-			form:setName("Tower menu form")
-			form:setFormOffset(PanelSize(Vec2(0.0025, 0.04)))
-			form:getPanelSize():setFitChildren(true, true);
-			form:setLayout(FallLayout());
-			form:setRenderLevel(1)
-			form:setVisible(true)
-			form:setBorder(Border(BorderSize(Vec4(0.0015,0.0015,0.0015,0.0015), true), Vec3(0.45)))
-			
-			local topPanel = form:add(Panel(PanelSize(Vec2(0.05,0.5))))
-			topPanel:setBackground(Sprite(Vec4(Vec3(0),0.95)))
-			topPanel:setLayout(FallLayout(PanelSize(Vec2(0.003), Vec2(1))))
-			topPanel:setPadding(BorderSize(Vec4(0.003), true))
-			topPanel:getPanelSize():setFitChildren(true, true);
-	
-			local buildingBillboard = Core.getBillboard("buildings")
-			--buildingBillboard:
-		
-			local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
-			local numBuildings = 1
-			while buildingBillboard:exist(tostring(numBuildings)) do
-				
-				if buildings[numBuildings] == nil then
-					buildings[numBuildings] = {name = "Tower"}
-				end
-				
-				
-				
-				--Load a tower node
-				buildings[numBuildings].towerNode = SceneNode.new()
-	
-				local scriptName = buildingBillboard:getString(tostring(numBuildings))
-				--print("\n\nTower id: "..numBuildings.." script name: "..scriptName.."\n")
-				local luaScript = buildings[numBuildings].towerNode:loadLuaScript(scriptName)
-				buildings[numBuildings].towerNode:update()
-
-				--print("Tower loaded\n")
-				if luaScript then
-					luaScript:setName("tower");
-					luaScript:setScriptNetworkId("menu_tower_"..numBuildings)
-					buildingBillboard:setSceneNode( tostring(numBuildings).."Node", buildings[numBuildings].towerNode )
-				end
-				
-	
-				--print("Tower loaded\n")					
-
-				local start
-				local x = (numBuildings-1)%4
-				local y =3-math.floor(((numBuildings-1)/4))
-				start = Vec2(x/4.0, y/4.0)
-				
-				buildings[numBuildings].uvCoordMin=start
-				buildings[numBuildings].uvCoordMax=start+Vec2(1.0/4.0, 1.0/4.0)
-				buildings[numBuildings].texture=towerTexture
-
-				local button = topPanel:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, start, start+Vec2(1.0/4.0, 1.0/4.0) ))
-				--button:setBackground( Sprite( towerTexture ));
-				button:setInnerColor(Vec4(0,0,0,0.15),Vec4(0.2,0.2,0.2,0.35), Vec4(0.1,0.1,0.1,0.3))
-				button:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
-				button:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
-				button:addEventCallbackExecute(buttonPressed)
-				button:addEventCallbackMouseFocusGain(showPoster)
-				button:addEventCallbackMouseFocusLost(HiddePoster)
-				button:setTag(tostring(numBuildings))
-				
-				button:setEdgeHoverColor(Vec4(1,1,1,1),Vec4(0.8,0.8,0.8,1))
-				button:setEdgeDownColor(Vec4(0.8,0.8,0.8,1),Vec4(0.6,0.6,0.6,1))
-			
-				button:setLayout(FallLayout(Alignment.BOTTOM_RIGHT))
-				local label = button:add(Label(PanelSize(Vec2(-0.3),Vec2(0.8,1)), keyBind[numBuildings] and keyBind[numBuildings]:getKeyBindName(0) or "", MainMenuStyle.textColor, Alignment.MIDDLE_CENTER))
-				label:setCanHandleInput(false)
-				
-				
-				tutorialBillboard:setPanel("tower"..numBuildings, button)
-	
-				numBuildings = numBuildings + 1;
-			end
-	
-			createPoster(camera)
-			
-			setRestoreData({posterForm=posterForm, form=form})
-			
-			settingsListener = Listener("Settings")
-			settingsListener:registerEvent("Changed", settingsChanged)
-			settingsChanged()
-		else
-			print("No camera was ever found");
-		end
-		
-		for i=1, #buildings do
-			buildings[i].cost = getTowerInfo(i, "cost")
-			if i~=1 and i~= 6 then
-				buildings[i].range = getTowerInfo(i, "range")
-			end
-			if i~=1 and i~=9 and i~=10 then
-				buildings[i].damage = i==7 and getTowerInfo(i, "dmg") or getTowerInfo(i, "damage")
-			end
-			if i==2 or i==3 or i==5 or i==6 then
-				buildings[i].rps = getTowerInfo(i, "RPS")
-			end
-			if i==7 or i==8 then
-				buildings[i].dmg_range = getTowerInfo(i, "dmg_range")
-			end
-			if i==10 then
-				buildings[i].supportGoldPerWave = getTowerInfo(i, "supportGoldPerWave")
-			end
-		end
-		buildings[4].burnTime = getTowerInfo(4, "burnTime")
-		buildings[4].fireDPS = getTowerInfo(4, "fireDPS")
-		buildings[5].slow = getTowerInfo(5, "slow")
-		
---		buildings[1] = {name="Wall tower", cost=35}
---		buildings[2] = {name="Minigun tower", range=5,damage=42,rps=2.5,cost=getTowerInfo(2, "cost")}
---		buildings[3] = {name="Arrow tower", range=9,damage=268,rps=1.0/1.5,cost=200}
---		buildings[4] = {name="Swarm tower", range=6.5,damage=108, burnTime=2, fireDPS=54,cost=200}
---		buildings[5] = {name="Electric tower", range=4,damage=574,rps=1, slow=0.15,cost=200}
---		buildings[6] = {name="Blade tower", damage=110, rps=math.round((1.0/2.75)*100)/100,cost=200}
---		buildings[7] = {name="Missile tower", range=7,damage=615,dmg_range=1.5,cost = 400}
---		buildings[8] = {name="Quake tower", range=2.5,damage=615,dmg_range=1.5,cost = 200}
---		buildings[9] = {name="Support tower", range=2.5,cost = 200}
-		
 	end
-	--print("TOWERMENU:::Create()->return=true\n")
+
+	local towerNames = gameValues.getStoreGroupNames()
+	statsOrder =  {"damage","rps","range","slow","fireDPS","burnTime","dmg_range","supportGoldPerWave"}
+	buildings = {}
+	buildings[1] = {name="Wall tower", cost=0}
+	buildings[2] = {name="Minigun tower", range=0,damage=0,rps=0,cost=10}
+	buildings[3] = {name="Arrow tower", range=0,damage=0,rps=0,cost=200}
+	buildings[4] = {name="Swarm tower", range=0,damage=0, burnTime=0, fireDPS=0,cost=0}
+	buildings[5] = {name="Electric tower", range=0,damage=0,rps=0, slow=-1,cost=0}
+	buildings[6] = {name="Blade tower", damage=0, rps=0,cost=0}
+	buildings[7] = {name="Missile tower", range=0,damage=0,dmg_range=-1,cost = 0}
+	buildings[8] = {name="Quake tower", range=0,damage=0,dmg_range=-1,cost = 0}
+	buildings[9] = {name="Support tower", range=0,cost = 0}
+	buildings[10]= {name="Bank tower", range=0,supportGoldPerWave=-1,cost = 0}
+
+	for n=2, 10 do
+		buildings[n].name = towerNames[n]
+	end
+		
+	local keyBinds = Core.getBillboard("keyBind")
+	local keyBind = {}
+	for i = 1, 10 do
+		keyBind[i] = keyBinds:getKeyBind("Building " .. i)
+	end
+		
+	local rootNode = this:getRootNode();
+	local cameras = rootNode:findAllNodeByNameTowardsLeaf("MainCamera")
+	
+	comUnit = Core.getComUnit()
+	comUnit:setName("builderMenu")
+		
+	posetHideTime = -1
+	towerTexture = Core.getTexture("icon_tower_table")
+		
+	if #cameras == 0 then
+		--If no cameras is found delete this script to keep the game running
+		return false
+	end
+	local camera = ConvertToCamera(cameras[1])
+			
+	form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
+	form:setName("Tower menu form")
+	form:setFormOffset(PanelSize(Vec2(0.007, 0.048),PanelSizeType.WindowPercentBasedOnY))
+	form:getPanelSize():setFitChildren(true, true);
+	form:setLayout(FallLayout());
+	form:setRenderLevel(1)
+	form:setVisible(true)
+	form:setBorder(Border(BorderSize(Vec4(0.0015,0.0015,0.0015,0.0015), true), Vec3(0.45)))
+			
+	local topPanel = form:add(Panel(PanelSize(Vec2(0.05,0.5))))
+	topPanel:setBackground(Sprite(Vec4(Vec3(0),0.95)))
+	topPanel:setLayout(FallLayout(PanelSize(Vec2(0.003), Vec2(1))))
+	topPanel:setPadding(BorderSize(Vec4(0.003), true))
+	topPanel:getPanelSize():setFitChildren(true, true);
+	
+	local buildingBillboard = Core.getBillboard("buildings")
+	local numBuildings = 1
+	while buildingBillboard:exist(tostring(numBuildings)) do
+				
+		if buildings[numBuildings] == nil then
+			buildings[numBuildings] = {name = "Tower"}
+		end
+
+		--Load a tower node
+		buildings[numBuildings].towerNode = SceneNode.new()
+	
+		local scriptName = buildingBillboard:getString(tostring(numBuildings))
+		local luaScript = buildings[numBuildings].towerNode:loadLuaScript(scriptName)
+		buildings[numBuildings].towerNode:update()
+
+		if luaScript then
+			luaScript:setName("tower");
+			luaScript:setScriptNetworkId("menu_tower_"..numBuildings)
+			buildingBillboard:setSceneNode( tostring(numBuildings).."Node", buildings[numBuildings].towerNode )
+		end
+				
+	
+		local x = (numBuildings-1)%4
+		local y =3-math.floor(((numBuildings-1)/4))
+		local start = Vec2(x/4.0, y/4.0)
+				
+		buildings[numBuildings].uvCoordMin=start
+		buildings[numBuildings].uvCoordMax=start+Vec2(1.0/4.0, 1.0/4.0)
+		buildings[numBuildings].texture=towerTexture
+
+		local button = topPanel:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, start, start+Vec2(1.0/4.0, 1.0/4.0) ))
+		button:setInnerColor(Vec4(0,0,0,0.15),Vec4(0.2,0.2,0.2,0.35), Vec4(0.1,0.1,0.1,0.3))
+		button:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
+		button:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
+		button:addEventCallbackExecute(buttonPressed)
+		button:addEventCallbackMouseFocusGain(showPoster)
+		button:addEventCallbackMouseFocusLost(HiddePoster)
+		button:setTag(tostring(numBuildings))
+		button:setEdgeHoverColor(Vec4(1,1,1,1),Vec4(0.8,0.8,0.8,1))
+
+			
+		button:setLayout(FallLayout(Alignment.BOTTOM_RIGHT))
+		local label = button:add(Label(PanelSize(Vec2(-0.3),Vec2(0.8,1)), keyBind[numBuildings] and keyBind[numBuildings]:getKeyBindName(0) or "", MainMenuStyle.textColor, Alignment.MIDDLE_CENTER))
+		label:setCanHandleInput(false)
+
+
+		if mapInfo.isCampaign() and numBuildings ~= 1 and gameValues.isTowerUnlocked(buildings[numBuildings].name) == false then
+			button:setVisible(false)
+		end
+				
+		numBuildings = numBuildings + 1;
+	end
+	
+	
+	createPoster(camera)
+			
+	setRestoreData({posterForm=posterForm, form=form})
+			
+	settingsListener = Listener("Settings")
+	settingsListener:registerEvent("Changed", settingsChanged)
+	settingsChanged()
+
+		
+	for i=1, #buildings do
+		buildings[i].cost = getTowerInfo(i, "cost")
+		if i~=1 and i~= 6 then
+			buildings[i].range = getTowerInfo(i, "range")
+		end
+		if i~=1 and i~=9 and i~=10 then
+			buildings[i].damage = i==7 and getTowerInfo(i, "dmg") or getTowerInfo(i, "damage")
+		end
+		if i==2 or i==3 or i==5 or i==6 then
+			buildings[i].rps = getTowerInfo(i, "RPS")
+		end
+		if i==7 or i==8 then
+			buildings[i].dmg_range = getTowerInfo(i, "dmg_range")
+		end
+		if i==10 then
+			buildings[i].supportGoldPerWave = getTowerInfo(i, "supportGoldPerWave")
+		end
+	end
+	buildings[4].burnTime = getTowerInfo(4, "burnTime")
+	buildings[4].fireDPS = getTowerInfo(4, "fireDPS")
+	buildings[5].slow = getTowerInfo(5, "slow")
+
 	return true
 end
 
