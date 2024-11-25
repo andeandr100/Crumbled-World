@@ -739,6 +739,20 @@ function GameValues.new()
 		end
 	end
 	
+	function self.isCampaingTowerAbiliyUnlocked(towerName, abilityName, abilityLevel)
+		local groupConfig = campaingDataConfig:get(towerName)
+		if groupConfig then
+			return groupConfig:get(abilityName):getInt() >= abilityLevel
+		end
+		return false
+	end
+	
+	function self.isTowerUnlocked(towerName)
+		return self.isCampaingTowerAbiliyUnlocked(towerName, "upgrade", 1)
+	end
+	
+	
+	
 	function self.getTowerValues(towerName)
 		local towerData = towersContent[towerName]
 		if towerData == nil then
