@@ -101,7 +101,6 @@ function CampaignGameMapMenu.new(parentPanel)
 			levelInfo.setMapSize(mapInfo.mapSize)
 			levelInfo.setLevel(1)
 			--changing default selected map
---			menuPrevSelect:get("campaign"):get("selectedMap"):setString(filePath)
 			gameValues.setSelectedMap(filePath)
 		end
 		

@@ -17,11 +17,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	--variabels from outside
 	local form = inForm
 	local leftMainPanel = inLeftMainPanel
-	local towerImagePanel = inTowerImagePanel
-	
-	local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
-	tutorialBillboard:setPanel("selectedTowerPanel", inForm)
-	
+	local towerImagePanel = inTowerImagePanel	
 	local gameValues = GameValues.new()
 	
 	--local variabels
@@ -103,10 +99,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		
 		local infoPanelMain = towerPanel:add(Panel(PanelSize(Vec2(-1))))
 		
-
-		local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
-		tutorialBillboard:setPanel("damageInfoBar", damageInfoBar)
-		tutorialBillboard:setPanel("upgradePanel", buttonPanel)
 	
 		infoPanel = infoPanelMain:add(Panel(PanelSize(Vec2(-0.5,-1))))
 		infoPanel:setLayout(GridLayout(5,1))

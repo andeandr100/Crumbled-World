@@ -28,9 +28,6 @@ function createStat(minUvCoord, maxUvCoor, startValue, toolTipText)
 	
 	local panel = topPanelRight:add(Panel(PanelSize(Vec2(1,-1), Vec2(4,1))))
 	
-	local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
-	tutorialBillboard:setPanel(toolTipText, panel)
-	
 	local image = panel:add(Image(PanelSize(Vec2(1,-1),Vec2(1, 1)), Text("icon_table.tga")))
 	image:setUvCoord(minUvCoord,maxUvCoor);
 
@@ -48,9 +45,6 @@ end
 function createSpeedButton(minUvCoord, maxUvCoor, startValue, toolTipText, func)
 	
 	local panel = topPanelRight:add(Panel(PanelSize(Vec2(1,-1), Vec2(4,1))))
-	
-	local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
-	tutorialBillboard:setPanel("speed", panel)
 	
 	local icon = Core.getTexture("icon_table.tga")
 	customButton = panel:add(Button(PanelSize(Vec2(1,-1),Vec2(1, 1)), ButtonStyle.SIMPLE, icon, Vec2(0.375,0.25), Vec2(0.50, 0.3125)))
@@ -313,7 +307,7 @@ function init()
 		form:setLayout(FallLayout(PanelSize(Vec2(0.01,0))))
 		form:setRenderLevel(0)
 		form:setVisible(true)
-		local topPanel = MainMenuStyle.createTopMenu(form, PanelSize(Vec2(1,0.019),PanelSizeType.WindowPercentBasedOnX))
+		local topPanel = MainMenuStyle.createTopMenu(form, PanelSize(Vec2(-1,0.04),PanelSizeType.WindowPercentBasedOnY))
 		topPanel:getPanelSize():setMinSize(PanelSize(Vec2(1,0.022),PanelSizeType.WindowPercent))
 		topPanel:setPadding(BorderSize(Vec4(0.0015),true))
 		topPanel:setBackground(Gradient(Vec4(0,0,0,1), Vec4(0,0,0,1)))
@@ -329,9 +323,6 @@ function init()
 		--create NPC panel
 		npcPanel = NpcPanel.new(topPanel)
 		topPanelRight = npcPanel.getTopPanelRight()
---			replaced by
---			topPanelRight = topPanel:add(Panel(PanelSize(Vec2(-1,-1))))
---			topPanelRight:setLayout(FlowLayout(Alignment.TOP_RIGHT))
 
 		statsBilboard = statsBilboard or Core.getBillboard("stats")
 		statsBilboard:setPanel("MainPanel", mainPanel)

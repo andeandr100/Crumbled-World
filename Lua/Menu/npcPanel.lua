@@ -268,9 +268,7 @@ function NpcPanel.new(panel)
 		targetPanel = topPanelRight:add(Panel(PanelSize(Vec2(-1))))
 		--set the background texture to use the camera
 		targetPanel:setBackground(Sprite(selectedCamera:getTexture()))
-		
-		local tutorialBillboard = Core.getGameSessionBillboard("tutorial")
-		tutorialBillboard:setPanel("npcPanel", targetPanel)
+	
 	end
 	init()
 	-- function:	removeTimeLineIcon
@@ -279,8 +277,6 @@ function NpcPanel.new(panel)
 		--remove npc/item
 		npcToBeRemoved[npcToBeRemoved.size+1] = spawnList.index
 		npcToBeRemoved.size = npcToBeRemoved.size + 1
-		--selectedCamera:remove2DScene(npc.icon)
-		--spawnList[spawnList.index] = nil
 		--
 		if spawnList[spawnList.index] then
 			spawnList[spawnList.index].startDelay = -1.1
@@ -354,8 +350,6 @@ function NpcPanel.new(panel)
 		local height = targetPanel:getPanelContentPixelSize().y-4
 		local perHeight = math.floor(height*per)
 		startTimeIcone:resize(Vec2(getPixelsPerSecond()*DELAYOFFSET-2,2+(height-perHeight)),Vec2(4,perHeight))
-		--startTimeIcone:setSize(Vec2(4,height*per))
-		--startTimeIcone:setPosition( Vec2(getPixelsPerSecond()-2,2+(height-height*per)) )
 	end
 	-- function:	fixCurrentWave
 	-- purpose:		adds/fixes everything that is needed to display/work the wave
