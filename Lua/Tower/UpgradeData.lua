@@ -22,6 +22,7 @@ function UpgradeData.new()
 	local iconId = 0
 	local stats= {}
 	local timeout = -1
+	local unlockedLevel = 100
 	local supportTowerIndexes = {} --List of support towers that has the max level support bonus active on this tower
 	local achievementName = nil
 	
@@ -31,6 +32,10 @@ function UpgradeData.new()
 	
 	function self.getStatValue(statName)
 		return stats[statName] and stats[statName][level] or nil
+	end
+	
+	function self.getUnlockedLevel()
+		return unlockedLevel
 	end
 	
 	function self.getLevel()
@@ -116,6 +121,7 @@ function UpgradeData.new()
 		cost = data.cost
 		iconId = data.iconId
 		stats = data.stats
+		unlockedLevel = data.campaingUnlockedLevel
 		achievementName = data.achievementName
 	end
 	

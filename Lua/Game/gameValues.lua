@@ -8,6 +8,7 @@ function GameValues.new()
 	local language = Language()
 	local campaignData = CampaignData.new()
 	local files = campaignData.getMaps()
+	local campaingConfig = Core.getGlobalBillboard("MapInfo")
 	
 	-- function:	add
 	-- purpose:
@@ -739,6 +740,14 @@ function GameValues.new()
 		end
 	end
 	
+	function self.getCampaingTowerAbiliyLevel(towerName, abilityName)
+		local groupConfig = campaingDataConfig:get(towerName)
+		if groupConfig then
+			return groupConfig:get(abilityName):getInt()
+		end
+		return 3
+	end
+	
 	function self.isCampaingTowerAbiliyUnlocked(towerName, abilityName, abilityLevel)
 		local groupConfig = campaingDataConfig:get(towerName)
 		if groupConfig then
@@ -773,6 +782,11 @@ function GameValues.new()
 		local abilityData = towersContent[towerName][ability]
 		if abilityData == nil then
 			abort("data not found")
+		end
+		if campaingConfig:getBool("isCampaign") then
+			abilityData.campaingUnlockedLevel = self.getCampaingTowerAbiliyLevel(towerName, ability)
+		else
+			abilityData.campaingUnlockedLevel = 100
 		end
 		return abilityData
 	end

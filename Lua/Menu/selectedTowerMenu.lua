@@ -147,7 +147,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 
 		
 		towerInfo = {}
---		statsOrder =  {"damage", "dmg","RPS", "ERPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range","supportDamage","SupportRange","supportWeaken","weakenValue","supportGold","supportGoldPerWave"}
 		statsOrder =  {"damage", "dmg","RPS", "ERPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range","supportDamage","SupportRange","supportWeaken","weakenValue","supportGold","supportGoldPerWave"}
 		keyBindTable = {keyBindUpgradeBuilding, keyBindBoostBuilding}
 		
@@ -179,8 +178,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		return 0
 	end
 	
-	
-	
 	function self.downGradeTower(paraNetWorkName)
 		local buildingScript = Core.getScriptOfNetworkName(paraNetWorkName)		
 		local towerNode = buildingScript:getBillboard():getSceneNode("TowerNode")
@@ -192,8 +189,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		local billBoard = buildingScript:getBillboard()
 --		if billBoard and billBoard:getBool("isNetOwner") then
 --			comUnit:sendTo("stats", "addGold", tostring(math.max(billBoard:getFloat("value")-getTowerCost(1),0)))
---		end
-		
+--		end	
 	end
 	
 	local function sellTower(button)
@@ -277,19 +273,14 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				costPanel:add(costIcon)
 				costPanel:setCanHandleInput(false)
 				
-				
-				
 				local x = towers[i]%4
 				local y = 2-math.floor((towers[i]/4))
 				local start = Vec2(x/4.0, y/4.0)
 			
-				--print( "textureName: "..texture:getName():toString().."\n")
 				--Make sure that information about the tower uppgrade actually exist				
 				local button = Button(PanelSize(Vec2(-1,-1), Vec2(1,1),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, towerTexture, start, start+Vec2(0.25,0.25))
 				button:setTag(tostring(towers[i]).."Node")
 				button:addEventCallbackExecute(uppgradeWallTowerCallback)
-		--		button:addEventCallbackMouseFocusGain(showWallBuildingInformation)
-		--		button:addEventCallbackMouseFocusLost(clearWallBuildingInformation)
 		
 				button:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
 				button:setInnerHoverColor(Vec4(Vec3(1.3),0.3),Vec4(Vec3(1.3),0.5), Vec4(Vec3(1.3),0.3))
@@ -337,22 +328,16 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	
 	local function handleUpgrade(cost,buyMessage,paramMessage)
 	
-		print("handleUpgrade")
-		print("COST: "..tostring(cost))
-	
-		--print("uppgrade building\n")
 		if buildingLastSelected then
-			print("Building found")
-			--print("money on bank " .. billboardStats:getDouble("gold") .. "\n")
+
 			if cost <= billboardStats:getDouble("gold") then
-				print("======= "..buyMessage.." =======")
-				print("Lua index: " .. buildingScript:getIndex() .. " Message: " .. buyMessage)
-				print("comUnit:sendTo(...,"..buyMessage..")")
-				print("tab="..tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=buyMessage..";"..paramMessage}))
-				print("")
+				--print("======= "..buyMessage.." =======")
+				--print("Lua index: " .. buildingScript:getIndex() .. " Message: " .. buyMessage)
+				--print("comUnit:sendTo(...,"..buyMessage..")")
+				--print("tab="..tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=buyMessage..";"..paramMessage}))
+				--print("")
 				
 				local clientId = buildingLastSelected:getPlayerNode():getClientId()
-				--Core.getNetworkClient():getClientId()
 				comUnit:sendTo("stats","removeGold",tostring(cost))
 				comUnit:sendTo("builder"..clientId, "buildingSubUpgrade", tabToStrMinimal({netId=buildingScript:getNetworkName(),cost=0,msg=buyMessage,param=buyMessage..";"..paramMessage}))
 			end
@@ -409,9 +394,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		print("")
 		print("TRY UPGRADE TOWER")
 		print("TAG: "..button:getTag():toString())
---		button:clearEvents()
-		
-		--print("button:getTag()="..button:getTag().."\n")
+
 		if button:getTag():toString() ~= "" then
 			--upgrade1;400;2	name;cost;level
 			local subString, size = split(button:getTag():toString(), ";")
@@ -1061,9 +1044,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	
 	local function showWallBuildingInformation(button)
 		local towerNode = buildingBillboard:getSceneNode(button:getTag():toString())
-		--print("\n\n\nShow Node\n")
 		if towerNode then	
-			--print("\n\n\nTower Node found\n")
 			local buildingScript = towerNode:getScriptByName("tower")					
 			local billBoard = buildingScript:getBillboard()
 			
@@ -1071,28 +1052,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			------ Load text -----
 			----------------------
 			
-	--		local wallTowerScript = buildingLastSelected:getScriptByName("tower")
-	--		local wallTowerCost = wallTowerScript:getBillboard():getFloat("buildCost")
-			
 			header:setText(billBoard:getString("Name"))
-	--		leftPanel:clear()		
 		end
 	end
 	
-	
-	
---	function self.netUpgradeWallTower(param)
---		--print("netUpgradeWallTower()\n")
---		local tab = totable(param)
---		local building = Core.getScriptOfNetworkName(tab.netName):getParentNode()
---		uppgradeWallTower(building, 0, tab.upgToScripName, nil, tab.tName, false, tab.playerId )
---	end
-	
-	local function clearWallBuildingInformation(button)
-		if selectedBuildingType == 2 then
-	--		leftPanel:clear()
-		end
-	end
 	
 	local function updateBars()
 		energyBar:setVisible(buildingBillBoard:exist("energy") and buildingBillBoard:exist("energyMax") );
@@ -1428,12 +1391,10 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		
 		local playerNode = this:findNodeByType(NodeId.playerNode)
 		local buildNode = playerNode:findNodeByType(NodeId.buildNode)
-		--buildNode = buildNode()
 		if buildNode then
 			showBoostableTowers = show
 			if show then
 				buildingList = buildNode:getBuildingList()
---				print("\n\nWave: "..billboardStats:getInt("wave"))
 				for key, node in pairs(buildingList) do
 					
 					local script = node:getScriptByName("tower")
@@ -1441,8 +1402,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					
 					if script and scriptBilboard and scriptBilboard:getString("Name") ~= "Wall tower" and scriptBilboard:getBool("isNetOwner") then
 						local cost, icon, duration, timerStart, cooldown, notifyText, requireText = getUpgradeInfoFromBilboard("upgrade2", script:getBillboard())
---						print("cost: "..(cost and cost or "nil"))
---						print("requireText: "..(requireText and requireText or "nil"))
 						if cost or requireText == "\"Wave\"" then
 							if cost then
 								setGlowColor( node, Vec3(0.05,0.05,0.18) )
@@ -1489,10 +1448,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			targetArea.hiddeTargetMesh()
 		end
 		
-		
-		--show boostable towers
---		showAllTowerThatCanBeBoosted(keyBindBoostBuilding:getHeld())
-
 		if showBoostableTowers then	
 
 			local i=1	
@@ -1553,12 +1508,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 						if keyBindUpgradeBuilding:getHeld() then
 							print("uppgrade tower")
 							upgradeTower(building)
---						elseif keyBindBoostBuilding:getHeld() then
---							print("boost tower")
---							boostTower(building)
---							setGlowColor( building, Vec3(0.05,0.15,0.05) )
---							updateBoostTimer[#updateBoostTimer + 1] = {time=Core.getGameTime() + 15, node = building}
---							setNodeNotBoostable(building)
 						else
 							print("Selected tower")
 							setVisibleClass(self)
@@ -1569,13 +1518,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 					else
 						if keyBindUpgradeBuilding:getHeld() then
 							upgradeTower(buildingLastSelected)
---						elseif keyBindBoostBuilding:getHeld() then
---							boostTower(buildingLastSelected)
---							setGlowColor( buildingLastSelected, Vec3(0.05,0.15,0.05) )
---							if buildingLastSelected then
---								updateBoostTimer[#updateBoostTimer + 1] = {time=Core.getGameTime() + 15, node = buildingLastSelected}
---							end
---							setNodeNotBoostable(buildingLastSelected)
 						end
 					end
 				else
@@ -1600,15 +1542,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			if keyBindUpgradeBuilding:getPressed() then
 				upgradeTower()
 			end
---			if keyBindBoostBuilding:getPressed() then
---				setNodeNotBoostable(buildingLastSelected)
---				setGlowColor( buildingLastSelected, Vec3(0.05,0.15,0.05) )
---				if buildingLastSelected then
---					updateBoostTimer[#updateBoostTimer + 1] = {time=Core.getGameTime() + 15, node = buildingLastSelected}
---				end
---				boostTower()
---			end  
-			
 			
 			if selectedBuildingType == 1 then
 				updateBars()
@@ -1627,14 +1560,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				local rangeLevel = 4
 				
 				if showRange and towerInfo and towerInfo.buttonsInfo and towerInfo.buttonsInfo["range"] then
-	--				print("towerInfo: "..tostring(towerInfo.buttonsInfo))
---					for name, data in pairs(towerInfo.buttonsInfo) do
---						if data.name and data.level ~= nil and data.name.value == "range" then
-							rangeLevel = towerInfo.buttonsInfo["range"].level
---						end
---					end
+					rangeLevel = towerInfo.buttonsInfo["range"].level
 				end
-				
 				
 				local colorList = {Vec4(0.4,0.4,1,2), Vec4(0,0,0,0.4), Vec4(0,0,0,0.4)}
 				targetArea.setRenderTarget(buildingLastSelected, rangeLevel, colorList)
