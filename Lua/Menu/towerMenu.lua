@@ -208,6 +208,7 @@ function create()
 		return false
 	end
 
+	--{"Passiv", "MinigunTower", "ArrowTower","SwarmTower", "ElectricTower", "BladeTower", "MissileTower", "QuakerTower", "SupportTower", "BankTower"}
 	local towerNames = gameValues.getStoreGroupNames()
 	statsOrder =  {"damage","rps","range","slow","fireDPS","burnTime","dmg_range","supportGoldPerWave"}
 	buildings = {}
