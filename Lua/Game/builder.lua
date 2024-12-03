@@ -2,6 +2,7 @@ require("Game/builderUpgrader.lua")
 require("Game/builderFunctions.lua")
 require("Game/mapInfo.lua")
 require("NPC/state.lua")
+require("Game/gameValues.lua")
 --require("Game/autoBuilder.lua")
 --this = BuildNode()
 local buildCounter = 0
@@ -14,6 +15,8 @@ local curentWave = -1
 local canBuildInThisWorld = false
 local worldCollisionHeight = 0
 local oldCollisionMesh = nil
+local gameValues = GameValues.new()
+local towerNameList = {nil,"MinigunTower","ArrowTower","SwarmTower","ElectricTower","BladeTower","MissileTower","QuakerTower","SupportTower","BankTower"}
 
 --local keyTable = {
 --			[keyTable["goldGainedTotal"]] = 32,		
@@ -86,8 +89,10 @@ function updateSelectedTowerToBuild()
 	if canBuildInThisWorld then 
 		for i = 1, 10 do
 			if keyBind[i] and keyBind[i]:getPressed() then
-				currentTowerIndex = i;
-				changeSelectedTower( buildings[i] );
+				if gameValues.isTowerUnlocked(towerNameList[i]) then
+					currentTowerIndex = i;
+					changeSelectedTower( buildings[i] );
+				end
 			end
 		end
 		
@@ -180,14 +185,6 @@ function restartMap()
 	end
 end
 
-
-
---function addHighScore(data)
---	for i=1, #towerBuildInfo do
---		towerBuildInfo[i].restore = nil
---	end
---end
-
 --this function can only be called once
 function sendHightScoreToTheServer()
 --	for i=1, #towerBuildInfo do
@@ -201,7 +198,6 @@ function sendHightScoreToTheServer()
 	highScoreBillBoard:setInt("score", statsBilboard:getInt("score"))
 	highScoreBillBoard:setInt("life", statsBilboard:getInt("life"))
 	highScoreBillBoard:setDouble("gold", statsBilboard:getInt("gold"))
-	
 	
 	--TODO
 	--highScore.addScore( tabToStrMinimal(towerBuildInfo) )
@@ -300,9 +296,7 @@ function DropLatestBuildingEvent(netName)
 end
 
 function ChangeTowerName(tabString)
-	
 	local data = totable(tabString)
-	
 	local script = Core.getScriptOfNetworkName(data.name)
 	if script then
 		
@@ -397,9 +391,7 @@ function create()
 		
 		print("test 2\n")
 		keyUse = keyBinds:getKeyBind("Place")
-		
 		keyDeselect = keyBinds:getKeyBind("Deselect")
-		
 		
 		builderFunctions = BuilderFunctions.new(keyBinds, camera)
 		
@@ -426,8 +418,6 @@ function create()
 		
 		restartWaveListener = Listener("RestartWave")
 		restartWaveListener:registerEvent("restartWave", restartWave)
-		
-	
 		
 		readyToPlay[0] = false
 		
@@ -606,10 +596,6 @@ function upgradeWallTower(param)
 		upgradeFromTowerToTower(building, 0, tab.upgToScripName, nil, tName, true, tab.playerId )
 		comUnit:sendTo("SelectedMenu", "updateSelectedTower", "")
 		
-		
-		
-		
-		
 		if Core.isInMultiplayer() then
 			comUnit:sendNetworkSyncSafe("NetUpgradeWallTower",param)
 		end
@@ -643,8 +629,6 @@ function towerUpgrade(param)
 --	print("name:  "..scriptName)
 --	print("------------------------")
 	
-	
-	
 	if tab.param and not ( scriptName == "Tower/ArrowTower.lua" and tab.msg == "upgrade6") then
 --		local downGrade = {netId = tab.netId, msg = tab.msg, param = tab.param}
 		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=tab.cost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=1},restore=nil}
@@ -657,10 +641,6 @@ function towerUpgrade(param)
 	
 	towerUpgradefunc(tab)
 end
-
-
-
-
 
 --this function can be called localy or by ower network
 function netSellTower(paramNetworkName,doNotReturnMoney)
@@ -761,9 +741,6 @@ function buildTowerNetworkCallback(tab)
 		soundNode:play(1.0, false)
 		towerBuiltListener:pushEvent("built")
 		
-		
-		
-		
 		updateIsAllreadyToPlay()
 	else
 		abort("failed to place building")
@@ -772,7 +749,6 @@ function buildTowerNetworkCallback(tab)
 end
 
 function buildTowerNetworkBuild(tab)
-	
 	
 	local script = buildings[tab.buildingId]:getScriptByName("tower")
 	local towerBilboard = script:getBillboard()
