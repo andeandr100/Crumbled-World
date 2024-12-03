@@ -757,7 +757,13 @@ function GameValues.new()
 	end
 	
 	function self.isTowerUnlocked(towerName)
-		return self.isCampaingTowerAbiliyUnlocked(towerName, "upgrade", 1)
+		if towerName and campaingConfig:getBool("isCampaign") then
+			local groupConfig = campaingDataConfig:get(towerName)
+			if groupConfig then
+				return groupConfig:get("upgrade"):getInt() >= 1
+			end
+		end
+		return true
 	end
 	
 	
