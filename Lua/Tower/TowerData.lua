@@ -246,11 +246,13 @@ function TowerData.new()
 	function self.updateStats()
 
 		stats = {}
+		local suffix = {}
 		
 		--Set base stats
 		local level = towerLevel.getLevel()
 		for key,value in pairs(towerLevel.getStats()) do
 			stats[key] = value[level]
+			suffix[key] = value.suffix
 		end
 		totalCost = towerLevel.getValueInGold()
 
@@ -304,6 +306,7 @@ function TowerData.new()
 		for key,value in pairs(stats) do
 			billboard:setDouble(key, value)
 			billboard:setDouble(key.."-upg", towerStats[key] and (value - towerStats[key]) or 0.0)
+			billboard:setString(key.."-suffix", suffix[key] and suffix[key] or "?")
 --			print("billboard "..key.." value "..value)
 		end
 		
@@ -328,9 +331,9 @@ function TowerData.new()
 			
 			
 			if billboard:getBool("isNetOwner")==false then
-				towerUpgrade.locked =  "not your tower"
+				towerUpgrade.locked =  "tower.menu.not your tower"
 			elseif TODO then
-				towerUpgrade.locked =  "shop required"
+				towerUpgrade.locked =  "tower.menu.shop required"
 			else
 				towerUpgrade.locked = nil
 			end
@@ -378,11 +381,11 @@ function TowerData.new()
 
 				
 				if billboard:getBool("isNetOwner")==false then
-					upgrade.locked =  "not your tower"
+					upgrade.locked =  "tower.menu.not your tower"
 				elseif level > towerLevel.getLevel() then
-					upgrade.locked =  "tower level "..level
+					upgrade.locked =  "tower.menu.tower level "..level
 				elseif upgrade.unlockedLevel <= level then
-					upgrade.locked =  "shop required"
+					upgrade.locked =  "tower.menu.shop required"
 				else
 					upgrade.locked = nil
 				end

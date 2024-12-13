@@ -439,13 +439,11 @@ function Upgrade.new()
 					value[level].startWaveCooldown = 0
 					value[level].cooldown = (level-1)*10
 				elseif value[level].name~="upgrade" and  value[level].levelRequirement==4 then
-					str = str.."require=\"shop required\";"
+					str = str.."require=\"tower.menu.shop required\";"
 				elseif value[level].name~="upgrade" and self.getLevel("upgrade")<level then
-					str = str.."require=\"tower level "..level.."\";"
+					str = str.."require=\"tower.menu.tower level "..level.."\";"
 				elseif value[level].levelRequirement>self.getLevel("upgrade") then
-					str = str.."require=\"tower level "..value[level].levelRequirement.."\";"
-				elseif onCooldown then
-					str = str.."require=\"Wave\";"--..tostring(value[1].startWaveCooldown+value[1].cooldown).."\";"
+					str = str.."require=\"tower.menu.tower level "..value[level].levelRequirement.."\";"
 				else
 					--upgrade is available
 					if isInXpMode then

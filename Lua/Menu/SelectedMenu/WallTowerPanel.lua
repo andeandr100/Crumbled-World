@@ -88,8 +88,6 @@ function WallTowerPanel.new(inParentPanel, inGetLastBuildingSelectedFunction, se
 			costPanel:add(costIcon)
 			costPanel:setCanHandleInput(false)
 
-			
-				
 			local x = (towers[i]-1)%4
 			local y =3-math.floor(((towers[i]-1)/4))
 			local start = Vec2(x/4.0, y/4.0)
@@ -145,39 +143,9 @@ function WallTowerPanel.new(inParentPanel, inGetLastBuildingSelectedFunction, se
 		end
 	end
 	
-	local function sellTower(button)
-		local playerNode = this:findNodeByType(NodeId.playerNode)
-		local buildNode = playerNode:findNodeByType(NodeId.buildNode)
-		local buildingLastSelected = getLastBuildingSelectedFunction()
-		local buildingBillBoard = getBuildingBilBoard()
-		
-	
-		if buildNode and buildingLastSelected and buildingBillBoard then
-			local buildingScript = buildingLastSelected:getScriptByName("tower")
-			if buildingScript then--crash protection, when the tower has crashed
-				
-				
-				if buildingBillBoard:getString("Name") == "Wall tower" then
-					senToBuildNode( "SELLTOWER", buildingScript:getNetworkName())					
-				else
-					
-					local netName = buildingScript:getNetworkName()				
-					local tab = {netName = netName, upgToScripName = "Tower/WallTower.lua", tName = (netName.."V3"), playerId = Core.getPlayerId(), buildCost=0}
-					print("Sold tower: "..netName)
-					senToBuildNode( "UpgradeWallTower", tabToStrMinimal(tab) )
-					senToBuildNode( "addRebuildTower", tabToStrMinimal({upp=tab,down={towerName=netName,wallTowerName=(netName.."V3")}}) )
-					local billBoard = buildingScript:getBillboard()
---					if billBoard and billBoard:getBool("isNetOwner") then
---						comUnit:sendTo("stats", "addGold", tostring(math.max(billBoard:getFloat("value")-getTowerCost(1),0)))
---					end
-				end	
-			end
-		end
-	end
-	
 	function initWallTower()
 
-		local topRowPanel = wallPanel:add(Panel(PanelSize(Vec2(-1,-0.2))))
+		wallPanel:clear()
 		local row1 = wallPanel:add(Panel(PanelSize(Vec2(-1,-1/3))))
 		local row2 = wallPanel:add(Panel(PanelSize(Vec2(-1,-0.5))))
 		local row3 = wallPanel:add(Panel(PanelSize(Vec2(-1,-1.0))))
@@ -186,18 +154,6 @@ function WallTowerPanel.new(inParentPanel, inGetLastBuildingSelectedFunction, se
 		createWallTowerPanel(row1, 3, {2,3,4})
 		createWallTowerPanel(row2, 3, {5,6,7})
 		createWallTowerPanel(row3, 3, {8,9,10})
-		
-		topRowPanel:setLayout(FlowLayout(Alignment.TOP_RIGHT))
-		topRowPanel:setPadding(BorderSize(Vec4(0,0,0.006,0),true))
-		local texture = Core.getTexture("icon_table.tga")
-		local button = topRowPanel:add(Button(PanelSize(Vec2(-0.6,-0.6), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, texture, Vec2(0,0), Vec2(0.125, 0.0625)))
-		wallTowerButtons[#wallTowerButtons + 1] = button
-		wallTowerCostLabels[#wallTowerCostLabels + 1] = button
-		
-		button:addEventCallbackExecute(sellTower)	
-		button:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
-		button:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
-		button:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
 
 	end
 	
@@ -208,7 +164,6 @@ function WallTowerPanel.new(inParentPanel, inGetLastBuildingSelectedFunction, se
 		
 		initWallTower()
 	end
-	
 	
 	init()
 	

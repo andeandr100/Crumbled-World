@@ -114,7 +114,7 @@ function UpgradeData.new()
 	
 	function self.init(data)
 		name = data.name
-		info = data.info
+		info = data.toolTip and data.toolTip or data.info
 		infoValues = data.infoValues
 		level = data.level
 		maxLevel = data.maxLevel

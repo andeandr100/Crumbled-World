@@ -14,17 +14,20 @@ require("Menu/SelectedMenu/TowerBarPanel.lua")
 --buildingNodeBillboard = Billboard()
 --buildingBillBoard = Billboard()
 --header = Label()
+--sellButton = Button()
 --selectedCamera = Camera()
+--camera = Camera()
 --this = SceneNode()
 
 selectedtowerMenu = {}
-function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
+function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSellButton)
 	local self = {}
 	--variabels from outside
 	local form = inForm
 	local leftMainPanel = inLeftMainPanel
 	local towerImagePanel = inTowerImagePanel	
 	local gameValues = GameValues.new()
+	local sellButton = InSellButton
 	
 	--local variabels
 	local keyBinds
@@ -101,49 +104,21 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		
 		--secondary uppgrades
 		upgradePanel = UpgradePanel.new(towerPanel, comUnit, handleUpgrade, changedTargetSystem, getLastBuildingSelected)
-		
 			
 		damageInfoPanel = DamageInfoPanel.new(towerPanel)
-
 		infoPanel = TowerInfoPanel.new(towerPanel)
 		
 		local label = Label(PanelSize(Vec2(-0.3,0.1),PanelSizeType.ParentPercent), "Level:");
 		label:setTextColor(Vec3(1.0));		
 		
-		
 		imagePanel = towerImagePanel:add(Panel(PanelSize(Vec2(-1))))
-	
 		imagePanel:setPadding(BorderSize(Vec4(0.01)))
 		towerBarPanel =  TowerBarPanel.new(imagePanel)
 		
-
 		local bottomPanel = imagePanel:add(Panel(PanelSize(Vec2(-1))))
 		bottomPanel:setLayout(FlowLayout(Alignment.BOTTOM_LEFT))
-		
 		upgradePanel.addBoostPanel( bottomPanel )
 		
-	end
-	
-	local function init()
-		--keybinds
-		keyBinds = Core.getBillboard("keyBind");
-		keyBindUpgradeBuilding = keyBinds:getKeyBind("Upgrade")
-		keyBindSellBulding = keyBinds:getKeyBind("Sell")
-		
-		instalForm()
-		
-		upgradePanel.clearInfo()
-		
-	end
-	
-	function self.downGradeTower(paraNetWorkName)
-		local buildingScript = Core.getScriptOfNetworkName(paraNetWorkName)		
-		local towerNode = buildingScript:getBillboard():getSceneNode("TowerNode")
-		local tab = {netName = paraNetWorkName, upgToScripName = "Tower/WallTower.lua", tName = (paraNetWorkName.."V3"), playerId = Core.getPlayerId()}
-		senToBuildNode( "UpgradeWallTower", tabToStrMinimal(tab))
---		senToBuildNode( "addRebuildTower", tabToStrMinimal({upp=tab,down={towerName=paraNetWorkName,wallTowerName=(paraNetWorkName.."V3")}}) )
-		
-		local billBoard = buildingScript:getBillboard()
 	end
 	
 	local function sellTower(button)
@@ -170,6 +145,29 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		end
 	end
 	
+	local function init()
+		--keybinds
+		keyBinds = Core.getBillboard("keyBind");
+		keyBindUpgradeBuilding = keyBinds:getKeyBind("Upgrade")
+		keyBindSellBulding = keyBinds:getKeyBind("Sell")
+		
+		instalForm()
+		
+		upgradePanel.clearInfo()
+		sellButton:addEventCallbackExecute(sellTower)	
+		
+	end
+	
+	function self.downGradeTower(paraNetWorkName)
+		local buildingScript = Core.getScriptOfNetworkName(paraNetWorkName)		
+		local towerNode = buildingScript:getBillboard():getSceneNode("TowerNode")
+		local tab = {netName = paraNetWorkName, upgToScripName = "Tower/WallTower.lua", tName = (paraNetWorkName.."V3"), playerId = Core.getPlayerId()}
+		senToBuildNode( "UpgradeWallTower", tabToStrMinimal(tab))
+--		senToBuildNode( "addRebuildTower", tabToStrMinimal({upp=tab,down={towerName=paraNetWorkName,wallTowerName=(paraNetWorkName.."V3")}}) )
+		
+		local billBoard = buildingScript:getBillboard()
+	end
+	
 	local function splitFirst(str,sep)
 		local array = {}
 		local size = 0
@@ -184,8 +182,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		end	
 		return array, size
 	end
-
-	
 
 	local function updateTowerName(button)
 		local levelText = " "
@@ -346,12 +342,6 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			targetArea.setRenderTarget(nil)
 		end
 	end
-
-	local function funcWaveChanged()
-		if damageInfoBar and buildingBillBoard and form:getVisible() then
-			damageInfoPanel.updateTowerDamageInfo()
-		end
-	end
 	
 	function self.update()
 		
@@ -444,7 +434,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		if callChangeWave > 0 then
 			callChangeWave = callChangeWave - 1
 			if callChangeWave == 0 then
-				funcWaveChanged()
+				damageInfoPanel.updateTowerDamageInfo()
 			end
 		end
 	end

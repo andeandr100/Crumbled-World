@@ -43,8 +43,8 @@ function DamageInfoPanel.new(inParentPanel)
 		local totalDamage, maxDamage = getAllDamageFromTowers()
 		local damage = buildingBillBoard:getDouble("DamagePreviousWave")
 		local totalCost = buildingBillBoard:getDouble("totalCost")
-		local damageToolTip = Text(tostring(math.round(damage/totalCost)).." ") + language:getText("damage per gold") + Text("\n")
-		damageToolTip = damageToolTip + Text(tostring(math.round(damage)).." ") + language:getText("damage delt to enemies") 
+		local damageToolTip = Text(tostring(math.round(damage/totalCost)).." ") + language:getText("# damage per gold") + Text("\n")
+		damageToolTip = damageToolTip + Text(tostring(math.round(damage)).." ") + language:getText("# damage delt to enemies") 
 		local passivDamageTextAdded = false
 		if buildingBillBoard:exist("DamagePreviousWavePassive") then
 			local passivDamage = buildingBillBoard:getDouble("DamagePreviousWavePassive")
@@ -56,8 +56,8 @@ function DamageInfoPanel.new(inParentPanel)
 				end
 				
 				passivDamageTextAdded = true
-				damageToolTip = damageToolTip + Text(tostring(math.round(passivDamage/totalCost)).." ") + language:getText("damage per gold") + Text("\n")
-				damageToolTip = damageToolTip + Text(tostring(math.round(passivDamage)).." ") + language:getText("damage delt to enemies") 
+				damageToolTip = damageToolTip + Text(tostring(math.round(passivDamage/totalCost)).." ") + language:getText("# damage per gold") + Text("\n")
+				damageToolTip = damageToolTip + Text(tostring(math.round(passivDamage)).." ") + language:getText("# damage delt to enemies") 
 			end
 		end
 		
@@ -71,8 +71,8 @@ function DamageInfoPanel.new(inParentPanel)
 					damageToolTip = damageToolTip + Text("\n")
 				end
 				
-				damageToolTip = damageToolTip + Text(tostring(goldEarned).." ") + language:getText("gold earned") + Text("\n")
-				damageToolTip = damageToolTip + Text(tostring(goldEarnedPreviousWave).." ") + language:getText("gold earned previous wave") 
+				damageToolTip = damageToolTip + Text(tostring(goldEarned).." ") + language:getText("# gold earned") + Text("\n")
+				damageToolTip = damageToolTip + Text(tostring(goldEarnedPreviousWave).." ") + language:getText("# gold earned previous wave") 
 			end
 		end
 		return damageToolTip

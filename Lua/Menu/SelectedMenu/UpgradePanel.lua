@@ -57,20 +57,20 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 		if info.locked ~= nil then
 			
 			local requireTextCreated = false
-			if info.locked == "tower level 2" or info.locked == "tower level 3" or info.locked == "shop required" or info.locked == "not your tower" then
+			if info.locked == "tower.menu.tower level 2" or info.locked == "tower.menu.tower level 3" or info.locked == "tower.menu.shop required" or info.locked == "tower.menu.not your tower" then
 				requireTextCreated = true
 				requireText = Text("<font color=rgb(255,50,50)>")
 			end
 			
 			
-			if info.locked == "tower level 2" then
-				requireText = requireText + language:getText("tower level") + Text(" 2")
-			elseif info.locked == "tower level 3" then
-				requireText = requireText + language:getText("tower level") + Text(" 3")
-			elseif info.locked == "shop required" then
-				requireText = requireText  + language:getText("shop required")
-			elseif info.locked == "not your tower" then
-				requireText = requireText  + language:getText("not your tower")
+			if info.locked == "tower.menu.tower level 2" then
+				requireText = requireText + language:getText("tower.menu.tower level") + Text(" 2")
+			elseif info.locked == "tower.menu.tower level 3" then
+				requireText = requireText + language:getText("tower.menu.tower level") + Text(" 3")
+			elseif info.locked == "tower.menu.shop required" then
+				requireText = requireText  + language:getText("tower.menu.shop required")
+			elseif info.locked == "tower.menu.not your tower" then
+				requireText = requireText  + language:getText("tower.menu.not your tower")
 			end
 			
 			if requireTextCreated then
@@ -295,17 +295,17 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 
 			if buttoninfo.locked ~= nil then
 				print("\buttoninfo.locked="..buttoninfo.locked.."\n")
-				if buttoninfo.locked == "tower level 2" then
+				if buttoninfo.locked == "tower.menu.tower level 2" then
 					requireLabel:setText("LvL 2")
 					requireLabel:setVisible(true)
-				elseif buttoninfo.locked == "tower level 3" then
+				elseif buttoninfo.locked == "tower.menu.tower level 3" then
 					requireLabel:setText("LvL 3")
 					requireLabel:setVisible(true)
-				elseif buttoninfo.locked == "shop required" then
+				elseif buttoninfo.locked == "tower.menu.shop required" then
 					requireLabel:setTextAlignment(Alignment.MIDDLE_LEFT)
-					requireLabel:setText( language:getText("shop"))
+					requireLabel:setText( language:getText("tower.menu.shop"))
 					requireLabel:setVisible(true)
-				elseif buttoninfo.locked == "not your tower" then
+				elseif buttoninfo.locked == "tower.menu.not your tower" then
 					requireLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
 					requireLabel:setText( Text("Lock"))
 					requireLabel:setVisible(true)
@@ -353,17 +353,17 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 				
 				if buttoninfo.locked ~= nil then
 					print("\buttoninfo.locked="..buttoninfo.locked.."\n")
-					if buttoninfo.locked == "tower level 2" then
+					if buttoninfo.locked == "tower.menu.tower level 2" then
 						buttoninfo.requireLabel:setText("LvL 2")
 						buttoninfo.requireLabel:setVisible(true)
-					elseif buttoninfo.locked == "tower level 3" then
+					elseif buttoninfo.locked == "tower.menu.tower level 3" then
 						buttoninfo.requireLabel:setText("LvL 3")
 						buttoninfo.requireLabel:setVisible(true)
-					elseif buttoninfo.locked == "shop required" then
+					elseif buttoninfo.locked == "tower.menu.shop required" then
 						buttoninfo.requireLabel:setTextAlignment(Alignment.MIDDLE_LEFT)
-						buttoninfo.requireLabel:setText( language:getText("shop"))
+						buttoninfo.requireLabel:setText( language:getText("tower.menu.shop"))
 						buttoninfo.requireLabel:setVisible(true)
-					elseif buttoninfo.locked == "not your tower" then
+					elseif buttoninfo.locked == "tower.menu.not your tower" then
 						buttoninfo.requireLabel:setTextAlignment(Alignment.MIDDLE_CENTER)
 						buttoninfo.requireLabel:setText( Text("Lock"))
 						buttoninfo.requireLabel:setVisible(true)

@@ -229,7 +229,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			local texture = Core.getTexture("icon_table.tga")
 			local button = row2:add(Button(PanelSize(Vec2(-1), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, texture, Vec2(0.5,0), Vec2(0.625, 0.0625)))
 			
-			button:setToolTip(language:getText("ignore this NPC"))
+			button:setToolTip(language:getText("# ignore this NPC"))
 			button:addEventCallbackExecute(ignoreNpc)	
 			button:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
 			button:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
@@ -243,7 +243,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			
 			
 			button = row2:add(Button(PanelSize(Vec2(-1), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, texture, Vec2(0.625,0.4375), Vec2(0.75, 0.5)))
-			button:setToolTip(language:getText("high priority"))
+			button:setToolTip(language:getText("# high priority"))
 			button:addEventCallbackExecute(highPriorityTarget)	
 			button:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
 			button:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))

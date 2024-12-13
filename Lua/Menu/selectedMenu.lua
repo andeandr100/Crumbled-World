@@ -20,17 +20,20 @@ function instalForm()
 	form:setRenderLevel(1)
 	
 	--form = Form()
-	header = form:add(Label(PanelSize(Vec2(-1,0.03)), "", Alignment.MIDDLE_CENTER));
-	header:setTextColor(Vec3(1))
+	headerPanel = form:add(Panel(PanelSize(Vec2(-1,0.03))))
+	headerPanel:setLayout(FlowLayout(Alignment.TOP_RIGHT))
 	
+	sellButton = headerPanel:add(Button(PanelSize(Vec2(-1.0,-1.0), Vec2(1.0,1.0)), ButtonStyle.SIMPLE, Core.getTexture("icon_table.tga"), Vec2(0,0), Vec2(0.125, 0.0625)))
+	sellButton:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
+	sellButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
+	sellButton:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))	
+
+	header = headerPanel:add(Label(PanelSize(Vec2(-1)), "Hello", Alignment.MIDDLE_CENTER))
+	header:setTextColor(Vec3(1))
+		
 	local lineBreak = form:add(Panel(PanelSize(Vec2(-1,0.002))));
 	lineBreak:setBackground(Sprite(Vec4(0.4,0.4,0.4,0.7)))
 
-
---	local mainPanel = form:add(Panel(PanelSize(Vec2(-1,1),Vec2(2,1.1))))
---	local mainPanel = form:add(Panel(PanelSize(Vec2(-1,1))))
---	mainPanel:getPanelSize():setFitChildren(false,true)
---	mainPanel:setLayout(FallLayout())
 
 	leftMainPanel = form:add(Panel(PanelSize(Vec2(-1),Vec2(1,0.8))));
 	leftMainPanel:setLayout(FallLayout(PanelSize(Vec2(0.01),Vec2(1))))
@@ -43,7 +46,7 @@ function instalForm()
 	towerImagePanel:setLayout(FlowLayout());
 	towerImagePanel:getLayout():setPanelSpacing(PanelSize(Vec2(0.005)));
 	
-	towerMenu = selectedtowerMenu.new(form, leftMainPanel, towerImagePanel)
+	towerMenu = selectedtowerMenu.new(form, leftMainPanel, towerImagePanel, sellButton)
 	npcMenu = selectedNpcMenu.new(form, leftMainPanel, towerImagePanel)
 	
 	Core.setScriptNetworkId("SelectedMenu")
@@ -76,12 +79,15 @@ end
 function setVisibleClass(class)
 	if towerMenu == class then
 		npcMenu.setVisible(false)
+		sellButton:setVisible(true)
 		towerMenu.setVisible(true)
 	elseif npcMenu == class then
 		npcMenu.setVisible(true)
+		sellButton:setVisible(false)
 		towerMenu.setVisible(false)
 	else
 		npcMenu.setVisible(false)
+		sellButton:setVisible(false)
 		towerMenu.setVisible(false)
 	end
 end
@@ -120,7 +126,6 @@ function create()
 		menuNode:createWork()
 				
 		--Move this script to the camera node
-		--this:removeScript(this:getCurrentScript():getName());
 		menuNode:loadLuaScript(this:getCurrentScript():getFileName());
 		return false
 	else
@@ -135,8 +140,6 @@ function create()
 		selectedCamera:setDirectionLight(Core.getDirectionalLight(this))
 		selectedCamera:setAmbientLight(Core.getAmbientLight(this))
 		selectedCamera:setRenderScript("Camera/selectedTowerRender.lua")
---		selectedCamera:setClearColor(Vec4(1,0,0,1))
-
 		
 		--keybinds
 		keyBinds = Core.getBillboard("keyBind");

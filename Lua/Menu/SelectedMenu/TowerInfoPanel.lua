@@ -105,7 +105,7 @@ function TowerInfoPanel.new(inParentPanel)
 	local function init()
 		local infoPanelMain = parentPanel:add(Panel(PanelSize(Vec2(-1))))
 		infoPanel = infoPanelMain:add(Panel(PanelSize(Vec2(-1,-1))))
-		infoPanel:setLayout(GridLayout(5,1))
+		infoPanel:setLayout(GridLayout(5,2))
 	end
 	
 	
