@@ -248,7 +248,7 @@ function CampaignGameMapMenu.new(parentPanel)
 		--	Reward
 		--
 		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), "# Reward #", Vec3(0.7)))--language:getText("reward")
+		rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("custom-game.reward"), Vec3(0.7)))
 		rewardLabel = rowPanel:add(Label(PanelSize(Vec2(-0.5,-1)), "?", Vec3(0.7)))
 		--	Crystal
 		local image = rowPanel:add(Image(PanelSize(Vec2(-1),Vec2(1)), Text("icon_table.tga")))

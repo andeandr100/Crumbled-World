@@ -6,69 +6,6 @@ require("Menu/selectedTowerMenu.lua")
 require("Menu/selectedNpcMenu.lua")
 
 --this = SceneNode()
-function instalForm()
-	str = ""
-	local panelSpacing = PanelSize(Vec2(0.005),Vec2(1))
-	form = Form( camera, PanelSize(Vec2(0.225,-1),PanelSizeType.WindowPercentBasedOnY), Alignment.BOTTOM_RIGHT);
-	form:setName("SelectedMenu form")
-	form:getPanelSize():setFitChildren(false,true)
-	form:setBackground(Gradient(Vec4(Vec3(0),0.85), Vec4(Vec3(0),0.7)));
-	form:setLayout(FallLayout(panelSpacing));
-	form:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor));
-	form:setPadding(BorderSize(Vec4(MainMenuStyle.borderSize * 3)));
-	form:setFormOffset(PanelSize(Vec2(0.005), Vec2(1)));
-	form:setRenderLevel(1)
-	
-	--form = Form()
-	headerPanel = form:add(Panel(PanelSize(Vec2(-1,0.03))))
-	headerPanel:setLayout(FlowLayout(Alignment.TOP_RIGHT))
-	
-	sellButton = headerPanel:add(Button(PanelSize(Vec2(-1.0,-1.0), Vec2(1.0,1.0)), ButtonStyle.SIMPLE, Core.getTexture("icon_table.tga"), Vec2(0,0), Vec2(0.125, 0.0625)))
-	sellButton:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
-	sellButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
-	sellButton:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))	
-
-	header = headerPanel:add(Label(PanelSize(Vec2(-1)), "Hello", Alignment.MIDDLE_CENTER))
-	header:setTextColor(Vec3(1))
-		
-	local lineBreak = form:add(Panel(PanelSize(Vec2(-1,0.002))));
-	lineBreak:setBackground(Sprite(Vec4(0.4,0.4,0.4,0.7)))
-
-
-	leftMainPanel = form:add(Panel(PanelSize(Vec2(-1),Vec2(1,0.8))));
-	leftMainPanel:setLayout(FallLayout(PanelSize(Vec2(0.01),Vec2(1))))
-	
-
-	--tower image
-	towerImagePanel = form:add(Panel(PanelSize(Vec2(-1),Vec2(1))));
-	towerImagePanel:setBackground(Sprite(selectedCamera:getTexture()));
---	towerImagePanel:setBackground(Sprite(Vec3(0.3)));
-	towerImagePanel:setLayout(FlowLayout());
-	towerImagePanel:getLayout():setPanelSpacing(PanelSize(Vec2(0.005)));
-	
-	towerMenu = selectedtowerMenu.new(form, leftMainPanel, towerImagePanel, sellButton)
-	npcMenu = selectedNpcMenu.new(form, leftMainPanel, towerImagePanel)
-	
-	Core.setScriptNetworkId("SelectedMenu")
-	comUnit = Core.getComUnit();
-	comUnit:setName("SelectedMenu")
-	comUnit:setCanReceiveTargeted(true);
-	comUnit:setCanReceiveBroadcast(true);
-	
-	restartWaveListener = Listener("RestartWave")
-	restartWaveListener:registerEvent("restartWave", restartWave)
-	reloadTowerMenu = -1
-	
-	--Handle communication
-	comUnitTable = {}					
---	comUnitTable["NetSell"] = towerMenu.networkSellTower
-	comUnitTable["NETUW"] = towerMenu.netUpgradeWallTower
-	comUnitTable["waveChanged"] = towerMenu.waveChanged
---	comUnitTable["sellTowerBynetId"] = towerMenu.sellTowerFromNetwork
-	comUnitTable["downGradeTowerBynetId"] = towerMenu.downGradeTower
-	comUnitTable["updateSelectedTower"] = towerMenu.updateSelectedTower
-
-end
 
 function restartWave()
 	if towerMenu.getVisible() then
@@ -79,35 +16,22 @@ end
 function setVisibleClass(class)
 	if towerMenu == class then
 		npcMenu.setVisible(false)
-		sellButton:setVisible(true)
 		towerMenu.setVisible(true)
 	elseif npcMenu == class then
 		npcMenu.setVisible(true)
-		sellButton:setVisible(false)
 		towerMenu.setVisible(false)
 	else
 		npcMenu.setVisible(false)
-		sellButton:setVisible(false)
 		towerMenu.setVisible(false)
 	end
 end
 
 function destroy()
-	if form then
-		print("\n\nSelected menu is in hidding because form is being destroyed\n\n")
-		form:setVisible(false)
-		form:destroy()
-		form = nil
-	end
+	
 end
 
 function restore(data)
-	if data.form then
-		print("\n\nSelected menu is in hidding because restore function caled\n\n")
-		data.form:setVisible(false)
-		data.form:destroy()
-		data.form = nil
-	end
+	setVisibleClass(nil)
 end
 
 function create()
@@ -150,17 +74,28 @@ function create()
 		restartListener = Listener("Restart")
 		restartListener:registerEvent("restart", restartMap)
 		
-		restoreData = {form = form}
-		setRestoreData(restoreData)
-		
 		if camera then
+			npcMenu = selectedNpcMenu.new(camera)
+			towerMenu = selectedtowerMenu.new(camera)
+		
+			Core.setScriptNetworkId("SelectedMenu")
+			comUnit = Core.getComUnit();
+			comUnit:setName("SelectedMenu")
+			comUnit:setCanReceiveTargeted(true);
+			comUnit:setCanReceiveBroadcast(true);
 			
-			instalForm()
+			restartWaveListener = Listener("RestartWave")
+			restartWaveListener:registerEvent("restartWave", restartWave)
+			reloadTowerMenu = -1
 			
-			form:update()
-			form:setVisible(false)
-		else
-			--print("No camera was ever found\n");
+			--Handle communication
+			comUnitTable = {}					
+		--	comUnitTable["NetSell"] = towerMenu.networkSellTower
+			comUnitTable["NETUW"] = towerMenu.netUpgradeWallTower
+			comUnitTable["waveChanged"] = towerMenu.waveChanged
+		--	comUnitTable["sellTowerBynetId"] = towerMenu.sellTowerFromNetwork
+			comUnitTable["downGradeTowerBynetId"] = towerMenu.downGradeTower
+			comUnitTable["updateSelectedTower"] = towerMenu.updateSelectedTower
 		end
 		
 		settingsListener = Listener("Settings")
@@ -172,8 +107,6 @@ end
 
 function restartMap()
 	print("\n\nSelected menu is in hidding because map restart\n\n")
-	
-	form:setVisible(false)
 	setVisibleClass(nil)
 end
 
@@ -201,14 +134,13 @@ function update()
 
 	--when in game menu is shown hide selected tower menu
 	if esqKeyBind:getPressed() or buildingNodeBillboard:getBool("inBuildMode") then
-		form:setVisible(false)
 		setVisibleClass(nil)
 	end
 	
 	--this ocure when a restart wave event is called
 	if reloadTowerMenu > 0 then
 		reloadTowerMenu = reloadTowerMenu - 1
-		if reloadTowerMenu == 0 and form:getVisible() and towerMenu.getVisible() then
+		if reloadTowerMenu == 0 and towerMenu.getVisible() then
 			--reload tower menu
 			towerMenu.updateSelectedTower()
 		end
@@ -217,15 +149,13 @@ function update()
 	towerMenu.update()
 	npcMenu.update()
 	
-	if form:getVisible() then
+
+	if billboardStats == nil then
+		billboardStats = Core.getBillboard("stats")
 		
-		if billboardStats == nil then
-			billboardStats = Core.getBillboard("stats")
-			
-		end
-		selectedCamera:render()
-		form:update()	
 	end
+	selectedCamera:render()
+
 	return true
 
 end

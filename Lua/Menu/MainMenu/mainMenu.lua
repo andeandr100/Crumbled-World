@@ -143,6 +143,7 @@ function update()
 			end
 		end
 		pagePanel:setVisible( false )
+		campaignPanel:setVisible( false )
 	end
 	
 	return true

@@ -5,12 +5,12 @@ require("Game/gameValues.lua")
 --this = SceneNode()
 
 WallTowerPanel = {}
-function WallTowerPanel.new(inParentPanel, inGetLastBuildingSelectedFunction, senToBuildNodeFunction)
+function WallTowerPanel.new(inForm, inGetLastBuildingSelectedFunction, senToBuildNodeFunction)
 	local self = {}
 	local gameValues = GameValues.new()
 	local wallPanel = nil
 	--parentPanel = Panel()
-	local parentPanel = inParentPanel
+	local form = inForm
 	local billboardStats = Core.getBillboard("stats")
 	local wallTowerButtons = {}
 	local wallTowerCostLabels = {}
@@ -19,9 +19,7 @@ function WallTowerPanel.new(inParentPanel, inGetLastBuildingSelectedFunction, se
 	local senToBuildNode = senToBuildNodeFunction
 	
 	function self.setVisible(visible)
-		local vis = visible
-		local panel = wallPanel
-		wallPanel:setVisible(visible)
+
 	end
 	
 	local function getTowerCost(towerId)
@@ -122,6 +120,19 @@ function WallTowerPanel.new(inParentPanel, inGetLastBuildingSelectedFunction, se
 		return nil
 	end
 	
+	local function initWallTower()
+
+		wallPanel:clear()
+		local row1 = wallPanel:add(Panel(PanelSize(Vec2(-1,-1/3))))
+		local row2 = wallPanel:add(Panel(PanelSize(Vec2(-1,-0.5))))
+		local row3 = wallPanel:add(Panel(PanelSize(Vec2(-1,-1.0))))
+		
+		--{"Passiv", "MinigunTower", "ArrowTower","SwarmTower", "ElectricTower", "BladeTower", "MissileTower", "QuakerTower", "SupportTower", "BankTower"}
+		createWallTowerPanel(row1, 3, {2,3,4})
+		createWallTowerPanel(row2, 3, {5,6,7})
+		createWallTowerPanel(row3, 3, {8,9,10})
+	end
+	
 	function self.updateWallTowerButtons()
 		for i=1, #wallTowerButtons do
 			
@@ -143,23 +154,9 @@ function WallTowerPanel.new(inParentPanel, inGetLastBuildingSelectedFunction, se
 		end
 	end
 	
-	function initWallTower()
-
-		wallPanel:clear()
-		local row1 = wallPanel:add(Panel(PanelSize(Vec2(-1,-1/3))))
-		local row2 = wallPanel:add(Panel(PanelSize(Vec2(-1,-0.5))))
-		local row3 = wallPanel:add(Panel(PanelSize(Vec2(-1,-1.0))))
-		
-		--{"Passiv", "MinigunTower", "ArrowTower","SwarmTower", "ElectricTower", "BladeTower", "MissileTower", "QuakerTower", "SupportTower", "BankTower"}
-		createWallTowerPanel(row1, 3, {2,3,4})
-		createWallTowerPanel(row2, 3, {5,6,7})
-		createWallTowerPanel(row3, 3, {8,9,10})
-
-	end
-	
 	local function init()
-		wallPanel = parentPanel:add(Panel(PanelSize(Vec2(-1))))
-		wallPanel:setVisible(false)
+		
+		wallPanel = form:add(Panel(PanelSize(Vec2(-1),Vec2(1,1.18))))
 		wallPanel:setLayout(FallLayout())
 		
 		initWallTower()

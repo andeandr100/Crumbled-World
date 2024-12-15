@@ -4,6 +4,7 @@ require("Menu/towerImage.lua")
 require("Game/mapInfo.lua")
 require("Game/gameValues.lua")
 --this = SceneNode()
+--tonumber = Function()
 
 local mapInfo = MapInfo.new()
 local gameValues = GameValues.new()
@@ -90,7 +91,7 @@ function showPoster(button)
 		backGround:setUvCoord(building.uvCoordMin, building.uvCoordMax )
 		rightPanel:setBackground( backGround )
 		
-		header:setText( language:getText( string.lower(building.name) ))
+		header:setText( language:getText( "tower.shop." .. building.name .. ".name" ))
 		
 		leftPanel:clear()
 		
@@ -208,24 +209,21 @@ function create()
 		return false
 	end
 
-	--{"Passiv", "MinigunTower", "ArrowTower","SwarmTower", "ElectricTower", "BladeTower", "MissileTower", "QuakerTower", "SupportTower", "BankTower"}
-	local towerNames = gameValues.getStoreGroupNames()
+
+
 	statsOrder =  {"damage","rps","range","slow","fireDPS","burnTime","dmg_range","supportGoldPerWave"}
 	buildings = {}
-	buildings[1] = {name="Wall tower", cost=0}
-	buildings[2] = {name="Minigun tower", range=0,damage=0,rps=0,cost=10}
-	buildings[3] = {name="Arrow tower", range=0,damage=0,rps=0,cost=200}
-	buildings[4] = {name="Swarm tower", range=0,damage=0, burnTime=0, fireDPS=0,cost=0}
-	buildings[5] = {name="Electric tower", range=0,damage=0,rps=0, slow=-1,cost=0}
-	buildings[6] = {name="Blade tower", damage=0, rps=0,cost=0}
-	buildings[7] = {name="Missile tower", range=0,damage=0,dmg_range=-1,cost = 0}
-	buildings[8] = {name="Quake tower", range=0,damage=0,dmg_range=-1,cost = 0}
-	buildings[9] = {name="Support tower", range=0,cost = 0}
-	buildings[10]= {name="Bank tower", range=0,supportGoldPerWave=-1,cost = 0}
+	buildings[1] = {name="WallTower", cost=0}
+	buildings[2] = {name="MinigunTower", range=0,damage=0,rps=0,cost=10}
+	buildings[3] = {name="ArrowTower", range=0,damage=0,rps=0,cost=200}
+	buildings[4] = {name="SwarmTower", range=0,damage=0, burnTime=0, fireDPS=0,cost=0}
+	buildings[5] = {name="ElectricTower", range=0,damage=0,rps=0, slow=-1,cost=0}
+	buildings[6] = {name="BladeTower", damage=0, rps=0,cost=0}
+	buildings[7] = {name="MissileTower", range=0,damage=0,dmg_range=-1,cost = 0}
+	buildings[8] = {name="QuakerTower", range=0,damage=0,dmg_range=-1,cost = 0}
+	buildings[9] = {name="SupportTower", range=0,cost = 0}
+	buildings[10]= {name="BankTower", range=0,supportGoldPerWave=-1,cost = 0}
 
-	for n=2, 10 do
-		buildings[n].name = towerNames[n]
-	end
 		
 	local keyBinds = Core.getBillboard("keyBind")
 	local keyBind = {}

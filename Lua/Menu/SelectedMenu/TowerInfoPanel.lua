@@ -4,6 +4,7 @@ require("Game/gameValues.lua")
 --buildingNodeBillboard = Billboard()
 --senToBuildNode = Function()
 --this = SceneNode()
+--tonumber = Function()
 
 TowerInfoPanel = {}
 function TowerInfoPanel.new(inParentPanel)
@@ -47,6 +48,7 @@ function TowerInfoPanel.new(inParentPanel)
 			towerUpdateIndex = buildingBillBoard:getInt("updateIndex")
 			--print("\n\nupdateText()\n")
 			local displayStats = buildingBillBoard:getTable("displayStats")
+			
 			
 			if towerInfo then
 				local info = towerInfo
@@ -105,7 +107,7 @@ function TowerInfoPanel.new(inParentPanel)
 	local function init()
 		local infoPanelMain = parentPanel:add(Panel(PanelSize(Vec2(-1))))
 		infoPanel = infoPanelMain:add(Panel(PanelSize(Vec2(-1,-1))))
-		infoPanel:setLayout(GridLayout(5,2))
+		infoPanel:setLayout(GridLayout(3,2))
 	end
 	
 	

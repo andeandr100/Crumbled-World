@@ -373,8 +373,10 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 				end
 			end
 			
+			local dontHaveMoney = buttoninfo.cost <= billboardStats:getDouble("gold") and "" or "<font color=rgb(255,40,40)>"
+			
 			buttoninfo.button:setTag(upgrade.name..";"..tostring(buttoninfo.cost)..";"..tostring(buttoninfo.level))
-			buttoninfo.costLabel:setText(Text( costToShortString(buttoninfo.cost) ))
+			buttoninfo.costLabel:setText(Text( "<font color=rgb(255,40,40)>" .. costToShortString(buttoninfo.cost) .. "</font>" ))
 			
 			updateToolTip(buttoninfo.button, upgrade)
 		end

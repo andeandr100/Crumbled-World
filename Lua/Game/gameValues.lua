@@ -703,40 +703,41 @@ function GameValues.new()
 	}
 	
 	function self.getUvCoordAndTextFromName(name)
+		local toolTip = language:getText("towerToolTip."..name)
 		if name=="damage" or name=="dmg" then
-			return Vec2(0.25,0.0),Vec2(0.375,0.0625), language:getText("# damage")
+			return Vec2(0.25,0.0),Vec2(0.375,0.0625), toolTip
 		elseif name=="RPS" then
-			return Vec2(0.25,0.25),Vec2(0.375,0.3125), language:getText("# attack per second")
+			return Vec2(0.25,0.25),Vec2(0.375,0.3125), toolTip
 		elseif name=="ERPS" then
-			return Vec2(0.25,0.375),Vec2(0.375,0.4375), language:getText("# charges per second")
+			return Vec2(0.25,0.375),Vec2(0.375,0.4375), toolTip
 		elseif name=="range" then
-			return Vec2(0.375,0.4375),Vec2(0.5,0.5), language:getText("# target range")
+			return Vec2(0.375,0.4375),Vec2(0.5,0.5), toolTip
 		elseif name=="slow" then
-			return Vec2(0.875,0.375),Vec2(1.0,0.4375), language:getText("# slow")
+			return Vec2(0.875,0.375),Vec2(1.0,0.4375), toolTip
 		elseif name=="bladeSpeed" then
-			return Vec2(0.125,0.25),Vec2(0.25,0.3125), language:getText("# blade speed")
+			return Vec2(0.125,0.25),Vec2(0.25,0.3125), toolTip
 		elseif name=="dmg_range" then
-			return Vec2(0.875,0.25),Vec2(1.0,0.3125), language:getText("# damage range")
+			return Vec2(0.875,0.25),Vec2(1.0,0.3125), toolTip
 		elseif name=="supportDamage" then
-			return Vec2(0.0,0.5),Vec2(0.125,0.5625), language:getText("# support damage")
+			return Vec2(0.0,0.5),Vec2(0.125,0.5625), toolTip
 		elseif name=="SupportRange" then
-			return Vec2(0.125,0.5),Vec2(0.25,0.5625), language:getText("# support range")
+			return Vec2(0.125,0.5),Vec2(0.25,0.5625), toolTip
 		elseif name=="weakenValue" then
-			return Vec2(0.875,0.1875),Vec2(1.0,0.25), language:getText("# selectedTower weaken")	
+			return Vec2(0.875,0.1875),Vec2(1.0,0.25), toolTip
 		elseif name=="supportWeaken" then
-			return Vec2(0.25,0.5),Vec2(0.375,0.5625), language:getText("# support weaken")
+			return Vec2(0.25,0.5),Vec2(0.375,0.5625), toolTip
 		elseif name=="supportGold" then
-			return Vec2(0.375,0.5),Vec2(0.5,0.5625), language:getText("# support gold")
+			return Vec2(0.375,0.5),Vec2(0.5,0.5625), toolTip
 		elseif name=="supportGoldPerWave" then
-			return Vec2(0.75,0.5), Vec2(0.875, 0.5625), language:getText("# support gold per wave")
+			return Vec2(0.75,0.5), Vec2(0.875, 0.5625), toolTip
 		elseif name=="energyMax" then
-			return Vec2(0.125,0.3125), Vec2(0.25, 0.375), language:getText("# support gold per wave")
+			return Vec2(0.125,0.3125), Vec2(0.25, 0.375), toolTip
 		elseif name=="energyReg" then
-			return Vec2(0.25,0.375), Vec2(0.375, 0.4375), language:getText("# support gold per wave")	
+			return Vec2(0.25,0.375), Vec2(0.375, 0.4375), toolTip
 		elseif name=="slowRange" then
-			return Vec2(0.875,0.25),Vec2(1.0,0.3125), language:getText("# damage range")
+			return Vec2(0.875,0.25),Vec2(1.0,0.3125), toolTip
 		else
-			return Vec2(0.0,0.25),Vec2(0.125,0.3125), Text("")
+			return Vec2(0.0,0.25),Vec2(0.125,0.3125), toolTip
 		end
 	end
 	

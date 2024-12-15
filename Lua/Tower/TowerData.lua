@@ -327,12 +327,13 @@ function TowerData.new()
 			towerUpgrade.level = towerLevel.getLevel() + 1
 			towerUpgrade.maxLevel = towerLevel.getMaxLevel()
 			towerUpgrade.cost = towerLevel.getCost(towerUpgrade.level)
+			towerUpgrade.unlockedLevel = towerLevel.getUnlockedLevel()
 
 			
 			
 			if billboard:getBool("isNetOwner")==false then
 				towerUpgrade.locked =  "tower.menu.not your tower"
-			elseif TODO then
+			elseif towerUpgrade.unlockedLevel <= (towerUpgrade.level-1) then
 				towerUpgrade.locked =  "tower.menu.shop required"
 			else
 				towerUpgrade.locked = nil

@@ -47,20 +47,11 @@ function create()
 	billboard:setVectorVec3("hull3d",hull3d)
 	billboard:setVectorVec2("hull2d",hull2d)
 	billboard:setModel("tower",model)
-	billboard:setString("Name", "Wall tower")
+	billboard:setString("Name", "tower.shop.WallTower.name")
 	billboard:setString("FileName", "Tower/WallTower.lua")
 	billboard:setString("TargetArea","none")
 	billboard:setBool("isNetOwner",true)
 	
-
---	--soulManager
---	soulManager = this:findNodeByType(NodeId.soulManager)
---	if soulManager~=nil then--some tower will be placed in the void
---		--real world
---		soulManager:addSoul(1,this)
---		soulManager:updateSoul(this:getGlobalPosition(),Vec3(),1.0)
---	--else--some tower will be placed in the void
---	end
 	return true
 end
 function update()

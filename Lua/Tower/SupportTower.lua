@@ -354,7 +354,7 @@ function SwarmTower.new()
 		
 		billboard:setModel("tower",model)
 		billboard:setString("TargetArea","sphere")
-		billboard:setString("Name", "Support tower")
+		billboard:setString("Name", "tower.shop.SupportTower.name")
 		billboard:setString("FileName", "Tower/SupportTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)

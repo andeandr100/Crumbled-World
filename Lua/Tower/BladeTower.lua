@@ -547,7 +547,7 @@ function BladeTower.new()
 		billboard:setVec3("Position",this:getGlobalPosition()+Vec3(0,0.8,0))
 		billboard:setString("TargetArea","capsule")
 		billboard:setVec3("TargetAreaOffset", Vec3(0,0.5,0))--this should be collected from a mesh
-		billboard:setString("Name", "Blade tower")
+		billboard:setString("Name", "tower.shop.BladeTower.name")
 		billboard:setString("FileName", "Tower/BladeTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setVec3("bladeBlockedPos",Vec3(0,-1000000,0))

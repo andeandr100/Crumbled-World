@@ -14,20 +14,25 @@ require("Menu/SelectedMenu/TowerBarPanel.lua")
 --buildingNodeBillboard = Billboard()
 --buildingBillBoard = Billboard()
 --header = Label()
---sellButton = Button()
 --selectedCamera = Camera()
 --camera = Camera()
 --this = SceneNode()
+--esqKeyBind = KeyBind()
+--setVisibleClass = Function()
+--tonumber = Function()
 
 selectedtowerMenu = {}
-function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSellButton)
+function selectedtowerMenu.new(inCamera)
 	local self = {}
 	--variabels from outside
-	local form = inForm
-	local leftMainPanel = inLeftMainPanel
-	local towerImagePanel = inTowerImagePanel	
+	local formWallTower
+	local headerWallTower
+	local formTower 
+	local headerTower
+	local towerImagePanel = nil	
 	local gameValues = GameValues.new()
-	local sellButton = InSellButton
+	local header = nil
+	local camera = inCamera
 	
 	--local variabels
 	local keyBinds
@@ -51,6 +56,64 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 	local updateBoostTimer = {}
 	
 	local billboardStats = Core.getBillboard("stats")
+	
+	local function sellTower(button)
+		local playerNode = this:findNodeByType(NodeId.playerNode)
+		local buildNode = playerNode:findNodeByType(NodeId.buildNode)
+		
+		if buildNode and buildingLastSelected then
+			local buildingScript = buildingLastSelected:getScriptByName("tower")
+			if buildingScript then--crash protection, when the tower has crashed
+				
+				
+				if buildingBillBoard:getString("Name") == "Wall tower" then
+					senToBuildNode( "SELLTOWER", buildingScript:getNetworkName())					
+				else
+					
+					local netName = buildingScript:getNetworkName()				
+					local tab = {netName = netName, upgToScripName = "Tower/WallTower.lua", tName = (netName.."V3"), playerId = Core.getPlayerId(), buildCost=0}
+					print("Sold tower: "..netName)
+					senToBuildNode( "UpgradeWallTower", tabToStrMinimal(tab) )
+					senToBuildNode( "addRebuildTower", tabToStrMinimal({upp=tab,down={towerName=netName,wallTowerName=(netName.."V3")}}) )
+					local billBoard = buildingScript:getBillboard()
+				end	
+			end
+		end
+	end
+	
+	local function createForm()
+		
+		local panelSpacing = PanelSize(Vec2(0.005),Vec2(1))
+		local form = Form( camera, PanelSize(Vec2(0.225,-1),PanelSizeType.WindowPercentBasedOnY), Alignment.BOTTOM_RIGHT);
+		form:setName("SelectedMenu form")
+		form:getPanelSize():setFitChildren(false,true)
+		form:setBackground(Gradient(Vec4(Vec3(0),0.85), Vec4(Vec3(0),0.7)));
+		form:setLayout(FallLayout(panelSpacing));
+		form:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor));
+		form:setPadding(BorderSize(Vec4(MainMenuStyle.borderSize * 3)));
+		form:setFormOffset(PanelSize(Vec2(0.005), Vec2(1)));
+		form:setRenderLevel(1)
+		
+		--form = Form()
+		headerPanel = form:add(Panel(PanelSize(Vec2(-1,0.03))))
+		headerPanel:setLayout(FlowLayout(Alignment.TOP_RIGHT))
+		
+
+		local sellButton = headerPanel:add(Button(PanelSize(Vec2(-1.0,-1.0), Vec2(1.0,1.0)), ButtonStyle.SIMPLE, Core.getTexture("icon_table.tga"), Vec2(0,0), Vec2(0.125, 0.0625)))
+		sellButton:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
+		sellButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
+		sellButton:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))	
+		sellButton:addEventCallbackExecute(sellTower)	
+
+		
+		local header = headerPanel:add(Label(PanelSize(Vec2(-1)), "Hello", Alignment.MIDDLE_CENTER))
+		header:setTextColor(Vec3(1))
+			
+		local lineBreak = form:add(Panel(PanelSize(Vec2(-1,0.002))));
+		lineBreak:setBackground(Sprite(Vec4(0.4,0.4,0.4,0.7)))
+		
+		return form, header
+	end
 	
 	local function getLastBuildingSelected()
 		return buildingLastSelected	
@@ -92,14 +155,19 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 	
 	local function instalForm()
 	
-		leftMainPanel:setPanelSize(PanelSize(Vec2(-1)))
+		formWallTower, headerWallTower = createForm()
+		formTower, headerTower = createForm()
 	
 		--Wall tower info panel
-		wallTowerPanel = WallTowerPanel.new(leftMainPanel,getLastBuildingSelected, senToBuildNode)
+		wallTowerPanel = WallTowerPanel.new(formWallTower,getLastBuildingSelected, senToBuildNode)
 		wallPanelInit = false
+		towerImagePanel = formWallTower:add(Panel(PanelSize(Vec2(-1),Vec2(1))));
+		towerImagePanel:setBackground(Sprite(selectedCamera:getTexture()));
+		
+		
 		
 		--other towers information
-		towerPanel = leftMainPanel:add(Panel(PanelSize(Vec2(-1))))
+		towerPanel = formTower:add(Panel(PanelSize(Vec2(-1),Vec2(1,0.9))))
 		towerPanel:setLayout(FallLayout(Alignment.BOTTOM_RIGHT))
 		
 		--secondary uppgrades
@@ -111,6 +179,13 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 		local label = Label(PanelSize(Vec2(-0.3,0.1),PanelSizeType.ParentPercent), "Level:");
 		label:setTextColor(Vec3(1.0));		
 		
+		
+		--tower image
+		towerImagePanel = formTower:add(Panel(PanelSize(Vec2(-1),Vec2(1))));
+		towerImagePanel:setBackground(Sprite(selectedCamera:getTexture()));
+		towerImagePanel:setLayout(FlowLayout());
+		towerImagePanel:getLayout():setPanelSpacing(PanelSize(Vec2(0.005)));
+		
 		imagePanel = towerImagePanel:add(Panel(PanelSize(Vec2(-1))))
 		imagePanel:setPadding(BorderSize(Vec4(0.01)))
 		towerBarPanel =  TowerBarPanel.new(imagePanel)
@@ -121,31 +196,12 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 		
 	end
 	
-	local function sellTower(button)
-		local playerNode = this:findNodeByType(NodeId.playerNode)
-		local buildNode = playerNode:findNodeByType(NodeId.buildNode)
-		
-		if buildNode and buildingLastSelected then
-			local buildingScript = buildingLastSelected:getScriptByName("tower")
-			if buildingScript then--crash protection, when the tower has crashed
-				
-				
-				if buildingBillBoard:getString("Name") == "Wall tower" then
-					senToBuildNode( "SELLTOWER", buildingScript:getNetworkName())					
-				else
-					
-					local netName = buildingScript:getNetworkName()				
-					local tab = {netName = netName, upgToScripName = "Tower/WallTower.lua", tName = (netName.."V3"), playerId = Core.getPlayerId(), buildCost=0}
-					print("Sold tower: "..netName)
-					senToBuildNode( "UpgradeWallTower", tabToStrMinimal(tab) )
-					senToBuildNode( "addRebuildTower", tabToStrMinimal({upp=tab,down={towerName=netName,wallTowerName=(netName.."V3")}}) )
-					local billBoard = buildingScript:getBillboard()
-				end	
-			end
-		end
-	end
+	
 	
 	local function init()
+	
+		
+		
 		--keybinds
 		keyBinds = Core.getBillboard("keyBind");
 		keyBindUpgradeBuilding = keyBinds:getKeyBind("Upgrade")
@@ -154,7 +210,9 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 		instalForm()
 		
 		upgradePanel.clearInfo()
-		sellButton:addEventCallbackExecute(sellTower)	
+		
+		formWallTower:setVisible(false)
+		formTower:setVisible(false)
 		
 	end
 	
@@ -193,7 +251,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 		if button ~= nil then
 			levelText = levelText.."I"
 		end
-		header:setText(Text("<b>") + language:getText(currentTowerName) + levelText)
+		headerTower:setText(Text("<b>") + currentTowerName + levelText)
 	end
 	
 	function self.waveChanged(param)
@@ -203,9 +261,8 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 
 	local function initSelectedMenu()
 		print("initSelectedMenu")
-		upgradePanel.clear()
-		infoPanel.clearInfo()
-		upgradePanel.clearInfo()
+		
+		
 		local builBilboard = Core.getBillboard("buildings")
 		
 		selectedBuildingType = 0
@@ -213,45 +270,43 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 			buildingScript = buildingLastSelected:getScriptByName("tower")
 			if buildingScript then
 				buildingBillBoard = buildingScript:getBillboard()
-				upgradePanel.setBuildingBillBoard( buildingBillBoard )
-				damageInfoPanel.setBuildingBillBoard( buildingBillBoard )
-				
-				currentTowerName = string.lower( buildingBillBoard:getString("Name") )
+				currentTowerName = language:getText( buildingBillBoard:getString("Name") )
 				
 				--force a resize of the panel
-				form:setVisible(false)
-				form:setVisible(true)
-				if currentTowerName == "wall tower" then
+				formWallTower:setVisible(false)
+				formTower:setVisible(false)
+				
+				if buildingBillBoard:getString("Name") == "tower.shop.WallTower.name" then
 					
 					builBilboard:setBool("isTowerSelected",false)
 					selectedBuildingType = 2
-					header:setText(Text("<b>")+language:getText(currentTowerName))
-					initWallTower()
+					headerWallTower:setText(Text("<b>")+currentTowerName)
+--					initWallTower()
 					print("Change panelSize to wallTower size")
-					leftMainPanel:setPanelSize(PanelSize(Vec2(-1),Vec2(1,1.18)))
-					wallTowerPanel.setVisible(true)
-					towerPanel:setVisible(false)
-					imagePanel:setVisible(false)
+					
 					targetArea.hiddeTargetMesh()
 					
 					wallTowerPanel.updateWallTowerButtons()
+					formWallTower:setVisible(true)
 					--columns
 					--buildingBillBoard:getBool("isNetOwner")
 				else
 					
+		
 					print("Change panelSize to tower size")
 					updateTowerName(nil)
 					--this panel is hidden when not in use
 					builBilboard:setBool("isTowerSelected",true)
-					leftMainPanel:setPanelSize(PanelSize(Vec2(-1),Vec2(1,1.1)))
-					wallTowerPanel.setVisible(false)
-					towerPanel:setVisible(true)
-					imagePanel:setVisible(true)
+					
 					
 					selectedBuildingType = 1
 					
+					infoPanel.clearInfo()
 					upgradePanel.clear()
-					infoPanel.clear()				
+					upgradePanel.clearInfo()	
+					
+					upgradePanel.setBuildingBillBoard( buildingBillBoard )
+					damageInfoPanel.setBuildingBillBoard( buildingBillBoard )		
 					
 					towerBarPanel.updateBars(buildingBillBoard)
 					
@@ -259,8 +314,11 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 					upgradePanel.updateButtons(buildingBillBoard)
 					damageInfoPanel.updateTowerDamageInfo()
 					
+					upgradePanel.updateUpgradeInfoIcons()
+					
+					formTower:setVisible(true)
 				end
-				upgradePanel.updateUpgradeInfoIcons()
+				
 			end
 			buildingLastSelected:addChild(selectedCamera:toSceneNode())
 					
@@ -280,7 +338,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 	
 	function self.updateSelectedTower()
 		--called from tower builder 
-		if form:getVisible() then
+		if self.getVisible() then
 			initSelectedMenu()
 		end
 	end
@@ -330,14 +388,16 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 	end
 	
 	function self.getVisible()
-		return towerPanel:getVisible()
+		return formTower:getVisible() or formWallTower:getVisible()
 	end
 	
 	function self.setVisible(visible)
-		wallTowerPanel.setVisible(visible)
-		towerPanel:setVisible(visible)
-		imagePanel:setVisible(visible)
-		if not visible then
+		if visible and ( selectedBuildingType == 1 or selectedBuildingType == 2 ) then
+			formTower:setVisible(selectedBuildingType == 1)
+			formWallTower:setVisible(selectedBuildingType == 2)
+		else
+			formTower:setVisible(false)
+			formWallTower:setVisible(false)
 			buildingLastSelected = nil
 			targetArea.setRenderTarget(nil)
 		end
@@ -354,9 +414,14 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 		
 		--when in game menu is shown hide selected tower menu
 		if esqKeyBind:getPressed() or buildingNodeBillboard:getBool("inBuildMode") then
-			form:setVisible(false)
+			self.setVisible(false)
 			targetArea.hiddeTargetMesh()
 		end
+		--if tower has been sold don't show the window
+		if buildingLastSelected and buildingLastSelected:getScriptByName("tower") == nil then
+			self.setVisible(false)
+		end
+		
 		
 		if Core.getInput():getMouseDown(MouseKey.left) and not buildingNodeBillboard:getBool("AbilitesBeingPlaced") and not buildingNodeBillboard:getBool("inBuildMode") and buildingNodeBillboard:getBool("canBuildAndSelect") and isMouseInMainPanel() then
 			local playerNode = this:findNodeByType(NodeId.playerNode)
@@ -372,7 +437,7 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 						setVisibleClass(self)
 						buildingLastSelected = building
 						initSelectedMenu()
-						form:setVisible(true)
+--						self.setVisible(false)
 					end  
 				else
 					if keyBindUpgradeBuilding:getHeld() then
@@ -381,18 +446,13 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 				end
 			else
 				self.setVisible(false)
-				form:setVisible(false)
 			end
 			
 		end
 		
-		--if tower has been sold don't show the window
-		if buildingLastSelected and buildingLastSelected:getScriptByName("tower") == nil then
-			self.setVisible(false)
-			form:setVisible(false)
-		end
 		
-		if form:getVisible() then
+		
+		if self.getVisible() then
 			
 			if keyBindSellBulding:getPressed() then
 				sellTowerKeyBind()
@@ -437,6 +497,9 @@ function selectedtowerMenu.new(inForm, inLeftMainPanel, inTowerImagePanel, InSel
 				damageInfoPanel.updateTowerDamageInfo()
 			end
 		end
+		
+		formWallTower:update()
+		formTower:update()
 	end
 	
 	init()

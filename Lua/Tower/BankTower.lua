@@ -268,7 +268,7 @@ function BankTower.new()
 	
 		billboard:setModel("tower",model)
 		billboard:setString("TargetArea","sphere")
-		billboard:setString("Name", "Bank tower")
+		billboard:setString("Name", "tower.shop.BankTower.name")
 		billboard:setString("FileName", "Tower/BankTower.lua")
 		billboard:setBool("isNetOwner",true)
 		billboard:setInt("level", 1)

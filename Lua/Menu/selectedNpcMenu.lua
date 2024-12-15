@@ -4,17 +4,22 @@ require("Game/targetSelector.lua")
 require("NPC/state.lua")
 --this = SceneNode()
 --comUnit = ComUnit()
+--inMainPanel = Panel()
+--billboardStats = Billboard()
+--header = Label()
+--selectedCamera = Camera()
+--setVisibleClass = Function()
 
 selectedNpcMenu = {}
-function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
+function selectedNpcMenu.new(inCamera)
 	local self = {}
 	--variabels from outside
-	local form = inForm
-	local mainPanel = inLeftMainPanel
-	local towerImagePanel = inTowerImagePanel
+	local form = nil
+	local header = nil
+	local npcPanel
 	local soulListener
 	local souls = {}
-	local camera
+	local camera = inCamera
 	local lastSelectedMeshList = nil
 	local previousSelectedNode = nil
 	local currentNode = nil
@@ -32,17 +37,41 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local hpMax=0
 	local name=""
 	
+	function createForm()
+	
+		local panelSpacing = PanelSize(Vec2(0.005),Vec2(1))
+		form = Form( camera, PanelSize(Vec2(0.225,-1),PanelSizeType.WindowPercentBasedOnY), Alignment.BOTTOM_RIGHT);
+		form:setName("SelectedMenu form")
+		form:getPanelSize():setFitChildren(false,true)
+		form:setBackground(Gradient(Vec4(Vec3(0),0.85), Vec4(Vec3(0),0.7)));
+		form:setLayout(FallLayout(panelSpacing));
+		form:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor));
+		form:setPadding(BorderSize(Vec4(MainMenuStyle.borderSize * 3)));
+		form:setFormOffset(PanelSize(Vec2(0.005), Vec2(1)));
+		form:setRenderLevel(1)
+		
+		--form = Form()
+		local headerPanel = form:add(Panel(PanelSize(Vec2(-1,0.03))))
+		headerPanel:setLayout(FlowLayout(Alignment.TOP_RIGHT))
+		
+		header = headerPanel:add(Label(PanelSize(Vec2(-1)), "Hello", Alignment.MIDDLE_CENTER))
+		header:setTextColor(Vec3(1))
+			
+		local lineBreak = form:add(Panel(PanelSize(Vec2(-1,0.002))));
+		lineBreak:setBackground(Sprite(Vec4(0.4,0.4,0.4,0.7)))
+		
+	end
+	
 	--this = SceneNode()
 	local function instalForm()
 	
-		leftMainPanel:setPanelSize(PanelSize(Vec2(-1),Vec2(1,1.3)))
+		createForm()
 	
-		--Wall tower info panel
-		--npcPanel = Panel()
-		npcPanel = mainPanel:add(Panel(PanelSize(Vec2(-1))))
-		npcPanel:setVisible(false)
+		npcPanel = form:add(Panel(PanelSize(Vec2(-1),Vec2(1,0.30))));
 		npcPanel:setLayout(FallLayout(PanelSize(Vec2(0,0.003))))
 		
+		local cameraImage = form:add(Panel(PanelSize(Vec2(-1),Vec2(1))));
+		cameraImage:setBackground(Sprite(selectedCamera:getTexture()));
 		
 	end
 	
@@ -57,7 +86,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	end
 	
 	function self.setVisible(visible)
-		npcPanel:setVisible(visible)
+		form:setVisible(visible)
 		deadTimer = -1
 		if not visible then
 			deselectNpc()
@@ -112,6 +141,8 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		soulListener:registerEvent("addSoul",addSoul)
 		soulListener:registerEvent("removeSoul",removeSoul)
 		soulListener:registerEvent("test",testFunc)	
+		
+		form:setVisible(false)
 	end
 	
 	
@@ -205,9 +236,9 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 	local function initMenu()
 		hp, hpMax, name, distance, team, stateId = getNpcInfo()
 		print("set size to fit npc panel")
-		leftMainPanel:setPanelSize(PanelSize(Vec2(-1),Vec2(1,0.30)))
+		
 		if hp and hpMax and name then
-			header:setText(Text("<b>")+language:getText(name))
+			header:setText(Text("<b>")+language:getText("npcName."..name))
 		
 			npcPanel:clear()
 			
@@ -229,7 +260,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			local texture = Core.getTexture("icon_table.tga")
 			local button = row2:add(Button(PanelSize(Vec2(-1), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, texture, Vec2(0.5,0), Vec2(0.625, 0.0625)))
 			
-			button:setToolTip(language:getText("# ignore this NPC"))
+			button:setToolTip(language:getText("DamageToolTip.ignore target"))
 			button:addEventCallbackExecute(ignoreNpc)	
 			button:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
 			button:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
@@ -243,7 +274,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			
 			
 			button = row2:add(Button(PanelSize(Vec2(-1), Vec2(1.0,1.0),PanelSizeType.ParentPercent), ButtonStyle.SIMPLE, texture, Vec2(0.625,0.4375), Vec2(0.75, 0.5)))
-			button:setToolTip(language:getText("# high priority"))
+			button:setToolTip(language:getText("DamageToolTip.high priority"))
 			button:addEventCallbackExecute(highPriorityTarget)	
 			button:setInnerColor(Vec4(0),Vec4(0), Vec4(0))
 			button:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
@@ -258,10 +289,9 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 			deadTimer = deadTimer - Core.getDeltaTime()
 			if deadTimer < 0 then
 				self.setVisible(false)
-				form:setVisible(false)
+--				form:setVisible(false)
 			end
 		end
-				
 		
 		local nextNode = nil
 		local nextIndex = nil
@@ -305,7 +335,7 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				
 					setVisibleClass(self)
 					--force a resize
-					form:setVisible(false)
+--					form:setVisible(false)
 					form:setVisible(true)
 					header:setText("")
 --					currentNode:addChild(selectedCamera:toSceneNode())
@@ -317,10 +347,10 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 				else
 					currentNode = nil
 					currentIndex = nil
-					if npcPanel:getVisible() then
+--					if npcPanel:getVisible() then
 						self.setVisible(false)
-						form:setVisible(false)
-					end
+--						form:setVisible(false)
+--					end
 				end
 			end
 		end
@@ -347,6 +377,8 @@ function selectedNpcMenu.new(inForm, inLeftMainPanel, inTowerImagePanel)
 		end
 		
 		soulListener:pushEvent("test")
+		
+		form:update()
 	end
 	
 	init()
