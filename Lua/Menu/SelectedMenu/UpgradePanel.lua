@@ -95,21 +95,21 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 		local totalPanelSizeInPixel = textLabel:getPanelSize():getSize()
 		
 		if info.infoName == "sell" then
-			local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(4,1)))
+			--local row = Panel(PanelSize(Vec2(-1,0.025),Vec2(4,1)))
 			
-			local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
-			icon:setUvCoord(Vec2(0),Vec2(0.125,0.0625))
+			--local icon = Image(PanelSize(Vec2(-1), Vec2(1)), Text("icon_table.tga"))
+			--icon:setUvCoord(Vec2(0),Vec2(0.125,0.0625))
 				
 			
-			local notifyText = "<font color=rgb(40,255,40)>+"..(info.towerValue and tostring(info.towerValue) or "0").."</font>"
-			row:add(icon)
-			local label = row:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
-			panel:add(row)
+			--local notifyText = "<font color=rgb(40,255,40)>+"..(info.towerValue and tostring(info.towerValue) or "0").."</font>"
+			--row:add(icon)
+			--local label = row:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
+			--panel:add(row)
 			
-			info.toolTipSellIcon = icon
-			info.toolTipSellLabel = label		
+			--info.toolTipSellIcon = icon
+			--info.toolTipSellLabel = label		
 			
-			totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.025 * Core.getScreenResolution().y )
+			--totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, 0.025 * Core.getScreenResolution().y )
 			
 		else
 			for i, name in pairs(statsOrder) do
@@ -273,18 +273,21 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 			local requireLabel = nil
 			local costIcon = nil
 			local costIconSprite = nil
+
+			local dontHaveMoney = buttoninfo.cost <= billboardStats:getDouble("gold") and "" or "<font color=rgb(255,40,40)>"
 			
-			costPanel = Panel(PanelSize(Vec2(-1)))
-			local text = Text( costToShortString(buttoninfo.cost) )
+			
+			local text = Text( dontHaveMoney..costToShortString(buttoninfo.cost) )
 			costLabel = Label(PanelSize(Vec2(-1),Vec2(2,1)), text, Vec4(1))
 			costLabel:setTextHeight(-0.75)
 			requireLabel = Label(PanelSize(Vec2(-1)), "Lvl2", Vec4(0.8,0.2,0.2,1))
 			requireLabel:setTextHeight(-0.75)
 			requireLabel:setVisible(false)
-			costIcon = Panel(PanelSize(Vec2(-1),Vec2(1)))
 			costIconSprite = Sprite(texture)
 			costIconSprite:setUvCoord(Vec2(), Vec2(0.125,0.0625))
+			costIcon = Panel(PanelSize(Vec2(-1),Vec2(1)))
 			costIcon:setBackground(costIconSprite)
+			costPanel = Panel(PanelSize(Vec2(-1)))
 			costPanel:add(Panel(PanelSize(Vec2(-1),Vec2(-0.125,-1))))
 			costPanel:add(requireLabel)
 			costPanel:add(costLabel)
@@ -391,7 +394,6 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 		if not buttonsInfo then
 			buttonsInfo = {}
 			upgradePanel:clear()
-			--infopanelRight:clear()
 			buttonCostPanel:clear()
 			retargetPanel:clear()
 			showRange = false
@@ -400,11 +402,8 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 			if not upgrades then
 				return
 			end
-			
-			--infopanelRight:setLayout(FallLayout(Alignment.BOTTOM_RIGHT))
+
 			local targetModsString = buildingBillBoard:getString("targetMods")
-			
-			
 			
 			if targetModsString ~= "" then
 				
@@ -418,11 +417,7 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 			else
 				retargetPanel:setVisible(false)
 			end
-			
-			
 
-			--infopanelRight:add(Panel(PanelSize(Vec2(-1))))
-			
 			buttonPanels = {}
 			buttonPanels.index = 1
 			buttonCostPanels = {}
@@ -472,11 +467,11 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 			towerButtonUpdateIndex = buildingBillBoard:getInt("updateIndex")
 
 		elseif towerButtonUpdateIndex ~= buildingBillBoard:getInt("updateIndex") then
+			--Tower has been upgraded
 			towerButtonUpdateIndex = buildingBillBoard:getInt("updateIndex")
 			if not upgrades then
 				return
 			end
-			
 			
 			addNewButton(towerUpgrade)
 			
@@ -487,15 +482,12 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 				end
 			end
 		else
-			local buttoninfo = buttonsInfo[towerUpgrade.name]
-			if buttoninfo.button then
-				buttoninfo.button:setEnabled( buttoninfo.cost <= billboardStats:getDouble("gold") and buttoninfo.locked == nil)
-			end
-			
-			for i=1, #upgrades, 1 do
-				buttoninfo = buttonsInfo[upgrades[i].name]
+			for name, buttoninfo in pairs(buttonsInfo) do
 				if buttoninfo.button then
 					buttoninfo.button:setEnabled( buttoninfo.cost <= billboardStats:getDouble("gold") and buttoninfo.locked == nil)
+
+					local dontHaveMoney = buttoninfo.cost <= billboardStats:getDouble("gold") and "" or "<font color=rgb(255,40,40)>"
+					buttoninfo.costLabel:setText(Text( dontHaveMoney .. costToShortString(buttoninfo.cost) ))
 				end
 			end
 		end
@@ -503,8 +495,7 @@ function UpgradePanel.new(inParentPanel, inComUnit, handleUpgradeFunction, chang
 	end
 	
 	function self.updateUpgradeInfoIcons()
-		
-		--print("\n\nupdateUpgradeInfoIcons\n")
+
 		local upgradeInfo = buildingBillBoard:getTable("activeTowerUpgrades")
 		
 		if upgradeInfo and towerActiveUpdateIndex ~= buildingBillBoard:getInt("updateIndex") then

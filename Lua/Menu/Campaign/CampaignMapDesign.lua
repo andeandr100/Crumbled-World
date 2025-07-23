@@ -148,11 +148,11 @@ function CampaignMapDesign.new(parentPanel)
 		
 		addMaps("Beginning")--Video 1
 		addMaps("Intrusion")--Video 2
-		addMaps("Stockpile", "Expansion")
-		addMaps("Repair station", "Edge world", "Bridges") --Video 3
+		addMaps("Stockpile", "Outpost")
+		addMaps("Repair station", "Long haul", "Bridges") --Video 3
 		addMaps("Spiral", "Broken mine", "Town","Centeral") 
-		addMaps("Outpost", "Plaza")
-		addMaps("Long haul", "Dock", "Lodge") --Video 4
+		addMaps("Expansion", "Plaza")
+		addMaps("Edge world", "Dock", "Lodge") --Video 4
 		addMaps("Crossroad", "Mine", "West river") 
 		addMaps("Blocked path", "The line")
 		addMaps("Dump station", "Rifted", "Paths","Divided") --Video 5

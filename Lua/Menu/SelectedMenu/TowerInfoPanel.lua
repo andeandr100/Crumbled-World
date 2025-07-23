@@ -10,7 +10,7 @@ TowerInfoPanel = {}
 function TowerInfoPanel.new(inParentPanel)
 	local self = {}
 	local parentPanel = inParentPanel
-	local statsOrder =  {"damage", "dmg","RPS", "ERPS","range", "slow","bladeSpeed", "fireDPS","burnTime","dmg_range","supportDamage","SupportRange","supportWeaken","weakenValue","supportGold","supportGoldPerWave"}
+	local statsOrder =  {"damage", "dmg","RPS", "ERPS","range", "slow","bladeSpeed","fireBall","missile","dmg_range","supportDamage","SupportRange","supportWeaken","weakenValue","supportGold","supportGoldPerWave"}
 	local gameValues = GameValues.new()
 	local towerUpdateIndex = -1
 	
