@@ -240,8 +240,9 @@ function CampaignGameShopMenu.new(parentPanel)
 		--
 		
 		local towerTexture = Core.getTexture("icon_tower_table")
+		local abilityTexture = Core.getTexture("abilities.tga")
 		
-		local passivUpgrades = towerButtonMenu:add(Button(PanelSize(Vec2(-1,-0.95), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(), Vec2(1.0/4.0, 1.0/4.0) ))
+		local passivUpgrades = towerButtonMenu:add(Button(PanelSize(Vec2(-1,-0.95), Vec2(1,1)), ButtonStyle.SIMPLE, abilityTexture, Vec2(0.0,0.5), Vec2(0.5, 1.0) ))
 		passivUpgrades:setInnerColor(Vec4(0,0,0,0.15),Vec4(0.2,0.2,0.2,0.35), Vec4(0.1,0.1,0.1,0.3))
 		passivUpgrades:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
 		passivUpgrades:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
