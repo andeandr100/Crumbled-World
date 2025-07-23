@@ -34,8 +34,7 @@ function removeDeadObjects()
 	for key,value in pairs(maps) do
 		for n=1, #value do
 			local map = value[n]
-			
-			if not File(map.path):exist() then
+			if not File(map.path):exist() or (map.icon and not File(map.icon):exist()) then
 				toRemove[#toRemove + 1] = {key=key,index=n}
 			end
 			
@@ -59,15 +58,15 @@ function update()
 		removeDeadObjects()
 	end
 	
-	--print("load maps info update")
+	print("load maps info update")
 	while index <= #files do
 		local file = files[index]
 		index = index + 1
 		
 		if file and file:isDirectory() then
 			folders[#folders + 1] = file:getPath()
-			--print("Add folder: "..file:getPath())
-			--print("Folders: "..tostring(folders))
+			print("Add folder: "..file:getPath())
+			print("Folders: "..tostring(folders))
 		elseif file then
 		
 			local fileName = file:getName()
@@ -76,23 +75,24 @@ function update()
 				mapsFileTable = {}
 				maps[fileName] = mapsFileTable
 			end
-			--print("gather info from map \""..file:getPath().."\"")
+			print("gather info from map \""..file:getPath().."\"")
 			local loadFileData = file:isFile()
 	
-			--print("mapsFileTable: "..tostring(mapsFileTable))
+			print("mapsFileTable: "..tostring(mapsFileTable))
 			
 			--check if the file is in the data table and is the latest version
 			for i=1, #mapsFileTable do
 				if mapsFileTable[i] ~= nil and mapsFileTable[i].path == file:getPath() then
 					loadFileData = false
 					if mapsFileTable[i].time ~= file:getLastWriteTime() then
-						if mapsFileTable[i].hash == file:getHash() then
+						
+						if mapsFileTable[i].hash == file:getHash() and File(mapsFileTable[i].icon):exist() then
 							--the map has not change only the time stamp is different
 							mapsFileTable[i].time = file:getLastWriteTime()
 						else
 							--file time and the hash don't match the map information need to be reloaded
 							loadFileData = true
-							--print("remove map info: "..i)
+							print("remove map info: "..i)
 							if mapsFileTable[i] and mapsFileTable[i].icon then
 								File(mapsFileTable[i].icon):remove()
 							end
@@ -104,15 +104,15 @@ function update()
 					end	
 					--break
 					i = #mapsFileTable + 2
-					--print("Path was found. ")
-					--if loadFileData then
-					--	print("Data will be reloaded")
-					--end
+					print("Path was found. ")
+					if loadFileData then
+						print("Data will be reloaded")
+					end
 				end
 			end
 			
 			if loadFileData then
-				--print("Load map informatio: "..file:getPath())
+				print("Load map informatio: "..file:getPath())
 				--update info
 				local mapInfo = File(file:getPath(), "info.txt")
 				local iconFile = File(file:getPath(), "icon.jpg")
@@ -125,7 +125,7 @@ function update()
 						while File("Data/Dynamic/"..imageName):exist() do
 							imageName = "Icon/"..file:getName().."_Icon"..iconIndex..".jpg"
 							iconIndex = iconIndex + 1
-							--print("Next image name: "..imageName)
+							print("Next image name: "..imageName)
 						end
 						
 						local tmpFile = File("Data/Dynamic/"..imageName)
@@ -133,7 +133,7 @@ function update()
 							abort()
 						end
 						
-						--print("save to file: ".."Data/Dynamic/"..imageName)
+						print("save to file: ".."Data/Dynamic/"..imageName)
 						
 						iconFile:saveToFile(imageName)	
 						imageName = "Data/Dynamic/" .. imageName
@@ -141,7 +141,7 @@ function update()
 					
 					updateCount = updateCount + 1				
 					
-					--print("File found\n")
+					print("File found\n")
 					local info = totable( mapInfo:getContent() )
 					local mapTable = {}
 					mapTable.mapSize = info.mapSize
@@ -156,8 +156,8 @@ function update()
 					mapTable.waveCount = info.waveCount
 					
 					
-					--print("File table: table = "..tostring(mapTable))
-					--print("File: "..file:getPath())
+					print("File table: table = "..tostring(mapTable))
+					print("File: "..file:getPath())
 					
 					maps = mapConfig:get("data"):getTable()
 					mapsFileTable = maps[fileName]
@@ -170,8 +170,8 @@ function update()
 					
 					mapConfig:get("data"):setTable(maps)
 				mapConfig:save()
-				--else
-				--	print("no file found")
+				else
+					print("no file found")
 				end
 			end
 			
@@ -185,10 +185,10 @@ function update()
 		local mapFolder = File(folders[folderIndex])
 		files = mapFolder:getFiles()
 		
-		--print("Folders: "..tostring(folders))
-		--print("current folder index: "..folderIndex)
-		--print("Change folder: "..folders[folderIndex])
-		--print("Files found: "..#files)
+		print("Folders: "..tostring(folders))
+		print("current folder index: "..folderIndex)
+		print("Change folder: "..folders[folderIndex])
+		print("Files found: "..#files)
 		
 		folderIndex = folderIndex + 1
 		index = 1
