@@ -33,6 +33,8 @@ end
 
 function MainMenuStyle.createMenuButton(size, scale, text)
 	local button = Button((scale and PanelSize(size, scale) or PanelSize(size)), text, ButtonStyle.RADIENT)
+	button:setTag(text)
+	
 	button:setTextColor(Vec3(0.7))
 	button:setTextHoverColor(Vec3(0.92))
 	button:setTextDownColor(Vec3(1))
@@ -50,6 +52,7 @@ end
 
 function MainMenuStyle.createButton(size, scale, text)
 	local button = Button(scale and PanelSize(size, scale) or PanelSize(size), text, ButtonStyle.SQUARE_LIGHT)
+	button:setTag(text)
 	
 	
 	button:setEdgeColor(MainMenuStyle.borderColor)
@@ -82,6 +85,7 @@ end
 
 function MainMenuStyle.createTextField(size, scale, text)
 	local textField = TextField(PanelSize(size, scale), text)
+	textField:setTag(text)
 	
 	textField:setTextColor(MainMenuStyle.textColorHighLighted)
 	textField:setBackgroundColor(Vec4(0,0,0,0.8))

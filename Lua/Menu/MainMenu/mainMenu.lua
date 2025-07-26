@@ -28,38 +28,6 @@ function destroy()
 	OptionsMenu.destroy()
 end
 
-function languageChanged()
-	
-	print("---- languageChanged ----")
-	
-	buttons[1].text = language:getText("button.exit")
-	buttons[2].text = language:getText("button.campaign")
-	buttons[3].text = language:getText("button.custom game")
-	buttons[4].text = language:getText("button.multiplayer")
-	buttons[5].text = language:getText("button.map editor")
-	buttons[6].text = language:getText("button.options")
-	buttons[7].text = language:getText("button.credits")
---	buttons[8].text = Text("c-2")
-	
-	
-	local addExtraLength = Core.getScreenResolution().y * 0.025
-	for i=1, #buttons do
-		local labeltmp = Label( PanelSize(Vec2(1)), buttons[i].text)
-		labeltmp:setTextHeight(Core.getScreenResolution().y * 0.027)
-		print("Text: "..buttons[i].text:toString())
-		print("Length: "..labeltmp:getTextSizeInPixel().x)
-		local scale = Vec2( (labeltmp:getTextSizeInPixel().x + Core.getScreenResolution().y * 0.02) / labeltmp:getTextSizeInPixel().y, 1 )
-		buttons[i].button:setText(buttons[i].text)
-		buttons[i].button:setPanelSize(PanelSize(Vec2(-1), scale))
-	end
-
-	OptionsMenu.languageChanged()
-	buttons[3].panel.languageChanged()
-	MapEditorMenu.languageChanged()
-	buttons[4].panel.languageChanged()
-	buttons[2].panel.languageChanged()
-end
-
 function create()
 	restoreData = {}
 	setRestoreData(restoreData)
@@ -90,8 +58,6 @@ function create()
 		createMainArea()
 		print("Done\n")
 		
-		languageChanged()
-		
 		restoreData.form = form
 	else
 		if loopUpdate == nil then
@@ -106,7 +72,6 @@ function create()
 	if settingsListener == nil then
 		settingsListener = Listener("Settings")
 	end
-	settingsListener:registerEvent("LanguageChanged",languageChanged)
 
 	return true
 end
@@ -210,7 +175,6 @@ function createTopMenu()
 	buttons[5] = {text = language:getText("button.map editor")}
 	buttons[6] = {text = language:getText("button.options")}
 	buttons[7] = {text = language:getText("button.credits")}
---	buttons[8] = {text = Text("c-2") }
 
 	
 	buttons[1].button = MainMenuStyle.addTopMenuButton(topPanel, Vec2(buttons[1].text:getTextScale().x/2+1,1), buttons[1].text)

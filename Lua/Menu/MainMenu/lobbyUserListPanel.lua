@@ -175,7 +175,7 @@ function LobbyUserListPanel.new(panel, client)
 			dropDownPanel = Panel(PanelSize(Vec2(1,0.03),Vec2(3,1)))
 			
 			
-			kickButton = dropDownPanel:add(MainMenuStyle.createMenuButton(Vec2(-1,0.03),Vec2(), language:getText("multiplayer.kick")))
+			kickButton = dropDownPanel:add(MainMenuStyle.createMenuButton(Vec2(-1,0.03),Vec2(), "multiplayer.kick"))
 			kickButton:addEventCallbackExecute(kickPlayer)
 			
 			labels[1] = kickButton
@@ -195,7 +195,7 @@ function LobbyUserListPanel.new(panel, client)
 			mainPanel:clear()
 			playerRowPanel = {}
 			numUsers = 0
-			spectatorText = language:getText("multiplayer.spectator")
+			spectatorText = l"multiplayer.spectator"
 			
 					
 			--Create the row panel for all players

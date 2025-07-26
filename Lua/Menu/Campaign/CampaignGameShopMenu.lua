@@ -55,6 +55,7 @@ function CampaignGameShopMenu.new(parentPanel)
 		local upgradeLevel = towers[towerName]["upgrade"] ~= nil and towers[towerName]["upgrade"].unlocked or -1
 		local toolTipPanel = towers[towerName][upgradeName].toolTipPanel[level]
 		local toolTipPanelWarning = towers[towerName][upgradeName].toolTipPanelWarning[level]
+		local toolTipPanelUnlockWarning = towers[towerName][upgradeName].toolTipPanelUnlockWarning[level]
 		local boughtColor = Vec4(1)
 		local canBeBoughtColor = Vec4(0.4,0.4,0.4,1)
 		local unavailableColor = Vec4(0.1,0.1,0.1,1)
@@ -89,6 +90,12 @@ function CampaignGameShopMenu.new(parentPanel)
 				freeFormButton:setSelected(false)
 				freeFormButton:getImage():setColor( canBeBoughtColor )
 				freeFormButton:getSecondaryImage():setColor( canBeBoughtColor )
+			elseif (unlockedLevel+1) < level then
+				freeFormButton:setToolTip(toolTipPanelUnlockWarning)
+				freeFormButton:setEnabled(false)
+				freeFormButton:setSelected(false)
+				freeFormButton:getImage():setColor( unavailableColor )
+				freeFormButton:getSecondaryImage():setColor( unavailableColor )
 			else
 				freeFormButton:setToolTip(toolTipPanelWarning)
 				freeFormButton:setEnabled(false)
@@ -190,7 +197,7 @@ function CampaignGameShopMenu.new(parentPanel)
 		local tag = freeFormButton:getTag():toString()
 		local buttonData = totable(tag)
 		--buttonData = {towerName=towerName,upgradeName=upgradeName,level=level}
-		updateButton(buttonData.towerName, buttonData.upgradeName, buttonData.level, true)
+		updateButton(buttonData.towerName, buttonData.upgradeName, buttonData.level)
 	end
 	
 	local function buttonMoseOver(freeFormButton)
@@ -347,6 +354,7 @@ function CampaignGameShopMenu.new(parentPanel)
 				abilityData.buttonsPosition = {}
 				abilityData.toolTipPanel = {}
 				abilityData.toolTipPanelWarning = {}
+				abilityData.toolTipPanelUnlockWarning = {}
 				
 				local maxLevel = abilityData.maxLevel
 				local iconId = abilityData.iconId
@@ -386,12 +394,14 @@ function CampaignGameShopMenu.new(parentPanel)
 					
 					
 					-- add ToolTip
-					local toolTipPanel, costLabel, CostLabelWarning = FreeFormDesign.buildToolTipPanelForAbility(abilityData, y, false)
-					local toolTipPanelWarning, costLabel, CostLabelWarning = FreeFormDesign.buildToolTipPanelForAbility(abilityData, y, true)
+					local toolTipPanel = FreeFormDesign.buildToolTipPanelForAbility(abilityData, y, false)
+					local toolTipPanelWarning = FreeFormDesign.buildToolTipPanelForAbility(abilityData, y, true)
+					local toolTipPanelUnlockWarning = FreeFormDesign.buildToolTipPanelForAbility(abilityData, y, false, true)
 					button:setToolTip(toolTipPanel)
 					
 					abilityData.toolTipPanel[y] = toolTipPanel
 					abilityData.toolTipPanelWarning[y] = toolTipPanelWarning
+					abilityData.toolTipPanelUnlockWarning[y] = toolTipPanelUnlockWarning
 					
 					--Add the line
 					updateButtonState(button)

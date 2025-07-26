@@ -80,7 +80,7 @@ function Settings.vsync.getSettings()
 end
 
 function Settings.vsync.getValue()
-	return (Settings.vsync.getSettings() == "Enabled")
+	return (Settings.vsync.getSettings() == "enabled")
 end
 
 --#######################################################################
@@ -309,26 +309,27 @@ function Settings.healthBar.getSettings()
 	return getActiveOptionStr(Settings.healthBar, 2)
 end
 function Settings.healthBar.getIsVisibleOnlyWhenDamaged()
-	return getActiveOptionStr(Settings.healthBar, 2)=="when damaged"
+	return getActiveOptionStr(Settings.healthBar, 2)=="settings.when damaged"
 end
 function Settings.healthBar.getIsVisible()
-	return getActiveOptionStr(Settings.healthBar, 2)~="hidden"
+	return getActiveOptionStr(Settings.healthBar, 2)~="settings.hidden"
 end
 
 
 Settings.DeathAnimation = {}
-Settings.DeathAnimation.options = {"settings.animated", "settings.disabled"}
+Settings.DeathAnimation.options = {"settings.enabled", "settings.disabled"}
 Settings.DeathAnimation.configName = "DeathAnimation"
 function Settings.DeathAnimation.getSettings()
-	return getActiveOptionStr(Settings.DeathAnimation, 2)
+	return getActiveOptionStr(Settings.DeathAnimation, 1)
 end
-function Settings.DeathAnimation.getValue()
-	return getActiveOptionStr(Settings.DeathAnimation, 2)
+function Settings.DeathAnimation.isEnabled()
+	return getActiveOptionStr(Settings.DeathAnimation, 1) == "settings.enabled"
 end
+
 
 Settings.corpseTimer = {}
 Settings.corpseTimer.options = {"settings.high", "settings.medium", "settings.low", "settings.none"}
-Settings.corpseTimer.optionsInt = {High=8, Normal=3, Low=1, None=0}
+Settings.corpseTimer.optionsInt = {8, 3, 1, 0}
 Settings.corpseTimer.configName = "corpseTimer"
 function Settings.corpseTimer.getSettings()
 	return Settings.config:get(Settings.corpseTimer.configName, Settings.corpseTimer.options[2]):getString()
@@ -338,12 +339,19 @@ function Settings.corpseTimer.getValue()
 end
 function Settings.corpseTimer.getInt()
 	local str = Settings.corpseTimer.getValue()
-	if Settings.corpseTimer.optionsInt[str]==nil then
-		print("Corpse timer settings is not leagal")
-		Settings.config:get(Settings.corpseTimer.configName):set(Settings.corpseTimer.options[2])
-		str = Settings.corpseTimer.options[2]
+	for n=1, #Settings.corpseTimer.options do
+		if str == Settings.corpseTimer.options[n] then
+			print("Settings.corpseTimer.options[n] " .. Settings.corpseTimer.options[n])
+			print("n " .. n)
+			print("corpseTimer sentout " .. Settings.corpseTimer.optionsInt[n])
+			return Settings.corpseTimer.optionsInt[n]
+		end
 	end
-	return Settings.corpseTimer.optionsInt[str]
+	
+	print("Corpse timer settings is not leagal")
+	Settings.config:get(Settings.corpseTimer.configName):set(Settings.corpseTimer.options[2])
+	print("corpseTimer sentout " .. Settings.corpseTimer.optionsInt[2])
+	return Settings.corpseTimer.optionsInt[2]
 end
 
 
@@ -374,7 +382,7 @@ end
 
 
 Settings.cursor = {}
-Settings.cursor.options = {"System cursor", "Cursor 16", "Cursor 24", "Cursor 32", "Cursor 48", "Cursor 64"}
+Settings.cursor.options = {"options.cursor set.system cursor", "options.cursor set.cursor 16", "options.cursor set.cursor 24", "options.cursor set.cursor 32", "options.cursor set.cursor 48", "options.cursor set.cursor 64"}
 Settings.cursor.configName = "cursor"
 Settings.cursor.default = 3
 local function cursorGetActive(setting)

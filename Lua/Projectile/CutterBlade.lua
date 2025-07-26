@@ -252,9 +252,10 @@ function CutterBlade.new(pTargetSelector)
 			local outVec = -((npcDir*bladeDir)*npcDir*2.0-bladeDir)
 			billboard:setVec3("bladeBlockedPos",Vec3(0,-1000000,0))
 			--
-			if Settings.DeathAnimation.getSettings()=="Physic" then
-				generatePhysicalBlade(outVec)
-			end
+			--if Settings.DeathAnimation.getSettings()=="Physic" then
+			--  Check if the blade physic has been reworked to work without physic engine
+			--	generatePhysicalBlade(outVec)
+			--end
 			--
 			attackAllNewTargetsInRange(Line3D(previousPos,billboard:getVec3("bladeBlockedPos")) )
 			projectileIsDead = true

@@ -3,11 +3,11 @@ require("Menu/MainMenu/mainMenuStyle.lua")
 require("Menu/MainMenu/settingsCombobox.lua")
 require("Menu/settings.lua")
 --this = SceneNode()
+--languageChanged = Func()
 
 GamePanel = {}
-GamePanel.labels = {}
-GamePanel.labelsText =  { "options.game", "options.health bar", "options.death animation", "options.corpse timer", "options.tower menu", "options.player", "options.name", "options.cursor", "options.consent", "----"}
-GamePanel.optionsBoxes = {}
+GamePanel.languageComboBox = nil
+GamePanel.language = Language()
 
 function GamePanel.create(mainPanel)
 	local gamePanel = mainPanel:add(Panel(PanelSize(Vec2(-0.8,-0.95))))
@@ -17,29 +17,38 @@ function GamePanel.create(mainPanel)
 	
 	
 	GamePanel.createGameOptions(gamePanel)
---	GamePanel.createMultiplayerOptions(gamePanel)
-	
 	GamePanel.gamePanel = gamePanel
 
 	settingsListener = Listener("Settings")
 	
-	--update text
-	GamePanel.languageChanged()
-	
 	return gamePanel
 end
 
-function GamePanel.languageChanged()
-	--update language
-	local labels = GamePanel.labels	
-	for i=1, #labels do
-		labels[i]:setText(language:getText(GamePanel.labelsText[i]))
+function GamePanel.changeLanguageComboBox(comboBox)
+	print("---- change language to "..comboBox:getText():toString().." ----")
+	language:setLanguage(comboBox:getText():toString())
+	settingsListener:pushEvent("LanguageChanged")
+	--Call mainMenu.lua functio
+	
+	Settings.config:get(Settings.Language.configName):setString(comboBox:getText():toString())
+	Settings.config:save()	
+end
+
+function GamePanel.addLanguageComboBox(panel, size, items, callback)
+	local button = panel:add(ComboBox(PanelSize(size), items[1]))
+	
+	for i=1, #items do
+		local itemButton = button:addItem( MainMenuStyle.createMenuButton(Vec2(-1,0.03), Vec2(), items[i]) )
+		itemButton:setTag(items[i])
+		itemButton:addEventCallbackExecute(callback)
 	end
 	
-	--update comboboxes
-	for i=1, #GamePanel.optionsBoxes do
-		GamePanel.optionsBoxes[i].updateLanguage()
-	end
+	return button
+end
+
+function GamePanel.changeLanguage(button)
+	--Split string
+	GamePanel.languageComboBox:setText(button:getTag())
 end
 
 function GamePanel.changedSettingsBool(tag, index)
@@ -90,64 +99,67 @@ end
 
 function GamePanel.createGameOptions(panel)
 	
-	local labels = GamePanel.labels
 	local conf
 	
-	labels[1] = OptionsMenuStyle.addOptionsHeader( panel, "Game" )
+	OptionsMenuStyle.addOptionsHeader( panel, "general.game" )
 		
 	
-	rowPanel, labels[8] = OptionsMenuStyle.addRow(panel, "cursor")
+	rowPanel = OptionsMenuStyle.addRow(panel, "options.cursor")
 	conf = Settings.cursor
-	GamePanel.optionsBoxes[5] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedCursor )
+	SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedCursor )
 	
-	rowPanel, labels[2] = OptionsMenuStyle.addRow(panel, "Health bar")
+	rowPanel = OptionsMenuStyle.addRow(panel, "options.health bar")
 	conf = Settings.healthBar
-	GamePanel.optionsBoxes[1] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
+	SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
 	
-	rowPanel, labels[3] = OptionsMenuStyle.addRow(panel, "Death animation")
+	rowPanel = OptionsMenuStyle.addRow(panel, "options.death animation")
 	conf = Settings.DeathAnimation
-	GamePanel.optionsBoxes[2] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
+	SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
 
-	rowPanel, labels[4] = OptionsMenuStyle.addRow(panel, "corpse timer")
+	rowPanel = OptionsMenuStyle.addRow(panel, "options.corpse timer")
 	conf = Settings.corpseTimer
-	GamePanel.optionsBoxes[3] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
+	SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsInt )
 	
-	rowPanel, labels[5] = OptionsMenuStyle.addRow(panel, "tower menu")
+	rowPanel = OptionsMenuStyle.addRow(panel, "options.tower menu")
 	conf = Settings.towerMenu
-	GamePanel.optionsBoxes[4] = SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
+	SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
 	
 	--Consent Options
-	labels[6] = OptionsMenuStyle.addOptionsHeader( panel, "User Consent" )
-	rowPanel, labels[9] = OptionsMenuStyle.addRow(panel, "Consent")
-	local button = MainMenuStyle.createButton( Vec2(-0.45,-1), nil, "Change Consent")	
+	OptionsMenuStyle.addOptionsHeader( panel, "consent.user consent" )
+	rowPanel = OptionsMenuStyle.addRow(panel, "consent.consent")
+	local button = MainMenuStyle.createButton( Vec2(-0.45,-1), nil, "consent.change consent")	
 	rowPanel:add(button)
 	button:addEventCallbackExecute(GamePanel.openConsnetMenu)
+	--Language
+	
+	language = GamePanel.language
+	local allLanguageges = language:getAllLanguageges()
+	
+	
+	OptionsMenuStyle.addOptionsHeader( panel, "general.language" )
+	
+	rowPanel = OptionsMenuStyle.addRow(panel, "general.language" )
+	GamePanel.languageComboBox = GamePanel.addLanguageComboBox( rowPanel, Vec2(-0.45,-1), allLanguageges, GamePanel.changeLanguage)
+	GamePanel.languageComboBox:setText(language:getLanguage())
+	GamePanel.languageComboBox:addEventCallbackChanged(GamePanel.changeLanguageComboBox)
+	GamePanel.languageComboBox:setTag(Settings.islandSmoke.configName)
+
 	
 	--userName
-	labels[6] = OptionsMenuStyle.addOptionsHeader( panel, "Player" )
+	OptionsMenuStyle.addOptionsHeader( panel, "options.player" )
 	
-	rowPanel, labels[7] = OptionsMenuStyle.addRow(panel, "Name")
+	rowPanel = OptionsMenuStyle.addRow(panel, "general.name")
 	local textField = rowPanel:add(MainMenuStyle.createTextField(Vec2(-0.45,-1), Vec2(),Settings.multiplayerName.getSettings()))
+	--textField = TextField()
 	textField:addEventCallbackChanged(GamePanel.changedSettingsString)
 	textField:addEventCallbackExecute(GamePanel.updateClientName)
 	textField:setTag(Settings.multiplayerName.configName)
 	textField:setWhiteList("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ _-[]()=1234567890/.,")--< > \\ \" removed characters because of issues with totable() and <font ...>
 end
 
---function GamePanel.createMultiplayerOptions(panel)
-----	local labels = GamePanel.labels
-----	labels[7] = OptionsMenuStyle.addOptionsHeader( panel, "Multiplayer" )
---	
---	
---	
---	--set user name
---	--Settings.multiplayerName.getSettings()
---end
-
 function GamePanel.updateClientName()
 	Core.getNetworkClient():setUserName(Settings.multiplayerName.getSettings())
 end
-
 
 function GamePanel.update()
 	

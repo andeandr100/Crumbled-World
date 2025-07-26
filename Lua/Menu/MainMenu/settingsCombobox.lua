@@ -63,8 +63,7 @@ function SettingsComboBox.new(parentPanel, panelSize, inItems, tag, settings, aC
 		comboBox:clearItems()
 		
 		for i=1, #items do
-			text = language:getText(items[i])
-			local itemButton = comboBox:addItem( MainMenuStyle.createMenuButton(Vec2(-1,0.03), Vec2(), (text == Text("")) and items[i] or text ) )
+			local itemButton = comboBox:addItem( MainMenuStyle.createMenuButton(Vec2(-1,0.03), Vec2(), items[i] ) )
 			itemButton:setTag(tostring(i))
 			if tooltips and tooltips[i] then
 				itemButton:setToolTip(language:getText(tooltips[i]))

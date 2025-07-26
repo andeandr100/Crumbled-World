@@ -212,12 +212,12 @@ function create()
 			
 	local buttonSize = Vec2(-1,0.07)	
 	
-	continueButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.continue")))
-	optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.options")))
-	tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.tutorial"))) or nil
-	launchWavesButton = mapInfo.getGameMode()=="training" and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.launch waves"))) or nil
-	RestartWaveButton = mapInfo.isRestartWaveEnabled() and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.revert wave"))) or nil
-	RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.restart"))) or nil
+	continueButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, "ingame.button.continue"))
+	optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, "ingame.button.options"))
+	tutorialButton = showTutorial and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, "ingame.button.tutorial")) or nil
+	launchWavesButton = mapInfo.getGameMode()=="training" and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, "ingame.button.launch waves")) or nil
+	RestartWaveButton = mapInfo.isRestartWaveEnabled() and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, "ingame.button.revert wave")) or nil
+	RestartButton = (not Core.isInMultiplayer()) and mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, "ingame.button.restart")) or nil
 	quitToMenuButton = nil
 	quitToEditorButton = nil
 	
@@ -226,10 +226,10 @@ function create()
 	end
 	
 	if Core.isInEditor() then
-		quitToEditorButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to map editor")))
+		quitToEditorButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, "ingame.button.quit to map editor"))
 		textList[#textList + 1] = "ingame.button.quit to map editor"
 	else
-		quitToMenuButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to menu")))
+		quitToMenuButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, "ingame.button.quit to menu"))
 		textList[#textList + 1] = "ingame.button.quit to menu"
 	end
 	
@@ -244,7 +244,7 @@ function create()
 	mainPanel:setPanelSize(PanelSize(Vec2((maxSize * 1.05)/Core.getRenderResolution().x,-1)))
 	mainPanel:getPanelSize():setFitChildren(false, true)
 	
-	local quitToDesktopButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, language:getText("ingame.button.quit to desktop")))
+	local quitToDesktopButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, "ingame.button.quit to desktop"))
 	
 	continueButton:addEventCallbackExecute(toggleVisible)
 	textPanels[2] = continueButton

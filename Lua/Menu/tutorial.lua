@@ -181,6 +181,7 @@ function create()
 	local buttonPanel = infoAndButtonPanel:add(Panel(PanelSize(Vec2(-1,0.03))))
 	buttonPanel:setLayout(FlowLayout(Alignment.BOTTOM_RIGHT, panelSpacing))
 	nextButton = buttonPanel:add(MainMenuStyle.createButton(Vec2(-1),Vec2(4,1), "Next"))
+	--nextButton = Button()
 	nextButton:addEventCallbackExecute(next)
 	
 	--create previous button

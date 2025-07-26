@@ -42,7 +42,6 @@ function NpcBase.new()
 	local npcSpawnCounter = 0
 	local waypointReachedList = {}
 	local idName
-	local useDeathAnimationOrPhysic = true
 	local retargetForHighPpriorityTarget = 0.0
 	local RETARGET_FOR_HIGH_PRIORITY_TARGET_EVERY = 1.0
 	--stats
@@ -208,7 +207,6 @@ function NpcBase.new()
 		soul.setHp(-1.0)
 		npcIsDestroyed = true
 		syncConfirmedDeath = true
-		useDeathAnimationOrPhysic = false
 		self.setGainGoldOnDeath(false)
 		billboard:setBool("isAlive",false)
 		--
@@ -473,7 +471,7 @@ function NpcBase.new()
 	end
 	--start the death animations/physic/effect
 	function self.createDeadBody()
-		if Settings.DeathAnimation.getSettings()~="Disabled" and useDeathAnimationOrPhysic and model then
+		if Settings.DeathAnimation.isEnabled() and model then
 			--death animations is enabled
 			if deathManager.getUseAnimatedDeath() then
 				deathAnimation()
@@ -586,7 +584,6 @@ function NpcBase.new()
 		if launcWave ~= statsBilboard:getInt("wave") then
 			if mapInfo.isCricleMap()==false then
 				syncConfirmedDeath = true
-				useDeathAnimationOrPhysic = false
 				self.setGainGoldOnDeath(false)
 			end
 		end

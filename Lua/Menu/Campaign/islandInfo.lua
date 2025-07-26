@@ -57,7 +57,6 @@ function IslandInfo.new(camera)
 	
 	function addItem(text)
 		local button = gameDifficultyComboBox:addItem(MainMenuStyle.createMenuButton(Vec2(-1,0.03), Vec2(), text))
-		button:setTag(text)
 		button:addEventCallbackExecute(changeItem)
 	end
 	
@@ -152,7 +151,7 @@ function IslandInfo.new(camera)
 			
 			local StartGamePanel = rightPanel:add(Panel(PanelSize(Vec2(-1,-1))))
 			StartGamePanel:setLayout(FallLayout(Alignment.BOTTOM_RIGHT))
-			startButton = StartGamePanel:add(Button(PanelSize(Vec2(-1,0.03), Vec2(5,1)), "Start game"))
+			startButton = StartGamePanel:add(Button(PanelSize(Vec2(-1,0.03), Vec2(5,1)), "custom-game.Start game"))
 			startButton:addEventCallbackExecute(startMap)
 		end
 		

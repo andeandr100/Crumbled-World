@@ -4,7 +4,7 @@ DeathManager = {}
 function DeathManager.new()
 	local self = {}
 	
-	local BodyType = {animation=1,softBody=2,rigidBody=3,gold=4}
+	local BodyType = {animation=1,rigidBody=3,gold=4}
 	
 	local debugActiveDeathTimer =	0.0
 	

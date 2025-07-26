@@ -2,7 +2,7 @@ require("Menu/MainMenu/inputPanel.lua")
 require("Menu/MainMenu/videoPanel.lua")
 require("Menu/MainMenu/gamePanel.lua")
 require("Menu/MainMenu/audioPanel.lua")
-require("Menu/MainMenu/LanguagePanel.lua")
+--require("Menu/MainMenu/LanguagePanel.lua")
 
 --this = SceneNode()
 
@@ -41,35 +41,36 @@ function togleVisibleOptionsPanel(button)
 		VideoPanel.videoPanel:setVisible(false)
 		AudioPanel.audioPanel:setVisible(false)
 		GamePanel.gamePanel:setVisible(false)
-		LanguagePanel.languagePanel:setVisible(false)
+--		LanguagePanel.languagePanel:setVisible(false)
 	elseif videoButton == button then
 		InputPanel.inputPanel:setVisible(false)
 		VideoPanel.videoPanel:setVisible(true)
 		AudioPanel.audioPanel:setVisible(false)
 		GamePanel.gamePanel:setVisible(false)
-		LanguagePanel.languagePanel:setVisible(false)
+--		LanguagePanel.languagePanel:setVisible(false)
 	elseif gameButton == button then
 		InputPanel.inputPanel:setVisible(false)
 		VideoPanel.videoPanel:setVisible(false)
 		AudioPanel.audioPanel:setVisible(false)
 		GamePanel.gamePanel:setVisible(true)
-		LanguagePanel.languagePanel:setVisible(false)
+--		LanguagePanel.languagePanel:setVisible(false)
 	elseif audioButton == button then
 		InputPanel.inputPanel:setVisible(false)
 		VideoPanel.videoPanel:setVisible(false)
 		AudioPanel.audioPanel:setVisible(true)
 		GamePanel.gamePanel:setVisible(false)
-		LanguagePanel.languagePanel:setVisible(false)
+--		LanguagePanel.languagePanel:setVisible(false)
 	else
 		InputPanel.inputPanel:setVisible(false)
 		VideoPanel.videoPanel:setVisible(false)
 		AudioPanel.audioPanel:setVisible(false)
 		GamePanel.gamePanel:setVisible(false)
-		LanguagePanel.languagePanel:setVisible(true)
+--		LanguagePanel.languagePanel:setVisible(true)
 	end
 end
 
 function OptionsMenu.updateButton(button, textId )
+	--button = Button()
 	local text = language:getText(textId)
 	button:setText(text)
 	
@@ -87,21 +88,6 @@ function OptionsMenu.updateButton(button, textId )
 	
 end
 
-function OptionsMenu.languageChanged()
-	
-	OptionsMenu.updateButton(videoButton, "general.video")
-	OptionsMenu.updateButton(inputButton, "general.keybind")
-	OptionsMenu.updateButton(gameButton, "general.game")
-	OptionsMenu.updateButton(audioButton, "general.audio")
-	OptionsMenu.updateButton(languageButton, "general.language")
-	
-	VideoPanel.languageChanged()
-	GamePanel.languageChanged()
-	AudioPanel.languageChanged()
-	InputPanel.languageChanged()
-	LanguagePanel.languageChanged()
-end
-
 function OptionsMenu.TopMenu(optionsPanel)
 	
 	local topPanel = optionsPanel:add(Panel(PanelSize(Vec2(-1,0.04))))
@@ -111,20 +97,16 @@ function OptionsMenu.TopMenu(optionsPanel)
 	inputButton = MainMenuStyle.addTopMenuButton(topPanel, Vec2(4,1), "")
 	videoButton = MainMenuStyle.addTopMenuButton(topPanel, Vec2(4,1), "")
 	audioButton = MainMenuStyle.addTopMenuButton(topPanel, Vec2(4,1), "")
-	languageButton = MainMenuStyle.addTopMenuButton(topPanel, Vec2(4,1), "")
-	
+
 	OptionsMenu.updateButton(inputButton, "general.keybind")
 	OptionsMenu.updateButton(videoButton, "general.video")
 	OptionsMenu.updateButton(gameButton, "general.game")
 	OptionsMenu.updateButton(audioButton, "general.audio")
-	OptionsMenu.updateButton(languageButton, "general.language")
-	
+
 	inputButton:addEventCallbackExecute(togleVisibleOptionsPanel)
 	videoButton:addEventCallbackExecute(togleVisibleOptionsPanel)
 	gameButton:addEventCallbackExecute(togleVisibleOptionsPanel)
 	audioButton:addEventCallbackExecute(togleVisibleOptionsPanel)
-	languageButton:addEventCallbackExecute(togleVisibleOptionsPanel)
-	
 	
 end
 
@@ -139,9 +121,6 @@ function OptionsMenu.createPages(optionsPanel)
 	VideoPanel.create(panelArea)
 	GamePanel.create(panelArea)
 	AudioPanel.create(panelArea)
-	LanguagePanel.create(panelArea)
-	
-	
 	
 end
 

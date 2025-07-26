@@ -423,7 +423,7 @@ local function addAbility(panel, abilityData, index, level)
 	panel:add(Label(PanelSize(Vec2(-1)), notifyText, Vec3(1.0)))
 end
 
-local function addCrystalCost(panel, totalPanelSizeInPixel, abilityData, level, upgradeNeeded)
+local function addCrystalCost(panel, totalPanelSizeInPixel, abilityData, level, upgradeNeeded, unlockLowerLEvel)
 	--crystal cost
 	local row = panel:add(Panel(PanelSize(Vec2(-1,0.025))))
 	row:setLayout(FlowLayout())
@@ -437,6 +437,8 @@ local function addCrystalCost(panel, totalPanelSizeInPixel, abilityData, level, 
 	local label = nil
 	if upgradeNeeded then
 		label = row:add(Label(PanelSize(Vec2(-1)), tostring(cost).." Requiers \"Upgrade "..level.."\"", Vec3(1.0,0,0)))
+	elseif unlockLowerLEvel then
+		label = row:add(Label(PanelSize(Vec2(-1)), tostring(cost).." Requiers \""..abilityData.displayName.." "..(level-1).."\"", Vec3(1.0,0,0)))
 	else
 		label = row:add(Label(PanelSize(Vec2(-1)), tostring(cost), Vec3(1.0)))
 	end
@@ -459,7 +461,7 @@ function FreeFormDesign.buildToolTipPanelForTower(towerName)
 	return panel
 end
 
-function FreeFormDesign.buildToolTipPanelForAbility(abilityData, level, upgradeNeeded)
+function FreeFormDesign.buildToolTipPanelForAbility(abilityData, level, upgradeNeeded, unlockLowerLEvel)
 	
 	local panel = createToolBasePanel()
 	
@@ -500,7 +502,7 @@ function FreeFormDesign.buildToolTipPanelForAbility(abilityData, level, upgradeN
 		totalPanelSizeInPixel = totalPanelSizeInPixel + Vec2(0, Core.getScreenResolution().y * (0.025 + toolTipPanelSpacing) )
 	end
 	
-	totalPanelSizeInPixel = addCrystalCost(panel, totalPanelSizeInPixel, abilityData, level, upgradeNeeded)
+	totalPanelSizeInPixel = addCrystalCost(panel, totalPanelSizeInPixel, abilityData, level, upgradeNeeded, unlockLowerLEvel)
 	
 	panel:setPanelSize(PanelSize(totalPanelSizeInPixel, PanelSizeType.Pixel))
 	return panel
