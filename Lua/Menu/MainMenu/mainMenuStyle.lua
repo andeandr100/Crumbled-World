@@ -27,7 +27,11 @@ function MainMenuStyle.createTopMenu(panel, panelSize)
 	return topPanel
 end
 
-function MainMenuStyle.addTopMenuButton(panel, scale, text)
+function MainMenuStyle.addTopMenuButton(panel, text, inScale)
+	
+	local localLangString = language:getText(text)
+	local scale = inScale and inScale or Vec2(localLangString:getTextScale().x/2+1,1)
+	
 	return panel:add(MainMenuStyle.createMenuButton( Vec2(-1), scale, text))	
 end
 
@@ -66,20 +70,7 @@ function MainMenuStyle.createButton(size, scale, text)
 	button:setTextColor(MainMenuStyle.textColor)
 	button:setTextHoverColor(Vec4(1))
 	button:setTextDownColor(Vec4(1))
-	
-	
---	button:setTextColor(Vec3(0.7))
---	button:setTextHoverColor(Vec3(0.92))
---	button:setTextDownColor(Vec3(1))
---	
---	button:setEdgeColor(MainMenuStyle.borderColor)
---	button:setEdgeHoverColor(MainMenuStyle.borderColor)
---	button:setEdgeDownColor(MainMenuStyle.borderColor)
---
---	button:setInnerColor(Vec4(0))
---	button:setInnerHoverColor(Vec4(1,1,1,0.2))
---	button:setInnerDownColor(Vec4(1,1,1,0.1))
-	
+
 	return button
 end
 

@@ -120,26 +120,16 @@ function toglePanelVisible(button,param)
 	end
 	frame = Core.getFrameNumber()
 	
-	print("\n\n\nTogle visible")
 	for i=2, #buttons do
-		print("Button "..i)
-		
 		if buttons[i].panel then
 			if buttons[i].button == button then
-				if i==2 then
---					pagePanel:setPanelSize(PanelSize(Vec2(-1,-0.95), Vec2(6,4)))
-				else
---					pagePanel:setPanelSize(PanelSize(Vec2(-1,-0.95), Vec2(4,4)))
-				end
-				print("set visible panel "..i)
+
 				local childVisible = buttons[i].panel.getChildVisible and buttons[i].panel.getChildVisible()
 				local visible = (not buttons[i].panel:getVisible()) or (childVisible ~= nil and childVisible or false)
 				
 				if not param then
-					print("set visibility "..tostring( visible))
 					buttons[i].panel:setVisible( visible )
 				else
-					print("set visibility "..tostring( visible)..", param")
 					buttons[i].panel:setVisible( visible, param )
 				end
 				if i==2 then
@@ -154,10 +144,7 @@ function toglePanelVisible(button,param)
 			end
 		end
 	end
-	
-	print("\n---------------------------\n")
-	--needed
-	--CustomeGameMenu.isVisible()
+
 end
 
 function quitGame()
@@ -168,21 +155,21 @@ function createTopMenu()
 	local topPanel = MainMenuStyle.createTopMenu(form, PanelSize(Vec2(1,0.027),PanelSizeType.WindowPercentBasedOnX))
 	
 	buttons = {}
-	buttons[1] = {text = language:getText("button.exit")}
-	buttons[2] = {text = language:getText("button.campaign")}
-	buttons[3] = {text = language:getText("button.custom game")}--Singleplayer
-	buttons[4] = {text = language:getText("button.multiplayer")}
-	buttons[5] = {text = language:getText("button.map editor")}
-	buttons[6] = {text = language:getText("button.options")}
-	buttons[7] = {text = language:getText("button.credits")}
+	buttons[1] = {text = "button.exit"}
+	buttons[2] = {text = "button.campaign"}
+	buttons[3] = {text = "button.custom game"}--Singleplayer
+	buttons[4] = {text = "button.multiplayer"}
+	buttons[5] = {text = "button.map editor"}
+	buttons[6] = {text = "button.options"}
+	buttons[7] = {text = "button.credits"}
 
 	
-	buttons[1].button = MainMenuStyle.addTopMenuButton(topPanel, Vec2(buttons[1].text:getTextScale().x/2+1,1), buttons[1].text)
+	buttons[1].button = MainMenuStyle.addTopMenuButton(topPanel, buttons[1].text)
 	buttons[1].button:addEventCallbackExecute(quitGame)
 	
 	local leftTopMenuPanel = topPanel:add(Panel(PanelSize(Vec2(-1))))
 	leftTopMenuPanel:setLayout(FlowLayout(Alignment.TOP_RIGHT))
-	buttons[7].button = MainMenuStyle.addTopMenuButton(leftTopMenuPanel, Vec2(buttons[7].text:getTextScale().x/2+1,1), buttons[7].text)
+	buttons[7].button = MainMenuStyle.addTopMenuButton(leftTopMenuPanel, buttons[7].text)
 	buttons[7].button:addEventCallbackExecute(toglePanelVisible)
 	
 	local centerTopPanel = leftTopMenuPanel:add(Panel(PanelSize(Vec2(-1))))
@@ -190,7 +177,7 @@ function createTopMenu()
 	
 	
 	for i=2, 6 do
-		buttons[i].button = MainMenuStyle.addTopMenuButton(centerTopPanel, Vec2(buttons[i].text:getTextScale().x/2+1,1), buttons[i].text)
+		buttons[i].button = MainMenuStyle.addTopMenuButton(centerTopPanel, buttons[i].text)
 		buttons[i].button:addEventCallbackExecute(toglePanelVisible)
 	end
 	

@@ -229,8 +229,7 @@ function CampaignGameMapMenu.new(parentPanel)
 --		--	Difficulties
 --		--
 		local rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		labels[1] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("custom-game.difficulty"), Vec3(0.7)))
-		labels[1]:setTag("custom-game.difficulty")
+		rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), "custom-game.difficulty", Vec3(0.7)))
 		local optionsNames = {"settings.normal", "settings.hard", "settings.extreme", "settings.insane"}
 		local difficultLevel = 1
 		difficutyBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), optionsNames, "difficulty", optionsNames[difficultLevel], changeDifficulty )
@@ -239,8 +238,7 @@ function CampaignGameMapMenu.new(parentPanel)
 		--
 		--Game mode		
 		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		labels[2] = rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("custom-game.game mode"), Vec3(0.7)))
-		labels[2]:setTag("custom-game.game mode")
+		rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), "custom-game.game mode", Vec3(0.7)))
 		local defaultMode = 1
 		gameModeBox = SettingsComboBox.new(rowPanel,PanelSize(Vec2(-1)), gameModes, "game mode", gameModes[defaultMode], changeGameMode, optionsTooltip )
 		
@@ -248,7 +246,7 @@ function CampaignGameMapMenu.new(parentPanel)
 		--	Reward
 		--
 		rowPanel = infoPanel:add(Panel(PanelSize(Vec2(-1, 0.03))))
-		rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), language:getText("custom-game.reward"), Vec3(0.7)))
+		rowPanel:add(Label(PanelSize(Vec2(-0.6,-1)), "custom-game.reward", Vec3(0.7)))
 		rewardLabel = rowPanel:add(Label(PanelSize(Vec2(-0.5,-1)), "?", Vec3(0.7)))
 		--	Crystal
 		local image = rowPanel:add(Image(PanelSize(Vec2(-1),Vec2(1)), Text("icon_table.tga")))
@@ -259,10 +257,8 @@ function CampaignGameMapMenu.new(parentPanel)
 		--
 		--	start button
 		--
-		local startAGameButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), language:getText("custom-game.start game")))
+		local startAGameButton = infoPanel:add(MainMenuStyle.createButton(Vec2(-1,0.03), Vec2(7,1), "custom-game.start game"))
 		startAGameButton:addEventCallbackExecute(startMap)
-		labels[4] = startAGameButton
-		labels[4]:setTag("custom-game.start game")
 		
 		--	Spacing
 		local highScorePanel = infoPanel:add(Panel(PanelSize(Vec2(-1,-0.85))))
@@ -275,8 +271,8 @@ function CampaignGameMapMenu.new(parentPanel)
 		--add header
 		local scoreHeader = borderPanel:add(Panel(PanelSize(Vec2(-1,-0.1))))
 		local labelColor = Vec4(0.9,0.9,0.9,1.0)
-		scoreHeader:add(Label(PanelSize(Vec2(-0.65,-1)), language:getText("custom-game.name"), labelColor))
-		scoreHeader:add(Label(PanelSize(Vec2(-0.5,-1)), language:getText("score.score"), labelColor))
+		scoreHeader:add(Label(PanelSize(Vec2(-0.65,-1)), "custom-game.name", labelColor))
+		scoreHeader:add(Label(PanelSize(Vec2(-0.5,-1)), "score.score", labelColor))
 		local scoreLine = borderPanel:add(Panel(PanelSize(Vec2(-1,1),PanelSizeType.Pixel)))		
 		scoreLine:setBackground(Sprite(Vec3(0.3)))
 		scoreArea = borderPanel:add(Panel(PanelSize(Vec2(-1))))

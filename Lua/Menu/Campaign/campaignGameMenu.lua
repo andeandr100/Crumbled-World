@@ -13,7 +13,6 @@ function CampaignGameMenu.new(panel)
 	local selectedFile
 	local mainPanel
 	--
-	local labels = {}
 	
 	local campaignMap
 	local campaingShop
@@ -56,26 +55,20 @@ function CampaignGameMenu.new(panel)
 
 		local textScale = language:getText("button.campaign"):getTextScale() 
 		
-		local campaignButton = MainMenuStyle.addTopMenuButton(topMenuButtons, Vec2(textScale.x/2+3,1), language:getText("button.campaign"))
-		local shopButton = MainMenuStyle.addTopMenuButton(topMenuButtons, Vec2(textScale.x/2+3,1), language:getText("button.shop"))
-		
-
+		local campaignButton = MainMenuStyle.addTopMenuButton(topMenuButtons, "button.campaign", Vec2(textScale.x/2+3,1))
+		campaignButton:setTag("campaign")
+		campaignButton:addEventCallbackExecute(buttonPressed)
 		local buttonIcon = campaignButton:add(Image(PanelSize(Vec2(-1),Vec2(1)), "icon_table.tga"))
 		buttonIcon:setUvCoord(Vec2(0.125,0),Vec2(0.25,0.0625))
 		
+		
+		
+		local shopButton = MainMenuStyle.addTopMenuButton(topMenuButtons, "button.shop", Vec2(textScale.x/2+3,1))
 		buttonIcon = shopButton:add(Image(PanelSize(Vec2(-1),Vec2(1)), "icon_table.tga"))
 		buttonIcon:setUvCoord(Vec2(),Vec2(0.125,0.0625))
-		
-		labels[5] = campaignButton
-		labels[5]:setTag("campaign")
-		
 		shopButton:setTag("shop")
-		
-		campaignButton:addEventCallbackExecute(buttonPressed)
 		shopButton:addEventCallbackExecute(buttonPressed)
 		
-		
-		--shop = Shop.new(mainAreaPanel)
 		
 		--Add BreakLine
 		local breakLinePanel = mainPanel:add(Panel(PanelSize(Vec2(-0.9,0.002))))
@@ -114,11 +107,9 @@ function CampaignGameMenu.new(panel)
 	
 	function self.setVisible(set,set2)
 		if type(set)=="boolean" then
-			print("mainPanel:setVisible("..tostring(set)..")\n")
 			mainPanel:setVisible(set)
 			campaignMap.setVisible(set and true or false)
 		else
-			print("mainPanel:setVisible("..tostring(set2)..")\n")
 			mainPanel:setVisible(set2)
 			campaignMap.setVisible(set2 and true or false)
 		end

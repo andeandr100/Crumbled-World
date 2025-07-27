@@ -105,18 +105,15 @@ end
 
 function createMenuBar()
 	menuBar = MainMenuStyle.createTopMenu(form, PanelSize(Vec2(-1,0.035)))
-	local fileButton = MainMenuStyle.addTopMenuButton( menuBar, Vec2(3,1), "File")
+	local fileButton = MainMenuStyle.addTopMenuButton( menuBar, "File", Vec2(3,1))
 	fileMenu = FileDropDownMenu.new(fileButton)
 	
-	local textEditorButton = MainMenuStyle.addTopMenuButton( menuBar, Vec2(4,1), "Text editor")
+	local textEditorButton = MainMenuStyle.addTopMenuButton( menuBar, "Text editor", Vec2(4,1))
 	textEditorButton:addEventCallbackExecute(togleShowTextEditor)
 	
-	local mapSettingsButton = MainMenuStyle.addTopMenuButton( menuBar, Vec2(5,1), "Map settings")
+	local mapSettingsButton = MainMenuStyle.addTopMenuButton( menuBar, "Map settings", Vec2(5,1))
 	mapSettingsButton:addEventCallbackExecute(togleMapSettings)
 	
---	local mapSettingsButton = MainMenuStyle.addTopMenuButton( menuBar, Vec2(3,1), "Play")
---	mapSettingsButton:addEventCallbackExecute(playTheMap)
---	mapSettingsButton:setVisible(false)
 	
 	editorListener:pushEvent("window", "hide")
 	

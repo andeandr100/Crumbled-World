@@ -69,15 +69,13 @@ function togleVisibleOptionsPanel(button)
 	end
 end
 
-function OptionsMenu.updateButton(button, textId )
+function OptionsMenu.updateButton(button, textStr )
 	--button = Button()
-	local text = language:getText(textId)
-	button:setText(text)
+	button:setText(textStr)
 	
-	local labeltmp = Label( PanelSize(Vec2(1)), text)
+	local labeltmp = Label( PanelSize(Vec2(1)), textStr)
 	labeltmp:setTextHeight(Core.getScreenResolution().y * 0.021)
 	
---	button:setPanelSize(PanelSize(Vec2(-1),Vec2(math.max(text:getTextScale().x/2 + 1,1), 1)))
 	button:setPanelSize(PanelSize(Vec2(-1), Vec2( (labeltmp:getTextSizeInPixel().x + Core.getScreenResolution().y * 0.02) / labeltmp:getTextSizeInPixel().y, 1)))
 	
 	button:setTextColor(Vec3(0.7))
@@ -93,10 +91,10 @@ function OptionsMenu.TopMenu(optionsPanel)
 	local topPanel = optionsPanel:add(Panel(PanelSize(Vec2(-1,0.04))))
 	topPanel:setLayout(FlowLayout(Alignment.TOP_CENTER))
 	
-	gameButton = MainMenuStyle.addTopMenuButton(topPanel, Vec2(4,1), "")
-	inputButton = MainMenuStyle.addTopMenuButton(topPanel, Vec2(4,1), "")
-	videoButton = MainMenuStyle.addTopMenuButton(topPanel, Vec2(4,1), "")
-	audioButton = MainMenuStyle.addTopMenuButton(topPanel, Vec2(4,1), "")
+	gameButton = MainMenuStyle.addTopMenuButton(topPanel, "", Vec2(4,1))
+	inputButton = MainMenuStyle.addTopMenuButton(topPanel, "", Vec2(4,1))
+	videoButton = MainMenuStyle.addTopMenuButton(topPanel, "", Vec2(4,1))
+	audioButton = MainMenuStyle.addTopMenuButton(topPanel, "", Vec2(4,1))
 
 	OptionsMenu.updateButton(inputButton, "general.keybind")
 	OptionsMenu.updateButton(videoButton, "general.video")

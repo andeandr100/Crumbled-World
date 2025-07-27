@@ -73,7 +73,7 @@ function Campaing.new(camera, inForm)
 		buttons[2] = {text = "Shop", size = Vec2(2,1), callback = showShop}
 		
 		for i=1, #buttons do
-			buttons[i].button = MainMenuStyle.addTopMenuButton(topPanel, buttons[i].size, buttons[i].text)
+			buttons[i].button = MainMenuStyle.addTopMenuButton(topPanel, buttons[i].text, buttons[i].size)
 			buttons[i].button:addEventCallbackExecute(buttons[i].callback)
 		end
 		

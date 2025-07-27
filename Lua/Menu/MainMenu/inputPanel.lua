@@ -6,18 +6,10 @@ InputPanel = {}
 InputPanel.rebindKey = nil
 InputPanel.rebindKeyId = 0
 InputPanel.rebindKeyButton = nil
-InputPanel.labels = {}
 
 function InputPanel.getKeyBindName(name)
-	return language:getText( string.lower(name) )
+	return string.lower(name)
 end
-
-function InputPanel.languageChanged()
-	for i=1, #InputPanel.labels do
-		InputPanel.labels[i]:setText(InputPanel.getKeyBindName(InputPanel.labels[i]:getTag():toString()))
-	end
-end
-
 
 function InputPanel.create(mainPanel)
 	
@@ -53,12 +45,10 @@ function InputPanel.create(mainPanel)
 		
 		groupedKeys[groupName][subGroupName][name] = keyBind
 	end
-	local count = 1
+
 	local function addInputGroup(groupName, group)
 		--print("Goup: "..groupName.."\n")
-		InputPanel.labels[count] = OptionsMenuStyle.addOptionsHeader( inputPanel, language:getText( "keybind." .. string.lower(groupName)) )
-		InputPanel.labels[count]:setTag( "keybind." .. string.lower(groupName) )
-		count = count + 1
+		OptionsMenuStyle.addOptionsHeader( inputPanel, "keybind." .. string.lower(groupName) )
 		for subGroupName, subGroup in pairs(group) do
 			local nameList = {}
 			for name in pairs(subGroup) do table.insert(nameList, name)  end
@@ -69,11 +59,9 @@ function InputPanel.create(mainPanel)
 				local keyBind = subGroup[name]
 				
 				--print("name: "..name.."\n")
-				rowPanel, InputPanel.labels[count] = OptionsMenuStyle.addRow(inputPanel, InputPanel.getKeyBindName("keybind." .. name) )
-				InputPanel.labels[count]:setTag( "keybind." .. name )
+				rowPanel = OptionsMenuStyle.addRow(inputPanel, InputPanel.getKeyBindName("keybind." .. name) )
 				InputPanel.addKeyBindButton( rowPanel, Vec2(-0.45,-1), keyBind:getKeyBindName(0), name, 0)
-				InputPanel.addKeyBindButton( rowPanel, Vec2(-0.9,-1), keyBind:getKeyBindName(1), name, 1)
-				count = count + 1				
+				InputPanel.addKeyBindButton( rowPanel, Vec2(-0.9,-1), keyBind:getKeyBindName(1), name, 1)				
 			end
 		end
 	end
@@ -127,7 +115,7 @@ function bindNewKey(button)
 	if InputPanel.rebindKey then
 		InputPanel.rebindKeyId = tonumber(id)
 		InputPanel.rebindKeyButton = button
-		button:setText( language:getText("input.press key"))
+		button:setText( "input.press key")
 	end
 end
 

@@ -316,7 +316,7 @@ function init()
 		--filler Panel
 		local mainPanel = form:add(Panel(PanelSize(Vec2(-1))))
 		
-		MenuButton = MainMenuStyle.addTopMenuButton( topPanel, Vec2(4,1), language:getText("ingame.button.menu"))
+		MenuButton = MainMenuStyle.addTopMenuButton( topPanel, "ingame.button.menu", Vec2(4,1))
 		MenuButton:addEventCallbackExecute(toggleInGameMenu)
 		MenuButton:setTag("ingame.button.menu")
 		

@@ -58,7 +58,7 @@ function SettingsComboBox.new(parentPanel, panelSize, inItems, tag, settings, aC
 	end
 	
 	function self.updateLanguage()
-		local text = language:getText(items[index])
+		local text = items[index]
 		comboBox:setText( (text == Text("")) and items[index] or text )
 		comboBox:clearItems()
 		
@@ -66,7 +66,7 @@ function SettingsComboBox.new(parentPanel, panelSize, inItems, tag, settings, aC
 			local itemButton = comboBox:addItem( MainMenuStyle.createMenuButton(Vec2(-1,0.03), Vec2(), items[i] ) )
 			itemButton:setTag(tostring(i))
 			if tooltips and tooltips[i] then
-				itemButton:setToolTip(language:getText(tooltips[i]))
+				itemButton:setToolTip(tooltips[i])
 			end
 			itemButton:addEventCallbackExecute(changeIndex)
 		end
