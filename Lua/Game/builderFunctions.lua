@@ -27,7 +27,7 @@ function BuilderFunctions.new(keyBinds, inCamera)
 			--print("bilboard: "..towerBilboard:toString())
 			if targetAreaName == "sphere" then	
 				local addedRange = towerBilboard:getFloat("rangePerUpgrade")
-				numRangeUpgrades = (towerBilboard:getString("Name") == "Quake tower") and 0 or numRangeUpgrades
+				numRangeUpgrades = (towerBilboard:getString("Name") == "tower.shop.QuakerTower.name") and 0 or numRangeUpgrades
 				targetArea.setExtraRangeInfo( numRangeUpgrades, {addedRange,addedRange,addedRange}, {Vec4(0,0,0,0.45),Vec4(0,0,0,0.45),Vec4(0,0,0,0.45)} )
 				targetArea.changeModel("sphere", towerBilboard:getFloat("baseRange"), 0, targetMatrix)
 			elseif targetAreaName == "capsule" then
@@ -144,7 +144,8 @@ function BuilderFunctions.new(keyBinds, inCamera)
 	function self.updateSelectedTower(currentTower)
 		local mouseInGamePanel = billboardStats:getPanel("MainPanel") == Core.getPanelWithMouseFocus()
 		local canBuildAndSelect = buildingBillboard:getBool("canBuildAndSelect")
-		local mouseTower = (not currentTower and mouseInGamePanel and canBuildAndSelect) and this:getBuldingFromLine(camera:getWorldLineFromScreen(Core.getInput():getMousePos())) or nil
+		local abilitiesInUse = billboardStats:getBool("AbilityBeingUsed")
+		local mouseTower = (not currentTower and mouseInGamePanel and canBuildAndSelect and not abilitiesInUse ) and this:getBuldingFromLine(camera:getWorldLineFromScreen(Core.getInput():getMousePos())) or nil
 		if previousTower ~= mouseTower then
 			if previousTower then
 				local meshList = previousTower:findAllNodeByTypeTowardsLeaf({NodeId.mesh, NodeId.animatedMesh, NodeId.nodeMesh})

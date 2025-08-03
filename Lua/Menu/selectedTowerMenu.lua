@@ -66,7 +66,7 @@ function selectedtowerMenu.new(inCamera)
 			if buildingScript then--crash protection, when the tower has crashed
 				
 				
-				if buildingBillBoard:getString("Name") == "Wall tower" then
+				if buildingBillBoard:getString("Name") == "tower.shop.WallTower.name" then
 					senToBuildNode( "SELLTOWER", buildingScript:getNetworkName())					
 				else
 					

@@ -29,7 +29,6 @@ function CreateNewMap.newMap()
 	playerNode:loadLuaScript("Menu/FPS.lua");						--DEBUG shows FPS, default Invisible in release 
 	playerNode:loadLuaScript("Menu/WorkMonitor.lua");				--Debug monitor shows CPSU usage for ingame threads
 	playerNode:loadLuaScript("Game/event.lua");						--event system, spawns npc from protals
-	playerNode:loadLuaScript("Game/LifeBars.lua");					--update and render lifeBars for all npc's
 	playerNode:loadLuaScript("Menu/log.lua");						--DEBUG
 	playerNode:loadLuaScript("Menu/logCrash.lua");					--DEBUG
 	playerNode:loadLuaScript("Game/soulManager.lua");				--targeting system

@@ -515,7 +515,7 @@ function clearGhostTower(param)
 end
 
 function addGhostModel(modelName, matrix, scale, renderLevel, color, island)
-	--island = Island()
+	--island = SceneNode()
 	local scaleMat = Matrix()
 	scaleMat:scale(scale)
 	local model = Core.getModel(modelName)
@@ -564,9 +564,6 @@ function damgeTowerBuilt(param)
 	end
 	
 end
-
-
-
 
 function netUpgradeWallTower(param)
 	--print("netUpgradeWallTower()\n")
@@ -731,7 +728,7 @@ function buildTowerNetworkCallback(tab)
 		building:createWork()
 		increaseBuildBuildingCount()
 		
-		if towerBilboard:getString("Name") ~= "Wall tower" then
+		if towerBilboard:getString("Name") ~= "tower.shop.WallTower.name" then
 			readyToPlay[tab.playerId] = true
 		end
 		
@@ -1057,7 +1054,7 @@ function update()
 				end
 				
 				--make usre that the wav of enemies can start
-				if towerBilboard:getString("Name") ~= "Wall tower" then
+				if towerBilboard:getString("Name") ~= "tower.shop.WallTower.name" then
 					readyToPlay[0] = true
 					readyToPlay[Core.getPlayerId()] = true
 					updateIsAllreadyToPlay()
@@ -1077,7 +1074,7 @@ function update()
 				local buildingScript = building and building:getScriptByName("tower") or nil			
 				local buildingBillBoard = buildingScript and buildingScript:getBillboard() or nil
 				
-				if towerBilboard:getString("Name") ~= "Wall tower" and buildingBillBoard and buildingBillBoard:getString("Name") == "Wall tower" and buildingBillBoard:getBool("isNetOwner")==true then
+				if towerBilboard:getString("Name") ~= "tower.shop.WallTower.name" and buildingBillBoard and buildingBillBoard:getString("Name") == "tower.shop.WallTower.name" and buildingBillBoard:getBool("isNetOwner")==true then
 					canBePlacedHere = true
 					local currentMatrix = towerMatrix
 					towerMatrix = building:getGlobalMatrix()
@@ -1171,12 +1168,12 @@ function update()
 			currentTower:setVisible(false)
 		end			
 	end
-	if camera and Core.getInput():getMouseDown(MouseKey.left) then
-		local building = this:getBuldingFromLine(camera:getWorldLineFromScreen(Core.getInput():getMousePos()))
-		if building then
-			print("found a building\n")
-		end
-	end
+--	if camera and Core.getInput():getMouseDown(MouseKey.left) then
+--		local building = this:getBuldingFromLine(camera:getWorldLineFromScreen(Core.getInput():getMousePos()))
+--		if building then
+--			print("found a building\n")
+--		end
+--	end
 	
 --	AutoBuilder.update()
 	

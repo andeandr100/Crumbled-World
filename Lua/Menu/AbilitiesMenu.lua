@@ -21,9 +21,14 @@ function AbilitesMenu.new()
 	local boostButton
 	local slowButton
 	local attackButton
+	local billboardStats = Core.getBillboard("stats")
 	local keyBinds = Core.getBillboard("keyBind");
 	local keyBindRevertWave = keyBinds:getKeyBind("Revert wave")
 	
+	local keyBindSlowAbility = Core.getBillboard("keyBind"):getKeyBind("SlowAbility")
+	local keyBindBoostBuilding = Core.getBillboard("keyBind"):getKeyBind("BoostAbility")
+	local keyAttackAbility = Core.getBillboard("keyBind"):getKeyBind("AttackAbility")
+		
 	function self.destroy()
 		if posterForm then
 			print("Destroy posterForm\n")
@@ -78,7 +83,7 @@ function AbilitesMenu.new()
 			boostButton:addEventCallbackExecute(self.buttonPressed)		
 			boostButton:setEdgeHoverColor(Vec4(1,1,1,1),Vec4(0.8,0.8,0.8,1))
 			boostButton:setEdgeDownColor(Vec4(0.8,0.8,0.8,1),Vec4(0.6,0.6,0.6,1))
-			boostButton:setToolTip(Text("Boos tower, [<b>" .. boostAbility.getBoostKeyBind():getKeyBindName(0) .. "</b>]"))
+			boostButton:setToolTip(Text("Boos tower, [<b>" .. keyBindBoostBuilding:getKeyBindName(0) .. "</b>]"))
 			boostButton:setTag("boost")
 			
 			slowButton = posterForm:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0,0), Vec2(0.5,0.5) ))
@@ -88,7 +93,7 @@ function AbilitesMenu.new()
 			slowButton:addEventCallbackExecute(self.buttonPressed)		
 			slowButton:setEdgeHoverColor(Vec4(1,1,1,1),Vec4(0.8,0.8,0.8,1))
 			slowButton:setEdgeDownColor(Vec4(0.8,0.8,0.8,1),Vec4(0.6,0.6,0.6,1))
-			slowButton:setToolTip(Text("Slowfield, [<b>" .. slowfieldAbility.getSlowFieldKeyBind():getKeyBindName(0) .. "</b>]"))
+			slowButton:setToolTip(Text("Slowfield, [<b>" .. keyBindSlowAbility:getKeyBindName(0) .. "</b>]"))
 			slowButton:setTag("slow")
 			
 			attackButton = posterForm:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0.5,0.5), Vec2(1,1) ))
@@ -98,7 +103,7 @@ function AbilitesMenu.new()
 			attackButton:addEventCallbackExecute(self.buttonPressed)	
 			attackButton:setEdgeHoverColor(Vec4(1,1,1,1),Vec4(0.8,0.8,0.8,1))
 			attackButton:setEdgeDownColor(Vec4(0.8,0.8,0.8,1),Vec4(0.6,0.6,0.6,1))
-			attackButton:setToolTip(Text("Attack, [<b>" .. attackAbility.getAttackKeyBind():getKeyBindName(0) .. "</b>]"))
+			attackButton:setToolTip(Text("Attack, [<b>" .. keyAttackAbility:getKeyBindName(0) .. "</b>]"))
 			attackButton:setTag("attack")
 			
 			posterForm:update();
@@ -195,7 +200,9 @@ function AbilitesMenu.new()
 		end
 	end
 	
-	
+	local function mouseInGameArea()
+		return billboardStats:getPanel("MainPanel") == Core.getPanelWithMouseFocus()
+	end
 	
 	function self.update()
 		while comUnit:hasMessage() do
@@ -215,6 +222,25 @@ function AbilitesMenu.new()
 			posterForm:update()
 		end
 		
+		if Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) or 
+			( Core.getInput():getMouseDown(MouseKey.left) and mouseInGameArea() == false ) or
+			keyBindSlowAbility:getPressed() or keyBindBoostBuilding:getPressed() or keyAttackAbility:getPressed() then
+			boostAbility.setAnotherAbilityButtonPressed()
+			slowfieldAbility.setAnotherAbilityButtonPressed()
+			attackAbility.setAnotherAbilityButtonPressed()
+			if keyBindSlowAbility:getPressed() then
+				slowfieldAbility.setSlowFieldButtonPressed()
+			end
+			
+			if keyBindBoostBuilding:getPressed() then
+				boostAbility.setBoostButtonPressed()
+			end
+			
+			if keyAttackAbility:getPressed() then
+				attackAbility.setAttackButtonPressed()
+			end
+		end
+		
 		boostAbility.update()
 		slowfieldAbility.update()
 		attackAbility.update()
@@ -227,6 +253,7 @@ function AbilitesMenu.new()
 			attackAbilityList[i].update()
 		end
 	
+		billboardStats:setBool("AbilityBeingUsed", boostAbility.isActive() or slowfieldAbility.isActive() or attackAbility.isActive() )
 	
 		if boostButton:getEnabled() == boostAbility.getBoostHasBeenUsedThisWave() then
 			boostButton:setEnabled(not boostButton:getEnabled())
@@ -244,9 +271,6 @@ function AbilitesMenu.new()
 		
 		return true
 	end
-	
-	
-	
 	
 	init()
 	return self

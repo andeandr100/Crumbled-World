@@ -9,9 +9,6 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 	--comUnit = ComUnit()
 	local comUnit = inComUnit
 	local slowFieldTargetArea = slowFieldTargetArea.new()
-	local keyBindSlowAbility = Core.getBillboard("keyBind"):getKeyBind("SlowAbility")
-	local keyBindBoostBuilding = Core.getBillboard("keyBind"):getKeyBind("BoostAbility")
-	local keyAttackAbility = Core.getBillboard("keyBind"):getKeyBind("AttackAbility")
 	local boostSelected = false
 	local abilityHasBeenUsedThisWave = false
 	local userControlled = isUserControlled
@@ -30,6 +27,10 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 		return abilityHasBeenUsedThisWave
 	end
 	
+	function self.isActive()
+		return boostSelected
+	end
+	
 	function self.setSlowFieldButtonPressed()
 		boostSelected = true
 	end
@@ -45,10 +46,6 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 	
 	function self.waveChanged(param)
 		abilityHasBeenUsedThisWave = false
-	end
-	
-	function self.getSlowFieldKeyBind()
-		return keyBindSlowAbility;
 	end
 	
 	
@@ -70,20 +67,6 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 	
 	function self.update()
 		
-		if userControlled then
-			if keyBindSlowAbility:getPressed() then
-				boostSelected = true
---				comUnit:sendNetworkSync("NetActivateSlowAbility")
-			end
-			
-			if Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) or keyBindBoostBuilding:getPressed() or keyAttackAbility:getPressed() then
-				boostSelected = false
-			end
-			
-			if Core.getInput():getMouseDown(MouseKey.left) and isMouseInMainPanel() == false then
-				boostSelected = false
-			end
-		end
 		
 		if boostSelected and abilityHasBeenUsedThisWave == false then
 				

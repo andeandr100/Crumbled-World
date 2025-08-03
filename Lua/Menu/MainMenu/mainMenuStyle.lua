@@ -27,10 +27,19 @@ function MainMenuStyle.createTopMenu(panel, panelSize)
 	return topPanel
 end
 
+function MainMenuStyle.getButtonScale(text)
+	local localLangString = language:getText(text)
+	local scale = localLangString:getTextScale()
+	local pixel = Vec2( scale.x * 16.0, scale.y * 16.0 * 0.666666)
+	local padding = pixel.y/0.45
+	local buttonPixelSize = pixel + Vec2(padding*3.0,padding)
+	return Vec2(buttonPixelSize.x/buttonPixelSize.y, 1.0)
+end
+
 function MainMenuStyle.addTopMenuButton(panel, text, inScale)
 	
 	local localLangString = language:getText(text)
-	local scale = inScale and inScale or Vec2(localLangString:getTextScale().x/2+1,1)
+	local scale = inScale and inScale or MainMenuStyle.getButtonScale(text)
 	
 	return panel:add(MainMenuStyle.createMenuButton( Vec2(-1), scale, text))	
 end

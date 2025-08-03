@@ -27,7 +27,7 @@ function DamageInfoPanel.new(inParentPanel)
 			local buildingScript = buildingList[i]:getScriptByName("tower")
 			if buildingScript then
 				local billBoard = buildingScript:getBillboard()
-				if billBoard:getBool("isNetOwner") and billBoard:getString("Name")~="Support tower" then
+				if billBoard:getBool("isNetOwner") and billBoard:getString("Name")~="tower.shop.SupportTower.name" then
 					local towerDamage = billBoard:getDouble("DamagePreviousWave")
 					--towerDamage = billBoard:exist("DamagePreviousWavePassive") and (towerDamage + billBoard:getDouble("DamagePreviousWavePassive")) or towerDamage
 					totalDamage = totalDamage + towerDamage
@@ -79,6 +79,9 @@ function DamageInfoPanel.new(inParentPanel)
 	end
 	
 	function self.updateTowerDamageInfo()
+		if buildingBillBoard == nil then
+			return
+		end
 		local totalDamage, maxDamage = getAllDamageFromTowers()
 		local damage = buildingBillBoard:getDouble("DamagePreviousWave")
 		local damageToolTip = getDamageToolTipText()

@@ -161,7 +161,8 @@ function TargetSelector.new(pteam)
 						state=input[i][9],
 						name=input[i][10],
 						index=input[i][1],
-						defaultState=input[i][11]
+						defaultState=input[i][11],
+						oldPosition=Vec3(input[i][12],input[i][13],input[i][14]),
 					}
 				end
 			end

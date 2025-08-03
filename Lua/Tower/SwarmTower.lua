@@ -350,10 +350,6 @@ function SwarmTower.new()
 		model = Core.getModel("tower_swarm_l1.mym")
 		this:addChild(model:toSceneNode())
 	
---		if particleEffectUpgradeAvailable then
---			this:addChild(particleEffectUpgradeAvailable:toSceneNode())
---		end
-	
 		--ComUnit
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setCanReceiveBroadcast(true)--debug myStats

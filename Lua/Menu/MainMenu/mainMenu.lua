@@ -8,6 +8,7 @@ require("Menu/MainMenu/multiplayerMenuServerList.lua")
 
 local pagePanel
 local campaignPanel
+local settingsMainMenuListener
 
 function restore(data)
 	if data.form then
@@ -28,13 +29,21 @@ function destroy()
 	OptionsMenu.destroy()
 end
 
+function onLanguageChange()
+	for i=1, #buttons do
+		buttons[i].button:setPanelSize(PanelSize(Vec2(-1), MainMenuStyle.getButtonScale(buttons[i].text)))
+	end
+end
+
 function create()
 	restoreData = {}
 	setRestoreData(restoreData)
 	
 	local frame = 0
 	
-	
+
+	settingsMainMenuListener = Listener("Settings")
+	settingsMainMenuListener:registerEvent("LanguageChanged", onLanguageChange)
 	
 	local camera = this:getRootNode():findNodeByName("MainCamera")
 	--camera = Camera()
@@ -45,42 +54,25 @@ function create()
 		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
 		form:setLayout(FlowLayout(PanelSize(Vec2(0.01,0))));
 		form:setRenderLevel(7)
-		
-		print("\n\n\n\n")
-		print("createTopMenu\n")
+
 		--Top Panel
 		createTopMenu()
-		print("Done\n")
-		
-		print("\n\n\n\n")
-		--Main Area
-		print("createMainArea\n")
 		createMainArea()
-		print("Done\n")
 		
 		restoreData.form = form
 	else
-		if loopUpdate == nil then
-			error("nil update")
-		end
 		tmpUpdate = update;
 		update = loopUpdate;
 	end
 	
 	setRestoreData(restoreData)
 	
-	if settingsListener == nil then
-		settingsListener = Listener("Settings")
-	end
 
 	return true
 end
 
 function loopUpdate()
 	if this:getRootNode():findNodeByName("MainCamera") ~= nil then
-		if tmpUpdate == nil then
-			error("nil update")
-		end
 		update = tmpUpdate;
 		create()
 	end

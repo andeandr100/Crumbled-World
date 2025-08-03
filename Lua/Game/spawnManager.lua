@@ -55,6 +55,8 @@ function SpawnManager.new()
 	local destroyInNFrames = nil
 	local restartInWaves = nil
 	local startTime = Core.getGameTime()
+	
+	local offsetFlip = 0.2
 	--this:addChild(soundWind)
 	--
 	--
@@ -77,15 +79,12 @@ function SpawnManager.new()
 		goldMultiplayerOnKills = multiplyer
 	end
 	function self.isAnythingSpawning()
-		LOG("self.isAnythingSpawning() == "..tostring(#currentWaves>=1))
 		return #currentWaves>=1
 	end
 	function self.isSpawnListPopulated()
-		LOG("self.isSpawnListPopulated() == "..tostring(spawnListPopulated))
 		return spawnListPopulated
 	end
 	function self.isFirstNpcOfWaveSpawned()
-		LOG("self.isFirstNpcOfWaveSpawned() == "..tostring(firstNpcOfWaveHasSpawned))
 		return firstNpcOfWaveHasSpawned
 	end
 	
@@ -117,7 +116,6 @@ function SpawnManager.new()
 		return npcNode
 	end
 	function self.changeWave(pWaveCount)
-		LOG("self.changeWave("..pWaveCount..")")
 		waveCount = pWaveCount
 		self.updateHpBillboard(waves[waveCount][1].hpMul)
 		firstNpcOfWaveHasSpawned = false
@@ -141,7 +139,6 @@ function SpawnManager.new()
 		comUnit:sendTo("stats", "setNPCSpawnedThisWave", 0)
 	end
 	local function spawnCurrentUnit(currentWave,portalId)
-		LOG("spawnCurrentUnit()")
 		--make sure that it is a real npc
 		if npc[currentSpawn.npc] then
 			--counter for multiplayer
@@ -153,7 +150,11 @@ function SpawnManager.new()
 			local script = node:loadLuaScript( npc[currentSpawn.npc].script )
 			script:setScriptNetworkId(netName)
 			local billboard = script:getBillboard()
-			billboard:setDouble("pathOffset",npcPathOffset:randFloat()*2.0-1.0)
+--			billboard:setDouble("pathOffset",npcPathOffset:randFloat()*2.0-1.0)
+			billboard:setDouble("pathOffset",offsetFlip)
+			offsetFlip = offsetFlip * -1.0
+
+
 			--print("NPC->setNetName() == "..netName.."\n")
 			--count down npcs to be spawned
 			currentWave[1].info[currentSpawn.npc].numEnemies = currentWave[1].info[currentSpawn.npc].numEnemies - 1
@@ -222,7 +223,6 @@ function SpawnManager.new()
 		comUnit:sendTo("statsMenu","waveInfo",waves)
 	end
 	function self.spawnWave(reloadIcons)
-		LOG("spawnManager.spawnWave()")
 		if waves[waveCount] then
 			currentWaves[#currentWaves+1] = getCopyOfTable( waves[waveCount] )--make a copy of it, then we can go back and re use it
 			currentWaves[#currentWaves].waveUnitIndex = 2
@@ -251,11 +251,11 @@ function SpawnManager.new()
 				if not spawns then
 					pathBilboard = pathBilboard and pathBilboard or Core.getBillboard("Paths")
 					if not pathBilboard then
-						error("No path bilboard")
+						abort("No path bilboard")
 					end
 					spawns = pathBilboard and pathBilboard:getTable("spawns") or {}
 					if #spawns==0 then
-						error("No spawn points detected\n")
+						abort("No spawn points detected\n")
 					end
 				end
 				currentSpawn = current[current.waveUnitIndex]
@@ -305,7 +305,6 @@ function SpawnManager.new()
 		end
 	end
 	local function syncSpawnNpc(param)
-		LOG("syncSpawnNpc()")
 		local tab = totable(param)
 		local target = tonumber(Core.getIndexOfNetworkName(tab.netName))
 		if target==0 then
@@ -470,7 +469,7 @@ function SpawnManager.new()
 --			end
 			waves[waveData.index] = waveData.wave
 		else
-			error("waveData is ill formed, should be like {index=1, wave={}}")
+			abort("waveData is ill formed, should be like {index=1, wave={}}")
 		end
 	end
 	function self.init(comUnitTable)

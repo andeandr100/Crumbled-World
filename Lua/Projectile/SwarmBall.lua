@@ -30,8 +30,6 @@ function SwarmBall.new(pTargetSelector)
 	local range = 1.0
 	local targetIndex = 0
 	local detonationRange = 0.0
---	local burnTime = 0.0
---	local fireDPS = 0.0
 	local damage = 0.0
 	local smartTargeting = 0.0
 	local pathList = PathListMover(0.0)
@@ -73,10 +71,8 @@ function SwarmBall.new(pTargetSelector)
 	end
 	local function estimateTimeAndPlotPath(futurePos,pVelocity,npcMovment,estimatedLength,defaultAmplitude)
 		--local amplitude = estimatedLength*0.2
-		--y=0.2+(x*0.19)^2.5
 		local amplitude = (defaultAmplitude>0.1) and defaultAmplitude or 0.2+math.pow(estimatedLength*0.1,3.0)
 		--print("estimateTimeAndPlotPath(estimatedLength="..estimatedLength..", amplitude="..amplitude..")\n")
-		--npcMovment = Vec3(npcMovment.x,0.0,npcMovment.z)
 		local s1 = position
 		local sd = position+(pVelocity*amplitude)
 		local e1 = futurePos+Vec3(0,0.15,0)
@@ -205,8 +201,6 @@ function SwarmBall.new(pTargetSelector)
 		position =			table[2]
 		range =				table[3]+1.25--to give the projectile some space to move
 		detonationRange = 	billboard:getFloat("detonationRange")
---		burnTime =			billboard:getFloat("burnTime")
---		fireDPS =			billboard:getFloat("fireDPS")
 		damage =			billboard:getFloat("damage")
 		smartTargeting =	billboard:getFloat("smartTargeting")
 		lifeStage = 		0
@@ -222,7 +216,6 @@ function SwarmBall.new(pTargetSelector)
 			
 		local length = basicLengthEstimation(position)
 		--print("Length="..length.."\n")
-		--if length>2.0 then
 		estimatedTime = PlotPathToMidPoint(length+3.0,position)
 		if billboard:getBool("isNetOwner") then
 			syncTable.projectileNetName = thisProjectileNetName
@@ -231,9 +224,6 @@ function SwarmBall.new(pTargetSelector)
 			local d1 = syncTable
 			comUnit:sendNetworkSyncSafe("NetBall",tabToStrMinimal(syncTable))
 		end
-		--else
-		--	plotPathToTarget(length+8.0)
-		--end
 		
 		pointLight:setLocalPosition(position)
 		pointLight:clear()
@@ -241,10 +231,7 @@ function SwarmBall.new(pTargetSelector)
 		pointLight:setRange(0.4)
 		pointLight:pushRangeChange(2.0,0.7)
 
-		
 		fireBallEffect:activate()
-	
-		--comUnit:sendTo(targetIndex,"getFuturePos",firstTime)
 	end
 	function self.destroy()
 		if node:getParent() then

@@ -19,7 +19,7 @@ function GamePanel.create(mainPanel)
 	GamePanel.createGameOptions(gamePanel)
 	GamePanel.gamePanel = gamePanel
 
-	settingsListener = Listener("Settings")
+	settingsGamePanelListener = Listener("Settings")
 	
 	return gamePanel
 end
@@ -27,7 +27,7 @@ end
 function GamePanel.changeLanguageComboBox(comboBox)
 	print("---- change language to "..comboBox:getText():toString().." ----")
 	language:setLanguage(comboBox:getText():toString())
-	settingsListener:pushEvent("LanguageChanged")
+	settingsGamePanelListener:pushEvent("LanguageChanged")
 	--Call mainMenu.lua functio
 	
 	Settings.config:get(Settings.Language.configName):setString(comboBox:getText():toString())
@@ -54,13 +54,13 @@ end
 function GamePanel.changedSettingsBool(tag, index)
 	Settings.config:get(tag):setBool(index == 1)
 	Settings.config:save()	
-	settingsListener:pushEvent("Changed")
+	settingsGamePanelListener:pushEvent("Changed")
 end
 
 function GamePanel.changedSettingsInt(tag, index, items)
 	Settings.config:get(tag):setString(items[index])
 	Settings.config:save()
-	settingsListener:pushEvent("Changed")
+	settingsGamePanelListener:pushEvent("Changed")
 end
 
 function GamePanel.changedCursor(tag, index, items)
@@ -88,12 +88,12 @@ function GamePanel.changedSettingsString(textField)
 	Settings.config:get(textField:getTag():toString()):setString(value)
 	Settings.config:save()
 	
-	settingsListener:pushEvent("Changed")
+	settingsGamePanelListener:pushEvent("Changed")
 end
 
 function GamePanel.openConsnetMenu(button)
 	
-	settingsListener:pushEvent("OpenConsentWindow")
+	settingsGamePanelListener:pushEvent("OpenConsentWindow")
 	
 end
 

@@ -1,11 +1,10 @@
+require("Game/Abilities/targetAreaEffect.lua") 
 --this = SceneNode()
 
 slowFieldTargetArea = {}
 function slowFieldTargetArea.new()
 	local self = {}
-	local mesh
-	local slowFieldShader = Core.getShader("slowfield")
-	local texture = Core.getTexture("portal")
+	local areaEffect = TargetAreaEffect.new("abilities/slowfield")
 	local particleEffect = GraphicParticleSystem.new(15,3)
 	
 	--particle_effects_D
@@ -18,7 +17,7 @@ function slowFieldTargetArea.new()
 
 	function self.hiddeTargetMesh()
 		nodeArea:setVisible(false)
-		mesh:setVisible(false)
+		areaEffect.hiddeTargetMesh()
 	end
 	
 	function self.destroyTargetMesh()
@@ -29,35 +28,15 @@ function slowFieldTargetArea.new()
 		end
 	end
 	
-	local function buildTargetAreaMesh(mesh)
-		mesh:clearMesh()
 	
-		mesh:addPosition( Vec3(-2,-2, -1) )
-		mesh:addPosition( Vec3( 2,-2, -1) )
-		mesh:addPosition( Vec3(-2, 2, -1) )
-		mesh:addPosition( Vec3( 2, 2, -1) )
-	
-		mesh:addTriangleIndex(0,1,2)
-		mesh:addTriangleIndex(2,1,3)
-	
-		mesh:compile()
-	end
-	
-	local function initTargetMesh()
+	local function init()
 		--Sphere
-		mesh = NodeMesh.new()
-		mesh:setRenderLevel(6)
-		nodeArea:addChild(mesh:toSceneNode())
-		buildTargetAreaMesh(mesh)
-		mesh:setShader(slowFieldShader)
-		mesh:setTexture(slowFieldShader, texture, 0 )
-		mesh:setUniform(slowFieldShader, "ScreenSize", Core.getRenderResolution())
-		mesh:setUniform(slowFieldShader, "CenterPosition", Vec3(0,100,0))
-		mesh:setUniform(slowFieldShader, "Radius", 3.5)
-		mesh:setUniform(slowFieldShader, "effectColor", Vec3(0.1,0.1,1))
-		
-		
-		local shader = Core.getShader("ParticleEffectSlowField")
+		areaEffect.setUniform( "Radius", 3.5)
+		areaEffect.setUniform( "effectColor", Vec3(0.1,0.1,1) )
+
+		nodeArea:addChild(areaEffect.getSceneNode())
+
+		local shader = Core.getShader("particleEffect/ParticleEffectSlowField")
 		particleEffect:setShader(shader)
 		particleEffect:setRenderBlendMode(GL_Blend.SRC_ALPHA, GL_Blend.ONE)
 		for i=1, particleEffect:getMaxParticles() do 
@@ -68,13 +47,11 @@ function slowFieldTargetArea.new()
 		
 		
 		nodeArea:setVisible(false)
-		mesh:setVisible(false)
-		
+
 		--find main camera
 		local rootNode = this:getRootNode()
 		rootNode:addChild(nodeArea:toSceneNode())
 		mainCamera = rootNode:findNodeByName("MainCamera")
-		
 		
 		for i=1, 6 do
 			electric[i] = ParticleEffectElectricFlash.new("Lightning_D.tga")
@@ -85,11 +62,7 @@ function slowFieldTargetArea.new()
 	end
 	
 	
-	local function updateModel(globalposition)
-		mesh:setBoundingSphere(Sphere(globalposition, 4.0))
-		mesh:setUniform(slowFieldShader, "CenterPosition", globalposition)
-	end
-	
+
 	local function getRandomElectricAttackPos(centerPos)
 		local offsetDir = Vec3(math.randomFloat(-1,1), 0.1, math.randomFloat(-1,1) ):normalizeV()
 		return centerPos + offsetDir * math.randomFloat(2,3.5)
@@ -97,7 +70,7 @@ function slowFieldTargetArea.new()
 	
 	function self.update(visible, globalposition, active)
 		nodeArea:setVisible(visible)
-		mesh:setVisible(visible)
+		areaEffect.update(visible, globalposition)
 		
 		if visible then
 			particleEffect:setLocalPosition(globalposition)
@@ -142,11 +115,10 @@ function slowFieldTargetArea.new()
 				end
 			end
 		end
-		
-		updateModel( globalposition)
+
 	end
 	
-	initTargetMesh()
+	init()
 	
 	return self
 end

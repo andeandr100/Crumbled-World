@@ -1,4 +1,5 @@
 require("NPC/state.lua")
+require("Game/LifeBars.lua")
 --this = SceneNode()
 local soulManager
 
@@ -24,10 +25,9 @@ function SoulManager.new()
 	local minY = -1
 	local maxY = 1
 	local soulTableStr = {}
+	local lifeBar = LifeBar.new()
 	
-	function self.getDebug()
-		return debug
-	end
+
 	function self.getLimits()
 		return {minX=minX, maxX=maxX, minY=minY, maxY=maxY}
 	end
@@ -185,7 +185,10 @@ function SoulManager.new()
 					soul.team,				--	8
 					soul.state,				--	9
 					soul.name,				--	10
-					soul.defaultState		--	11
+					soul.defaultState,		--	11
+					soul.oldPosition.x,		--	12
+					soul.oldPosition.y,		--	13
+					soul.oldPosition.z		--	14
 				}
 				count = count + 1
 			end
@@ -212,6 +215,7 @@ function SoulManager.new()
 	-- purpose:		Adds a soul to the table to be updated in the future
 	function self.addSoul(param, fromIndex)
 		soulTable[fromIndex] = {position=param.pos,
+								oldPosition=param.pos,
 								distanceToExit=256.0,
 								hp=param.hpMax,
 								hpMax=param.hpMax,
@@ -232,6 +236,7 @@ function SoulManager.new()
 				local mover = billboard:getNodeMover("nodeMover")
 				if mover then
 					soul.position = mover:getCurrentPosition()+soul.aimHeight
+					soul.oldPosition = mover:getPositionFromFrame(Core.getFrameNumber()-1)+soul.aimHeight
 					soul.distanceToExit = mover:getDistanceToExit()
 				else
 					--something is wrong kill that npc
@@ -288,6 +293,7 @@ function SoulManager.new()
 		--
 		updateShieldGenTable()
 		updateSoulsTable()
+		lifeBar.update()
 		--billboard:setString("souls",tostring(soulTable.souls))
 	end
 
@@ -399,5 +405,6 @@ function update()
 --		end
 --	end
 	soulManager.update()
+	
 	return true
 end
