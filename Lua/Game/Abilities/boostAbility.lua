@@ -1,3 +1,5 @@
+require("Game/Abilities/boostTargetArea.lua") 
+require("Game/Abilities/worldCollision.lua")
 --this = SceneNode()
 
 BoostAbility = {}
@@ -6,9 +8,6 @@ function BoostAbility.new(inCamera, inComUnit)
 	
 	local camera = inCamera
 	local comUnit = inComUnit
-	local keyBindSlowAbility = Core.getBillboard("keyBind"):getKeyBind("SlowAbility")
-	local keyBindBoostBuilding = Core.getBillboard("keyBind"):getKeyBind("BoostAbility")
-	local keyAttackAbility = Core.getBillboard("keyBind"):getKeyBind("AttackAbility")
 	local showBoostableTowers = false
 	local buildingNodeBillboard = Core.getBillboard("buildings")
 	local billboardStats = Core.getBillboard("stats")
@@ -16,12 +15,18 @@ function BoostAbility.new(inCamera, inComUnit)
 	local boostSelected = false
 	local billboardStats = Core.getBillboard("stats")
 	
-	function self.getBoostKeyBind()
-		return keyBindBoostBuilding;
-	end
+	local mapCollision = WorldCollision.new(inCamera)
+	local buildNode = this:getRootNode():findNodeByType(NodeId.buildNode)
+	--buildNode = BuildNode()
+	local targetArea = boostTargetArea.new(buildNode)
+
 	
 	function self.getBoostHasBeenUsedThisWave()
 		return towerHasBeenBoostedThisWave
+	end
+	
+	function self.isActive()
+		return boostSelected
 	end
 	
 	function self.setBoostButtonPressed()
@@ -74,29 +79,6 @@ function BoostAbility.new(inCamera, inComUnit)
 		end
 	end
 	
-	local function showAllTowerThatCanBeBoosted(show)
-		if showBoostableTowers == show then
-			return
-		end
-		
-		local playerNode = this:findNodeByType(NodeId.playerNode)
-		local buildNode = playerNode:findNodeByType(NodeId.buildNode)
-		local buildingList = buildNode and buildNode:getBuildingList() or {}
-		--buildNode = buildNode()
-
-		showBoostableTowers = show
-		for key, node in pairs(buildingList) do
-			if show then
-				local script = node:getScriptByName("tower")
-				local scriptBilboard = script and script:getBillboard() or nil
-				if script and scriptBilboard and scriptBilboard:getString("Name") ~= "Wall tower" and scriptBilboard:getString("Name") ~= "Bank tower" and scriptBilboard:getBool("isNetOwner") then
-					setGlowColor( node, Vec3(0.05,0.15,0.05) )
-				end
-			else
-				setNodeNotBoostable(node)
-			end
-		end	
-	end
 	
 	local function handleUpgrade(building,buyMessage,paramMessage)
 		if building then
@@ -125,24 +107,17 @@ function BoostAbility.new(inCamera, inComUnit)
 	end
 	
 	function self.update()
+		if boostSelected and towerHasBeenBoostedThisWave == false then
+			local collision, globalposition = mapCollision.mouseWorldCollision(true)
+			targetArea.update(collision, globalposition)
+		else
+			targetArea.update(false, Vec3())
+		end
+		
 		if buildingNodeBillboard:getBool("inBuildMode") == false then
-			
-			if keyBindBoostBuilding:getPressed() then
-				boostSelected = true
-			end
-			
-			if keyBindSlowAbility:getPressed() or keyAttackAbility:getPressed() then
-				boostSelected = false
-			end
-			
-
+						
 			buildingNodeBillboard:setBool("AbilitesBeingPlaced", boostSelected)
-			showAllTowerThatCanBeBoosted(boostSelected and towerHasBeenBoostedThisWave==false)
-			
-			if Core.getInput():getMouseDown(MouseKey.left) and isMouseInMainPanel() == false then
-				boostSelected = false
-			end
-			
+
 			if towerHasBeenBoostedThisWave == false and Core.getInput():getMouseDown(MouseKey.left) and boostSelected and buildingNodeBillboard:getBool("canBuildAndSelect") and isMouseInMainPanel()then
 
 				local playerNode = this:findNodeByType(NodeId.playerNode)
@@ -160,13 +135,8 @@ function BoostAbility.new(inCamera, inComUnit)
 				end
 
 			end
-		else
-			showAllTowerThatCanBeBoosted(false)
 		end
 		
-		if Core.getInput():getMouseDown(MouseKey.left) or Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) then
-			boostSelected = false
-		end
 	end
 	
 	return self

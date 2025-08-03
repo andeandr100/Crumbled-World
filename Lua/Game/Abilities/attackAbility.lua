@@ -12,9 +12,6 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
 	local attackEffect = AttackEffect.new(camera, targetSelector, inComUnit)
-	local keyBindSlowAbility = Core.getBillboard("keyBind"):getKeyBind("SlowAbility")
-	local keyBindBoostBuilding = Core.getBillboard("keyBind"):getKeyBind("BoostAbility")
-	local keyAttackAbility = Core.getBillboard("keyBind"):getKeyBind("AttackAbility")
 	local boostSelected = false
 	local abilityHasBeenUsedThisWave = false
 	local statsBilboard = Core.getBillboard("stats")
@@ -38,6 +35,10 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 		return abilityHasBeenUsedThisWave
 	end
 	
+	function self.isActive()
+		return boostSelected
+	end
+	
 	function self.setAttackButtonPressed()
 		boostSelected = true
 	end
@@ -55,11 +56,7 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 		abilityHasBeenUsedThisWave = false
 	end
 	
-	function self.getAttackKeyBind()
-		return keyAttackAbility;
-	end
-	
-	
+
 	local function getDamage()
 		return statsBilboard:getInt("npc_scorpion_hp")
 	end
@@ -116,21 +113,6 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 	function self.update()
 		
 		
-		if userControlled then
-			if keyAttackAbility:getPressed() then
-				boostSelected = true
-			end
-			
-			if Core.getInput():getMouseDown(MouseKey.right) or Core.getInput():getKeyDown(Key.escape) or keyBindSlowAbility:getPressed() or keyBindBoostBuilding:getPressed() then
-				boostSelected = false
-			end
-			
-			if Core.getInput():getMouseDown(MouseKey.left) and mouseInGameArea() == false then
-				boostSelected = false
-			end
-		
-		end
-		
 		if attackEffect.update() then
 			if attackEffect.impactedShieldIndex() > 0 then
 				comUnit:sendTo(attackEffect.impactedShieldIndex(),"attack",tostring(getDamage() * 3))
@@ -140,9 +122,6 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 			end
 		end
 
-
-		
-		
 		if boostSelected and abilityHasBeenUsedThisWave == false then
 				
 			local collision, globalposition = mapCollision.mouseWorldCollision(false)
