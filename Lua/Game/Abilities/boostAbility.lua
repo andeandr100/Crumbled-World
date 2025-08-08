@@ -90,7 +90,6 @@ function BoostAbility.new(inCamera, inComUnit)
 	
 	local function boostTower(building)
 		--Boost the tower
-		--Note the boost is upgrade2 in the tower upgrades
 		local buildingScript = building:getScriptByName("tower")
 		
 		if building and buildingScript then	

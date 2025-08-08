@@ -151,6 +151,10 @@ function WallTowerPanel.new(inForm, inGetLastBuildingSelectedFunction, senToBuil
 			local enable = isNetOwner and upgradeBuildCost <= billboardStats:getDouble("gold") and gameValues.isTowerUnlocked(towerName[i+1])
 			wallTowerButtons[i]:setEnabled(enable)
 			wallTowerCostLabels[i]:setTextColor(enable and Vec4(1) or Vec4(4,1,1,1))
+			
+			local text = Text( tostring(upgradeBuildCost) )
+			wallTowerCostLabels[i]:setText(text)
+			wallTowerCostLabels[i]:setPanelSize(PanelSize(Vec2(-1),Vec2(text:getTextScale().x+0.3,1)))
 		end
 	end
 	

@@ -34,9 +34,6 @@ function create()
 	local tableFrame = {startFrame = 5, endFrame = 70,
 						framePositions = {10,35,60}}
 	npcBase.addDeathAnimation(tableAnimationInfo,tableFrame)
-	--physic animated death
-	--npcBase.addDeathSoftBody(genereateSoftBody)
-	--shield
 	shieldRange = 3.5
 
 	shieldNode = SceneNode.new()

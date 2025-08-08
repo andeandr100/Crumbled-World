@@ -196,12 +196,7 @@ function selectedtowerMenu.new(inCamera)
 		
 	end
 	
-	
-	
 	local function init()
-	
-		
-		
 		--keybinds
 		keyBinds = Core.getBillboard("keyBind");
 		keyBindUpgradeBuilding = keyBinds:getKeyBind("Upgrade")
@@ -261,8 +256,6 @@ function selectedtowerMenu.new(inCamera)
 
 	local function initSelectedMenu()
 		print("initSelectedMenu")
-		
-		
 		local builBilboard = Core.getBillboard("buildings")
 		
 		selectedBuildingType = 0

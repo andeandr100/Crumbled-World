@@ -63,7 +63,7 @@ function restartMap()
 	billboard:setDouble("totalTowerValue",0.0)
 	--all billboard string "1","2","3",... and so on are all pregiven to npc spawns
 	--
-	LOG("STATS.RESTARTMAP()\n")
+	--LOG("STATS.RESTARTMAP()\n")
 	
 end
 function restartWave(wave)
@@ -71,7 +71,7 @@ function restartWave(wave)
 	local item = waveHistory[wave]
 	currentWave = wave
 	statsPerKillTable[currentWave] = {}
-	LOG("STATS.RESTARTWAVE("..tostring(wave)..")\n")
+	--LOG("STATS.RESTARTWAVE("..tostring(wave)..")\n")
 	billboard:erase("scoreHistory")
 	diffBalancer.waveRestarted(wave)
 	if not item then
@@ -122,7 +122,7 @@ end
 function create()
 	local mapInfo = MapInfo.new()
 	--
-	LOG("STATS.CREATE()\n")
+	--LOG("STATS.CREATE()\n")
 	if Core.getScriptOfNetworkName("stats") then
 		return false
 	end

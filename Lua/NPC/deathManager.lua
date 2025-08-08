@@ -282,7 +282,7 @@ function DeathManager.new()
 				if body.deathAnimationTimer>0 and not body.fallingAnimationVelocity then
 					--animation still running on a ground and we are moving
 					localPos = body.deathPos + (body.deathVec * ( math.sin(math.pi*0.5*(1.0-(body.deathAnimationTimer/body.deathAnimationTimerStart))) * body.deathAnimationDistance))
-					
+
 					--update position with ground collision
 					if body.groundTestNode then
 						localPos = Vec3(localPos.x,body.groundTestYPos.y,localPos.z)
@@ -341,7 +341,6 @@ function DeathManager.new()
 						--The dead body is on a island. use deafault decay
 						--this:setLocalPosition( localPos ), position is updated by the next function
 						deathAnimation(body)
-						
 					end
 				else
 					--we have fallen over the world, continue falling

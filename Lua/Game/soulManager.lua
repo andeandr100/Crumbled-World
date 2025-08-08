@@ -26,7 +26,6 @@ function SoulManager.new()
 	local maxY = 1
 	local soulTableStr = {}
 	local lifeBar = LifeBar.new()
-	
 
 	function self.getLimits()
 		return {minX=minX, maxX=maxX, minY=minY, maxY=maxY}
@@ -382,6 +381,8 @@ function create()
 	end
 	--Core.setUpdateHz(60)
 	
+	
+	
 	if this:getNodeType() == NodeId.playerNode then
 		local menuNode = this:getRootNode():addChild(SceneNode.new())
 		--camera = Camera()
@@ -392,6 +393,7 @@ function create()
 		menuNode:loadLuaScript(this:getCurrentScript():getFileName());
 		return false
 	else
+		this:getRootNode():loadLuaScript("NPC/deathHandler.lua")
 		soulManager = SoulManager.new()
 	end
 	return true

@@ -172,15 +172,6 @@ function worldEdgeStuff.createDustAndGravel()
 			particleEffect:addparticle( spawnPosition, Vec3(0,-0.095,0) * math.randomFloat(0.8,1.2), uvCoord, Vec4(0.32,0.27,0.27,0), Vec4(0.32,0.27,0.27,0.45), 0.55, 0.8, i/maxParticle )
 		end
 		
-		
-		
---		local rockDust = ParticleSystem.new(ParticleEffect.RockDust)
---		node:addChild( rockDust:toSceneNode() )
---		rockDust:activate(Vec3())
---		rockDust:setSpawnRate( math.min(1.0,(localEndPos-localStartPos):length()/4.5) )
---		rockDust:setEmitterLine(Line3D(localStartPos,localEndPos))
---		rockDust:ageParticles(18.0)
---		self.dust[#self.dust+1] = rockDust
 		--Gravel
 		local atVec = (self.worldEdgeMatrix[self.worldEdgeConnections[i][1]]:getUpVec()+self.worldEdgeMatrix[self.worldEdgeConnections[i][2]]:getUpVec())*0.5
 		local rightVec = (self.worldEdgeMatrix[self.worldEdgeConnections[i][1]]:getRightVec()+self.worldEdgeMatrix[self.worldEdgeConnections[i][2]]:getRightVec())*0.5
@@ -318,6 +309,11 @@ end
 --
 --
 function worldEdgeStuff.generateGravel(startPos,endPos,atVec,rightVec,upVec)
+	--upVec = Vec3()
+	--rightVec = Vec3()
+	--atVec = Vec3()
+	--endPos = Vec3()
+	--startPos = Vec3()
 	local self = worldEdgeStuff
 	local color = Vec3(0.3)+math.randomVec3()
 	local spawnCount = (endPos-startPos):length()*self.gravelDensity

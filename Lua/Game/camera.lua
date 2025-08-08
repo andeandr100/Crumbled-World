@@ -245,22 +245,23 @@ function getIslandMovmentSpeed()
 		
 		
 	
-		for i=1, #islands do
-
-			newWorldMin:minimize(islands[i]:getBoundingBox():getMinPos())
-			newWorldMax:maximize(islands[i]:getBoundingBox():getMaxPos())
+		--for i=1, #islands do
+		for key, island in pairs(islands) do
+			--island = Island()
+			newWorldMin:minimize(island:getBoundingBox():getMinPos())
+			newWorldMax:maximize(island:getBoundingBox():getMaxPos())
 			
 --			Core.addDebugBox(islands[i]:getBoundingBox(), 0.1, Vec3(1))
 
 			local pos = Vec3(cameraCenterPos)
-			local dist = islands[i]:getDistanceToIsland(pos)
+			local dist = island:getDistanceToIsland(pos)
 			if dist < range then
 				if dist < 0.001 then
-					targetIsland = islands[i]
+					targetIsland = island
 					targetPosition = pos
 				end
 				data.size = data.size + 1
-				data[data.size] = {position = Vec3(pos), distance = math.max(dist,0.5), normal = islands[i]:getGlobalMatrix():getUpVec(), islandVelocity = islands[i]:getVelocity(), weight = 1 }
+				data[data.size] = {position = Vec3(pos), distance = math.max(dist,0.5), normal = island:getGlobalMatrix():getUpVec(), islandVelocity = island:getVelocity(), weight = 1 }
 			end
 		end
 		
@@ -364,9 +365,6 @@ end
 
 function update()
 	if not worldNode then
-		if backgroundSource then
-			backgroundSource:stopFadeOut(0.5)
-		end
 		return false
 	end
 
@@ -385,10 +383,8 @@ function update()
 	end
 
 	if keyBindChangeCameraMode:getPressed() then
-		if Core.isInEditor() or DEBUG or true then
+		if Core.isInEditor() or true then
 			cameraMode = (cameraMode + 1) % 2
-		else
-			cameraMode = 0
 		end
 	end
 	

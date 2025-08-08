@@ -285,7 +285,7 @@ function SpawnManager.new()
 							end
 							spawnCurrentUnit(current,currentPortalId)
 						else
-							error("Not implemented\n")
+							abort("Not implemented\n")
 							spawnCurrentUnit(current,math.randomInt(1, #spawns))
 						end
 						--get next unit to spawn

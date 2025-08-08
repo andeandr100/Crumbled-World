@@ -27,7 +27,7 @@ function ConnectionIssueForm.new()
 	
 	function self.setVisible(visible)
 		form:setVisible(visible)
-		LOG("CONNECTION ISSUE "..tostring(visible))
+		--LOG("CONNECTION ISSUE "..tostring(visible))
 --		if visible then
 --			Core.setTimeSpeed(0.0)
 --		else

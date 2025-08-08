@@ -281,8 +281,8 @@ function EventBase.new()
 		setGold(pStartGold)
 	end
 	function self.doRestartWave(restartedFromTheOutSide)
-		LOG("doRestartWave("..tostring(restartedFromTheOutSide)..")")
-		LOG("if "..tostring(waveCount)..">="..tostring(STARTWAVE+1)..") then")
+		--LOG("doRestartWave("..tostring(restartedFromTheOutSide)..")")
+		--LOG("if "..tostring(waveCount)..">="..tostring(STARTWAVE+1)..") then")
 		if waveCount>=(STARTWAVE+1) then
 			waveRestarted = true
 			restartTimer = Core.getGameTime()
@@ -336,8 +336,8 @@ function EventBase.new()
 			local msg = comUnit:popMessage()
 			if comUnitTable[msg.message]~=nil then
 		 	   comUnitTable[msg.message](msg.parameter,msg.fromIndex)
-			else
-				LOG("self.update() - failed message=\""..msg.message.."\")")
+			--else
+			--	LOG("self.update() - failed message=\""..msg.message.."\")")
 			end
 		end
 		--

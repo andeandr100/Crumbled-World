@@ -103,11 +103,11 @@ function startNextMap()
 				worker:start()
 				Core.startNextMap(files[mNum].file:getPath())
 			else
-				LOG("ERROR no mapInformation")
+				--LOG("ERROR no mapInformation")
 				buttonRow:removePanel(nextMapButton)
 			end
 		else
-			LOG("file not available")
+			--LOG("file not available")
 			buttonRow:removePanel(nextMapButton)
 		end
 	end

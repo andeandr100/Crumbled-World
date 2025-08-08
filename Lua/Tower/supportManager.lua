@@ -137,7 +137,7 @@ function SupportManager.new()
 --		restartListenerSupport:registerEvent("restartWave", self.waveRestart)
 		--
 		if not data then
-			error("The setUpgrade must have been used")
+			abort("The setUpgrade must have been used")
 		else
 			--local function spportBoostDamage() return upgrade.getStats("damage")*(1.0+math.clamp(0.25+(waveCount/100),0.25,0.5)) end
 			data.addSupportUpgrade({cost = {0,0,0},

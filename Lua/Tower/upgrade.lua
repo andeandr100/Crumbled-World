@@ -2,6 +2,7 @@
 -- assumption. All levels of an upgrade must have cost, icon, info
 -- assumption. only one upgrade if using duration. [The GUI only supports one cooldown]
 -- assumption. upgrading the base level on a tower is named "upgrade"
+--this = SceneNode()
 
 Upgrade = {}
 function Upgrade.new()
@@ -113,7 +114,7 @@ function Upgrade.new()
 						subUpg.stats[key][2] = getBetween(prevUpg.stats[key][2],subUpg.stats[key][2],i*(1/(addSubCount+1)))
 					end
 				else
-					error("stats must be formated like stats={damage={upgrade.add, 5.0}}")
+					abort("stats must be formated like stats={damage={upgrade.add, 5.0}}")
 				end
 			end
 			--
@@ -531,7 +532,7 @@ function Upgrade.new()
 					if type(value.stats[stat][1])=="function" then
 						value.stats[stat][1](stat,value.stats[stat][2])
 					else
-						error("bad")
+						abort("bad")
 					end
 				end
 			end
@@ -626,7 +627,7 @@ function Upgrade.new()
 				return upgraded[upgradesAvailable[name][1].order].level
 			end
 		else
-			error("no upgrade with the name(\""..name.."\")")
+			abort("no upgrade with the name(\""..name.."\")")
 		end
 		return 0
 	end

@@ -1,5 +1,5 @@
 require("NPC/soul.lua")
-require("NPC/deathManager.lua")
+require("NPC/deathPhysic.lua")
 require("NPC/npcPath.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
@@ -12,8 +12,7 @@ function NpcBase.new()
 	aReusedCounter = aReusedCounter + 1
 	local self = {}
 	local binaryNumPos = {[1]=1,[2]=2,[4]=3,[8]=4,[16]=5,[32]=6,[64]=7,[128]=8,[256]=9,[512]=10,[1024]=11,[2048]=12}
-	local deathManager = DeathManager.new()
-	local runDeathManagerUpdate = false
+
 	local npcPath = NpcPath.new()
 	local soul = TheSoul.new()
 	local model
@@ -36,8 +35,8 @@ function NpcBase.new()
 	local comUnitTable = {}
 	local deathAnimationTable
 	local deathFrameTable
-	local deathRigidBodyFunc
-	local deathSoftBodyFunc
+--	local deathRigidBodyFunc
+--	local deathSoftBodyFunc
 	local physicDeathInfo
 	local npcSpawnCounter = 0
 	local waypointReachedList = {}
@@ -58,7 +57,14 @@ function NpcBase.new()
 	local prevState = -1
 	local sentUpdateTimer = 0
 	local useSubMeshMovment = false
+	local usePhysicDeath = false
 	
+	local hpMax = -1
+	local name = "-"
+	
+	
+	local deathTimer = -1
+	local deathPhysic = DeathPhysic.new()
 
 	aResusedInfo[aReusedCounter] = {}
 
@@ -213,12 +219,6 @@ function NpcBase.new()
 		this:destroyTree()
 		--
 		comUnit:clearMessages()
-		--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),3.0,Vec3(1,0,0))
---		if endUpdate and type(endUpdate)=="function" then
---			update = endUpdate
---		else
---			error("unable to set endupdate as update function")
---		end
 	end
 	function self.NETSyncDeath(param)
 		soul.setHp(-1.0)
@@ -270,53 +270,14 @@ function NpcBase.new()
 	function self.physicPushIfDead(position)
 		physicDeathInfo = {pos=position,time=Core.getGameTime()}
 	end
-	local function rigidBodyExplosion()
-		local meshSplitter = MeshSplitter()
-		local subMeshList = meshSplitter:splitMesh(model:getMesh(0))
-		local physicNode = this:getPlayerNode():getPhysicNode()--findAllNodeByTypeTowardsLeaf({NodeId.PhysicNode})
-		if not physicNode then
-			abort("physicNode")
-		end
-		--local playerNode = this:getPlayerNode()
-		local npcCenterPos = this:getGlobalPosition()+centerOffset
-		for i=0, subMeshList:size()-1, 1 do
-			local rVec = math.randomVec3()
-			rVec = ((npcCenterPos-physicDeathInfo.pos):normalizeV() + rVec * 0.5):normalizeV()
-			rVec = Vec3(rVec.x*5.25,math.abs(rVec.y)*8,rVec.z*5.25)
-			local rotation = Vec3(math.randomFloat() * 0.2, 0.7 + math.randomFloat() * 0.3, math.randomFloat() * 0.2):normalizeV()
-			local rotationSpeed = math.randomFloat(5,15)
-			
-			local mesh = Mesh.new(subMeshList:item(i))
-			physicNode:addRigidBody(mesh:toSceneNode(), rVec, rotation, rotationSpeed, deathManager.getDeadBodyStartTime() )
-		end
-	end
-	local function rigidBody()
+	
+	local function deathPhysicFunc()
 		if not (physicDeathInfo and physicDeathInfo.time+0.1>Core.getGameTime()) then
-			local physicNode = this:getPlayerNode():getPhysicNode()--findAllNodeByTypeTowardsLeaf({NodeId.PhysicNode})
-			if not physicNode then
-				abort(no "physicNode")
-			end
-			local meshSplitter = MeshSplitter()
-			local subMeshList = meshSplitter:splitMesh(model:getMesh(0))
-			if useSubMeshMovment then
-				model:getAnimation():update(0.05)
-				meshSplitter:calculateSubMeshMovement(0.05)	
-			end
-			for i=0, subMeshList:size()-1, 1 do
-				local subMesh = subMeshList:item(i)
-				local rotation = Vec3(math.randomFloat() * 0.2, 0.7 + math.randomFloat() * 0.3, math.randomFloat() * 0.2):normalizeV()
-				local rotationSpeed = math.randomFloat(1,7)
-				local velocity = Vec3()
-				if useSubMeshMovment then
-					velocity = subMesh:getVelocity():normalizeV() * 3-- + mover:getCurrentVelocity()*0.5 + math.randomVec3() * 0.1 + Vec3(0,0.8,0)
-				else 
-					velocity = mover:getCurrentVelocity() * 1.5 + math.randomVec3() * 0.5 + Vec3(0,0.8,0)
-				end
-				local mesh = Mesh.new(subMesh)
-				physicNode:addRigidBody(mesh:toSceneNode(), velocity, rotation, rotationSpeed, deathManager.getDeadBodyStartTime() )
-			end
+			local deathPhysic = DeathPhysic.new()
+			deathPhysic.rigidBody(model, mover:getCurrentVelocity())
 		else
-			rigidBodyExplosion()
+			local deathPhysic = DeathPhysic.new()
+			deathPhysic.rigidBodyExplosion(model, physicDeathInfo.pos)
 		end
 	end
 	function self.setLifeValue(countStr)
@@ -329,25 +290,22 @@ function NpcBase.new()
 	end
 	--add physical rigid body to be managed on npc death
 	function self.addDeathRigidBody(useSubMeshAnimationMovment)
-		deathManager.setUsePhysicDeathAnimation()
+		usePhysicDeath = true
 		useSubMeshMovment = useSubMeshAnimationMovment
-		deathRigidBodyFunc = rigidBody
+--		deathRigidBodyFunc = rigidBody
 	end
-	--add physical soft body to be managed on npc death
-	function self.addDeathSoftBody(softBodyFunc)
-		deathSoftBodyFunc = softBodyFunc
-	end
+
 	--add particle effect to be managed on npc death
 	function self.addParticleEffect(pEffect,deathTime)
-		deathManager.addParticleEffect(pEffect,deathTime)
+--		deathManager.addParticleEffect(pEffect,deathTime)
 	end
 	--add pointlight to be managed on npc death
 	function self.addPointLight(pPointLight,deathTime)
-		deathManager.addPointLight(pPointLight,deathTime)
+--		deathManager.addPointLight(pPointLight,deathTime)
 	end
 	--returns a number for what kind of ground there is under the localPosition
 	local function whatIsHere(localPosition)
-		local node = deathManager.collisionAginstTheWorldLocal(localPosition)
+		local node = deathPhysic.collisionAginstTheWorldLocal(localPosition)
 		if node then
 			--return 1--bridge, Depricated
 			return 0--island
@@ -370,6 +328,7 @@ function NpcBase.new()
 	end
 	--spawns a npc on globalPosition, and sends the path list that the npc should take
 	function self.spawnNPC(name,globalPosition)
+		--globalPosition = Vec3()
 		if canSyncNPC() then
 			npcSpawnCounter = npcSpawnCounter + 1
 			local newNpcNetworkName = Core.getNetworkName().."s"..npcSpawnCounter
@@ -411,12 +370,13 @@ function NpcBase.new()
 	--updated the death animations
 	local function deathAnimation()
 		local frame = model:getAnimation():getFrameTimeFromClip("run")
-		local deathAnimationIndex = deathManager.closestTo(deathFrameTable.startFrame,deathFrameTable.endFrame,frame,deathFrameTable.framePositions)
+		local deathAnimationIndex = deathPhysic.closestTo(deathFrameTable.startFrame,deathFrameTable.endFrame,frame,deathFrameTable.framePositions)
 		local localAtVec = (this:getParent():getGlobalMatrix():inverseM() * Vec4(mover:getCurrentVelocity():normalizeV(),0.0)):toVec3()
 		local posT1 = this:getGlobalPosition()+(mover:getCurrentVelocity():normalizeV()*deathAnimationTable[deathAnimationIndex].length*0.6)
 		local posT2 = this:getGlobalPosition()+(mover:getCurrentVelocity():normalizeV()*deathAnimationTable[deathAnimationIndex].length*1.0)
 		local test1 = whatIsHere(posT1)
 
+	
 		if test1==0 and whatIsHere(posT2)>0 then
 			--we can sheat, and make the animation distance shorter
 			local safeLength=0.5
@@ -427,12 +387,48 @@ function NpcBase.new()
 					break
 				end
 			end
-			deathManager.setAnimation(model,deathAnimationTable[deathAnimationIndex].duration,safeLength,this:getLocalPosition(),localAtVec,speed)
+			
+			local animationTable = {
+				model = model,
+				globalMatrix = model:getGlobalMatrix(),
+				island = this:findNodeByTypeTowardsRoot(NodeId.island),
+				deathAnimationTimer = deathAnimationTable[deathAnimationIndex].duration,
+				deathAnimationDistance = safeLength,
+				deathPos = this:getLocalPosition(),
+				deathVec = localAtVec,
+				deathSpeed = speed
+			}
+			local listner = Listener("DeathHandler")
+			listner:pushEvent("addDeathAnimation",animationTable)
+			
+--			deathManager.setAnimation(model,deathAnimationTable[deathAnimationIndex].duration,safeLength,this:getLocalPosition(),localAtVec,speed)
 			model:getAnimation():blend("death"..deathAnimationIndex,deathAnimationTable[deathAnimationIndex].blendTime,PlayMode.stopSameLayer)
+			this:removeChild(model:toSceneNode())
+			animationTable.island:addChild(model:toSceneNode())
+			model:setLocalMatrix( animationTable.island:getGlobalMatrix():inverseM() * animationTable.globalMatrix)
+			model = nil
 		else
 			--it is totaly safe to do the animation
-			deathManager.setAnimation(model,deathAnimationTable[deathAnimationIndex].duration,deathAnimationTable[deathAnimationIndex].length,this:getLocalPosition(),localAtVec,speed)
+			local animationTable = {
+				model = model,
+				globalMatrix = model:getGlobalMatrix(),
+				island = this:findNodeByTypeTowardsRoot(NodeId.island),
+				deathAnimationTimer = deathAnimationTable[deathAnimationIndex].duration,
+				deathAnimationDistance = deathAnimationTable[deathAnimationIndex].length,
+				deathPos = this:getLocalPosition(),
+				deathVec = localAtVec,
+				deathSpeed = speed
+			}
+			
+			local listner = Listener("DeathHandler")
+			listner:pushEvent("addDeathAnimation",animationTable)
+			
+--			deathManager.setAnimation(model,deathAnimationTable[deathAnimationIndex].duration,deathAnimationTable[deathAnimationIndex].length,this:getLocalPosition(),localAtVec,speed)
 			model:getAnimation():blend("death"..deathAnimationIndex,deathAnimationTable[deathAnimationIndex].blendTime,PlayMode.stopSameLayer)
+			this:removeChild(model:toSceneNode())
+			animationTable.island:addChild(model:toSceneNode())
+			model:setLocalMatrix( animationTable.island:getGlobalMatrix():inverseM() * animationTable.globalMatrix)
+			model = nil
 		end
 		return true
 	end
@@ -471,29 +467,32 @@ function NpcBase.new()
 	end
 	--start the death animations/physic/effect
 	function self.createDeadBody()
+		deathTimer = 5
 		if Settings.DeathAnimation.isEnabled() and model then
 			--death animations is enabled
-			if deathManager.getUseAnimatedDeath() then
-				deathAnimation()
-			else
-				deathRigidBodyFunc()
+			if usePhysicDeath then
+				deathPhysicFunc()
 				this:removeChild(model:toSceneNode())
+			else
+				deathAnimation()
+				
 			end
 		end
 		self.deathCleanup()
-		if deathManager.hasWork() then
-			--success, we have a death animation
-			runDeathManagerUpdate = true 
-			return true
-		else
-			--destroy this SceneNode if we can
-			if deathManager.enableSelfDestruct then
-				this:destroyTree()
-			else
-				this:removeChild(model:toSceneNode())
-			end
-			return false--destroy this script
-		end
+		return true
+--		if deathManager.hasWork() then
+--			--success, we have a death animation
+--			runDeathManagerUpdate = true 
+--			return true
+--		else
+--			--destroy this SceneNode if we can
+--			if deathManager.enableSelfDestruct then
+--				this:destroyTree()
+--			else
+--				this:removeChild(model:toSceneNode())
+--			end
+--			return false--destroy this script
+--		end
 	end
 	local function toBits(num)
 		if num then
@@ -530,8 +529,14 @@ function NpcBase.new()
 	end
 	function self.update()
 		
-		if runDeathManagerUpdate then
-			return deathManager.update()
+		--This is the new system, wait 5 seconds after NPC has been killed to destroy it to ensure no other entity uses this NPC
+		if deathTimer > 0 then
+			deathTimer = deathTimer - Core.getDeltaTime()
+			if deathTimer < 0 then
+				return false
+			else
+				return true
+			end
 		end
 		
 
