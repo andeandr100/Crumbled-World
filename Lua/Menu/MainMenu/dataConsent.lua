@@ -60,7 +60,7 @@ function create()
 	settingsListener:registerEvent("OpenConsentWindow", OpenConsentWindow)
 	
 	if camera then
-		form = Form( ConvertToCamera(camera), PanelSize(Vec2(1)), Alignment.TOP_LEFT)
+		form = Form( ConvertToCamera(camera), PanelSize(Vec2(1)), Alignment.TOP_LEFT, "DataConsentForm")
 		form:setName("Data Consent")
 		form:setRenderLevel(12)
 		form:setVisible(true)

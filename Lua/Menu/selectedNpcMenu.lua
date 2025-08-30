@@ -40,7 +40,7 @@ function selectedNpcMenu.new(inCamera)
 	function createForm()
 	
 		local panelSpacing = PanelSize(Vec2(0.005),Vec2(1))
-		form = Form( camera, PanelSize(Vec2(0.225,-1),PanelSizeType.WindowPercentBasedOnY), Alignment.BOTTOM_RIGHT);
+		form = Form( camera, PanelSize(Vec2(0.225,-1),PanelSizeType.WindowPercentBasedOnY), Alignment.BOTTOM_RIGHT, "SelectedNpcForm");
 		form:setName("SelectedMenu form")
 		form:getPanelSize():setFitChildren(false,true)
 		form:setBackground(Gradient(Vec4(Vec3(0),0.85), Vec4(Vec3(0),0.7)));

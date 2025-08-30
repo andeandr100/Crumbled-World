@@ -51,7 +51,7 @@ function create()
 	if camera then
 		this:loadLuaScript("settings.lua")
 		
-		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
+		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT, "MainMenuForm");
 		form:setLayout(FlowLayout(PanelSize(Vec2(0.01,0))));
 		form:setRenderLevel(7)
 

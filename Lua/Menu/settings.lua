@@ -341,16 +341,16 @@ function Settings.corpseTimer.getInt()
 	local str = Settings.corpseTimer.getValue()
 	for n=1, #Settings.corpseTimer.options do
 		if str == Settings.corpseTimer.options[n] then
-			print("Settings.corpseTimer.options[n] " .. Settings.corpseTimer.options[n])
-			print("n " .. n)
-			print("corpseTimer sentout " .. Settings.corpseTimer.optionsInt[n])
+			--print("Settings.corpseTimer.options[n] " .. Settings.corpseTimer.options[n])
+			--print("n " .. n)
+			--print("corpseTimer sentout " .. Settings.corpseTimer.optionsInt[n])
 			return Settings.corpseTimer.optionsInt[n]
 		end
 	end
 	
-	print("Corpse timer settings is not leagal")
+	--print("Corpse timer settings is not leagal")
 	Settings.config:get(Settings.corpseTimer.configName):set(Settings.corpseTimer.options[2])
-	print("corpseTimer sentout " .. Settings.corpseTimer.optionsInt[2])
+	--print("corpseTimer sentout " .. Settings.corpseTimer.optionsInt[2])
 	return Settings.corpseTimer.optionsInt[2]
 end
 

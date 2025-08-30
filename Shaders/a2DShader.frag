@@ -7,9 +7,9 @@ uniform sampler2D gGlow;
 out vec4 FragColor;
 
 void main()
-{             
+{
 	FragColor = texture(diffuseMap, TexCoords);
-}  
+}
 
 
 

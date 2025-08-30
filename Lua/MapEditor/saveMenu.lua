@@ -54,7 +54,7 @@ function openExportWindow()
 	local bilboard = Core.getGlobalBillboard("MapEditor")
 	bilboard:setSceneNode("RootNode", this:getRootNode())
 	
-	print("openExportWindow fileName: "..saveFileName.."\n")
+	--print("openExportWindow fileName: "..saveFileName.."\n")
 	if string.len(saveFileName) > 0 then
 		if not export then
 			export = ExportForm.new()
@@ -105,7 +105,7 @@ end
 
 function newMap()
 	--new map has been created no file save location has been chocsen
-	print("\n\n\n ==== NEW MAP ==== n\n\n\n")
+	--("\n\n\n ==== NEW MAP ==== n\n\n\n")
 	saveFileName = ""
 end
 	
@@ -132,7 +132,7 @@ function create()
 	stateIsSaveToFile = true
 
 	if camera then
-		form = Form( camera, PanelSize(Vec2(0.2,-1)), Alignment.MIDDLE_CENTER);
+		form = Form( camera, PanelSize(Vec2(0.2,-1)), Alignment.MIDDLE_CENTER, "SaveMenuForm");
 		form:setBackground(Sprite(Vec4(0.17, 0.17, 0.17, 0.7)));
 		form:setLayout(FlowLayout());
 		form:setBorder(Border(BorderSize(Vec4(0.005)), Vec4(0,0,0,0),Vec4(0,0,0,1)));

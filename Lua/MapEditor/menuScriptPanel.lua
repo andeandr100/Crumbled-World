@@ -31,16 +31,16 @@ function openAFileWindow(button)
 	fileWindow:setDefaultFileData(Text("function create()\n\t\nend\n\nfunction update()\n\t\n\treturn false\nend\n"))
 	fileWindow:addLuaScriptCallbackExecute("addLuaScriptFile")
 	
-	print("open File Window\n")
+	--print("open File Window\n")
 end
 
 function addLuaScriptFile(fileName)
 	--fileName = Text()
-	print("Script file name: "..fileName:toString().."\n")
+	--print("Script file name: "..fileName:toString().."\n")
 
 	local subString = splitString(fileName:toString(), "/")
 	local scriptName = subString[#subString]:gsub(".lua","")
-	print("Script name: "..scriptName.."\n")
+	--print("Script name: "..scriptName.."\n")
 	
 	MenuScriptPanel.addScript(scriptName,fileName:toString())
 	if MenuScriptPanel.functionAddCallback ~= nil then
@@ -74,14 +74,14 @@ end
 
 function MenuScriptPanel.setScriptListString(fileNameList)
 
-	print("Set script list\n")
+	--print("Set script list\n")
 	for i=1, #fileNameList do
 		
 		local fileName = fileNameList[i]
 		local subString = splitString(fileName, "/")
 		local scriptName = subString[#subString]:gsub(".lua","")
 		
-		print("script: "..scriptName.."\n")
+		--print("script: "..scriptName.."\n")
 		local panelIndex = i-1
 		if scriptPanel:getNumPanel() > panelIndex then
 			scriptPanel:getPanel(panelIndex):setText(scriptName)
@@ -91,16 +91,16 @@ function MenuScriptPanel.setScriptListString(fileNameList)
 		end
 	end
 	for i=scriptPanel:getNumPanel()-1, #fileNameList, -1 do
-		print("remove script text row\n")
+		--print("remove script text row\n")
 		scriptPanel:removePanel(scriptPanel:getPanel(i))
 	end
 end
 
 function MenuScriptPanel.setScriptList(scriptList)
 
-	print("Set script list, size: "..tostring(#scriptList).."\n")
+	--print("Set script list, size: "..tostring(#scriptList).."\n")
 	for i=1, #scriptList do
-		print("script: "..scriptList[i]:getName().."\n")
+		--print("script: "..scriptList[i]:getName().."\n")
 		local panelIndex = i-1
 		if scriptPanel:getNumPanel() > panelIndex then
 			scriptPanel:getPanel(panelIndex):setText(scriptList[i]:getName())
@@ -110,7 +110,7 @@ function MenuScriptPanel.setScriptList(scriptList)
 		end
 	end
 	for i=scriptPanel:getNumPanel()-1, #scriptList, -1 do
-		print("remove script text row\n")
+		--print("remove script text row\n")
 		scriptPanel:removePanel(scriptPanel:getPanel(i))
 	end
 end

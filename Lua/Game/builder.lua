@@ -319,7 +319,7 @@ function create()
 		camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") );
 		
 		--this is the node named "player 1 node"
-		print("------------------------------\n")
+		--print("------------------------------\n")
 		comUnit = Core.getComUnit()
 		comUnit:setCanReceiveTargeted(true)
 		comUnit:setName("builder"..node:getClientId())
@@ -377,19 +377,19 @@ function create()
 		mapInfo = MapInfo.new()
 		playerCount = Core.isInMultiplayer() and mapInfo.getPlayerCount() or 1
 	
-		print("test 1\n")
+		--print("test 1\n")
 		keyBinds = Core.getBillboard("keyBind")
 		keyRotationLocked = keyBinds:getKeyBind("Locked rotation")
 		keyBind = {}
 		for i = 1, 10 do
-			print("building "..tostring(i).."\n")
+			--print("building "..tostring(i).."\n")
 			keyBind[i] = keyBinds:getKeyBind("Building " .. i)
 		end
 		
 		esqKeyBind = KeyBind("Menu", "control", "toogle menu")
 		esqKeyBind:setKeyBindKeyboard(0, Key.escape)
 		
-		print("test 2\n")
+		--print("test 2\n")
 		keyUse = keyBinds:getKeyBind("Place")
 		keyDeselect = keyBinds:getKeyBind("Deselect")
 		
@@ -397,7 +397,7 @@ function create()
 		
 		rotationTime = 0
 		
-		print("create\n")
+		--print("create\n")
 	
 		local rootNode = this:getRootNode()
 		towerWorld = rootNode:addChild(SceneNode.new())
@@ -466,7 +466,7 @@ function create()
 			
 		else
 			camera = nil;
-			print("No camera was found");
+			--print("No camera was found");
 		end
 		
 		waveTime = Core.getGameTime()
@@ -477,11 +477,11 @@ function create()
 			--this only occure for nowe 2017-07-04 on the server side where top play thrue is tested to detect cheating
 			towerBuildInfo = totable( highScoreReplayBillboard:getString("replayTableString") )
 			
-			print("towerBuildInfo: "..tostring(towerBuildInfo))
+			--print("towerBuildInfo: "..tostring(towerBuildInfo))
 		end
 		
 		
-		print("BUILDER:::RETURN == true\n")
+		--print("BUILDER:::RETURN == true\n")
 		return true
 	else
 		print("------------------------------\n")
@@ -489,7 +489,7 @@ function create()
 		local builderNode = this:addChild(BuildNode.new():toSceneNode())
 		--this:removeScript(this:getCurrentScript():getName());
 		builderNode:loadLuaScript(this:getCurrentScript():getFileName()):setName("BuilderScript")
-		print("BUILDER:::RETURN == false\n")
+		--print("BUILDER:::RETURN == false\n")
 		return false
 	end
 end
@@ -607,9 +607,9 @@ function upgradeWallTower(param)
 end
 
 function towerUpgradefunc(tab)
-	print("\n\ntowerUpgradefunc")
-	print("NetId: "..tab.netId)
-	print("comUnit:sendTo("..Core.getScriptOfNetworkName(tab.netId):getIndex()..", "..tab.msg..", "..(tab.param or ""))
+	--print("\n\ntowerUpgradefunc")
+	--print("NetId: "..tab.netId)
+	--print("comUnit:sendTo("..Core.getScriptOfNetworkName(tab.netId):getIndex()..", "..tab.msg..", "..(tab.param or ""))
 
 	comUnit:sendTo(Core.getScriptOfNetworkName(tab.netId):getIndex(),tab.msg,tab.param or "")
 end
@@ -629,9 +629,9 @@ function towerUpgrade(param)
 	if tab.param and not ( scriptName == "Tower/ArrowTower.lua" and tab.msg == "upgrade6") then
 --		local downGrade = {netId = tab.netId, msg = tab.msg, param = tab.param}
 		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=tab.cost,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add={para1=tab,func=1},restore=nil}
-	else
+	--else
 		--TODO not supported
-		print("NOT supported")
+		--print("NOT supported")
 	end
 	
 	buildingBillboard:setInt("towerUpgradedFrame",Core.getFrameNumber())
@@ -664,15 +664,15 @@ function netSellTower(paramNetworkName,doNotReturnMoney)
 			--comUnit:sendTo("builder", "soldTower", tostring(buildingId))
 			
 			if netWorkName == paramNetworkName then
-				print("\n\nSelected menu is in hidding because tower was sold\n\n")
+				--print("\n\nSelected menu is in hidding because tower was sold\n\n")
 				form:setVisible(false)
 				targetArea.hiddeTargetMesh()
 			end
-		else
-			print("Removing building failed!!!")
+		--else
+			--print("Removing building failed!!!")
 		end
-	else
-		print("No script found for selected building, during remove")
+	--else
+		--print("No script found for selected building, during remove")
 	end
 
 end
@@ -767,7 +767,7 @@ function updateIsAllreadyToPlay()
 	if not buildingBillboard:getBool("Ready") then
 		if Core.isInMultiplayer() then
 			local users = Core.getNetworkClient():getConnected()
-			print("users: "..tostring(users).."\n")
+			--print("users: "..tostring(users).."\n")
 			local allReady = true
 			
 			for i=1, #users do
@@ -776,8 +776,8 @@ function updateIsAllreadyToPlay()
 				end
 			end
 			
-			print("Player count: "..playerCount)
-			print("readyToPlay: "..tostring(readyToPlay).."\n")
+			--print("Player count: "..playerCount)
+			--print("readyToPlay: "..tostring(readyToPlay).."\n")
 			
 			buildingBillboard:setBool("Ready", allReady)
 			
@@ -828,7 +828,7 @@ function  isAtowerBuildEvent(index, netName)
 end
 
 function rebuildWallTower(netName)
-	print("Rebuild wall tower: "..netName)
+	--print("Rebuild wall tower: "..netName)
 	for i=1, #towerBuildInfo do
 		if towerBuildInfo[i].add and towerBuildInfo[i].add.func == 2 and towerBuildInfo[i].add.para1.tName == netName then
 			local addData = towerBuildInfo[i].add
@@ -840,10 +840,10 @@ function rebuildWallTower(netName)
 		elseif towerBuildInfo[i].restore and towerBuildInfo[i].restore.func == rebuildSoldTower and towerBuildInfo[i].restore.para1.wallTowerName == netName then
 			--this case happens when a tower is directly built en sold of to a wall tower and then sold again
 			local towerNetName = towerBuildInfo[i].restore.para1.towerName
-			print("take build info from node: "..towerNetName)
+			--print("take build info from node: "..towerNetName)
 			local n=1
 			while n <= #towerBuildInfo do
-				print("n: "..n)
+				--print("n: "..n)
 				if towerBuildInfo[n].add and towerBuildInfo[n].add.func == 2 and towerBuildInfo[n].add.para1.tName == towerNetName then
 					local addData = towerBuildInfo[n].add
 					local restoreToName = addData.para1.tName
@@ -858,7 +858,7 @@ function rebuildWallTower(netName)
 					return
 				elseif towerBuildInfo[n].add and towerBuildInfo[n].add.func == 3 and towerBuildInfo[n].add.para1[5] == towerNetName then
 					towerNetName = towerBuildInfo[n].add.para1[1]
-					print("redo take build info from node: "..towerNetName)
+					--print("redo take build info from node: "..towerNetName)
 					n = 1
 				else
 					n = n + 1
@@ -945,7 +945,7 @@ function update()
 	
 	if isAReplay then
 		local timeoffset = (Core.getGameTime()-waveTime)
-		print("curentWave: "..curentWave.." timeoffset: "..timeoffset)
+		--print("curentWave: "..curentWave.." timeoffset: "..timeoffset)
 		while towerBuildInfo[replayIndex] and (towerBuildInfo[replayIndex].wave < curentWave or (towerBuildInfo[replayIndex].wave == curentWave and towerBuildInfo[replayIndex].buildTimeFromBeginingOfWave < timeoffset)) do
 			
 			local addData = towerBuildInfo[replayIndex].add
@@ -1019,10 +1019,10 @@ function update()
 				local script = building:getScriptByName("tower")
 				
 				
-				if canBePlacedHere then
-					print("TowerPos: "..tostring( (island:getGlobalMatrix():inverseM() * building:getGlobalMatrix():getPosition()) ).. " island: "..island:getIslandId())
-					print("TowerMat: "..tostring( building:getLocalMatrix() ).. " island: "..island:getIslandId())
-				end
+				--if canBePlacedHere then
+					--print("TowerPos: "..tostring( (island:getGlobalMatrix():inverseM() * building:getGlobalMatrix():getPosition()) ).. " island: "..island:getIslandId())
+					--print("TowerMat: "..tostring( building:getLocalMatrix() ).. " island: "..island:getIslandId())
+				--end
 				
 				local towerName = getNewTowerName()
 				script:setScriptNetworkId(towerName)

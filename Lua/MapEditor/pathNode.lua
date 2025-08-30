@@ -42,10 +42,10 @@ end
 function load(inData)
 	if this:getRootNode():findNodeByName("MainCamera") == nil then
 		update = stopUpdate
-		print( "PathNode id: "..this:getId().." is not in the main tree\n" )
+		--print( "PathNode id: "..this:getId().." is not in the main tree\n" )
 		return
 	end
-	print( "PathNode load id: "..this:getId().."\n" )
+	--print( "PathNode load id: "..this:getId().."\n" )
 	local pathNodes = this:getRootNode():findAllNodeByNameTowardsLeaf("Path node")
 
 	if #pathNodes > 1 then
@@ -55,7 +55,7 @@ function load(inData)
 	else	
 		numTowers = 0
 		
-		print("\nLoad path node: "..inData.."\n")
+		--print("\nLoad path node: "..inData.."\n")
 		pathData = totable( inData )
 		pathListener:pushEvent("Loaded", pathData)
 		
@@ -338,7 +338,7 @@ function init()
 		
 		
 	else
-		print("buildNode not found\n")
+		--print("buildNode not found\n")
 		return false
 	end
 	return true

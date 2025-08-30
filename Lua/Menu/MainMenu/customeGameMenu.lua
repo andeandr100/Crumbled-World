@@ -97,7 +97,6 @@ function CustomeGameMenu.new(panel)
 		--force game mode update
 		local activeGameMode = gameModeBox and gameModeBox.getIndexText() or ""
 		--
-		print("updateWaveCount("..levelInfo.getGameMode()..")")
 		for i=1, #files do
 			if files[i].waveCountLabel then
 				local file = files[i].file
@@ -240,8 +239,6 @@ function CustomeGameMenu.new(panel)
 		end
 	end
 	local function customeGameChangedMap(button)
-		print("==================================================================")
-		print("customeGameChangedMap()")
 		local mNum,path = string.match(button:getTag():toString(),"(.*):(.*)")
 		--mNum = tonumber(mNum)
 		changeMapTo(path)
@@ -256,7 +253,6 @@ function CustomeGameMenu.new(panel)
 		end
 	end
 	local function changeFolderButton(button)
-		print("changeFolder: "..button:getTag():toString().."\n")
 		changeFolder(button:getTag():toString())
 	end
 	local function addRowButton(file, num)
@@ -524,10 +520,8 @@ function CustomeGameMenu.new(panel)
 	end
 	function self.setVisible(set,set2)
 		if type(set)=="boolean" then
-			print("mainPanel:setVisible("..tostring(set)..")\n")
 			mainPanel:setVisible(set)
 		else
-			print("mainPanel:setVisible("..tostring(set2)..")\n")
 			mainPanel:setVisible(set2)
 		end
 	end

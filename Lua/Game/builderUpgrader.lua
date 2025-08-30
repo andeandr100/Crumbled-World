@@ -62,9 +62,9 @@ function upgradeFromTowerToTower(buildingToUpgrade, buildCost, scriptName, newLo
 		end
 	end
 
-	print("\n\n\nShow Node\n")
+	--print("\n\n\nShow Node\n")
 	if scriptName and buildingToUpgrade then		
-		print("scriptName"..scriptName)
+		--print("scriptName"..scriptName)
 		local fromTowerScript = buildingToUpgrade:getScriptByName("tower")
 		--Get the cost of the wall tower
 		local fromTowerCost = fromTowerScript:getBillboard():getFloat("value")

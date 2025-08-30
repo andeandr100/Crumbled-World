@@ -7,35 +7,25 @@ function create()
 	navmeshDirectionListener = Listener("Navmesh direction node")
 	navmeshDirectionListener:registerEvent("Change", changed)
 	
-	print("\n")
-	print("############################\n")
-	print("############################\n")
-	print("############################\n")
-	print("############################\n")
-	print("\n")
-	
 	return true
 end
 
 function changed( tab )
-	print(" -- changed -- ")
 	navmeshDirectionData = tab
 end
 
 function export()
-	print(" -- NAV MESH DIRECTION EXPORT -- ")
 	return saveFunction()
 end
 
 function save()
-	print(" -- NAV MESH DIRECTION SAVE -- ")
 	return saveFunction()
 end
 
 function saveFunction()
 
 	if navmeshDirectionData then
-		print("NavMeshDirection data: "..tabToStrMinimal( navmeshDirectionData ).."\n")
+		--print("NavMeshDirection data: "..tabToStrMinimal( navmeshDirectionData ).."\n")
 		return "table="..tabToStrMinimal( navmeshDirectionData )
 	end	
 
@@ -44,8 +34,8 @@ end
 
 
 function load(inData)
-	print(" -- NAV MESH DIRECTION LOAD -- ")
-	print(" - DATA: " .. inData)
+	--print(" -- NAV MESH DIRECTION LOAD -- ")
+	--print(" - DATA: " .. inData)
 	navmeshDirectionData = totable( inData )
 	navmeshDirectionListener:pushEvent("Loaded", navmeshDirectionData)
 	
@@ -58,9 +48,7 @@ function load(inData)
 end
 
 function initNavMeshDirection( navMesh )
-	print(" -- ")
-	print(" -- NAV MESH ADDINIG DIRECTION DATA DIRECTION -- ")
-	print(" -- ")
+	
 	local navMeshNode = ConvertToNavMesh( navMesh )
 	for i=1, #navmeshDirectionData do
 		local pos = navmeshDirectionData[i].mat:getPosition()
@@ -71,7 +59,7 @@ function initNavMeshDirection( navMesh )
 end
 
 function specialUpdate()
-	print(" specialUpdate() ")
+	--print(" specialUpdate() ")
 	local navMesh = this:getPlayerNode():findNodeByTypeTowardsLeafe(NodeId.navMesh)
 	if navMesh then
 		initNavMeshDirection(navMesh)

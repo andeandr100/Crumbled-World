@@ -102,8 +102,6 @@ end
 
 function create()
 	
-	print("\n\n---------------- Railroad Tool ---------------\n\n\n")
-	
 	Tool.create()
 	Tool.enableChangeOfSelectedScene = false
 	
@@ -142,7 +140,7 @@ function create()
 		createMenu(bodyPanel)
 		
 	else
-		print("\nno settingsPanel\n\n")
+		--print("\nno settingsPanel\n\n")
 		return false
 	end
 	
@@ -152,7 +150,7 @@ end
 
 function newMap()
 	
-	print("\n\nRailroad tool New World\n\n\n")
+	--print("\n\nRailroad tool New World\n\n\n")
 
 end
 
@@ -160,13 +158,13 @@ function activated()
 	railwayScene:setVisible(true)
 	titlePanel:setVisible(true)
 	--check if there exist data to init
-	print("activated\n")
+	--print("activated\n")
 end
 
 function deActivated()
 	railwayScene:setVisible(false)
 	titlePanel:setVisible(false)
-	print("Deactivated\n")
+	--print("Deactivated\n")
 end
 
 function mouseCollision(offset)
@@ -270,7 +268,6 @@ function update()
 		local aIsland = node:findNodeByType(NodeId.island)
 		railwayScene:setVisible(true)
 		
-		print("Visble")	
 		
 		if selectedNode then
 			

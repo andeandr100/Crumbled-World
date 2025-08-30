@@ -20,11 +20,6 @@ function DeathHandler.new()
 	
 	
 	local function addAnimation( data )
---		local island = data.model:findNodeByTypeTowardsRoot(NodeId.island)
---		local globalMatrix = data.model:getGlobalMatrix()
---		island:addChild( data.model )
---		data.model:setLocalMatrix( island:getGlobalMatrix():inverseM() * globalMatrix )
-		 
 		animations[#animations+1] = {
 			type =					BodyType.animation,
 			groundTestTimer	=		-0.1,
@@ -46,7 +41,7 @@ function DeathHandler.new()
 	end
 	
 	function self.destroy()
-		abort()
+		
 	end
 	
 	-- ============================================================== --
@@ -54,11 +49,7 @@ function DeathHandler.new()
 	-- ============================================================== --
 	--scale and darken the body untill it is gone
 	local function decayBodyAnimation(body)
-		-- TEST CODE
---		if enableSelfDestruct then
---			Core.setUpdateHzRealTime(15)--
---		end
-		-- END OF TEST CODE
+
 		if body.higthOverGround==-1 then
 			local line = Line3D(body.model:getGlobalPosition()+Vec3(0,10,0), body.model:getGlobalPosition()-Vec3(0,10,0))
 			if body.model:getPlayerNode():collisionTree(line,NodeId.islandMesh) then
@@ -89,57 +80,42 @@ function DeathHandler.new()
 	end
 	
 	local function collisionAginstTheWorldGlobal(parent, globalPosition)
-		local localPosition = Vec3()
-		local globalMatrix = parent:getGlobalMatrix()
-		local line = Line3D(globalPosition + globalMatrix:getUpVec(), globalPosition -  globalMatrix:getUpVec() )
+		local line = Line3D(globalPosition + Vec3(0,2,0), globalPosition - Vec3(0,2,0) )
 		--Core.addDebugLine(line.startPos, line.endPos, 0.01, Vec3(1,1,0))
 		local collisionNode = parent:getPlayerNode():collisionTree(line, {NodeId.islandMesh, NodeId.collisionMesh})
 		--Core.addDebugSphere(Sphere( line.endPos, 0.3), 0.01, Vec3(1,0,0))
-		if collisionNode then
-			localPosition = parent:getGlobalMatrix():inverseM() * line.endPos
-		end
-		return collisionNode, localPosition 
+		return collisionNode, line.endPos 
 	end
 	
-	local function collisionAginstTheWorldLocal(parent, localPosition)
-		local globalPos = parent:getGlobalMatrix() * localPosition
-		return collisionAginstTheWorldGlobal(parent, globalPos)
-	end
 	
 	local function manageDeathAnimations(body, deltaTime)
 
 		body.lifeTime = body.lifeTime - deltaTime 
-		print("lifetime "..body.lifeTime)
+		--print("lifetime "..body.lifeTime)
 		if body.lifeTime<0.0 then
 			--remove animation
 			return
 		else
 			body.deathAnimationTimer = body.deathAnimationTimer - deltaTime
 			--position test
-			local localPos = body.model:getLocalPosition()
-			--localPos = Vec3()
+			local gloabalPos = body.model:getGlobalPosition()
+			--gloabalPos = Vec3()
+			
 			if body.deathAnimationTimer>0 and not body.fallingAnimationVelocity then
 				--animation still running on a ground and we are moving
-				localPos = body.deathPos + (body.deathVec * ( math.sin(math.pi*0.5*(1.0-(body.deathAnimationTimer/body.deathAnimationTimerStart))) * body.deathAnimationDistance))
-
-				--update position with ground collision
-				if body.groundTestNode then
-					localPos = Vec3(localPos.x,body.groundTestYPos.y,localPos.z)
-				end
+				gloabalPos = body.deathPos + (body.deathVec * ( math.sin(math.pi*0.5*(1.0-(body.deathAnimationTimer/body.deathAnimationTimerStart))) * body.deathAnimationDistance))
 			end
 			--is on what ground
 			body.groundTestTimer = body.groundTestTimer - deltaTime
 			if body.groundTestTimer<0.0 then
-				--test ground collision
---					local gPos = this:getGlobalPosition()
 				--Core.addDebugLine(gPos,gPos+Vec3(0,3,0),2,Vec3(1))
-				body.groundTestNode, body.groundTestYPos = collisionAginstTheWorldLocal(body.model:getParent(), localPos)
+				body.groundTestNode, body.groundTestYPos = collisionAginstTheWorldGlobal(body.model:getParent(), gloabalPos)
 				--set the timer for next update
 				body.groundTestTimer = body.groundTestTimer + 0.1
 				
 				--update position
 				if body.groundTestNode then
-					localPos = Vec3(localPos.x,body.groundTestYPos.y,localPos.z)
+					gloabalPos = Vec3(gloabalPos.x,body.groundTestYPos.y,gloabalPos.z)
 				end
 			end
 			--update animation
@@ -154,8 +130,9 @@ function DeathHandler.new()
 				body.fallingAnimationPosition = body.model:getGlobalPosition()--we must know where it is falling
 				body.fallingAnimationRotationSpeed = 0.0--rotation to hide the loack of animation
 				local gMatrix = body.model:getGlobalMatrix()
+				local playerNode = body.model:getPlayerNode()
 				body.model:getParent():removeChild(body.model:toSceneNode())
-				body.model:getPlayerNode():addChild(body.model:toSceneNode())--global space for (performance)
+				playerNode:addChild(body.model:toSceneNode())--global space for (performance)
 				body.model:setLocalMatrix(gMatrix)
 				if body.lifeTime < 5.0 then
 					body.lifeTime = 5.0
@@ -166,7 +143,7 @@ function DeathHandler.new()
 				--we are on a bridge or an island
 				if body.deathAnimationTimer>0.0 then--stage 1 (still movment from the death blow)
 					--we are still moving
-					this:setLocalPosition( localPos )
+					body.model:setLocalPosition( body.model:getParent():getGlobalMatrix():inverseM() * gloabalPos )
 					body.startDeadMatrix = body.model:getLocalMatrix()
 				elseif body.lifeTime > getDeadBodyDecayTime() then--stage 2 (waiting)
 					--groundTestNode can be failed because the animation is done and it was an edge case, [RESAULT is failed ground test but the npc is still mostly on ground]
@@ -178,7 +155,6 @@ function DeathHandler.new()
 					--The body is old time to decay away or get delete
 
 					--The dead body is on a island. use deafault decay
-					--this:setLocalPosition( localPos ), position is updated by the next function
 					decayBodyAnimation(body)
 				end
 			else
@@ -204,16 +180,21 @@ function DeathHandler.new()
 	
 	function self.update()
 		for n=1, #animations do
-			manageDeathAnimations(animations[n], Core.getDeltaTime())
-			if animations[n].lifeTime < 0 then
-				--Delete this dead body from the handler
-				animations[n].model:getParent():removeChild(animations[n].model:toSceneNode())--this is in global space, must be deleted
-				animations[n] = animations[#animations]
-				animations[#animations] = nil
-				n = n - 1
+			--print("For animations: " .. n)
+			if animations[n] then
+				manageDeathAnimations(animations[n], Core.getDeltaTime())
+--				animations[n].lifeTime = animations[n].lifeTime - Core.getDeltaTime()
+				if animations[n].lifeTime < 0 then
+					--Delete this dead body from the handler
+					animations[n].model:getParent():removeChild(animations[n].model:toSceneNode())--this is in global space, must be deleted
+					animations[n] = animations[#animations]
+					animations[#animations] = nil
+					n = n - 1
+					--print("Delete animations: " .. n)
+				end
 			end
 		end
-		print("Update Death Handler <----------")
+		--print("Update Death Handler <----------")
 		return true
 	end
 	
@@ -229,7 +210,7 @@ function destroy()
 		handler = nil
 		update = nil
 	end
-	abort()
+
 end
 
 function create()

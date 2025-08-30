@@ -177,7 +177,7 @@ function create()
 		return false
 	end
 	
-	form = Form( camera, PanelSize(Vec2(1)), Alignment.TOP_LEFT)
+	form = Form( camera, PanelSize(Vec2(1)), Alignment.TOP_LEFT, "InGameMenuForm")
 	form:setName("InGameMenu form")
 	form:setRenderLevel(12)
 	form:setVisible(false)
@@ -293,7 +293,7 @@ function create()
 	
 	
 	--Options form
-	optionsForm = Form( camera, PanelSize(Vec2(-1,-0.8), Vec2(4,4)), Alignment.MIDDLE_CENTER);
+	optionsForm = Form( camera, PanelSize(Vec2(-1,-0.8), Vec2(4,4)), Alignment.MIDDLE_CENTER, "InGameMenuOptionForm");
 	optionsForm:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))));
 	optionsForm:setRenderLevel(12)
 	optionsForm:setVisible(false)

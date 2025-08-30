@@ -68,7 +68,7 @@ function DeafultCameraPosition.new()
 		local mainCamera = ConvertToCamera(this:getRootNode():findNodeByName("MainCamera"))
 		
 		--create form
-		form = Form( mainCamera, PanelSize(Vec2(-1)), Alignment.TOP_LEFT);
+		form = Form( mainCamera, PanelSize(Vec2(-1)), Alignment.TOP_LEFT, "DefaultCameraPositionMenuForm");
 		form:setBackground(Gradient(Vec4(0,0,0,0.8), Vec4(0,0,0,0.95)));
 		form:setVisible(false)
 		form:setRenderLevel(99)--render below notification render level

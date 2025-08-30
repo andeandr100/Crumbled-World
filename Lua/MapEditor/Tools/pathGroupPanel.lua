@@ -18,7 +18,7 @@ function PathGroupPanel.getGroupId()
 		end
 	end
 	
-	print("New Id: "..id.."\n")
+	--print("New Id: "..id.."\n")
 	return id
 end
 
@@ -32,7 +32,7 @@ function PathGroupPanel.createNewGroup(button)
 		PathGroupPanel.functionAddCallback(id, color)
 	end
 	
-	print("\nGroups: "..tostring(PathGroupPanel.groups).."\n")
+	--print("\nGroups: "..tostring(PathGroupPanel.groups).."\n")
 end
 
 function PathGroupPanel.removeGroup(panel)
@@ -69,18 +69,18 @@ end
 function PathGroupPanel.getGroupFromId(id)
 	for i=1, #PathGroupPanel.groups do
 		if PathGroupPanel.groups[i].id == id then
-			print("Group Found return data\n")
+			--print("Group Found return data\n")
 			return PathGroupPanel.groups[i]
 		end
 	end
-	print("nil\n")
+	--print("nil\n")
 	return nil
 end
 
 function PathGroupPanel.setGroupList(groupList)
 
 	local groupsPanel = PathGroupPanel.groupsPanel
-	print("\nSet group list, size: "..tostring(#groupList).."\n")
+	--print("\nSet group list, size: "..tostring(#groupList).."\n")
 	
 	groupsPanel:clear();
 	
@@ -88,7 +88,7 @@ function PathGroupPanel.setGroupList(groupList)
 		PathGroupPanel.addGroup(groupList[i].id, groupList[i].color)
 	end
 
-	print("\nGroups: "..tostring(PathGroupPanel.groups).."\n")
+	--print("\nGroups: "..tostring(PathGroupPanel.groups).."\n")
 end
 
 function PathGroupPanel.addGroup(id, color)
@@ -106,7 +106,7 @@ function PathGroupPanel.addGroup(id, color)
 	aButton:setInnerHoverColor(Vec4(1,1,1,0.5))	
 	aButton:setInnerDownColor(Vec4(0,0,0,1))
 	aButton:setTag(tostring(id))
-	print("id: "..id.."\n")
+	--print("id: "..id.."\n")
 	aButton:setLayout(FlowLayout(Alignment.BOTTOM_RIGHT))
 	aButton:setBackground(Sprite(color), PanelSize(Vec2(0.975, 0.75), PanelSizeType.ParentPercent))
 	if PathGroupPanel.functionChangeGroup then

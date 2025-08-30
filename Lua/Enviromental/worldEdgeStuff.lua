@@ -6,7 +6,7 @@ function worldEdgeStuff.init(island, staticNode, dynamicNode)
 	local self = worldEdgeStuff
 	--Core.setUpdateHzRealTime(16)
 	--assert(island,"no island in in parameter")
-	print("island:getNodeType()="..island:getNodeType().."\n")
+	--print("island:getNodeType()="..island:getNodeType().."\n")
 	--Dust
 	self.g1 = Core.getModel( "Data/Models/nature/stone/gravel1.mym" )
 	self.g2 = Core.getModel( "Data/Models/nature/stone/gravel2.mym" )
@@ -48,7 +48,7 @@ function worldEdgeStuff.load(importTable, island, staticNode, dynamicNode)
 	local self = worldEdgeStuff
 	--Core.setUpdateHzRealTime(16)
 	--assert(island,"no island in in parameter")
-	print("island:getNodeType()="..island:getNodeType().."\n")
+	--print("island:getNodeType()="..island:getNodeType().."\n")
 	--Dust
 	self.g1 = Core.getModel( "Data/Models/nature/stone/gravel1.mym" )
 	self.g2 = Core.getModel( "Data/Models/nature/stone/gravel2.mym" )

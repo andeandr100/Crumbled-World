@@ -25,7 +25,6 @@ function GamePanel.create(mainPanel)
 end
 
 function GamePanel.changeLanguageComboBox(comboBox)
-	print("---- change language to "..comboBox:getText():toString().." ----")
 	language:setLanguage(comboBox:getText():toString())
 	settingsGamePanelListener:pushEvent("LanguageChanged")
 	--Call mainMenu.lua functio

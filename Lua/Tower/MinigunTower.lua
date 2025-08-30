@@ -278,6 +278,10 @@ function MinigunTower.new()
 			model:getMesh( "lasersight"..index ):setVisible(data.getLevel("range")==index)
 			model:getMesh( "engineboost"..index ):setVisible(data.getLevel("overCharge")==index)
 			model:getMesh( "oil"..index ):setVisible(data.getLevel("overkill")==index)
+			
+			model:getMesh( "lasersight"..index ):setEnableShadow(false)
+			model:getMesh( "engineboost"..index ):setEnableShadow(false)
+			model:getMesh( "oil"..index ):setEnableShadow(false)
 		end
 		model:getMesh( "physic" ):setVisible(false)
 		model:getMesh( "hull" ):setVisible(false)
@@ -288,6 +292,12 @@ function MinigunTower.new()
 		pipesMesh = model:getMesh( "pipe1" )
 		cabelMesh = model:getMesh( "cabels" )
 		pipeBoostMesh = model:getMesh("pipeBoost" )
+		
+		engineMesh:setEnableShadow(false)
+		rotatorMesh:setEnableShadow(false)
+		pipesMesh:setEnableShadow(false)
+		cabelMesh:setEnableShadow(false)
+		pipeBoostMesh:setEnableShadow(false)
 		
 		
 		--performance check
@@ -550,6 +560,9 @@ function MinigunTower.new()
 		
 		model = Core.getModel( string.format("tower_minigun_l%d.mym", data.getTowerLevel()) )
 		this:addChild(model:toSceneNode())
+		
+		
+		
 		initModel()
 		if copyPreviousData then
 			rotatorMesh:setLocalMatrix(rotaterMatrix)

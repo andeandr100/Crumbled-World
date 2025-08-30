@@ -18,7 +18,7 @@ function init()
 		end
 				
 		local protectedPaths = buildNode:getProtectedPaths()
-		print("protectedPaths: "..tostring(protectedPaths))
+		--print("protectedPaths: "..tostring(protectedPaths))
 		for i=1, #protectedPaths do
 			local line = protectedPaths[i]
 			local path = navMesh:getPath(0.8, line[1], line[2])
@@ -132,7 +132,7 @@ function spawnSpirit()
 		if numGroup > 0 then
 			groupId = spawn.groups[math.randomInt(1, numGroup)]
 		else
-			print("no path found set random end as end point\n")
+			--print("no path found set random end as end point\n")
 			local endPoint = ends[math.randomInt(1, #ends)]
 			nodeMover:addMoveTo(endPoint.island, endPoint.position)
 			spirit.finalIsland = endPoint.island

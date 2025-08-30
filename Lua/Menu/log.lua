@@ -25,7 +25,7 @@ function create()
 		local camera = ConvertToCamera(rootNode:findNodeByName("MainCamera"));
 		backgroundSet = false
 		
-		form = Form( camera, PanelSize(Vec2(0.25,0.45)), Alignment.BOTTOM_LEFT);
+		form = Form( camera, PanelSize(Vec2(0.25,0.45)), Alignment.BOTTOM_LEFT, "LogForm");
 		form:setName("Log form")
 		--form:setBackground(Sprite(Vec4(0.1, 0.1, 0.1, 0.7)));
 		form:setLayout(FlowLayout());

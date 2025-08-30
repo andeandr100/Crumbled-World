@@ -122,7 +122,7 @@ function CampaignData.new()
 	init()
 	--
 	function self.fixCrystalLimits()
-		print("self.fixCrystalLimits()")
+		--print("self.fixCrystalLimits()")
 		if campaingDataConfig:get("crystal",0):getInt()>self.getMaxGoldNeededToUnlockEverything() then
 			campaingDataConfig:get("crystal"):setInt(self.getMaxGoldNeededToUnlockEverything())
 		end
@@ -273,7 +273,7 @@ function CampaignData.new()
 	end
 	--
 	function self.addCrystal(addCount)
-		print("==> self.addCrystal("..addCount..")")
+		--print("==> self.addCrystal("..addCount..")")
 		--update current crystal count
 		campaingDataConfig:get("crystal"):setInt(self.getCrystal()+addCount)
 		--update upgrade tables for towers
@@ -309,7 +309,7 @@ function CampaignData.new()
 	end
 	function self.clear(towerName,upgradeName,permUnlocked)
 		if permUnlocked then
-			print("==> self.clear("..towerName..","..upgradeName..","..tostring(permUnlocked)..")")
+			--print("==> self.clear("..towerName..","..upgradeName..","..tostring(permUnlocked)..")")
 			local upgCount = self.getBoughtUpg(towerName,upgradeName,permUnlocked)
 			campaingDataConfig:get(towerName):get(upgradeName):get(permUnlocked and "permUnlocked" or "buyable",0):setInt(0)
 			self.addCrystal( upgCount==1 and PERMENANTUPGCOST or 0 )

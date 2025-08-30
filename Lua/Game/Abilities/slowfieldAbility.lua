@@ -27,10 +27,6 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 		return abilityHasBeenUsedThisWave
 	end
 	
-	function self.isActive()
-		return boostSelected
-	end
-	
 	function self.setSlowFieldButtonPressed()
 		boostSelected = true
 	end

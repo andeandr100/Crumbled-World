@@ -26,7 +26,6 @@ function ColorPickerForm.new(inParentPanel, panelSize, inColor)
 	
 	function self.setColor(color)
 		
-		print("set Color: "..tostring(color).." previous color: "..tostring(colorPicker:getColor()).."\n")
 		if previousColor ~= Vec3(color.x, color.y, color.z) then
 			previousColor = Vec3(color.x, color.y, color.z)
 			
@@ -39,7 +38,6 @@ function ColorPickerForm.new(inParentPanel, panelSize, inColor)
 			colorButton:setBackground(Sprite(color))
 			colorPicker:setColor(color)
 			if onChangeCallback then
-				print("Call color change callback\n")
 				onChangeCallback(colorPicker)
 			end
 		end
@@ -80,13 +78,11 @@ function ColorPickerForm.new(inParentPanel, panelSize, inColor)
 			else
 				position.x = colorButton:getMinPos().x
 			end
-			print("Position "..position.x..", "..position.y.."\n")
 			form:setFormOffset(PanelSize(position, PanelSizeType.Pixel))
 		end
 	end
 	
 	function self.toogleVisible()
-		print("Togle visible")
 		form:setVisible(not form:getVisible())
 		self.updatePosition()
 	end
@@ -99,7 +95,7 @@ function ColorPickerForm.new(inParentPanel, panelSize, inColor)
 		
 		local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 	
-		form = Form( camera, PanelSize(Vec2(0.17,1), Vec2(3,2.1)), Alignment.TOP_LEFT);
+		form = Form( camera, PanelSize(Vec2(0.17,1), Vec2(3,2.1)), Alignment.TOP_LEFT,"ColorPickerForm");
 	
 		form:getPanelSize():setFitChildren(false, false);
 		form:setLayout(FallLayout( Alignment.TOP_LEFT, PanelSize(Vec2(0.003),Vec2(1))));

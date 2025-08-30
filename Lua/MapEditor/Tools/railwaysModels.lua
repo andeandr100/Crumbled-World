@@ -18,7 +18,7 @@ function RailwaysModels.getModelTable()
 		for n=1, 2 do
 			local direction = ( n==2 and -1 or 1 )
 			
-			print("mat: "..(i*2+n)..", dire: "..direction.."\n")
+			--print("mat: "..(i*2+n)..", dire: "..direction.."\n")
 			
 			local mat = Matrix()
 			mat:setRotation(Vec3(0,rad,0))

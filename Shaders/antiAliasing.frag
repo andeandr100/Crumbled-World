@@ -16,7 +16,7 @@ out vec4 FragColor;
 vec2 offsetArray[8];
 
 void main()
-{             
+{
 	vec2 textCoord=TexCoords.xy;
 	vec3 currentPos = texture2D(gPosition, textCoord).xyz;
  
@@ -55,8 +55,8 @@ void main()
 
 		FragColor=vec4(color/8,1.0);
 	}
-	else {  
+	else {
 		FragColor=vec4(texture2D(diffuseMap, textCoord).rgb,1.0);
 	}
-}  
+}
 

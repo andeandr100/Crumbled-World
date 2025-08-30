@@ -14,7 +14,6 @@ require("Menu/SelectedMenu/TowerBarPanel.lua")
 --buildingNodeBillboard = Billboard()
 --buildingBillBoard = Billboard()
 --header = Label()
---selectedCamera = Camera()
 --camera = Camera()
 --this = SceneNode()
 --esqKeyBind = KeyBind()
@@ -22,7 +21,7 @@ require("Menu/SelectedMenu/TowerBarPanel.lua")
 --tonumber = Function()
 
 selectedtowerMenu = {}
-function selectedtowerMenu.new(inCamera)
+function selectedtowerMenu.new(inCamera, menuCamera)
 	local self = {}
 	--variabels from outside
 	local formWallTower
@@ -33,6 +32,7 @@ function selectedtowerMenu.new(inCamera)
 	local gameValues = GameValues.new()
 	local header = nil
 	local camera = inCamera
+	local towerCamera = menuCamera
 	
 	--local variabels
 	local keyBinds
@@ -56,6 +56,15 @@ function selectedtowerMenu.new(inCamera)
 	local updateBoostTimer = {}
 	
 	local billboardStats = Core.getBillboard("stats")
+	
+	local function senToBuildNode( netMessage, data)
+		local playerNode = this:findNodeByType(NodeId.playerNode)
+		local buildNode = playerNode:findNodeByType(NodeId.buildNode)
+		
+		if buildNode then
+			comUnit:sendTo( buildNode:getScriptByName("BuilderScript"):getIndex(), netMessage, data)	
+		end
+	end
 	
 	local function sellTower(button)
 		local playerNode = this:findNodeByType(NodeId.playerNode)
@@ -84,7 +93,7 @@ function selectedtowerMenu.new(inCamera)
 	local function createForm()
 		
 		local panelSpacing = PanelSize(Vec2(0.005),Vec2(1))
-		local form = Form( camera, PanelSize(Vec2(0.225,-1),PanelSizeType.WindowPercentBasedOnY), Alignment.BOTTOM_RIGHT);
+		local form = Form( camera, PanelSize(Vec2(0.225,-1),PanelSizeType.WindowPercentBasedOnY), Alignment.BOTTOM_RIGHT, "SelectedTowerMenuForm");
 		form:setName("SelectedMenu form")
 		form:getPanelSize():setFitChildren(false,true)
 		form:setBackground(Gradient(Vec4(Vec3(0),0.85), Vec4(Vec3(0),0.7)));
@@ -144,14 +153,7 @@ function selectedtowerMenu.new(inCamera)
 		comUnit:sendTo(buildingScript:getIndex(),"SetTargetMode",tostring(index))
 	end
 	
-	local function senToBuildNode( netMessage, data)
-		local playerNode = this:findNodeByType(NodeId.playerNode)
-		local buildNode = playerNode:findNodeByType(NodeId.buildNode)
-		
-		if buildNode then
-			comUnit:sendTo( buildNode:getScriptByName("BuilderScript"):getIndex(), netMessage, data)	
-		end
-	end
+	
 	
 	local function instalForm()
 	
@@ -162,7 +164,7 @@ function selectedtowerMenu.new(inCamera)
 		wallTowerPanel = WallTowerPanel.new(formWallTower,getLastBuildingSelected, senToBuildNode)
 		wallPanelInit = false
 		towerImagePanel = formWallTower:add(Panel(PanelSize(Vec2(-1),Vec2(1))));
-		towerImagePanel:setBackground(Sprite(selectedCamera:getTexture()));
+		towerImagePanel:setBackground(Sprite(towerCamera:getTexture()));
 		
 		
 		
@@ -182,7 +184,7 @@ function selectedtowerMenu.new(inCamera)
 		
 		--tower image
 		towerImagePanel = formTower:add(Panel(PanelSize(Vec2(-1),Vec2(1))));
-		towerImagePanel:setBackground(Sprite(selectedCamera:getTexture()));
+		towerImagePanel:setBackground(Sprite(towerCamera:getTexture()));
 		towerImagePanel:setLayout(FlowLayout());
 		towerImagePanel:getLayout():setPanelSpacing(PanelSize(Vec2(0.005)));
 		
@@ -281,6 +283,7 @@ function selectedtowerMenu.new(inCamera)
 					
 					wallTowerPanel.updateWallTowerButtons()
 					formWallTower:setVisible(true)
+					towerCamera:setActive(true)
 					--columns
 					--buildingBillBoard:getBool("isNetOwner")
 				else
@@ -310,20 +313,21 @@ function selectedtowerMenu.new(inCamera)
 					upgradePanel.updateUpgradeInfoIcons()
 					
 					formTower:setVisible(true)
+					towerCamera:setActive(true)
 				end
 				
 			end
-			buildingLastSelected:addChild(selectedCamera:toSceneNode())
+			buildingLastSelected:addChild(towerCamera:toSceneNode())
 					
 			local camMatrix = Matrix();
 			local camPos = Vec3(4,6,4)
 			camMatrix:createMatrix((camPos-Vec3(0,1.5,0)):normalizeV(), Vec3(0,1,0))
 			camMatrix:setPosition(camPos)
-			selectedCamera:setLocalMatrix(camMatrix)
+			towerCamera:setLocalMatrix(camMatrix)
 			
 			local contentSize = towerImagePanel:getPanelContentPixelSize()
 			contentSize:maximize(Vec2i(32))
-			selectedCamera:setFrameBufferSize(contentSize * 2)
+			towerCamera:setFrameBufferSize(contentSize * 2)
 		else
 			builBilboard:setBool("isTowerSelected",false)
 		end
@@ -388,7 +392,9 @@ function selectedtowerMenu.new(inCamera)
 		if visible and ( selectedBuildingType == 1 or selectedBuildingType == 2 ) then
 			formTower:setVisible(selectedBuildingType == 1)
 			formWallTower:setVisible(selectedBuildingType == 2)
+			towerCamera:setActive(true)
 		else
+			towerCamera:setActive(false)
 			formTower:setVisible(false)
 			formWallTower:setVisible(false)
 			buildingLastSelected = nil
@@ -397,14 +403,7 @@ function selectedtowerMenu.new(inCamera)
 	end
 	
 	function self.update()
-		
-		if keyBindUpgradeBuilding:getPressed() then
-			--abort()
-		end
-		if keyBindSellBulding:getPressed() then
-			--abort()
-		end
-		
+
 		--when in game menu is shown hide selected tower menu
 		if esqKeyBind:getPressed() or buildingNodeBillboard:getBool("inBuildMode") then
 			self.setVisible(false)

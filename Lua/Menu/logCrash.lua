@@ -38,7 +38,7 @@ function generateForm()
 	local rootNode = this:getRootNode();
 	local camera = ConvertToCamera(rootNode:findNodeByName("MainCamera"));
 	
-	form = Form( camera, PanelSize(Vec2(0.15,0.22)), Alignment.TOP_LEFT);
+	form = Form( camera, PanelSize(Vec2(0.15,0.22)), Alignment.TOP_LEFT, "LogCrashForm");
 	form:setName("LogCrash form")
 	form:setBackground(Sprite(Vec4(0.1, 0.1, 0.1, 0.7)));
 	form:setLayout(FlowLayout());

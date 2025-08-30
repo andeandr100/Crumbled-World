@@ -8,11 +8,11 @@ require("MapEditor/mapSettingsTable.lua")
 
 function addFileToSceneNode(fileName)
 	if playerNode then
-		print("fileName: "..fileName:toString().."\n")
+		--print("fileName: "..fileName:toString().."\n")
 		local script = playerNode:loadLuaScript(fileName:toString())
 		addScriptToMapSettingsMenu(script)
-	else
-		print("No playerNode was found\n")
+	--else
+		--print("No playerNode was found\n")
 	end
 end
 
@@ -106,7 +106,7 @@ function create()
 		
 		IconCamera.create()
 		
-		form = Form( camera, PanelSize(Vec2(0.32,0.85)), Alignment.MIDDLE_CENTER);
+		form = Form( camera, PanelSize(Vec2(0.32,0.85)), Alignment.MIDDLE_CENTER, "MapSettingsForm");
 		form:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor));
 		form:setLayout(FlowLayout());
 		form:setBorder(Border(BorderSize(Vec4(0.002)), MainMenuStyle.borderColor));
@@ -278,8 +278,8 @@ function reloadData()
 	
 	local nodeId = this:findNodeByType(NodeId.fileNode)
 	if nodeId and nodeId:contains("info.txt") then
-		print(nodeId:getFile("info.txt"):getContent())
-		print("\n\n")
+		--print(nodeId:getFile("info.txt"):getContent())
+		--print("\n\n")
 		MapSettings = totable( nodeId:getFile("info.txt"):getContent() )
 	end
 	
@@ -354,11 +354,11 @@ end
 
 function updateAmbientLight()
 	local ambientLight = camera:getAmbientLight()
-	if ambientLight then
-		print("Ambient light exit\n")
-	else
-		print("No no no ambient light\n")
-	end
+	--if ambientLight then
+		--print("Ambient light exit\n")
+	--else
+		--print("No no no ambient light\n")
+	--end
 	
 	ambientRed:setText( string.format ("%.0f", tostring( ambientLight:getColor().x * 255 )) )
 	ambientGreen:setText( string.format ("%.0f", tostring( ambientLight:getColor().y * 255)) )

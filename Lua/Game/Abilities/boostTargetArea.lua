@@ -8,6 +8,9 @@ function boostTargetArea.new(inBuildNode)
 	local areaEffect = TargetAreaEffect.new("abilities/boostTargetArea")
 	local buildNode = inBuildNode
 	local selectedNodes = {}
+	local particleEffect = GraphicParticleSystem.new(1600,1.5)
+	
+	
 	--buildNode = BuildNode()
 	
 	function self.hiddeTargetMesh()
@@ -24,8 +27,10 @@ function boostTargetArea.new(inBuildNode)
 	end
 	
 	local function initTargetMesh()
-
-		areaEffect.setUniform( "Radius", 1.8)
+		
+		local radius = 1.8
+		
+		areaEffect.setUniform( "Radius", radius)
 		areaEffect.setUniform( "effectColor", Vec3(1) )
 		nodeArea:addChild(areaEffect.getSceneNode())
 		
@@ -35,6 +40,27 @@ function boostTargetArea.new(inBuildNode)
 		mainCamera = rootNode:findNodeByName("MainCamera")
 		
 		self.hiddeTargetMesh()
+		
+		
+		local shader = Core.getShader("ParticleEffectBasic")
+		particleEffect:setShader(shader)
+		particleEffect:setRenderBlendMode(GL_Blend.SRC_ALPHA, GL_Blend.ONE)
+		radius = radius * 0.95
+		for i=1, particleEffect:getMaxParticles() do 
+			local randAngle = math.randomFloat(0.0, 3.1459 * 2.0)
+			local uvCoord = Vec2(0.0,0.75) + Vec2(0, math.randomFloat() > 0.5 and 0.125 or 0.0 )
+			local position = Vec3(math.cos(randAngle),0.05,math.sin(randAngle)):normalizeV() * radius
+			local velocity = Vec3(0,math.randomFloat(0.2,0.5),0)
+		
+			local startColor = Vec4(0.1,math.randomFloat(0.55,0.75),0.1,0.11)
+			local finalColor = Vec4(0.1,startColor.y,0.1,0.0)
+			local startSize = math.randomFloat(0.12,0.22)
+			local finalSize = startSize * 0.5
+			
+			particleEffect:addparticle( position, velocity, uvCoord, startColor, finalColor, startSize, finalSize, i/particleEffect:getMaxParticles() )
+		end
+		particleEffect:compile()
+		nodeArea:addChild(particleEffect:toSceneNode())
 	end
 	
 	local function updatedShaderSelected(sceneNode, selected)
@@ -109,15 +135,22 @@ function boostTargetArea.new(inBuildNode)
 		return buildingNodes		
 	end
 
-	function self.update(visible, globalposition)
+	function self.update(visible, globalposition, active)
 		nodeArea:setVisible(visible)
-		areaEffect.update(visible, globalposition)
-		
+		areaEffect.update(visible and not active, globalposition)
+
 		if visible then
 			local bostableNodes = removeUnbostableTower(buildNode:getAllBuildingFromPoint(globalposition, 2))
 			updateSelectedNodes( bostableNodes )
 		elseif #selectedNodes > 0 then
 			updateSelectedNodes( {} )
+		end
+		
+		if active then
+			particleEffect:setVisible(true)
+		else
+			particleEffect:setLocalPosition(globalposition)
+			particleEffect:setVisible(false)
 		end
 	end
 	

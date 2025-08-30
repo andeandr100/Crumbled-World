@@ -9,7 +9,7 @@ function setModel(panel)
 	toolManager = this:getRootNode():findNodeByTypeTowardsLeafe(NodeId.toolManager)
 	if toolManager then
 		toolManager:setToolScript("MapEditor/Tools/ModelPlaceTool.lua")
-		print("Model: "..panel:getTag():toString().."\n")
+		--print("Model: "..panel:getTag():toString().."\n")
 		nextModel = panel:getTag():toString()
 		firstUpdateOfSelectedModel = true
 	end
@@ -128,7 +128,7 @@ function activated()
 	currentModelMatrix = Matrix()
 	toolModelSettingsPanel:setVisible(true)
 	Tool.clearSelectedNodes()
-	print("activated\n")
+	--print("activated\n")
 	
 	--currentFrae = Core.get
 end
@@ -142,7 +142,7 @@ function deActivated()
 		currentModel = nil
 	end
 	toolModelSettingsPanel:setVisible(false)
-	print("Deactivated\n")
+	--print("Deactivated\n")
 end
 
 --As long as the tool is active update is caled
@@ -203,9 +203,9 @@ function update()
 		--Set the local position to the global position
 		--currentModel:setLocalPosition(collisionPos)	
 		
-		if collisionPos:length() < 0.1 then
-			print("No position")
-		end
+		--if collisionPos:length() < 0.1 then
+		--	print("No position")
+		--end
 		
 		if Core.getInput():getMouseDown(MouseKey.left) then
 			--Create a copy of the model

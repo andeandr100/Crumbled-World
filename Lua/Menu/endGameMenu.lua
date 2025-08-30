@@ -226,7 +226,7 @@ function initiate()
 	local camera = rootNode:findNodeByName("MainCamera");
 
 	local camera = ConvertToCamera(camera);
-	form = Form( camera, PanelSize(Vec2(0.8,0.9), Vec2(1,1)), Alignment.MIDDLE_CENTER)
+	form = Form( camera, PanelSize(Vec2(0.8,0.9), Vec2(1,1)), Alignment.MIDDLE_CENTER, "EndGameMenuForm")
 	form:setName("EndGameMenu form")
 	form:getPanelSize():setFitChildren(false, true)
 	form:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
@@ -422,7 +422,6 @@ function manageVictoryAchievement(scoreItem)
 	if scoreItem.name=="dimond" and mapInfo.getGameMode()=="default" and bilboardStats:getBool("waveRestarted") then
 	end
 	if scoreItem.name=="gold" then
-		print("Map: "..mapInfo.getMapName())
 		if mapInfo.getMapName()=="Beginning" then
 			comUnit:sendTo("SteamAchievement","MapBeginning","")
 		elseif mapInfo.getMapName()=="Blocked path" then

@@ -345,13 +345,6 @@ local function updateTutorialRenderObject()
 					textNode:setSize(textNode:getTextSize())
 					textNode:setLocalPosition(centerPos -  textNode:getTextSize() * textOffset)
 					
-					print("\n")
-					print("-------------------------")
-					print("CenterPos: "..tostring(centerPos.x)..", "..tostring(centerPos.y))
-					print("TextPosition: "..tostring(centerPos.x-textNode:getTextSize().x * textOffset.x)..", "..tostring(centerPos.y-textNode:getTextSize().y * textOffset.y))
-					print("TextSize: "..tostring(textNode:getTextSize().x)..", "..tostring(textNode:getTextSize().y))
-					print("-------------------------")
-					
 				elseif lesson.textAlign == "center" then
 					textNode:setText(lesson.text)
 					textNode:setVisible(true)
@@ -696,7 +689,7 @@ function create()
 	
 	local camera = ConvertToCamera(this:getRootNode():findNodeByName("MainCamera"));
 	
-	form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.BOTTOM_RIGHT);
+	form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.BOTTOM_RIGHT, "TutorialForm");
 	form:setName("tutorial form")
 	form:setRenderLevel(201)
 	form:setCanHandleInput(false)

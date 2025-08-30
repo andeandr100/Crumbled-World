@@ -69,7 +69,7 @@ function EventBase.new()
 	local function destroyEventBase()
 		if destroyInNFrames <= 0 then
 			this:loadLuaScript(this:getCurrentScript():getFileName());
-			print("Event destroy()")
+			--print("Event destroy()")
 			return false	 
 		else
 			destroyInNFrames = destroyInNFrames - 1

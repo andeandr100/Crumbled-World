@@ -41,9 +41,7 @@ end
 
 function callbackExecuteText(textField)
 	if textField:getText():length() > 0 then
-		print("")
 		print("Chat text: \""..textField:getText():toString().."\"")
-		print("")
 		addMessage(client:getUserName(), textField:getText())
 		local tab = {name=client:getUserName(), msg=textField:getText():toString()}
 		comUnit:sendNetworkSyncSafe("SendChat",tabToStrMinimal(tab))
@@ -147,7 +145,7 @@ function create()
 		
 		
 		
-		form = Form( camera, PanelSize(Vec2(-1,0.29), Vec2(0.4/0.29,1)), Alignment.BOTTOM_LEFT);
+		form = Form( camera, PanelSize(Vec2(-1,0.29), Vec2(0.4/0.29,1)), Alignment.BOTTOM_LEFT, "InGameChatForm");
 		form:setName("InGameChat form")
 		form:setLayout(FallLayout());
 		form:setPadding(BorderSize(Vec4(MainMenuStyle.borderSize * 3)));
@@ -218,8 +216,6 @@ function specialUpdate()
 		scroll:setScrollOffset(scroll:getMaxScrollOffset())
 		scroll:setVisible(visible)
 		update = oldUpdate
-	else
-		print("Chatt update")
 	end
 	return true
 end

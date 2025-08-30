@@ -29,7 +29,6 @@ end
 
 function Tool.deactivated()
 	superDeActivated()
-	print("Overide deactivation\n")
 	if selectedAreaSprite then
 		selectedAreaSprite:setVisible(false)
 		selectState = 0
@@ -37,15 +36,11 @@ function Tool.deactivated()
 end
 
 local function setMoveTool()
-	print("setMoveTool 1\n")
 	toolManager = this:getRootNode():findNodeByTypeTowardsLeafe(NodeId.toolManager)
-	print("setMoveTool 2\n")
+	
 	if toolManager then
-		print("setMoveTool 3\n")
 		toolManager:setToolScript("MapEditor/Tools/SceneMoveTool.lua")
-		print("setMoveTool 4\n")
 	end
-	print("setMoveTool Done\n")
 end
 
 local function selectNode(sceneNode)
@@ -53,11 +48,9 @@ local function selectNode(sceneNode)
 		local result = sceneNode:findAllNodeByTypeTowardsLeaf({NodeId.islandMesh, NodeId.mesh, NodeId.animatedMesh, NodeId.nodeMesh})
 		for i=1, #result do
 			local node = result[i]
-			print("Node Type: "..node:getNodeType().."\n")
 			local shader = node:getShader()
 			if shader then
 				local newShader = Core.getShader(shader:getName(),"SELECTED")
-				print("New shader fullName: "..newShader:getFullName().."\n")
 				if newShader then
 					node:setShader(newShader)			
 				end
@@ -74,7 +67,6 @@ local function deSelectSceneNode(sceneNode)
 			local shader = result[i]:getShader()
 			if shader then 
 				local newShader = Core.getShader(shader:getName())
-				print("New shader fullName: "..newShader:getFullName().."\n")
 				if newShader then
 					result[i]:setShader(newShader)			
 				end
@@ -212,7 +204,7 @@ end
 
 function Tool.trySelectNewScene(changeTool)
 	if Core.getInput():getMouseDown( MouseKey.left ) and buildAreaPanel == Form.getPanelFromGlobalPos( Core.getInput():getMousePos() ) then
-		print("mouseDown\n")
+		
 		mouseDownPos = Core.getInput():getMousePos()
 		selectState = 1
 	elseif Core.getInput():getMouseHeld(MouseKey.left) and ( selectState == 1 or selectState == 2) then

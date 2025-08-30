@@ -54,11 +54,6 @@ function create()
 		camera:setEnableUpdates(true)
 	
 		local directionlight = Core.getDirectionalLight(this)
-		if directionlight == nil  then
-			print("no light found, --directionlight")
-		else
-			print("found it")
-		end
 		camera:setDirectionLight(directionlight)
 		camera:setAmbientLight(Core.getAmbientLight(this))
 		camera:setUseShadow(Settings.shadow.getIsEnabled())

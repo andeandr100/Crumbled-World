@@ -17,7 +17,7 @@ function create()
 	--local localWork = this:createWork()
 	
 	if camera then
-		form = Form(camera, PanelSize(Vec2(0.7,1.0)), Alignment.TOP_RIGHT)
+		form = Form(camera, PanelSize(Vec2(0.7,1.0)), Alignment.TOP_RIGHT, "LuaTextEditorForm")
 		form:setLayout(FlowLayout())
 		form:setRenderLevel(12)
 		

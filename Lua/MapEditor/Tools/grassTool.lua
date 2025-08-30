@@ -76,7 +76,7 @@ function Loaded(inGrassData)
 end
 
 function addPreSet(name)
-	print("\n\nname: "..name.."\n\n\n")
+	--print("\n\nname: "..name.."\n\n\n")
 	if not presetData[name] then
 		PreSetPanel.addPreSet(name)
 		
@@ -113,7 +113,7 @@ function changePreset(name)
 	
 	local newConfig = presetData[name]
 	
-	print("\n\n change preset\n\n\n")
+	--print("\n\n change preset\n\n\n")
 	
 	if newConfig.strawGravity then
 		textFieldGravity:setText(tostring(round(newConfig.strawGravity,3)))
@@ -252,7 +252,7 @@ end
 
 function create()
 	
-	print("\n\n---------------- Grass Tool ---------------\n\n\n")
+	--print("\n\n---------------- Grass Tool ---------------\n\n\n")
 	
 	Tool.create()
 	
@@ -317,7 +317,7 @@ function create()
 		
 		PreSetPanel.setPreSetList(presetNameList)
 	else
-		print("\nno settingsPanel\n\n")
+		--print("\nno settingsPanel\n\n")
 		return false
 	end
 	
@@ -329,7 +329,7 @@ end
 
 function newMap()
 	
-	print("\n\nGrass tool New World\n\n\n")
+	--print("\n\nGrass tool New World\n\n\n")
 
 	grassData = {}	
 	islandData = nil
@@ -354,7 +354,7 @@ function activated()
 	dataChanged = false
 	
 	--check if there exist data to init
-	print("activated\n")
+	--print("activated\n")
 end
 
 function deActivated()
@@ -368,7 +368,7 @@ function deActivated()
 		dataChanged = false
 		grassListener:pushEvent("Change", grassData)
 	end
-	print("Deactivated\n")
+	--print("Deactivated\n")
 end
 
 function mouseCollision(offset)
@@ -417,7 +417,7 @@ function prepareIsland(island)
 		islandData = {}
 		islandData.island = island
 		grassData[island:getIslandId()] = islandData
-		print("Island added to grassData\n")
+		--print("Island added to grassData\n")
 	end
 end
 
@@ -546,7 +546,7 @@ function removeStrawFromMesh(data, strawIndex)
 	--Remove straw from mesh
 	nodeMesh:removeVertex(index, strawSize)
 	
-	print("remove straw\n")
+	--print("remove straw\n")
 
 	table.remove(data.straw, strawIndex)
 	

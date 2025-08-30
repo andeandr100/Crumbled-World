@@ -302,7 +302,7 @@ function init()
 
 	if #cameras == 1 then
 		local camera = ConvertToCamera(cameras[1])
-		form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT)
+		form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT, "StatsMenuForm")
 		form:setName("StatsMenu form")
 		form:setLayout(FallLayout(PanelSize(Vec2(0.01,0))))
 		form:setRenderLevel(0)

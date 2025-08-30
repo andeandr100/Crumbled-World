@@ -2,10 +2,10 @@
 uniform mat4 projModelViewMat, modelMat;
 uniform mat4 boneMatrix[60];
 
-layout (location = 0) in vec4 position; 
-layout (location = 1) in vec3 normal; 
-layout (location = 2) in vec2 uvCoord; 
-layout (location = 3) in vec3 tagent; 
+layout (location = 0) in vec4 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec2 uvCoord;
+layout (location = 3) in vec3 tagent;
 layout (location = 4) in vec4 color;
 layout (location = 5) in uvec3 boneId;
 layout (location = 6) in vec3 weight;
@@ -26,10 +26,10 @@ void main()
 		transformMatrix += weight.z * boneMatrix[boneId[2]];
 
 	vec3 finalNormal =	(transformMatrix * vec4(normal,0)).xyz;
-	mat3 normalMatrix = transpose(inverse(mat3(modelMat )));
+	mat3 normalMatrix = mat3(modelMat);
 	outNormal	= normalize( normalMatrix * finalNormal );
 	outTagent	= normalize( normalMatrix * tagent );
-	outBinormal = normalize( normalMatrix * cross(finalNormal, tagent ) );
+	outBinormal = cross(outNormal, outTagent);
 
 	vec4 worldPos =	modelMat * transformMatrix * position;
 

@@ -131,7 +131,7 @@ end
 function activated()
 	titlePanel:setVisible(true)
 	Tool.clearSelectedNodes(nil)
-	print("activated\n")
+	--print("activated\n")
 end
 
 function deActivated()
@@ -139,7 +139,7 @@ function deActivated()
 	titlePanel:setVisible(false)
 	
 	lightColor.setVisible(false)	
-	print("Deactivated\n")
+	--print("Deactivated\n")
 end
 
 function update()

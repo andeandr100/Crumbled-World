@@ -34,7 +34,7 @@ function FileDropDownMenu.new(inButton)
 	end
 	
 	function self.toogleVisible()
-		print("Togle visible")
+		--print("Togle visible")
 		form:setVisible(not form:getVisible())
 		self.updatePosition()
 	end	
@@ -89,7 +89,7 @@ function FileDropDownMenu.new(inButton)
 		end
 		
 		local rowHeight = 0.035
-		form = Form( camera, PanelSize(Vec2(1, rowHeight),Vec2(8.3,1)), Alignment.TOP_LEFT);
+		form = Form( camera, PanelSize(Vec2(1, rowHeight),Vec2(8.3,1)), Alignment.TOP_LEFT, "FileDropDownMenu");
 	
 		form:getPanelSize():setFitChildren(false, true);
 		form:setLayout(FallLayout( Alignment.TOP_LEFT, PanelSize(Vec2(0.003),Vec2(1))));
@@ -150,7 +150,7 @@ function FileDropDownMenu.new(inButton)
 		
 		
 		--Options form
-		optionsForm = Form( camera, PanelSize(Vec2(-1,-0.8), Vec2(4,4)), Alignment.MIDDLE_CENTER);
+		optionsForm = Form( camera, PanelSize(Vec2(-1,-0.8), Vec2(4,4)), Alignment.MIDDLE_CENTER, "FileDropDownMenuOptionsForm");
 		optionsForm:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))));
 		optionsForm:setRenderLevel(12)
 		optionsForm:setVisible(false)

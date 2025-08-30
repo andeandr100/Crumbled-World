@@ -11,9 +11,11 @@ function BoostAbility.new(inCamera, inComUnit)
 	local showBoostableTowers = false
 	local buildingNodeBillboard = Core.getBillboard("buildings")
 	local billboardStats = Core.getBillboard("stats")
-	local towerHasBeenBoostedThisWave = false
+	local abilityHasBeenUsedThisWave = false
 	local boostSelected = false
 	local billboardStats = Core.getBillboard("stats")
+	local abilityActivated = -100
+	local abilityGlobalPosition = Vec3()
 	
 	local mapCollision = WorldCollision.new(inCamera)
 	local buildNode = this:getRootNode():findNodeByType(NodeId.buildNode)
@@ -22,11 +24,12 @@ function BoostAbility.new(inCamera, inComUnit)
 
 	
 	function self.getBoostHasBeenUsedThisWave()
-		return towerHasBeenBoostedThisWave
+		return abilityHasBeenUsedThisWave
 	end
 	
 	function self.isActive()
-		return boostSelected
+		local activeTime = Core.getGameTime() - abilityActivated
+		return activeTime > 0 and activeTime < 12
 	end
 	
 	function self.setBoostButtonPressed()
@@ -38,11 +41,12 @@ function BoostAbility.new(inCamera, inComUnit)
 	end
 	
 	function self.restartWave()
-		towerHasBeenBoostedThisWave = false
+		abilityHasBeenUsedThisWave = false
+		abilityActivated = -100
 	end
 	
 	function self.waveChanged(param)
-		towerHasBeenBoostedThisWave = false
+		abilityHasBeenUsedThisWave = false
 	end
 
 	local function setGlowColor(node, color)
@@ -106,35 +110,47 @@ function BoostAbility.new(inCamera, inComUnit)
 	end
 	
 	function self.update()
-		if boostSelected and towerHasBeenBoostedThisWave == false then
+		if boostSelected and abilityHasBeenUsedThisWave == false then
 			local collision, globalposition = mapCollision.mouseWorldCollision(true)
-			targetArea.update(collision, globalposition)
+			targetArea.update(collision, globalposition, false)
+			
+			if buildingNodeBillboard:getBool("inBuildMode") == false then
+						
+				buildingNodeBillboard:setBool("AbilitesBeingPlaced", boostSelected)
+	
+				if Core.getInput():getMouseDown(MouseKey.left) and boostSelected and buildingNodeBillboard:getBool("canBuildAndSelect") and isMouseInMainPanel()then
+	
+					
+					local playerNode = this:findNodeByType(NodeId.playerNode)
+					local buildNode = playerNode:findNodeByType(NodeId.buildNode)
+					--buildNode = buildNode()
+					if buildNode then
+						
+						local building = buildNode:getBuldingFromLine(camera:getWorldLineFromScreen(Core.getInput():getMousePos()))
+						if building then
+							boostTower(building)
+							setGlowColor( building, Vec3(0.05,0.15,0.05) )
+							abilityHasBeenUsedThisWave = true
+							abilityGlobalPosition = globalposition
+							abilityActivated = Core.getGameTime()
+							buildingNodeBillboard:setBool("AbilitesBeingPlaced", false)
+						end
+					end
+	
+				end
+			end
+		
 		else
-			targetArea.update(false, Vec3())
+			if self.isActive() then
+				targetArea.update(true, abilityGlobalPosition, true)
+			else
+				buildingNodeBillboard:setBool("AbilitesBeingPlaced", false)
+				targetArea.update(false, Vec3(), false)
+			end
+			
 		end
 		
-		if buildingNodeBillboard:getBool("inBuildMode") == false then
-						
-			buildingNodeBillboard:setBool("AbilitesBeingPlaced", boostSelected)
-
-			if towerHasBeenBoostedThisWave == false and Core.getInput():getMouseDown(MouseKey.left) and boostSelected and buildingNodeBillboard:getBool("canBuildAndSelect") and isMouseInMainPanel()then
-
-				local playerNode = this:findNodeByType(NodeId.playerNode)
-				local buildNode = playerNode:findNodeByType(NodeId.buildNode)
-				--buildNode = buildNode()
-				if buildNode then
-					
-					local building = buildNode:getBuldingFromLine(camera:getWorldLineFromScreen(Core.getInput():getMousePos()))
-					if building then
-						boostTower(building)
-						setGlowColor( building, Vec3(0.05,0.15,0.05) )
-						towerHasBeenBoostedThisWave = true
-						buildingNodeBillboard:setBool("AbilitesBeingPlaced", false)
-					end
-				end
-
-			end
-		end
+		
 		
 	end
 	

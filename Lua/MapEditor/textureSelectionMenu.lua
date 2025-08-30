@@ -22,7 +22,7 @@ function TextureSelectionMenu.new(inCallback)
 	
 	function self.setVisible(visible)
 		form:setVisible(visible)
-		print("update texture setVisible\n")
+		--("update texture setVisible\n")
 	end
 	
 	local function hideForm()
@@ -68,7 +68,7 @@ function TextureSelectionMenu.new(inCallback)
 		local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 		--camera = Camera()
 	
-		form = Form( camera, PanelSize(Vec2(1, 0.6),Vec2(2,3)), Alignment.MIDDLE_CENTER);
+		form = Form( camera, PanelSize(Vec2(1, 0.6),Vec2(2,3)), Alignment.MIDDLE_CENTER, "TextureSelectForm");
 	
 		form:getPanelSize():setFitChildren(false, false);
 		form:setLayout(FallLayout(Alignment.TOP_CENTER));

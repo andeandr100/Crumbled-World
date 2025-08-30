@@ -45,7 +45,7 @@ function create()
 	
 	if camera then
 		
-		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT)
+		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT, "MenuForm")
 		form:setLayout(FallLayout())
 
 		createMenuBar()
@@ -81,12 +81,12 @@ end
 
 function togleMapSettings()
 	editorListener:pushEvent("window", "MapSettings")
-	print("show map settings\n")
+	--print("show map settings\n")
 end
 
 function togleShowTextEditor()
 	editorListener:pushEvent("window", "TextEditor")
-	print("show text editor\n")
+	--print("show text editor\n")
 end
 
 function playTheMap()
@@ -125,9 +125,9 @@ function setCustomGamePanelVisible(panel)
 end
 
 function togleVisible(panel)
-	print("togle visible tag: "..panel:getTag():toString().."\n")
+	--print("togle visible tag: "..panel:getTag():toString().."\n")
 	for splitedStr in panel:getTag():toString():gmatch("([^;]*);") do
-		print(splitedStr.."\n")
+		--print(splitedStr.."\n")
 		local bodyPanel = treeViewPanel:getPanelById(splitedStr)
 		if bodyPanel then
 			bodyPanel:setVisible(not bodyPanel:getVisible())

@@ -58,15 +58,12 @@ function update()
 		removeDeadObjects()
 	end
 	
-	print("load maps info update")
 	while index <= #files do
 		local file = files[index]
 		index = index + 1
 		
 		if file and file:isDirectory() then
 			folders[#folders + 1] = file:getPath()
-			print("Add folder: "..file:getPath())
-			print("Folders: "..tostring(folders))
 		elseif file then
 		
 			local fileName = file:getName()
@@ -92,7 +89,6 @@ function update()
 						else
 							--file time and the hash don't match the map information need to be reloaded
 							loadFileData = true
-							print("remove map info: "..i)
 							if mapsFileTable[i] and mapsFileTable[i].icon then
 								File(mapsFileTable[i].icon):remove()
 							end
@@ -104,10 +100,7 @@ function update()
 					end	
 					--break
 					i = #mapsFileTable + 2
-					print("Path was found. ")
-					if loadFileData then
-						print("Data will be reloaded")
-					end
+					
 				end
 			end
 			

@@ -17,9 +17,9 @@ function ModelPlaceToolMenu.new(toolPanel, changeModelCallbackString, settingPan
 	end
 
 	local function togleVisible(panel)
-		print("togle visible tag: "..panel:getTag():toString().."\n")
+		--print("togle visible tag: "..panel:getTag():toString().."\n")
 		for splitedStr in panel:getTag():toString():gmatch("([^;]*);") do
-			print(splitedStr.."\n")
+			--print(splitedStr.."\n")
 			local bodyPanel = ModelPlaceToolMenu.toolPanel:getPanelById(splitedStr)
 			if bodyPanel then
 				bodyPanel:setVisible(not bodyPanel:getVisible())
@@ -57,7 +57,7 @@ function ModelPlaceToolMenu.new(toolPanel, changeModelCallbackString, settingPan
 	
 	
 	local function saveDefaultScript()
-		print("Save "..tostring(#ModelPlaceToolMenu.defaultScripts).." scripts\n")
+		--print("Save "..tostring(#ModelPlaceToolMenu.defaultScripts).." scripts\n")
 		selectedConfig:get("numDefaultScript"):setInt(#ModelPlaceToolMenu.defaultScripts)
 		for i=1, #ModelPlaceToolMenu.defaultScripts do
 			selectedConfig:get("defaultScript"..tostring(i)):setString(ModelPlaceToolMenu.defaultScripts[i])
@@ -66,14 +66,14 @@ function ModelPlaceToolMenu.new(toolPanel, changeModelCallbackString, settingPan
 	end
 	
 	local function addDefaultScript(scriptFileName)
-		print("add default script: "..scriptFileName.."\n")
+		--print("add default script: "..scriptFileName.."\n")
 		ModelPlaceToolMenu.defaultScripts[#ModelPlaceToolMenu.defaultScripts+1] = scriptFileName
 		saveDefaultScript()
 		ModelPlaceToolMenu.updateSettings()
 	end
 	
 	local function removeDeafultScript(scriptFileName)
-		print("remove default script: "..scriptFileName.."\n")
+		--print("remove default script: "..scriptFileName.."\n")
 		for i=1, #ModelPlaceToolMenu.defaultScripts do
 			if ModelPlaceToolMenu.defaultScripts[i] == scriptFileName then
 				ModelPlaceToolMenu.defaultScripts[i] = ModelPlaceToolMenu.defaultScripts[#ModelPlaceToolMenu.defaultScripts]
@@ -106,22 +106,22 @@ function ModelPlaceToolMenu.new(toolPanel, changeModelCallbackString, settingPan
 		buttonSpaceCollision:setTag("spaceCollision:"..(selectedConfig:get("spaceCollision"):getBool() and "True" or "False"))
 		buttonUseNormal:setTag("useNormal:"..(selectedConfig:get("useNormal"):getBool() and "True" or "False"))
 	
-		print("num: "..tostring(#modelSettings).."\n")
+		--print("num: "..tostring(#modelSettings).."\n")
 		for i=1,8 do
-			print("Index "..tostring(i).." Tag"..modelSettings[i]:getTag():toString())
+			--print("Index "..tostring(i).." Tag"..modelSettings[i]:getTag():toString())
 			modelSettings[i]:setText(tostring(selectedConfig:get(modelSettings[i]:getTag():toString(),1.0):getDouble()))
 		end
 		for i=9,14 do
-			print("Index "..tostring(i).." Tag"..modelSettings[i]:getTag():toString())
+			--print("Index "..tostring(i).." Tag"..modelSettings[i]:getTag():toString())
 			modelSettings[i]:setText(tostring(selectedConfig:get(modelSettings[i]:getTag():toString(), 0.0):getDouble()))
 		end
 		
 		local numDefaultScript = selectedConfig:get("numDefaultScript",0):getInt()
-		print("num default scripts: "..tostring(numDefaultScript))
+		--print("num default scripts: "..tostring(numDefaultScript))
 		ModelPlaceToolMenu.defaultScripts = {}
 		for i=1, numDefaultScript do
 			ModelPlaceToolMenu.defaultScripts[i] = selectedConfig:get("defaultScript"..tostring(i),""):getString()
-			print("default script: "..ModelPlaceToolMenu.defaultScripts[i])
+			--print("default script: "..ModelPlaceToolMenu.defaultScripts[i])
 		end
 		MenuScriptPanel.setScriptListString(ModelPlaceToolMenu.defaultScripts)
 		
@@ -136,7 +136,7 @@ function ModelPlaceToolMenu.new(toolPanel, changeModelCallbackString, settingPan
 		--add models
 		for i=1, #subFiles do
 			if subFiles[i]:isFile() then
-				print(spaces.."	"..subFiles[i]:getName().."\n")
+				--print(spaces.."	"..subFiles[i]:getName().."\n")
 				local button = panel:add(Button(PanelSize(Vec2(-1.0, 0.02)), spaces .. subFiles[i]:getName(), ButtonStyle.SQUARE))
 				button:setTextColor(Vec3(1))
 				button:setEdgeColor(Vec4(0), Vec4(0))
@@ -159,7 +159,7 @@ function ModelPlaceToolMenu.new(toolPanel, changeModelCallbackString, settingPan
 		for i=1, #subFiles do
 			if subFiles[i]:isDirectory() then
 	
-				print(spaces..subFiles[i]:getName().."\n")
+				--print(spaces..subFiles[i]:getName().."\n")
 	
 				local button = MenuStyle.addTitelButton(panel, spaces .. subFiles[i]:getName())
 	

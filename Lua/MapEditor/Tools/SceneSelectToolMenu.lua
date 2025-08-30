@@ -17,7 +17,6 @@ function scriptAddCallback(scriptName)
 end
 
 function scriptRemoveCallback(scriptName)
-	print("scriptRemoveCallback\n")
 	local sceneNodes = Tool.getSelectedSceneNodes()
 	for i=1, #sceneNodes do
 		sceneNodes[i]:removeScript(scriptName)
@@ -29,13 +28,13 @@ function updateScriptList()
 	local sceneNodes = Tool.getSelectedSceneNodes()
 	if #sceneNodes == 1 and sceneNodes[1] then
 		luaScripts = sceneNodes[1]:getAllScript()
-		print("Num Script: "..#luaScripts.."\n")
+		--print("Num Script: "..#luaScripts.."\n")
 		local scriptList = {}
 		for i=1, #luaScripts do
-			print("add a Script at index "..tostring(i).."\n")
+			--print("add a Script at index "..tostring(i).."\n")
 			scriptList[i] = luaScripts[i]
 		end
-		print("size: "..#scriptList.."\n")
+		--print("size: "..#scriptList.."\n")
 		MenuScriptPanel.setScriptList(scriptList)
 	else
 		MenuScriptPanel.setScriptList({})
@@ -43,7 +42,6 @@ function updateScriptList()
 end
 
 function modelChangeColor(colorPicker)
-	print("Color change callback\n")
 	for i=1, #selectedNodes do
 		local meshList = selectedNodes[i]:findAllNodeByTypeTowardsLeaf(NodeId.mesh)
 		for n=1, #meshList do
@@ -243,11 +241,9 @@ function updateScelectedNodes()
 				end
 				color = color / #meshList
 				
-				print("nil\n")
+				
 				startStrawColor.setChangeCallback(nil)
-				print("set Color\n")
 				startStrawColor.setColor(color)
-				print("modelChangeColor callback set\n")
 				startStrawColor.setChangeCallback(modelChangeColor)
 			else
 				colorPanel:setVisible(false)

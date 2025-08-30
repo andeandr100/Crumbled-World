@@ -41,7 +41,7 @@ function IslandMeshExporter.new()
 	
 	function self.hideExportedMeshes()
 		--hide all meshes
-		print("hideExportedMeshes\n")
+		--print("hideExportedMeshes\n")
 		for i=1, #listOfAllCombinedMeshes do
 			listOfAllCombinedMeshes[i]:setCanBeSaved(false)
 		end
@@ -69,7 +69,7 @@ function IslandMeshExporter.new()
 	end
 	
 	function self.showHidenNodes()
-		print("showHidenNodes\n")
+		--print("showHidenNodes\n")
 		for i=1, #listOfAllCombinedMeshes do
 			listOfAllCombinedMeshes[i]:setCanBeSaved(true)
 		end
@@ -167,10 +167,10 @@ function IslandMeshExporter.new()
 				
 			end
 			
-			if string.find(node:getModelName(),"minecart_npc") then
-				print("ModelName: "..node:getModelName().."\n")
-				abort()
-			end
+			--if string.find(node:getModelName(),"minecart_npc") then
+			--	print("ModelName: "..node:getModelName().."\n")
+			--	abort()
+			--end
 			
 			listOfAllCombinedMeshes[#listOfAllCombinedMeshes + 1] = node
 		end
@@ -234,7 +234,7 @@ function IslandMeshExporter.new()
 		meshes = {}
 		
 		local dropfrekvence = 1.0 - density 
-		print("dropfrekvence "..dropfrekvence.."\n")
+		--print("dropfrekvence "..dropfrekvence.."\n")
 		if dropfrekvence < 0.01 then
 			addAllToMeshList(meshTable)		
 		else
@@ -278,9 +278,9 @@ function IslandMeshExporter.new()
 						if not added then
 							areaMeshes[#areaMeshes+1] = NodeMesh.new()
 							areaMeshes[#areaMeshes]:setLocalPosition(Vec3(x+5,0,z+5))
-							if not areaMeshes[#areaMeshes]:addMesh(meshes[i].mesh, Vec3(0,-1,0), 0.75) then
-								print("Mesh was not added to a combined mesh\n")
-							end
+							--if not areaMeshes[#areaMeshes]:addMesh(meshes[i].mesh, Vec3(0,-1,0), 0.75) then
+							--	print("Mesh was not added to a combined mesh\n")
+							--end
 						end
 						
 						--restore the mesh information
@@ -361,7 +361,7 @@ function IslandMeshExporter.new()
 			
 			local models = {}
 			for i=1, #combinedMeshes do
-				print("Save model "..fileId.."\n")
+				--print("Save model "..fileId.."\n")
 				local nodeMesh = combinedMeshes[i]
 				--nodeMesh = NodeMesh.new()
 				local modelName = "Island"..this:getIslandId().."Model"..fileId

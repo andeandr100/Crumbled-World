@@ -90,7 +90,6 @@ function ConnectionIssueForm.new()
 				end
 				if Core.getTime()-loadingText.timer>1.0 then
 					loadingText.timer = Core.getTime()
-					print("loadingText.token=="..loadingText.token.."\n")
 					loadingText.token = loadingText.token==3 and 1 or loadingText.token + 1
 					loadingLabel:setText(loadingText[loadingText.token])
 				end
@@ -105,7 +104,7 @@ function ConnectionIssueForm.new()
 	local function init()
 		local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 		--camera = Camera()
-		form = Form( camera, PanelSize(Vec2(1, 1)), Alignment.TOP_LEFT);
+		form = Form( camera, PanelSize(Vec2(1, 1)), Alignment.TOP_LEFT, "ConnectionIssueForm");
 		
 		form:getPanelSize():setFitChildren(false, false);
 		form:setLayout(FlowLayout(Alignment.MIDDLE_CENTER));

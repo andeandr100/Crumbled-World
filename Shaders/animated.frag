@@ -9,16 +9,16 @@ uniform sampler2D diffuseMap;
 uniform sampler2D specularMap;
 uniform sampler2D glowMap;
 
-in vec2 textCoord; 
-in vec3 worldPos0; 
+in vec2 textCoord;
+in vec3 worldPos0;
 
 in vec3 outNormal;
 in vec3 outTagent;
 in vec3 outBinormal;
 in vec4 outColor;
 
-layout (location = 0) out vec3 WorldPosOut; 
-layout (location = 1) out vec3 NormalOut; 
+layout (location = 0) out vec3 WorldPosOut;
+layout (location = 1) out vec3 NormalOut;
 layout (location = 2) out vec4 DiffuseOut;
 layout (location = 3) out vec4 GlowOut;
 

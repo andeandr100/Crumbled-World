@@ -47,11 +47,11 @@ function BuilderFunctions.new(keyBinds, inCamera)
 	end
 	
 	local function stepRotation(stepSize, mouseWheelTickes, rotation)
-			print("mouseWheelTickes: "..mouseWheelTickes.."\n")
+			--print("mouseWheelTickes: "..mouseWheelTickes.."\n")
 			
-			print("stepSize: "..stepSize.."\n")
+			--print("stepSize: "..stepSize.."\n")
 			local diff = rotation - math.floor(rotation / stepSize) * stepSize;
-			print("diff: "..diff.."\n")
+			--print("diff: "..diff.."\n")
 			if math.abs(diff) > 0.01 then
 				
 				if mouseWheelTickes > 0 then
@@ -69,9 +69,9 @@ function BuilderFunctions.new(keyBinds, inCamera)
 			if Core.getGameTime() - rotationTime > 0.1 then
 				if mouseWheelTickes > 0 then
 					rotation = rotation + stepSize
-					print("mouseWheelTickes > 0\n")
+					--print("mouseWheelTickes > 0\n")
 				else
-					print("mouseWheelTickes < 0\n")
+					--print("mouseWheelTickes < 0\n")
 					rotation = rotation - stepSize
 				end
 				rotationTime = Core.getGameTime()
@@ -96,12 +96,12 @@ function BuilderFunctions.new(keyBinds, inCamera)
 				rotation = (rotation < 0) and rotation + 2 * math.pi or rotation
 			end
 		elseif keyRotationLocked and keyRotationLocked:getHeld() and math.abs(mouseWheelTickes) > 0.001 then
-			print("mouseWheelTickes: "..mouseWheelTickes.."\n")
+			--print("mouseWheelTickes: "..mouseWheelTickes.."\n")
 			
 			local stepSize = math.pi * 0.25;
-			print("stepSize: "..stepSize.."\n")
+			--print("stepSize: "..stepSize.."\n")
 			local diff = rotation - math.floor(rotation / stepSize) * stepSize;
-			print("diff: "..diff.."\n")
+			--print("diff: "..diff.."\n")
 			if math.abs(diff) > 0.01 then
 				
 				if mouseWheelTickes > 0 then
@@ -119,9 +119,9 @@ function BuilderFunctions.new(keyBinds, inCamera)
 			if Core.getGameTime() - rotationTime > 0.1 then
 				if mouseWheelTickes > 0 then
 					rotation = rotation + stepSize
-					print("mouseWheelTickes > 0\n")
+					--print("mouseWheelTickes > 0\n")
 				else
-					print("mouseWheelTickes < 0\n")
+					--print("mouseWheelTickes < 0\n")
 					rotation = rotation - stepSize
 				end
 				rotationTime = Core.getGameTime()

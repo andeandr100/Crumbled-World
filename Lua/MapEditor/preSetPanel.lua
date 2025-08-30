@@ -48,9 +48,9 @@ end
 
 function PreSetPanel.setPreSetList(preSetList)
 	local presetPanel = PreSetPanel.presetPanel
-	print("Set script list, size: "..tostring(#preSetList).."\n")
+	--print("Set script list, size: "..tostring(#preSetList).."\n")
 	for i=1, #preSetList do
-		print("Preset: "..preSetList[i].."\n")
+		--print("Preset: "..preSetList[i].."\n")
 		local panelIndex = i-1
 		if presetPanel:getNumPanel() > panelIndex then
 			presetPanel:getPanel(panelIndex):setText(preSetList[i])
@@ -60,7 +60,7 @@ function PreSetPanel.setPreSetList(preSetList)
 		end
 	end
 	for i=presetPanel:getNumPanel()-1, #preSetList, -1 do
-		print("remove script text row\n")
+		--print("remove script text row\n")
 		presetPanel:removePanel(presetPanel:getPanel(i))
 	end
 end

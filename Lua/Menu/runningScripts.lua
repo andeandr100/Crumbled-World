@@ -31,7 +31,7 @@ function generateForm()
 	local rootNode = this:getRootNode();
 	local camera = ConvertToCamera(rootNode:findNodeByName("MainCamera"));
 	
-	form = Form( camera, PanelSize(Vec2(0.15,0.75)), Alignment.TOP_LEFT);
+	form = Form( camera, PanelSize(Vec2(0.15,0.75)), Alignment.TOP_LEFT, "RunningScriptsForm");
 	form:setBackground(Sprite(Vec4(0.1, 0.1, 0.1, 0.7)));
 	form:setLayout(FlowLayout());
 	form:setBorder(Border(BorderSize(Vec4(0.005)), Vec4(0,0,0,0),Vec4(0,0,0,1)));

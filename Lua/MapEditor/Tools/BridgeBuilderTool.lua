@@ -9,11 +9,11 @@ function create()
 	bridgePoles = {}
 	for i=1, 4 do
 		bridgePoles[i] = Core.getModel("bridgePole.mym")
-		if bridgePoles[i] then
-			print("\npoles loaded\n")
-		else
-			print("\nNo poles was loaded\n")
-		end
+		--if bridgePoles[i] then
+--			print("\npoles loaded\n")
+	--	else
+		--	print("\nNo poles was loaded\n")
+		--end
 		this:addChild(bridgePoles[i]:toSceneNode())
 		bridgePoles[i]:setVisible(false)
 	end
@@ -48,7 +48,7 @@ function activated()
 	
 	currentBridge = {}
 	
-	print("activated\n")
+	--print("activated\n")
 end
 
 function deActivated()
@@ -58,12 +58,12 @@ function deActivated()
 		bridgePoles[i]:setVisible(false)
 	end
 		
-	print("Deactivated\n")
+	--print("Deactivated\n")
 end
 
 function update()
 	
-	print("\nBridge tool\n")
+	--print("\nBridge tool\n")
 	
 	local node, collisionPos, collisionNormal = Tool.getCollision(false)
 	--node = SceneNode.new()
@@ -85,7 +85,7 @@ function update()
 
 	local visiblePoles = #currentBridgePoles
 	
-	print("Visible poles "..visiblePoles.."\n")
+	--print("Visible poles "..visiblePoles.."\n")
 	
 	if visiblePoles == 0 or visiblePoles == 1 then
 		bridgePoles[visiblePoles+1]:setVisible(true)

@@ -163,28 +163,28 @@ function setPointPathBuilderTool(panel)
 end
 
 function createIslandEdge(panel)
-	print("try to create edge\n")
+	--print("try to create edge\n")
 	local mapEditor = Core.getBillboard("MapEditor")
 	local editScene =  mapEditor:getSceneNode("editScene")
 	if editScene:getNodeType() ~= NodeId.island then
-		print("Not an island\n")
+		--print("Not an island\n")
 		editScene = editScene:findNodeByTypeTowardsLeafe(NodeId.island)
 	end
 	if editScene then
-		print("Creat island edge\n")
+		--print("Creat island edge\n")
 		editScene:toSceneNode():loadLuaScriptAndRunOnce("MapEditor/edgeCreaterTool.lua")
 	end
 end
 function createIslandEdgeFlora(panel)
-	print("try to create edge\n")
+	--print("try to create edge\n")
 	local mapEditor = Core.getBillboard("MapEditor")
 	local editScene =  mapEditor:getSceneNode("editScene")
 	if editScene:getNodeType() ~= NodeId.island then
-		print("Not an island\n")
+		--print("Not an island\n")
 		editScene = editScene:findNodeByTypeTowardsLeafe(NodeId.island)
 	end
 	if editScene then
-		print("generate edge flora\n")
+		--print("generate edge flora\n")
 		editScene:toSceneNode():loadLuaScriptAndRunOnce("MapEditor/edgeFloraGeneratorTool.lua")
 	end
 end

@@ -94,7 +94,7 @@ function create()
 	
 	local panelSpacing = PanelSize(Vec2(0.002,0.002),PanelSizeType.WindowPercentBasedOnY)
 	
-	form = Form( camera, PanelSize(Vec2(1, 1)), Alignment.TOP_LEFT);
+	form = Form( camera, PanelSize(Vec2(1, 1)), Alignment.TOP_LEFT, "TutorialForm");
 	
 	form:getPanelSize():setFitChildren(false, false);
 	form:setLayout(FlowLayout(Alignment.MIDDLE_CENTER, PanelSize(Vec2(0,0.001))));

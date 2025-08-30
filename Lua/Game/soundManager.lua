@@ -43,7 +43,7 @@ function SoundManager.new(pNode)
 		end
 	end
 	local function addSound(soundName)
-		print("SoundManager - addSound("..soundName..")")
+		--print("SoundManager - addSound("..soundName..")")
 		available[soundName][#available[soundName]+1] = SoundNode.new(soundName)
 		node:addChild( available[soundName][#available[soundName]]:toSceneNode() )
 	end
@@ -73,7 +73,7 @@ function SoundManager.new(pNode)
 			--play the sound
 			local sound = getSound(soundName)
 			sound:play(level,onRepeat)
-			print("SoundManager - PLAY() Ac:"..tostring(#active[soundName]).." Av:"..tostring(#available[soundName]).." St:"..tostring(#stopping[soundName]))
+			--print("SoundManager - PLAY() Ac:"..tostring(#active[soundName]).." Av:"..tostring(#available[soundName]).." St:"..tostring(#stopping[soundName]))
 			return sound
 		else
 			backgroundSound = Sound(soundName,SoundType.EFFECT)

@@ -31,7 +31,7 @@ function create()
 		camera = ConvertToCamera(rootNode:findNodeByName("MainCamera"));
 	
 		if camera then
-			form = Form( camera, PanelSize(Vec2(-1)), Alignment.TOP_RIGHT);
+			form = Form( camera, PanelSize(Vec2(-1)), Alignment.TOP_RIGHT, "WorkMonitorForm");
 			form:setName("Workmonitor form")
 			form:setLayout(FlowLayout());
 			form:setRenderLevel(10)

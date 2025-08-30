@@ -114,7 +114,7 @@ function IslandInfo.new(camera)
 		local panelSpacing = 0.005
 		local panelSpacingVec2 = Vec2(panelSpacing, panelSpacing)
 		
-		form = Form(ConvertToCamera(camera), PanelSize(Vec2(0.55,0.45), Vec2(1.4,1)), Alignment.TOP_LEFT);
+		form = Form(ConvertToCamera(camera), PanelSize(Vec2(0.55,0.45), Vec2(1.4,1)), Alignment.TOP_LEFT, "IslandInfoForm");
 		form:setLayout(FlowLayout(PanelSize(panelSpacingVec2)));
 		form:setRenderLevel(9)	
 		form:setVisible(false)
@@ -183,7 +183,6 @@ function IslandInfo.new(camera)
 		mapInfo.setMapFileName(filePath)
 		mapInfo.setIsCampaign(true)
 		--add all difficulty levels available
-		print("gameDifficultyComboBox:clear()\n")
 		gameDifficultyComboBox:clearItems()
 		addItem( "settings.easy")			--0.70
 		addItem( "settings.normal")			--0.75

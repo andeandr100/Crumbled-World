@@ -29,14 +29,11 @@ function NpcBase.new()
 	local billboard
 	local statsBilboard = Core.getBillboard("stats")
 	local launcWave = -1
-	--local soulNode
 	local centerOffset
 	local comUnit
 	local comUnitTable = {}
 	local deathAnimationTable
 	local deathFrameTable
---	local deathRigidBodyFunc
---	local deathSoftBodyFunc
 	local physicDeathInfo
 	local npcSpawnCounter = 0
 	local waypointReachedList = {}
@@ -277,7 +274,7 @@ function NpcBase.new()
 			deathPhysic.rigidBody(model, mover:getCurrentVelocity())
 		else
 			local deathPhysic = DeathPhysic.new()
-			deathPhysic.rigidBodyExplosion(model, physicDeathInfo.pos)
+			deathPhysic.rigidBodyExplosion(model, physicDeathInfo.pos, centerOffset)
 		end
 	end
 	function self.setLifeValue(countStr)
@@ -371,7 +368,7 @@ function NpcBase.new()
 	local function deathAnimation()
 		local frame = model:getAnimation():getFrameTimeFromClip("run")
 		local deathAnimationIndex = deathPhysic.closestTo(deathFrameTable.startFrame,deathFrameTable.endFrame,frame,deathFrameTable.framePositions)
-		local localAtVec = (this:getParent():getGlobalMatrix():inverseM() * Vec4(mover:getCurrentVelocity():normalizeV(),0.0)):toVec3()
+		local atVec = mover:getCurrentVelocity():normalizeV()
 		local posT1 = this:getGlobalPosition()+(mover:getCurrentVelocity():normalizeV()*deathAnimationTable[deathAnimationIndex].length*0.6)
 		local posT2 = this:getGlobalPosition()+(mover:getCurrentVelocity():normalizeV()*deathAnimationTable[deathAnimationIndex].length*1.0)
 		local test1 = whatIsHere(posT1)
@@ -381,7 +378,7 @@ function NpcBase.new()
 			--we can sheat, and make the animation distance shorter
 			local safeLength=0.5
 			for i=0.7, 1.0, 0.1 do
-				if whatIsHere(this:getLocalPosition()+(localAtVec*deathAnimationTable[deathAnimationIndex].length*i))>0 then
+				if whatIsHere(this:getLocalPosition()+(atVec*deathAnimationTable[deathAnimationIndex].length*i))>0 then
 					safeLength = i-0.1
 				else
 					break
@@ -394,8 +391,8 @@ function NpcBase.new()
 				island = this:findNodeByTypeTowardsRoot(NodeId.island),
 				deathAnimationTimer = deathAnimationTable[deathAnimationIndex].duration,
 				deathAnimationDistance = safeLength,
-				deathPos = this:getLocalPosition(),
-				deathVec = localAtVec,
+				deathPos = model:getGlobalPosition(),
+				deathVec = atVec,
 				deathSpeed = speed
 			}
 			local listner = Listener("DeathHandler")
@@ -415,8 +412,8 @@ function NpcBase.new()
 				island = this:findNodeByTypeTowardsRoot(NodeId.island),
 				deathAnimationTimer = deathAnimationTable[deathAnimationIndex].duration,
 				deathAnimationDistance = deathAnimationTable[deathAnimationIndex].length,
-				deathPos = this:getLocalPosition(),
-				deathVec = localAtVec,
+				deathPos = model:getGlobalPosition(),
+				deathVec = atVec,
 				deathSpeed = speed
 			}
 			
@@ -529,16 +526,10 @@ function NpcBase.new()
 	end
 	function self.update()
 		
-		--This is the new system, wait 5 seconds after NPC has been killed to destroy it to ensure no other entity uses this NPC
-		if deathTimer > 0 then
-			deathTimer = deathTimer - Core.getDeltaTime()
-			if deathTimer < 0 then
-				return false
-			else
-				return true
-			end
-		end
 		
+		if deathTimer == -10.0 then
+			abort()
+		end
 
 		while comUnit:hasMessage() and syncConfirmedDeath==false do
 			local msg = comUnit:popMessage()
@@ -546,6 +537,17 @@ function NpcBase.new()
 				comUnitTable[msg.message](msg.parameter,msg.fromIndex)
 			end
 		end
+		--This is the new system, wait 5 seconds after NPC has been killed to destroy it to ensure no other entity uses this NPC
+		if deathTimer > 0 then
+			deathTimer = deathTimer - Core.getDeltaTime()
+			if deathTimer <= 0 then
+				this:destroyTree()
+				return false
+			else
+				return true
+			end
+		end
+		
 		--this is true when this is destroyed
 		if npcIsDestroyed then
 			return false

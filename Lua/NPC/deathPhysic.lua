@@ -58,7 +58,7 @@ function DeathPhysic.new()
 		return collisionAginstTheWorldGlobal(globalPos)
 	end
 	
-	function self.rigidBodyExplosion(model, deathPos)
+	function self.rigidBodyExplosion(model, deathPos, centerOffset)
 		local meshSplitter = MeshSplitter()
 		local subMeshList = meshSplitter:splitMesh(model:getMesh(0))
 		local physicNode = this:getPlayerNode():getPhysicNode()--findAllNodeByTypeTowardsLeaf({NodeId.PhysicNode})

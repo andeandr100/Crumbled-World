@@ -48,7 +48,7 @@ function RailCartPathTool.new(inRailPath)
 	
 	function self.newMap(inRailPath)
 		railPath = inRailPath
-		print("\n\nRail cart path tool New World\n\n\n")
+		--print("\n\nRail cart path tool New World\n\n\n")
 	
 	end
 	
@@ -96,7 +96,7 @@ function RailCartPathTool.new(inRailPath)
 		islandRailWays = {}
 		
 		--check if there exist data to init
-		print("activated\n")
+		--print("activated\n")
 	end
 	
 	function self.deActivated()
@@ -108,7 +108,7 @@ function RailCartPathTool.new(inRailPath)
 		selectedIsland = nil
 		islandRailWays = {}
 		
-		print("Deactivated\n")
+		--print("Deactivated\n")
 	end
 	
 	function isAAceptedRailwayModel(sceneNode)

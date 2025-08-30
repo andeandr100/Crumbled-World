@@ -31,7 +31,6 @@ function AbilitesMenu.new()
 		
 	function self.destroy()
 		if posterForm then
-			print("Destroy posterForm\n")
 			posterForm:setVisible(false)
 			posterForm:destroy()
 			posterForm = nil
@@ -57,7 +56,7 @@ function AbilitesMenu.new()
 			slowfieldAbility = SlowfieldAbility.new(camera, comUnit, true)
 			boostAbility = BoostAbility.new(camera, comUnit)
 			attackAbility = AttackAbility.new(camera, comUnit, true)
-			posterForm = Form(camera, PanelSize(Vec2(1,0.1), Vec2(3.4,1)));
+			posterForm = Form(camera, PanelSize(Vec2(1,0.1), Vec2(3.4,1)), "AbilitiesMenuForm");
 			
 			posterForm:setName("Abilities form")
 			posterForm:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor));

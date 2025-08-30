@@ -26,7 +26,7 @@ end
 
 function createPoster(camera)
 	
-	posterForm = Form(camera, PanelSize(Vec2(1,0.2), Vec2(12,9)));
+	posterForm = Form(camera, PanelSize(Vec2(1,0.2), Vec2(12,9)), "TowerMenuForm");
 	form:setName("Tower Poster form")
 	posterForm:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor));
 	posterForm:setLayout(FlowLayout());
@@ -246,7 +246,7 @@ function create()
 	end
 	local camera = ConvertToCamera(cameras[1])
 			
-	form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
+	form = Form( camera, PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT, "TowerMenuSecondForm");
 	form:setName("Tower menu form")
 	form:setFormOffset(PanelSize(Vec2(0.007, 0.048),PanelSizeType.WindowPercentBasedOnY))
 	form:getPanelSize():setFitChildren(true, true);

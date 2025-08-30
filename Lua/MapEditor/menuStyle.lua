@@ -133,7 +133,7 @@ function MenuStyle.addTitelButton( addOnPanel, titel )
 end
 
 function MenuStyle.togleVisible(panel)
-	print("togle visible tag: "..panel:getTag():toString().."\n")
+	--print("togle visible tag: "..panel:getTag():toString().."\n")
 
 	local bodyPanel = panel:getPanelById(panel:getTag():toString())
 	if bodyPanel then

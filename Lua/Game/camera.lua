@@ -174,7 +174,7 @@ end
 function moveCamera(tab)
 	local inTab = totable(tab)
 	
-	print("moveCamera")
+	--print("moveCamera")
 	
 	restoreCameraCenterPos = Vec3(cameraCenterPos)
 	retsoreCameraLocalPos = Vec3(cameraLocalPos)
@@ -192,7 +192,7 @@ end
 
 
 function settingsChanged()
-	print("\n\n\n\n")
+	--print("\n\n\n\n")
 	Core.setRenderScale(Settings.renderScale.getValue())
 --	Core.setRenderResolution(Settings.resolution.getResolution())
 	this:setDefferRenderShader(Settings.getDeferredShader())
@@ -202,7 +202,7 @@ function settingsChanged()
 	this:setUseGlow(Settings.glow.getEnabled())
 	this:setUseAntiAliasing(Settings.Antialiasing.getEnabled())
 	--Settings.resolution.getResolution()
-	print("\n\n")
+	--print("\n\n")
 end
 
 function getAtVec()

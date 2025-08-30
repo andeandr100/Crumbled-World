@@ -25,7 +25,7 @@ function destroy()
 end
 
 function export()
-	print("Export island id: "..this:getIslandId().."\n")		
+	--print("Export island id: "..this:getIslandId().."\n")		
 	local fileNode = this:findNodeByType(NodeId.fileNode)
 
 	islandTable = {}
@@ -35,7 +35,7 @@ function export()
 	islandTable.modelInfo = islandExporter.export(fileNode)
 	islandExporter.hideExportedMeshes()
 	
-	print("\n\nIsland:export() "..tostring(islandTable).."\n")
+	--print("\n\nIsland:export() "..tostring(islandTable).."\n")
 	return "table="..tabToStrMinimal(islandTable)
 end
 

@@ -54,10 +54,10 @@ function changeState(inState)
 end
 
 function changeGroup(button)
-	print("Change Group\n")
+	--print("Change Group\n")
 	local group = PathGroupPanel.getGroupFromId(tonumber(button:getTag():toString()))
 	if group then
-		print("Group Found\n")
+		--print("Group Found\n")
 		selectedGroupColor:setBackground(Sprite(group.color))
 		groupColor = group.color
 		groupId = tonumber(button:getTag():toString())
@@ -187,9 +187,7 @@ end
 
 function newMap()
 	
-	print("########################################################################################################\n")
-	
-	print("\n\nPath tool New World\n\n\n")
+
 	state = 1
 	pointId = 1
 
@@ -236,7 +234,7 @@ end
 
 function Loaded(inTable)
 	
-	print("Loaded"..tostring(inTable).."\n")
+	--print("Loaded"..tostring(inTable).."\n")
 	
 	pointId = 1
 	path = inTable
@@ -307,7 +305,7 @@ end
 function activated()
 	titlePanel:setVisible(true)
 	changeState(1)
-	print("activated Path tool")
+	--print("activated Path tool")
 	subState = 1
 
 	railCartPathTool.activated()
@@ -335,7 +333,7 @@ function deActivated()
 	local data = {path.spawnAreas, path.pathPoints, path.targetAreas, path.paths}
 	for i=1, #data  do
 		local pathData = data[i]
-		print("path data pathData " .. #pathData)
+		--print("path data pathData " .. #pathData)
 		for n=1, #pathData do
 			if pathData[n].mesh then
 				pathData[n].mesh.setVisible(false)
@@ -344,7 +342,7 @@ function deActivated()
 	end
 	
 	changeState(0)
-	print("Deactivated Path tool")
+	--print("Deactivated Path tool")
 end
 
 function collisionAgainstSpawn()

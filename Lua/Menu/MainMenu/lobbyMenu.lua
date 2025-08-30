@@ -126,9 +126,6 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 	end
 	
 	local function quitLobby()
-		print("==========================")
-		print("======= quit lobby =======")	
-		print("==========================")
 		if server then
 			print("Stop server")
 			server:removeFromGlobalServerList()

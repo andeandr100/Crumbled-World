@@ -63,8 +63,8 @@ function IslandMeshImporter.new()
 					nodeMesh:compile()
 					
 					staticDensityNode:addChild(nodeMesh:toSceneNode())
-				else
-					print("Failed to find file: "..modelInfo[i].modelName)
+				--else
+				--	print("Failed to find file: "..modelInfo[i].modelName)
 				end
 			end
 		end

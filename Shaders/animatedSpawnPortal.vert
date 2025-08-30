@@ -26,10 +26,10 @@ void main()
 		transformMatrix += weight.z * boneMatrix[boneId[2]];
 
 	vec3 finalNormal =	(transformMatrix * vec4(normal,0)).xyz;
-	mat3 normalMatrix = transpose(inverse(mat3(modelMat )));
+	mat3 normalMatrix = mat3(modelMat);
 	outNormal	= normalize( normalMatrix * finalNormal );
 	outTagent	= normalize( normalMatrix * tagent );
-	outBinormal = normalize( normalMatrix * cross(finalNormal, tagent ) );
+	outBinormal = cross(finalNormal, tagent );
 
 	vec4 worldPos =	modelMat * transformMatrix * position;
 

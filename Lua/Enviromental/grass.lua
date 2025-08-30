@@ -132,16 +132,16 @@ function load(inData)
 			for i=1, #islandList do
 				if islandId == islandList[i]:getIslandId() then
 					islandContainer.island = islandList[i]
-					print("Island found\n")
+					--print("Island found\n")
 				end
 			end
 			
 			if islandContainer.island then
-				print("Island detction is over found island "..islandId.."\n")
+				--print("Island detction is over found island "..islandId.."\n")
 				grassData[islandId] = islandContainer
 				for key,subIsland in pairs(islandData) do
 					if key ~= "island" then
-						print("SubMesh: "..key.."\n")
+						--print("SubMesh: "..key.."\n")
 						--copy straw data
 						islandContainer[key] = {}
 						islandContainer[key].straw = subIsland.straw
@@ -155,8 +155,8 @@ function load(inData)
 						islandContainer[key].mesh:compile()
 					end
 				end
-			else
-				print("Failed to find island "..islandId.."\n")
+			--else
+				--print("Failed to find island "..islandId.."\n")
 			end
 		end
 	

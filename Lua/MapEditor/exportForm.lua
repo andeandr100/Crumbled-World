@@ -67,7 +67,7 @@ function ExportForm.new()
 		local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 		
 		--export question form
-		optionsForm = Form( camera, PanelSize(Vec2(-1,0.15), Vec2(2.8,1)), Alignment.MIDDLE_CENTER);
+		optionsForm = Form( camera, PanelSize(Vec2(-1,0.15), Vec2(2.8,1)), Alignment.MIDDLE_CENTER, "OptionsForm");
 		optionsForm:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor));
 		optionsForm:setLayout(FallLayout(PanelSize(Vec2(MainMenuStyle.borderSize))));
 		optionsForm:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor));
@@ -109,7 +109,7 @@ function ExportForm.new()
 		
 		
 		--Exporting form 
-		form = Form( camera, PanelSize(Vec2(1, 1)), Alignment.TOP_LEFT);
+		form = Form( camera, PanelSize(Vec2(1, 1)), Alignment.TOP_LEFT, "ExportForm");
 	
 		form:getPanelSize():setFitChildren(false, false);
 		form:setLayout(FlowLayout(Alignment.MIDDLE_CENTER));

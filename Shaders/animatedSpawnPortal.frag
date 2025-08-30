@@ -45,9 +45,6 @@ void main()
 	vec3 collPos = portalPosition + (v * (dot((worldPos0 - portalPosition), v) / dot(v, v)));
 	float len = clamp(length(collPos - worldPos0),0,1);
 
-
-
-
 	mat3 TBN = mat3( outTagent, outBinormal, outNormal );
 	vec3 normal = normalize( TBN * (texture2D(normalMap, textCoord).rgb * 2.0 - 1.0) );
 

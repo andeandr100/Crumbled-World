@@ -17,7 +17,7 @@ function showWindow(name)
 	form:setVisible(visible)
 	
 	if not visible then
-		print("text editor not visible")
+		--print("text editor not visible")
 		listString = textArea:getOpenFiles()
 		local mapEditorConf = Config("MapEditor")
 		local conf = mapEditorConf:get("LuaEdtiorFiles")
@@ -33,8 +33,8 @@ function showWindow(name)
 			count = count + 1
 		end
 		mapEditorConf:save()
-	else
-		print("text editor visible")
+	--else
+		--print("text editor visible")
 	end
 end
 
@@ -54,7 +54,7 @@ function create()
 	local camera = this.getRootNode(this):findNodeByName("MainCamera")
 	visible = false;
 	if camera then
-		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT);
+		form = Form(ConvertToCamera(camera), PanelSize(Vec2(-1,-1)), Alignment.TOP_LEFT, "LuaEditorForm");
 		form:setLayout(FlowLayout(PanelSize(Vec2(0.01,0.01))));
 		form:setRenderLevel(12)
 		

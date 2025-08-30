@@ -51,7 +51,7 @@ function create()
 			--if island has not been compiled build island edge
 			islands[#islands + 1] = island
 			
-			print("create() - START\n")
+			--print("create() - START\n")
 			--Clear earlier runs
 			worldEdges = island:findAllNodeByNameTowardsLeaf("WorldEdge")
 			for i=1, #worldEdges do
@@ -62,19 +62,19 @@ function create()
 			local islandEdge = island:findNodeByTypeTowardsLeafe(NodeId.islandEdge)
 			local hulls = islandEdge:getHulls()
 		
-			print("hulls.size="..#hulls.."\n")
+			--print("hulls.size="..#hulls.."\n")
 			--create the edge
 			for i=1, #hulls do
 				compileHull(hulls[i], i==1);		
 			end
-			print("create() - END\n")
+			--print("create() - END\n")
 		end
 	end
 	return true
 end
 
 function compileHull( hull, reverseDir )
-	print("compileHull() - START\n")
+	--print("compileHull() - START\n")
 	
 	local startPos = hull[1]
 	local forceStop = false
@@ -97,10 +97,10 @@ function compileHull( hull, reverseDir )
 	end
 
 	local n=2
-	print("hull.size="..#hull.."\n")
-	print("hull[hull.size]="..tostring(hull[hull.size]))
+	--print("hull.size="..#hull.."\n")
+	--print("hull[hull.size]="..tostring(hull[hull.size]))
 	while n <= hull.size do
-		print("n="..n.."\n")
+		--print("n="..n.."\n")
 		
 		printVec3("hull["..n.."]",hull[n])
 		local success, misDist, collPos, hullindex, dataSetIndex = findNextModel(startPos, hull, n, 2, 0)
@@ -141,15 +141,15 @@ function compileHull( hull, reverseDir )
 --			if success then
 --				addModel(dataSet[dataSetIndex], startPos, collPos)
 --			end
-			print("calculate the end piece here")
+			--print("calculate the end piece here")
 			break
 		end
 
 	end
-	print("compileHull() - END\n")
+	--print("compileHull() - END\n")
 end
 function printVec3(name,vec)
-	print(name.."("..vec.x..", "..vec.y..","..vec.z..")\n")
+	--print(name.."("..vec.x..", "..vec.y..","..vec.z..")\n")
 end
 
 function testIsPointInsidehull(point, pointOutSide, hull)
@@ -253,7 +253,7 @@ end
 
 function addModel( dataSet, pos1, pos2 )
 	model = Core.getModel(dataSet.modelName)
-	print("Add model\n")
+	--print("Add model\n")
 
 	--Core.addDebugLine( this:getGlobalMatrix() * pos1, this:getGlobalMatrix() * (pos1+Vec3(0,2,0)), 500.0, Vec3(1))
 	--Core.addDebugLine( this:getGlobalMatrix() * pos2, this:getGlobalMatrix() * (pos2+Vec3(0,2,0)), 500.0, Vec3(0.1))
@@ -275,6 +275,6 @@ function addModel( dataSet, pos1, pos2 )
 end
 
 function update()
-	print("UPDATE() - return false\n")
+	--print("UPDATE() - return false\n")
 	return false
 end

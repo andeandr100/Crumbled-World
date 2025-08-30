@@ -198,9 +198,7 @@ function ShopPanel.new(shopPanel)
 		
 		local tab = item8Panels[countItems + 1]
 		local upgCost = ShopFunction.getCostForUpgrade(upgTab.towerName, upgTab.upgIndex, upgTab.upgLevel)
-		print("item8Panels: "..tostring(item8Panels))
-		print("tab: "..tostring(tab))
-		print("upgTab: "..tostring(upgTab))
+		
 		
 		if (cost + upgCost) > ShopFunction.data.getCrystal() then
 			return false

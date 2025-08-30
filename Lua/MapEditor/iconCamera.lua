@@ -35,7 +35,7 @@ function IconCamera.create()
 	local camera = ConvertToCamera(this:getRootNode():findNodeByName("MainCamera"))
 	
 	--create form
-	local form = Form( camera, PanelSize(Vec2(-1)), Alignment.TOP_LEFT);
+	local form = Form( camera, PanelSize(Vec2(-1)), Alignment.TOP_LEFT, "IconCameraForm");
 	form:setBackground(Gradient(Vec4(0,0,0,0.8), Vec4(0,0,0,0.95)));
 	form:setVisible(false)
 	form:setRenderLevel(99)--render below notification render level

@@ -60,7 +60,7 @@ function ForceField.create(node, radius, offset)
 	end
 	
 	local buildTime = stopWatch:stop()
-	print("\n\n\n\nForeceField build time: "..(math.round((buildTime*1000.0)*100.0)/100.0).."ms\n\n\n\n\n")
+	--print("\n\n\n\nForeceField build time: "..(math.round((buildTime*1000.0)*100.0)/100.0).."ms\n\n\n\n\n")
 	
 	
 	local texture = Core.getTexture("hexagon.tga")

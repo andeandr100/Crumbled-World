@@ -54,7 +54,7 @@ function QuestionForm.new(headerText, bodyText, enabelOkButton, enableCancelButt
 	local function init()
 		local camera = ConvertToCamera( this:getRootNode():findNodeByName("MainCamera") )
 		--camera = Camera()
-		form = Form( camera, PanelSize(Vec2(1, 1)), Alignment.TOP_LEFT);
+		form = Form( camera, PanelSize(Vec2(1, 1)), Alignment.TOP_LEFT, "QuestionForm");
 		form:setName("Question form")
 		form:getPanelSize():setFitChildren(false, false);
 		form:setLayout(FlowLayout(Alignment.MIDDLE_CENTER));

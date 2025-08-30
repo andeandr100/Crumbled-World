@@ -64,6 +64,7 @@ function create()
 		selectedCamera:setDirectionLight(Core.getDirectionalLight(this))
 		selectedCamera:setAmbientLight(Core.getAmbientLight(this))
 		selectedCamera:setRenderScript("Camera/selectedTowerRender.lua")
+		selectedCamera:setActive(false)
 		
 		--keybinds
 		keyBinds = Core.getBillboard("keyBind");
@@ -75,8 +76,8 @@ function create()
 		restartListener:registerEvent("restart", restartMap)
 		
 		if camera then
-			npcMenu = selectedNpcMenu.new(camera)
-			towerMenu = selectedtowerMenu.new(camera)
+			npcMenu = selectedNpcMenu.new(camera, selectedCamera)
+			towerMenu = selectedtowerMenu.new(camera, selectedCamera)
 		
 			Core.setScriptNetworkId("SelectedMenu")
 			comUnit = Core.getComUnit();

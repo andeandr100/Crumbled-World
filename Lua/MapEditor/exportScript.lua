@@ -18,13 +18,13 @@ function update()
 		local islandScript = islands[i]:getScriptByName("island")
 		if islandScript then
 			islandScript:callFunction("exportDone")
-			print("Island script found\n")
-		else
-			print("No island script found\n")
+			--print("Island script found\n")
+		--else
+			--print("No island script found\n")
 		end
-		print("Found island\n")
+		--print("Found island\n")
 	end
-	print("export done\n\n\n\n")
+	--print("export done\n\n\n\n")
 	
 	return false
 end

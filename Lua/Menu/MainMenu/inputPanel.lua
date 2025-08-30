@@ -13,7 +13,7 @@ end
 
 function InputPanel.create(mainPanel)
 	
-	InputPanel.form = Form(ConvertToCamera(this:getRootNode():findNodeByName("MainCamera")), PanelSize(Vec2(-1)));
+	InputPanel.form = Form(ConvertToCamera(this:getRootNode():findNodeByName("MainCamera")), PanelSize(Vec2(-1)), "InputPanelForm");
 	InputPanel.form:setRenderLevel(10)
 	InputPanel.form:setVisible(false)
 	

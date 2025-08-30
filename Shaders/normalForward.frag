@@ -63,7 +63,7 @@ float rand(vec2 co){
 }
 
 void main()
-{             
+{
     // Retrieve data from G-buffer
     vec4 color = texture(diffuseMap, textCoord) * coverColor;
 	mat3 TBN = mat3( outTagent, outBinormal, outNormal );
@@ -73,8 +73,8 @@ void main()
 	if( color.a < 0.9*coverColor.a )
 		discard;
 
-	vec3 linearColor = ApplyLight(worldPos0, color.rgb, Normal, Specular, normalize(camPos-worldPos0));
+	vec3 linearColor = vec4(1.0,1.0,1.0,1.0); // ApplyLight(worldPos0, color.rgb, Normal, Specular, normalize(camPos-worldPos0));
 
 	FragColor = vec4(linearColor, color.a);
-}  
+}
 
