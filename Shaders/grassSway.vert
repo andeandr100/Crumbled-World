@@ -2,9 +2,9 @@
 uniform mat4 projModelViewMat, modelMat;
 uniform float time;
 
-layout (location = 0) in vec4 position; 
-layout (location = 1) in vec3 normal; 
-layout (location = 2) in vec2 uvCoord; 
+layout (location = 0) in vec4 position;
+layout (location = 1) in vec3 normal;
+layout (location = 2) in vec2 uvCoord;
 layout (location = 4) in vec4 color;
 
 out vec2 textCoord;
@@ -12,6 +12,7 @@ out vec3 worldPos0;
 out vec4 vertexColor;
 out vec3 worldNormal;
 
+const float PI_HALF = 1.570796;
 
 void main()
 {
@@ -21,7 +22,7 @@ void main()
 	vec2 addVec = vec2( sin(timeDist*0.5 + 0.5*cos(time*0.1)) * position.w*0.075 , cos(timeDist) * position.w*0.075 );
 	worldPos.x += addVec.x;
 	worldPos.z += addVec.y;
-	worldPos.y -= (1.0 - sin( 1.570796 + ( length( addVec ) / 7 ) * 1.570796 )) * 6.0;
+	worldPos.y -= (1.0 - sin( PI_HALF + ( length( addVec ) / 7 ) * PI_HALF )) * 6.0;
 
 	//color
 	vertexColor = color;

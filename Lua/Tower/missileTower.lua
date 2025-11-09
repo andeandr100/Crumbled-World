@@ -61,7 +61,9 @@ function MissileTower.new()
 		--- Handle Boost ---
 		--------------------
 		
+		
 		model:getMesh( "boost" ):setVisible(data.getBoostActive())
+		model:getMesh( "boost" ):setEnableShadow(false)
 		
 		for index=0, model:getNumMesh()-1 do
 			local mesh = model:getMesh(index)
@@ -78,6 +80,8 @@ function MissileTower.new()
 		for index =1, 3 do
 			model:getMesh( "range"..index ):setVisible(data.getLevel("range")==index)
 			model:getMesh( "pipe"..index ):setVisible(false)
+			model:getMesh( "range"..index ):setEnableShadow(false)
+			model:getMesh( "pipe"..index ):setEnableShadow(false)
 		end
 		
 		----------------------------
@@ -86,6 +90,7 @@ function MissileTower.new()
 		
 		if data.getLevel("range")>0 then
 			activeRangeMesh = model:getMesh( "range"..data.getLevel("range") )
+			activeRangeMesh:setEnableShadow(false)
 		end
 		
 		----------------------------
@@ -93,11 +98,14 @@ function MissileTower.new()
 		----------------------------
 				
 		model:getMesh( "masterAim1" ):setVisible(false)
+		model:getMesh( "masterAim1" ):setEnableShadow(false)
 		if model:getMesh( "antenna1" ) then
 			model:getMesh( "antenna1" ):setVisible( false )
+			model:getMesh( "antenna1" ):setEnableShadow(false)
 		end
 		if model:getMesh( "antenna2" ) then
 			model:getMesh( "antenna2" ):setVisible( false )
+			model:getMesh( "antenna2" ):setEnableShadow(false)
 		end
 
 	end

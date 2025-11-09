@@ -61,7 +61,7 @@ function ElectricTower.new()
 	local syncTimer = 0.0 
 	local activeTeam = 1
 	local targetSelector = TargetSelector.new(activeTeam)
-	local visibleState = 2
+	local visible = true
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	local energySent = 0
 	local lastRestored = -1
@@ -95,6 +95,12 @@ function ElectricTower.new()
 			model:getMesh( string.format("amplifier%d", index) ):setVisible( data.getLevel("energy")==index )
 			model:getMesh( string.format("equalizer%d", index) ):setVisible( data.getLevel("range")==index )
 			model:getMesh( string.format("masterAim%d", index) ):setVisible( false )
+			
+			model:getMesh( string.format("range%d", index) ):setEnableShadow(false)
+			model:getMesh( string.format("slow%d", index) ):setEnableShadow(false)
+			model:getMesh( string.format("amplifier%d", index) ):setEnableShadow(false)
+			model:getMesh( string.format("equalizer%d", index) ):setEnableShadow(false)
+			model:getMesh( string.format("masterAim%d", index) ):setEnableShadow(false)
 		end
 		
 		model:getMesh("boost"):setVisible(data.getBoostActive())
@@ -493,12 +499,10 @@ function ElectricTower.new()
 
 		
 		--change update speed
---		local tmpCameraNode = cameraNode
-		local state = tonumber(this:getVisibleInCamera()) * math.max(1,tonumber(cameraNode:getGlobalPosition().y < 20) * 2)
-		if visibleState ~= state then
-			visibleState = state			
-			Core.setUpdateHz( (state == 2) and 60.0 or (state == 1 and 30 or 10) )
-		end
+--		if visible ~= this:getVisibleInCamera() then
+--			visible = this:getVisibleInCamera()			
+			Core.setUpdateHz( this:getVisibleInCamera()	and 60.0 or 10 )
+--		end
 		
 		--update the energy asking
 		updateAskForEnergy()
@@ -555,7 +559,6 @@ function ElectricTower.new()
 	--
 	local function init()
 		----this:setIsStatic(true)
-		Core.setUpdateHz(60.0)
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end

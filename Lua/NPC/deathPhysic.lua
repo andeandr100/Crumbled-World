@@ -102,7 +102,8 @@ function DeathPhysic.new()
 				velocity = modelVelocity * 1.5 + math.randomVec3() * 0.5 + Vec3(0,0.8,0)
 			end
 			local mesh = Mesh.new(subMesh)
-			physicNode:addRigidBody(mesh:toSceneNode(), velocity, rotation, rotationSpeed, getDeadBodyStartTime() )
+			mesh:setEnableShadow(false)
+			physicNode:addRigidBody(mesh:toSceneNode(), velocity, rotation, rotationSpeed, getDeadBodyStartTime() * math.randomFloat(0.5, 1.0) )
 		end
 	end
 	

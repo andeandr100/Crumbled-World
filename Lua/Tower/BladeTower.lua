@@ -64,7 +64,7 @@ function BladeTower.new()
 	--other
 	local upgradeElectricScale = 0.0
 	local staticNodes--used for range tests
-	local visibleState = 2
+	local visible = true
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	local lastRestored = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
@@ -89,6 +89,9 @@ function BladeTower.new()
 		model:getMesh( "spear" ):setVisible(data.getBoostActive())
 		model:getMesh( "blade" ):setVisible(data.getBoostActive() == false)
 		model:getMesh( "boost" ):setVisible(data.getBoostActive())
+		model:getMesh( "spear" ):setEnableShadow(false)
+		model:getMesh( "blade" ):setEnableShadow(false)
+		model:getMesh( "boost" ):setEnableShadow(false)
 
 		--set ambient map
 		for index=0, model:getNumMesh()-1 do
@@ -103,6 +106,7 @@ function BladeTower.new()
 		-------------------------------------
 		
 		model:getMesh("shield"):setVisible(data.getLevel("shieldBreaker") > 0)
+		model:getMesh("shield"):setEnableShadow(false)
 		
 		-----------------------------------
 		--- Handle attackSpeed upgrades ---
@@ -110,6 +114,7 @@ function BladeTower.new()
 		
 		for i=1, data.getTowerLevel() do
 			model:getMesh("speed"..i):setVisible(data.getLevel("attackSpeed") == i)
+			model:getMesh("speed"..i):setEnableShadow(false)
 		end
 		
 		-----------------------------------
@@ -118,6 +123,8 @@ function BladeTower.new()
 		
 		model:getMesh("showSpear"):setVisible(data.getBoostActive())
 		model:getMesh("showBlade"):setVisible(not data.getBoostActive())
+		model:getMesh("showSpear"):setEnableShadow(false)
+		model:getMesh("showBlade"):setEnableShadow(false)
 		
 		-- NOTE THIS IS THE FIRE CRIT UPGRADE THAT HAS BEEN DISABLE
 		
@@ -149,7 +156,7 @@ function BladeTower.new()
 		--- Handle electricBlade upgrades ---
 		-------------------------------------
 		
-		
+		model:getMesh("electric"):setEnableShadow(false)
 		if data.getLevel("electricBlade")==0 then
 			if sparkCenter1 then
 				sparkCenter1:deactivate()
@@ -160,6 +167,7 @@ function BladeTower.new()
 				electricPointLight2:setVisible(false)
 			end
 			model:getMesh("electric"):setVisible(false)
+			
 		else
 			model:getMesh("electric"):setVisible(true)
 			upgradeElectricScale = 0.20 + (data.getLevel("electricBlade")*0.05)
@@ -405,10 +413,9 @@ function BladeTower.new()
 		
 
 		--change update speed
-		local state = tonumber(this:getVisibleInCamera()) * math.max(1,tonumber(cameraNode:getGlobalPosition().y < 20) * 2)
-		if visibleState ~= state then
-			visibleState = state			
-			Core.setUpdateHz( (state == 2) and 60.0 or (state == 1 and 30 or 10) )
+		if visible ~= this:getVisibleInCamera() then
+			visible = this:getVisibleInCamera()			
+			Core.setUpdateHz( visible and 60.0 or 10 )
 		end
 		--
 		if isThisReal then
@@ -523,7 +530,6 @@ function BladeTower.new()
 		data.updateStats()
 	end
 	local function init()
-		Core.setUpdateHz(60.0)
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end

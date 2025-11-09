@@ -77,7 +77,7 @@ function MinigunTower.new()
 	local machinegunActiveTimeWithoutOverheat = 0.0
 	--other
 	local syncTargetTimer = 0.0
-	local visibleState = 2
+	local visible = true
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
@@ -293,11 +293,7 @@ function MinigunTower.new()
 		cabelMesh = model:getMesh( "cabels" )
 		pipeBoostMesh = model:getMesh("pipeBoost" )
 		
-		engineMesh:setEnableShadow(false)
-		rotatorMesh:setEnableShadow(false)
-		pipesMesh:setEnableShadow(false)
 		cabelMesh:setEnableShadow(false)
-		pipeBoostMesh:setEnableShadow(false)
 		
 		
 		--performance check
@@ -825,10 +821,9 @@ function MinigunTower.new()
 		comUnit:setPos(this:getGlobalPosition())
 		
 		--change update speed
-		local state = tonumber(this:getVisibleInCamera()) * math.max(1,tonumber(cameraNode:getGlobalPosition().y < 20) * 2)
-		if visibleState ~= state then
-			visibleState = state			
-			Core.setUpdateHz( (state == 2) and 60.0 or (state == 1 and 30 or 10) )
+		if visible ~= this:getVisibleInCamera() then
+			visible = this:getVisibleInCamera()			
+			Core.setUpdateHz( visible and 60.0 or 10 )
 		end
 		
 		

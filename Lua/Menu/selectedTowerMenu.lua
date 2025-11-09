@@ -167,7 +167,6 @@ function selectedtowerMenu.new(inCamera, menuCamera)
 		towerImagePanel:setBackground(Sprite(towerCamera:getTexture()));
 		
 		
-		
 		--other towers information
 		towerPanel = formTower:add(Panel(PanelSize(Vec2(-1),Vec2(1,0.9))))
 		towerPanel:setLayout(FallLayout(Alignment.BOTTOM_RIGHT))
@@ -326,8 +325,7 @@ function selectedtowerMenu.new(inCamera, menuCamera)
 			towerCamera:setLocalMatrix(camMatrix)
 			
 			local contentSize = towerImagePanel:getPanelContentPixelSize()
-			contentSize:maximize(Vec2i(32))
-			towerCamera:setFrameBufferSize(contentSize * 2)
+			towerCamera:setFrameBufferSize(contentSize)
 		else
 			builBilboard:setBool("isTowerSelected",false)
 		end
@@ -403,6 +401,19 @@ function selectedtowerMenu.new(inCamera, menuCamera)
 	end
 	
 	function self.update()
+		
+--		local screenRes = towerCamera:getResolution()
+--		local l1 = towerCamera:getWorldLineFromScreen(Vec2())
+--		local l2 = towerCamera:getWorldLineFromScreen(Vec2(0,screenRes.y))
+--		local l3 = towerCamera:getWorldLineFromScreen(Vec2(screenRes.x,0))
+--		local l4 = towerCamera:getWorldLineFromScreen(screenRes)
+--		
+--		
+--
+--		Core.addDebugLine( l1.startPos, l1.endPos, 0.1, Vec3(1) )
+--		Core.addDebugLine( l2.startPos, l2.endPos, 0.1, Vec3(1) )
+--		Core.addDebugLine( l3.startPos, l3.endPos, 0.1, Vec3(1) )
+--		Core.addDebugLine( l4.startPos, l4.endPos, 0.1, Vec3(1) )
 
 		--when in game menu is shown hide selected tower menu
 		if esqKeyBind:getPressed() or buildingNodeBillboard:getBool("inBuildMode") then

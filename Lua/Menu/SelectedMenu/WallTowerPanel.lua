@@ -28,7 +28,7 @@ function WallTowerPanel.new(inForm, inGetLastBuildingSelectedFunction, senToBuil
 		if towerNode then
 			local buildingScript = towerNode:getScriptByName("tower")
 			--get the cost of the new tower
-			return buildingScript:getBillboard():getInt("cost")
+			return buildingScript and buildingScript:getBillboard():getInt("cost") or 0
 		end
 		return 0
 	end

@@ -96,6 +96,10 @@ function selectedNpcMenu.new(inCamera)
 		end
 	end
 	
+	function self.getVisible()
+		return form:getVisible()
+	end
+	
 	local function addSoul(data)
 		if data ~= nil and data.id and type(data.node) == "userdata" then
 			souls[data.id] = {data.node,data.netname}

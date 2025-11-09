@@ -5,7 +5,7 @@ in vec2 uvCord[];
 in vec4 col[];
 in vec4 targetColor[];
 in float timeOffset[];
-in float sizeGrowth[];
+in float sizeGrowth[]; // <<< THIS IS THE CRITICAL FIX
 
 
 layout (points) in;
@@ -16,33 +16,37 @@ out vec4 SpriteColor;
 
 uniform mat4 projMat;
 
+const float PI = 3.14159265359;
+
 void main( void )
 {
-	
+    float s = size[0] + sizeGrowth[0] * timeOffset[0];
+    float alphaVal = sin(PI * timeOffset[0]);
 
-	float s = size[0] + sizeGrowth[0] * timeOffset[0];
-	float allpaVal = sin(3.14159 * timeOffset[0]);
+    vec3 mixedColor = mix(col[0].rgb, targetColor[0].rgb, timeOffset[0]);
+    float mixedAlpha = mix(col[0].a, targetColor[0].a, alphaVal);
+    SpriteColor = vec4(mixedColor, mixedAlpha);
 
-	SpriteColor = vec4( (1 - timeOffset[0]) * col[0].xyz + timeOffset[0] * targetColor[0].xyz, (1 - allpaVal) * col[0].a + allpaVal * targetColor[0].a);
-	tc= uvCord[0];
-	gl_Position = pos[0].xyzw + projMat * vec4(s,s,0.0,0.0);
-	EmitVertex();
+    vec4 centerPos = pos[0];
+    vec4 dx = projMat * vec4(s, 0.0, 0.0, 0.0);
+    vec4 dy = projMat * vec4(0.0, s, 0.0, 0.0);
 
+    tc = uvCord[0] + vec2(0.125, 0.0);
+    gl_Position = centerPos + dx + dy;
+    EmitVertex();
 
-	tc= uvCord[0] + vec2(0.0,0.125);
-	gl_Position = pos[0].xyzw + projMat * vec4(s,-s,0.0,0.0);
-	EmitVertex();
+    tc = uvCord[0] + vec2(0.125, 0.125);
+    gl_Position = centerPos + dx - dy;
+    EmitVertex();
 
+    tc = uvCord[0];
+    gl_Position = centerPos - dx + dy;
+    EmitVertex();
 
-	tc= uvCord[0] + vec2(0.125,0.0);
-	gl_Position = pos[0].xyzw + projMat * vec4(-s,s,0.0,0.0);
-	EmitVertex();
+    tc = uvCord[0] + vec2(0.0, 0.125);
+    gl_Position = centerPos - dx - dy;
+    EmitVertex();
 
-
-	tc= uvCord[0] + vec2(0.125,0.125);
-	gl_Position = pos[0].xyzw + projMat * vec4(-s,-s,0.0,0.0);
-	EmitVertex();
-
-	EndPrimitive();
+    EndPrimitive();
 
 }

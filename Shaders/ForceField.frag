@@ -10,8 +10,8 @@ uniform float spawnTime[20];
 uniform float lifeTime[20];
 uniform int numHit;
 
-in vec2 textCoord; 
-in vec3 worldPos0; 
+in vec2 textCoord;
+in vec3 worldPos0;
 in vec3 localPosition;
 in vec3 outNormal;
 in vec4 outColor;
@@ -20,7 +20,7 @@ in vec4 outColor;
 out vec4 FragColor;
 
 void main()
-{           
+{
 	vec2 screenCoord = gl_FragCoord.xy / ScreenSize;
 	vec3 FragPos = texture(gPosition, screenCoord).rgb;
 

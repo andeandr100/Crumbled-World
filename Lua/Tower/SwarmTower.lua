@@ -46,7 +46,7 @@ function SwarmTower.new()
 	local boostActive = false
 
 	--sound
-	local visibleState = 2
+	local visible = true
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	--stats
 	local isCircleMap = MapInfo.new().isCricleMap()
@@ -68,6 +68,8 @@ function SwarmTower.new()
 		for index =1, data.getTowerLevel() do
 			model:getMesh( string.format("fuel%d", index) ):setVisible( false )
 			model:getMesh( string.format("speed%d", index) ):setVisible( data.getLevel("burnDamage")==index )
+			model:getMesh( string.format("fuel%d", index) ):setEnableShadow(false)
+			model:getMesh( string.format("speed%d", index) ):setEnableShadow(false)
 		end
 		
 		model:getMesh( "boost" ):setVisible( data.getBoostActive() )
@@ -294,14 +296,10 @@ function SwarmTower.new()
 		pointLight:setRange(1.25+(data.getBoostActive() and 1.0 or 0.0))
 		
 		--change update speed
---		local tmpCameraNode = cameraNode
-		local state = tonumber(this:getVisibleInCamera()) * math.max(1,tonumber(cameraNode:getGlobalPosition().y < 25) * 2)
---		print("state "..state)
---		print("Hz: "..((state == 2) and 60.0 or (state == 1 and 30 or 10)))
-		if visibleState ~= state then
-			visibleState = state			
-			Core.setUpdateHz( (state == 2) and 60.0 or (state == 1 and 30 or 10) )
-		end
+--		if visible ~= this:getVisibleInCamera() then
+--			visible = this:getVisibleInCamera()			
+			Core.setUpdateHz( this:getVisibleInCamera() and 60.0 or 10 )
+--		end
 		
 		--update pushPiston()
 		for index = 1, 4, 1 do
@@ -341,8 +339,7 @@ function SwarmTower.new()
 	end
 	--
 	local function init()
-		--this:setIsStatic(true)
-		Core.setUpdateHz(60.0)
+
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end

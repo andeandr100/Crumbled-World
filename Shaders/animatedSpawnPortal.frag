@@ -11,16 +11,16 @@ uniform vec3 portalPosition;
 uniform vec3 portalAtVec;
 uniform vec3 portalColor;
 
-in vec2 textCoord; 
-in vec3 worldPos0; 
+in vec2 textCoord;
+in vec3 worldPos0;
 
 in vec3 outNormal;
 in vec3 outTagent;
 in vec3 outBinormal;
 in vec4 outColor;
 
-layout (location = 0) out vec3 WorldPosOut; 
-layout (location = 1) out vec3 NormalOut; 
+layout (location = 0) out vec3 WorldPosOut;
+layout (location = 1) out vec3 NormalOut;
 layout (location = 2) out vec4 DiffuseOut;
 layout (location = 3) out vec4 GlowOut;
 
@@ -38,8 +38,6 @@ void main()
 	vec4 diffuseColor = texture2D(diffuseMap, textCoord);
 	if( diffuseColor.a * alphaValue < 0.9 )
 		discard;
-
-
 
 	const vec3 v = vec3(0,1,0);
 	vec3 collPos = portalPosition + (v * (dot((worldPos0 - portalPosition), v) / dot(v, v)));

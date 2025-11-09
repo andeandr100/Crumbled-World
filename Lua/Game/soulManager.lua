@@ -379,9 +379,7 @@ function create()
 	if ( node == nil and this:getSceneName() ~= "soulManager" ) or ( node and node:getClientId() ~= 0 ) then
 		return false
 	end
-	--Core.setUpdateHz(60)
-	
-	
+
 	
 	if this:getNodeType() == NodeId.playerNode then
 		local menuNode = this:getRootNode():addChild(SceneNode.new())

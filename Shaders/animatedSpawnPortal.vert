@@ -21,9 +21,9 @@ out vec3 outBinormal;
 void main()
 {
 	outColor = color;
-	mat4 transformMatrix = weight.x * boneMatrix[boneId[0]];
-		transformMatrix += weight.y * boneMatrix[boneId[1]];
-		transformMatrix += weight.z * boneMatrix[boneId[2]];
+	mat4 transformMatrix = weight.x * boneMatrix[boneId[0]] +
+                           weight.y * boneMatrix[boneId[1]] +
+                           weight.z * boneMatrix[boneId[2]];
 
 	vec3 finalNormal =	(transformMatrix * vec4(normal,0)).xyz;
 	mat3 normalMatrix = mat3(modelMat);

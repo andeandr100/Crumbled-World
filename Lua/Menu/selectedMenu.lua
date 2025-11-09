@@ -36,6 +36,11 @@ end
 
 function create()
 	
+	cameraRenderFrame = 0
+	frame = 0
+	towerMenuVisible = false
+	SelectedMenuVisible = false
+	
 	--Protection in multiplayer environment where multiple instances of this script is loaded
 	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
 	if ( node == nil and this:getSceneName() ~= "Selected menu" ) or ( node and node:getClientId() ~= 0 ) then
@@ -124,6 +129,8 @@ end
 
 
 function update()
+	
+	frame = frame + 1
 	--Handle communication
 	while comUnit:hasMessage() do
 		local msg = comUnit:popMessage()
@@ -155,7 +162,19 @@ function update()
 		billboardStats = Core.getBillboard("stats")
 		
 	end
-	selectedCamera:render()
+	
+	local forceRender = false
+	if towerMenuVisible ~= towerMenu.getVisible() or SelectedMenuVisible ~= npcMenu.getVisible() then
+		towerMenuVisible = towerMenu.getVisible()
+		SelectedMenuVisible = npcMenu.getVisible()
+		forceRender = towerMenuVisible or SelectedMenuVisible
+	end
+	
+	
+	if forceRender or ( ( towerMenu.getVisible() or npcMenu.getVisible() ) and Core.getRealDeltaTime() < 0.0333 and cameraRenderFrame+2 < frame ) then
+		cameraRenderFrame = frame
+		selectedCamera:render()
+	end
 
 	return true
 

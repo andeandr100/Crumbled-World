@@ -14,15 +14,12 @@ local function setNetOwner(param)
 end
 
 function create()
-	----this:setIsStatic(true)
 	--upgrade 1
 	model = Core.getModel("tower_wall.mym");
 	this:addChild(model:toSceneNode());
 	model:getMesh("hull"):setVisible(false)
-	--model:setIsStatic(true)
-	--model:render()
 	
-	Core.setUpdateHz(15)
+	Core.setUpdateHz(10)
 
 	--Hull
 	local hullModel = Core.getModel("tower_resource_hull.mym")

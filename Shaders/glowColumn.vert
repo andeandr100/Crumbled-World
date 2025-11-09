@@ -11,22 +11,17 @@ out vec2 v_blurTexCoords[14];
 
 void main()
 {
-	gl_Position = projModelViewMat * modelMat * position;
+    gl_Position = projModelViewMat * modelMat * position;
+    v_texCoord = uvCoord;
 
-	float offset = 1.0/height;
-	v_texCoord = uvCoord;
-    v_blurTexCoords[ 0] = v_texCoord + vec2(0.0, -offset*7);
-    v_blurTexCoords[ 1] = v_texCoord + vec2(0.0, -offset*6);
-    v_blurTexCoords[ 2] = v_texCoord + vec2(0.0, -offset*5);
-    v_blurTexCoords[ 3] = v_texCoord + vec2(0.0, -offset*4);
-    v_blurTexCoords[ 4] = v_texCoord + vec2(0.0, -offset*3);
-    v_blurTexCoords[ 5] = v_texCoord + vec2(0.0, -offset*2);
-    v_blurTexCoords[ 6] = v_texCoord + vec2(0.0, -offset*1);
-    v_blurTexCoords[ 7] = v_texCoord + vec2(0.0,  offset*1);
-    v_blurTexCoords[ 8] = v_texCoord + vec2(0.0,  offset*2);
-    v_blurTexCoords[ 9] = v_texCoord + vec2(0.0,  offset*3);
-    v_blurTexCoords[10] = v_texCoord + vec2(0.0,  offset*4);
-    v_blurTexCoords[11] = v_texCoord + vec2(0.0,  offset*5);
-    v_blurTexCoords[12] = v_texCoord + vec2(0.0,  offset*6);
-    v_blurTexCoords[13] = v_texCoord + vec2(0.0,  offset*7);
+    float offset = 1.0 / height;
+
+    // Calculate texture coordinates for blurring
+    for (int i = 1; i <= 7; i++) {
+        float sampleOffset = float(i);
+        // Indices 0-6 are for samples above the current fragment
+        v_blurTexCoords[7 - i] = v_texCoord + vec2(0.0, -offset * sampleOffset);
+        // Indices 7-13 are for samples below the current fragment
+        v_blurTexCoords[6 + i] = v_texCoord + vec2(0.0,  offset * sampleOffset);
+    }
 }

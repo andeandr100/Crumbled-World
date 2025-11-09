@@ -153,7 +153,14 @@ function DeathHandler.new()
 					
 				else--stage 3 (decay)
 					--The body is old time to decay away or get delete
-
+					if body.deathAnimationTimer +deltaTime > 0.0 then
+						local maxMesh = body.model:getNumMesh()-1 
+						abort()
+						for n=0, maxMesh do
+							body.model:getMesh(n):setEnableShadow(false)
+							abort()
+						end
+					end
 					--The dead body is on a island. use deafault decay
 					decayBodyAnimation(body)
 				end

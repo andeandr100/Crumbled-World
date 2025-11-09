@@ -19,7 +19,7 @@ function create()
 						framePositions = {2,10,18}}
 	npcBase.addDeathAnimation(tableAnimationInfo,tableFrame)
 	--physic animated death
-	npcBase.addDeathRigidBody(false)
+	npcBase.addDeathRigidBody(true)
 	return true
 end
 function update()

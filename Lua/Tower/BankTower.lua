@@ -60,6 +60,7 @@ function BankTower.new()
 	local mapName = MapInfo.new().getMapName()
 	local totalGoaldEarned = 0
 	--other
+	local visible = true
 	local lastRestored = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	--lastGlobalPosition used for crash safty when tower nodes is destroyed before script is
@@ -230,10 +231,9 @@ function BankTower.new()
 		crystal:setLocalPosition(Vec3(0,0.1+0.1*math.sin(timer),0)+crystalPosition)
 		
 		--change update speed
-		local state = tonumber(this:getVisibleInCamera()) * math.max(1,tonumber(cameraNode:getGlobalPosition().y < 25) * 2)
-		if visibleState ~= state then
-			visibleState = state			
-			Core.setUpdateHz( (state == 2) and 60.0 or (state == 1 and 30 or 10) )
+		if visible ~= this:getVisibleInCamera() then
+			visible = this:getVisibleInCamera()			
+			Core.setUpdateHz( visible and 60.0 or 10 )
 		end
 
 		return true
@@ -243,7 +243,6 @@ function BankTower.new()
 	-- purpose:		
 	local function init()
 		--this:setIsStatic(true)
-		Core.setUpdateHz(12.0)
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end

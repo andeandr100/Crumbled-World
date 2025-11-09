@@ -54,7 +54,7 @@ function ArrowTower.new()
 	--Events
 	--Other
 	local syncTimer = 0.0
-	local visibleState = 2
+	local visible = true
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this	
 	local lastRestored = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
@@ -84,6 +84,10 @@ function ArrowTower.new()
 			model:getMesh( string.format("scope%d", index) ):setVisible( data.getLevel("range")==index )
 			model:getMesh( string.format("flamer%d", index) ):setVisible( false )
 			model:getMesh( string.format("markForDeath%d", index) ):setVisible( data.getLevel("markOfDeath")==index )
+			
+			model:getMesh( string.format("scope%d", index) ):setEnableShadow(false)
+			model:getMesh( string.format("flamer%d", index) ):setEnableShadow(false)
+			model:getMesh( string.format("markForDeath%d", index) ):setEnableShadow(false)
 		end
 		model:getMesh( "masterAim" ):setVisible(false)
 		model:getMesh( "physic" ):setVisible(false)
@@ -91,7 +95,9 @@ function ArrowTower.new()
 		model:getMesh( "space0" ):setVisible(false)
 	
 		model:getMesh( "ammoDrumBoost" ):setVisible(data.getBoostActive())
+		model:getMesh( "ammoDrumBoost" ):setEnableShadow(false)
 		model:getMesh( "ammoDrum" ):setVisible(not data.getBoostActive())
+		
 		
 		--set ambient map
 		for index=0, model:getNumMesh()-1 do
@@ -105,13 +111,16 @@ function ArrowTower.new()
 		for i=1, 3 do
 			if model:getMesh("scope"..i) then
 				model:getMesh("scope"..i):setVisible(data.getLevel("range")==i)
+				model:getMesh("scope"..i):setEnableShadow(false)
 			end
 			if model:getMesh("markForDeath"..i) then
 				model:getMesh("markForDeath"..i):setVisible(data.getLevel("markOfDeath")==i)
+				model:getMesh("markForDeath"..i):setEnableShadow(false)
 			end
 		end
 		if data.getBoostActive() and model:getMesh("scope"..data.getLevel("range")) then
 			model:getMesh("scope"..data.getLevel("range")):rotate(Vec3(0.0, 1.0, 0.0), SCOPE_ROTATION_ON_BOOST)
+			model:getMesh("scope"..data.getLevel("range")):setEnableShadow(false)
 		end	
 	end
 
@@ -417,13 +426,9 @@ function ArrowTower.new()
 
 		comUnit:setPos(this:getGlobalPosition())
 		--change update speed
---		local tmpCameraNode = cameraNode
-		local state = tonumber(this:getVisibleInCamera()) * math.max(1,tonumber(cameraNode:getGlobalPosition().y < 20) * 2)
---		print("state "..state)
---		print("Hz: "..((state == 2) and 60.0 or (state == 1 and 30 or 10)))
-		if visibleState ~= state then
-			visibleState = state			
-			Core.setUpdateHz( (state == 2) and 60.0 or (state == 1 and 30 or 10) )
+		if visible ~= this:getVisibleInCamera() then
+			visible = this:getVisibleInCamera()			
+			Core.setUpdateHz( visible and 60.0 or 10 )
 		end
 		
 		--Handle communication
@@ -480,7 +485,6 @@ function ArrowTower.new()
 		this:createBoundVolumeGroup()
 		this:setBoundingVolumeCanShrink(false)
 		
-		Core.setUpdateHz(60.0)
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end

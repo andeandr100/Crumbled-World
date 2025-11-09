@@ -340,6 +340,7 @@ function worldEdgeStuff.generateGravel(startPos,endPos,atVec,rightVec,upVec)
 			--local node = self.staticNode--getClosestNode(pos,true)
 			local localPosition = this:getGlobalMatrix():inverseM()*pos
 			mesh:setLocalPosition( localPosition )
+			mesh:setEnableShadow(false)
 			self.island:addChild(mesh:toSceneNode())
 			self.staticStones[#self.staticStones+1] = mesh
 		else
@@ -360,6 +361,7 @@ function worldEdgeStuff.generateGravel(startPos,endPos,atVec,rightVec,upVec)
 			local node = self.staticNode--getClosestNode(pos,false)
 			local localPosition = this:getGlobalMatrix():inverseM()*pos
 			mesh:setLocalPosition( localPosition )
+			mesh:setEnableShadow(false)
 			node:addChild(mesh:toSceneNode())
 			self.dynamicStones.size = self.dynamicStones.size + 1
 			self.dynamicStones[self.dynamicStones.size] = {node=mesh, timer=0.0, axis1=math.randomVec3(),axis2=math.randomVec3(), offset=mesh:getLocalPosition()+math.randomVec3()*(0.2+0.3*math.randomFloat())}

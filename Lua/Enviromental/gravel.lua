@@ -66,7 +66,16 @@ function generateGravel(island)
 				gravelCount = gravelCount + 1
 			end
 		end
+		
+		--Disable shadow
+		local meshList = island:findAllNodeByTypeTowardsLeaf(NodeId.mesh)
+		for n=0, meshList:size()-1, 1 do
+			meshList:item(i):setEnableShadow(false)
+		end
 	end
+	
+	
+	
 end
 function update()
 	

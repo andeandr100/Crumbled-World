@@ -49,6 +49,7 @@ function SwarmTower.new()
 	local targetSelector = TargetSelector.new(activeTeam)
 	local cameraNode = this:getRootNode():findNodeByName("MainCamera") or this
 	--stats
+	local visible = true
 	local mapName = MapInfo.new().getMapName()
 	local totalGoldEarned = 0
 	--other
@@ -72,6 +73,9 @@ function SwarmTower.new()
 		model:getMesh( "physic" ):setVisible(false)
 		model:getMesh( "weaken" ):setVisible(data.getLevel("weaken")>0)
 		model:getMesh( "boost" ):setVisible(data.getBoostActive())--set ambient map
+		model:getMesh( "physic" ):setEnableShadow(false)
+		model:getMesh( "weaken" ):setEnableShadow(false)
+		model:getMesh( "boost" ):setEnableShadow(false)
 		for index=0, model:getNumMesh()-1 do
 			local mesh = model:getMesh(index)
 			local name = mesh:getName()
@@ -86,6 +90,8 @@ function SwarmTower.new()
 		for i=1, data.getTowerLevel() do
 			model:getMesh( "range"..i ):setVisible(data.getLevel("range")==i)
 			model:getMesh( "dmg"..i ):setVisible(data.getTowerLevel()==i)
+			model:getMesh( "range"..i ):setEnableShadow(false)
+			model:getMesh( "dmg"..i ):setEnableShadow(false)
 		end	
 		
 		local rangeMatrix
@@ -93,6 +99,9 @@ function SwarmTower.new()
 			rangeMatrix = meshRange:getLocalMatrix()
 		end
 		meshRange = data.getLevel("range")==0 and nil or model:getMesh( "range"..data.getLevel("range") )
+		if meshRange then
+			meshRange:setEnableShadow(false)
+		end
 		if rangeMatrix then
 			meshRange:setLocalMatrix(rangeMatrix)
 		end
@@ -100,6 +109,7 @@ function SwarmTower.new()
 		--- Weaken effect --
 		if data.getLevel("weaken")==0 then
 			model:getMesh("weaken"):setVisible(false)
+			model:getMesh("weaken"):setEnableShadow(false)
 			if weakeningArea then
 				weakeningArea:deactivate()
 				for i=1, 4 do
@@ -317,10 +327,9 @@ function SwarmTower.new()
 		meshCrystal:setLocalPosition(Vec3(0, 0.65+(0.1*math.sin(timer)), 0))
 		
 		--change update speed
-		local state = tonumber(this:getVisibleInCamera()) * math.max(1,tonumber(cameraNode:getGlobalPosition().y < 25) * 2)
-		if visibleState ~= state then
-			visibleState = state			
-			Core.setUpdateHz( (state == 2) and 60.0 or (state == 1 and 30 or 10) )
+		if visible ~= this:getVisibleInCamera() then
+			visible = this:getVisibleInCamera()			
+			Core.setUpdateHz( visible and 60.0 or 10 )
 		end
 		
 		--model:render()
@@ -330,7 +339,7 @@ function SwarmTower.new()
 	-- function:	functionName
 	-- purpose:		
 	local function init()
-		Core.setUpdateHz(12.0)
+
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)
 		end

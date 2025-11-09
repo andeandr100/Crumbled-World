@@ -30,20 +30,22 @@ layout (location = 3) out vec4 GlowOut;
 
 void main()
 {
-	vec4 diffuseColor = texture2D(diffuseMap, textCoord);
-	if( diffuseColor.a < 0.9 )
-		discard;
+    vec4 diffuseColor = texture(diffuseMap, textCoord);
+    if( diffuseColor.a < 0.9 )
+        discard;
 
-	mat3 TBN = mat3( outTagent, outBinormal, outNormal );
-	vec3 normal = normalize( TBN * (texture2D(normalMap, textCoord).rgb * 2.0 - 1.0) );
+    mat3 TBN = mat3( outTagent, outBinormal, outNormal );
+    vec3 normal = normalize( TBN * (texture(normalMap, textCoord).rgb * 2.0 - 1.0) );
 
-	WorldPosOut = worldPos0;
-	DiffuseOut = vec4(diffuseColor.rgb * coverColor.rgb * outColor.rgb, texture2D(specularMap, textCoord).r);
-	NormalOut = normal;
-	
+    WorldPosOut = worldPos0;
+    float specular = texture(specularMap, textCoord).r;
+    DiffuseOut = vec4(diffuseColor.rgb * coverColor.rgb * outColor.rgb, specular);
+    NormalOut = normal;
+    
+    vec3 glow = texture(glowMap, textCoord).rgb;
 #if defined(GLOW)
-	GlowOut = vec4(texture2D(glowMap, textCoord).rgb + glowColor,selected);
+    GlowOut = vec4(glow + glowColor, selected);
 #else
-	GlowOut = vec4(texture2D(glowMap, textCoord).rgb,selected);
+    GlowOut = vec4(glow, selected);
 #endif
 }

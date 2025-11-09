@@ -21,17 +21,15 @@ out float sizeGrowth;
 
 void main( void )
 {
-	
+    col = color;
+    uvCord = uvCoord;
+    size = position.w;
+    targetColor = inTargetColor;
+    timeOffset = fract(inAttribute.x + particleTime);
+    sizeGrowth = inAttribute.y;
 
-	col = color;
-	uvCord = uvCoord;
-	size = position.w;
-	targetColor = inTargetColor;
-	timeOffset = inAttribute.x + particleTime - floor(inAttribute.x + particleTime);
-	sizeGrowth = inAttribute.y;
+    vec3 localPos = position.xyz + inVelocity * timeOffset;
 
-	vec3 localPos = position.xyz + inVelocity * timeOffset;
-
-	pos=projModelViewMat*modelMat*vec4(localPos,1.0);
-	gl_Position= pos;
+    pos = projModelViewMat * modelMat * vec4(localPos, 1.0);
+    gl_Position = pos;
 }

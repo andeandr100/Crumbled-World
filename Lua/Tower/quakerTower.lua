@@ -79,6 +79,7 @@ function QuakeTower.new()
 		--------------------
 		
 		model:getMesh("boost"):setVisible( data.getBoostActive() )
+		model:getMesh("boost"):setEnableShadow(false)
 		
 		--------------------------------
 		--- Handle fireCrit upgrades ---
@@ -93,6 +94,7 @@ function QuakeTower.new()
 			end
 			for i=1, data.getTowerLevel() do
 				model:getMesh("blaster"..i):setVisible(data.getLevel("fireCrit") == i)
+				model:getMesh("blaster"..i):setEnableShadow(false)
 			end
 		end
 		
@@ -102,6 +104,7 @@ function QuakeTower.new()
 		
 		for i=1, data.getTowerLevel() do
 			model:getMesh("elementTower"..i):setVisible(false)
+			model:getMesh("elementTower"..i):setEnableShadow(false)
 		end
 		
 		
@@ -123,6 +126,7 @@ function QuakeTower.new()
 			fireBall:activate(Vec3(0,0.75,0))
 			firePointLigth:setLocalPosition( Vec3(0,0.75,0) )
 			model:getMesh("elementSmasher"):setVisible(true)
+			model:getMesh("elementSmasher"):setEnableShadow(false)
 		end
 		
 		--------------------------------------
@@ -131,6 +135,7 @@ function QuakeTower.new()
 		
 		for i=1, data.getTowerLevel() do
 			model:getMesh("elementTower"..i):setVisible(data.getLevel("electricStrike") == i)
+			model:getMesh("elementTower"..i):setEnableShadow(false)
 		end
 		
 		if data.getLevel("electricStrike")==0 then
@@ -159,9 +164,12 @@ function QuakeTower.new()
 			electricPointLigth:setLocalPosition( Vec3(0,0.75,0) )
 			if data.getLevel("electricStrike")>1 then
 				model:getMesh("elementTower"..(data.getLevel("electricStrike")-1)):setVisible(false)
+				model:getMesh("elementTower"..(data.getLevel("electricStrike")-1)):setEnableShadow(false)
 			end
 			model:getMesh("elementTower"..data.getLevel("electricStrike")):setVisible(true)
+			model:getMesh("elementTower"..data.getLevel("electricStrike")):setEnableShadow(false)
 			model:getMesh("elementSmasher"):setVisible(true)
+			model:getMesh("elementSmasher"):setEnableShadow(false)
 			--Acievement
 			if data.getLevel("electricStrike")==3 then
 				achievementUnlocked("ElectricStorm")
@@ -533,7 +541,6 @@ function QuakeTower.new()
 	--
 	--
 	local function init()
-		----this:setIsStatic(true)
 		Core.setUpdateHz(48.0)
 		if Core.isInMultiplayer() and this:findNodeByTypeTowardsRoot(NodeId.playerNode) then
 			Core.requireScriptNetworkIdToRunUpdate(true)

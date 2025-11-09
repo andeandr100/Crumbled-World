@@ -9,6 +9,6 @@ out vec4 FragColor;
 
 void main( void )
 {
-   FragColor = texture2D(diffuseMap, tc) * SpriteColor;
+   FragColor = texture(diffuseMap, tc) * SpriteColor;
 }
 
