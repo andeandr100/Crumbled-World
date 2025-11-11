@@ -385,7 +385,7 @@ function TowerData.new()
 					upgrade.locked =  "tower.menu.not your tower"
 				elseif level > towerLevel.getLevel() then
 					upgrade.locked =  "tower.menu.tower level "..level
-				elseif upgrade.unlockedLevel <= level then
+				elseif upgrade.unlockedLevel < level then
 					upgrade.locked =  "tower.menu.shop required"
 				else
 					upgrade.locked = nil
