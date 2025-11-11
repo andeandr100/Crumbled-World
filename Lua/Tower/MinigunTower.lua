@@ -758,20 +758,13 @@ function MinigunTower.new()
 			data.setRestoreFunction(restartListener, restoreWaveChangeStats, storeWaveChangeStats)
 		end
 		
-		
-		
 		data.addTowerUpgrade(gameValues.getTowerAbilityValues("MinigunTower","upgrade"))
 		data.addBoostUpgrade(gameValues.getTowerAbilityValues("MinigunTower","boost"))
 		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("MinigunTower","range"))
 		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("MinigunTower","overCharge"))
-		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("MinigunTower","overkill"))		
+		data.addSecondaryUpgrade(gameValues.getTowerAbilityValues("MinigunTower","overkill"))	
 		
-				
 		data.buildData()
-		
---							} )
---		--support tower functions
-		
 		
 		billboard:setInt("level",data.getTowerLevel())
 		if isCircleMap then
@@ -827,11 +820,6 @@ function MinigunTower.new()
 		end
 		
 		
---		local gPos = particleEffectTracer[activePipe]:getGlobalPosition()
---		Core.addDebugLine( gPos,gPos + Vec3(0,3,0), 0.1, Vec3(1))
---		Core.addDebugSphere(Sphere(gPos, 0.5), 0.1, Vec3(1))
---		Core.addDebugLine( gPos,gPos - particleEffectTracer[activePipe]:getGlobalMatrix():getUpVec(), 0.02, Vec3(1,0,0))
-		
 		if boostActive ~= data.getBoostActive() then
 			boostActive = data.getBoostActive()	
 			setCurrentInfo()		
@@ -864,12 +852,6 @@ function MinigunTower.new()
 			end
 		end
 
---		if pointLightTimer>0.0 then
---			pointLightTimer = pointLightTimer - Core.getDeltaTime()
---			if pointLightTimer<=0.0 then
---				pointLight:setVisible(false)
---			end
---		end
 		reloadTimeLeft = reloadTimeLeft - Core.getDeltaTime()
 		local pipeAt = -engineMesh:getGlobalMatrix():getUpVec()
 		updateTarget()
