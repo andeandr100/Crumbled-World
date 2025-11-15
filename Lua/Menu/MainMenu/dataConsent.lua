@@ -67,20 +67,18 @@ function create()
 		form:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
 		form:setBackground(Sprite(Vec4(0,0,0,0.5)))
 		
-		mainPanel = form:add(Panel(PanelSize(Vec2(1,0.25),Vec2(4,2))))
+		mainPanel = form:add(Panel(PanelSize(Vec2(-0.4,-0.25),Vec2(4,2))))
 		mainPanel:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 		mainPanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
 		local borderSize =  0.00135
 		mainPanel:setBorder(DoubleBorder(BorderSize(Vec4(borderSize * 2)),MainMenuStyle.borderColor,BorderSize(Vec4(borderSize * 3)),Vec4(0,0,0,0.5), BorderSize(Vec4(borderSize)),MainMenuStyle.borderColor))
 
-		backgroundPanel = mainPanel
-
-		textPanels = mainPanel:add(Label(PanelSize(Vec2(0.17,1), Vec2(7,1)), "consent.data consent", MainMenuStyle.textColorHighLighted, Alignment.MIDDLE_CENTER ))
+		textPanels = mainPanel:add(Label(PanelSize(Vec2(-0.65,1), Vec2(7,1)), "consent.data consent", MainMenuStyle.textColorHighLighted, Alignment.MIDDLE_CENTER ))
 		addLabel(textPanels)
 		
 		MainMenuStyle.createBreakLine(mainPanel)
 		
-		local botomPanel = mainPanel:add(Panel(PanelSize(Vec2(-1,-1))))
+		local botomPanel = mainPanel:add(Panel(PanelSize(Vec2(-1.0,-1.0))))
 		botomPanel:setLayout(FallLayout( Alignment.BOTTOM_CENTER, PanelSize(Vec2(0,0.01)) ))
 		
 		
