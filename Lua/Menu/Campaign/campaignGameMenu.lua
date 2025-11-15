@@ -108,10 +108,12 @@ function CampaignGameMenu.new(panel)
 	function self.setVisible(set,set2)
 		if type(set)=="boolean" then
 			mainPanel:setVisible(set)
-			campaignMap.setVisible(set and true or false)
+			campaignMap.setVisible(set)
+			campaingShop.setVisible(false)
 		else
 			mainPanel:setVisible(set2)
-			campaignMap.setVisible(set2 and true or false)
+			campaignMap.setVisible(set2)
+			campaingShop.setVisible(false)
 		end
 	end
 	--
