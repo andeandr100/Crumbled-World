@@ -2,13 +2,14 @@ require("Game/Abilities/targetAreaEffect.lua")
 --this = SceneNode()
 
 boostTargetArea = {}
-function boostTargetArea.new(inBuildNode)
+function boostTargetArea.new(inBuildNode, radius)
 	local self = {}
 	local nodeArea = SceneNode.new()
 	local areaEffect = TargetAreaEffect.new("abilities/boostTargetArea")
 	local buildNode = inBuildNode
 	local selectedNodes = {}
 	local particleEffect = GraphicParticleSystem.new(1600,1.5)
+	local boostRadius =  radius
 	
 	
 	--buildNode = BuildNode()
@@ -27,10 +28,8 @@ function boostTargetArea.new(inBuildNode)
 	end
 	
 	local function initTargetMesh()
-		
-		local radius = 1.8
-		
-		areaEffect.setUniform( "Radius", radius)
+	
+		areaEffect.setUniform( "Radius", boostRadius)
 		areaEffect.setUniform( "effectColor", Vec3(1) )
 		nodeArea:addChild(areaEffect.getSceneNode())
 		
@@ -45,7 +44,7 @@ function boostTargetArea.new(inBuildNode)
 		local shader = Core.getShader("ParticleEffectBasic")
 		particleEffect:setShader(shader)
 		particleEffect:setRenderBlendMode(GL_Blend.SRC_ALPHA, GL_Blend.ONE)
-		radius = radius * 0.95
+		local radius = boostRadius * 0.95
 		for i=1, particleEffect:getMaxParticles() do 
 			local randAngle = math.randomFloat(0.0, 3.1459 * 2.0)
 			local uvCoord = Vec2(0.0,0.75) + Vec2(0, math.randomFloat() > 0.5 and 0.125 or 0.0 )
@@ -140,7 +139,7 @@ function boostTargetArea.new(inBuildNode)
 		areaEffect.update(visible and not active, globalposition)
 
 		if visible then
-			local bostableNodes = removeUnbostableTower(buildNode:getAllBuildingFromPoint(globalposition, 2))
+			local bostableNodes = removeUnbostableTower(buildNode:getAllBuildingFromPoint(globalposition, boostRadius))
 			updateSelectedNodes( bostableNodes )
 		elseif #selectedNodes > 0 then
 			updateSelectedNodes( {} )

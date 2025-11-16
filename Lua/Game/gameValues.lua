@@ -58,10 +58,11 @@ function GameValues.new()
 						iconId = 1,
 						level = 1,
 						maxLevel = 3,
-						stats = {damage =		{ 1.75, 2.5, 3.25, func = self.mul, suffix="%" },
+						stats = {boostRange =	{ 1.0, 1.2, 1.4, func = self.set, suffix="m" },
+								 damage =		{ 1.75, 2.5, 3.25, func = self.mul, suffix="%" },
 								 range = 		{ 1.1, 1.2, 1.3, func = self.mul, suffix="%" },
 								 RPS = 			{ 1.15, 1.3, 1.45, func = self.mul, suffix="%" },
-								 energyReg = 	{ 1.5, 1.75, 2.0, func = self.mul, suffix="%" } }
+								 energyReg = 	{ 1.5, 2.0, 2.5, func = self.mul, suffix="%" } }
 					},
 			slow={	
 						name = "slow",
@@ -72,8 +73,8 @@ function GameValues.new()
 						iconId = 4,
 						level = 1,
 						maxLevel = 3,
-						stats = {slow = 	{ 0.15, 0.28, 0.39, func = self.set, suffix="%"  },
-								slowTimer = { 2.0, 2.0, 2.0, func = self.set, suffix="s" }}
+						stats = {slow = 	{ 0.2, 0.3, 0.4, func = self.set, suffix="%"  },
+								slowTimer = { 8.0, 10.0, 12.0, func = self.set, suffix="s" }}
 					},
 			comet={	
 						name = "comet",
@@ -84,8 +85,8 @@ function GameValues.new()
 						iconId = 3,
 						level = 1,
 						maxLevel = 3,
-						stats = {range = 		{ 7,8,9, func = self.add, suffix="m"  },
-								damage =		{ 0.6,0.7,0.8, func = self.mul, suffix="%"  } }
+						stats = {range = 		{ 5,5.5,6, func = self.set, suffix="m"  },
+								damage =		{ 0.8,1.0,1.2, func = self.mul, suffix="%"  } }
 					}
 		},
 		["MinigunTower"] = {

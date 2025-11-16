@@ -44,8 +44,6 @@ function slowFieldTargetArea.new()
 		end
 		particleEffect:compile()
 		nodeArea:addChild(particleEffect:toSceneNode())
-		
-		
 		nodeArea:setVisible(false)
 
 		--find main camera
@@ -79,15 +77,10 @@ function slowFieldTargetArea.new()
 		end
 		
 		if active then
---			print("Active - slowField")
-			
-			
 			timeBettwenLightning = timeBettwenLightning - Core.getDeltaTime()
 			for i=1, #electric do
 					
 				if electric[i]:getTimer() < 0.01 and timeBettwenLightning < 0 then
---					print("electric " .. i .. ": Creating electric effect")
---					local localSphere = Sphere(this:getGlobalMatrix():inverseM()*globalposition,3.5)
 					if false then
 						local lightningTime = 0.5
 						local startPos = getRandomElectricAttackPos(globalposition)
@@ -109,9 +102,6 @@ function slowFieldTargetArea.new()
 						
 						timeBettwenLightning = timeBettwenLightning + lightningTime/#electric
 					end
-					
-				else
---					print("electric " .. i .. ": Time left " .. electric[i]:getTimer())
 				end
 			end
 		end

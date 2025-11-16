@@ -1,6 +1,7 @@
 require("Game/Abilities/attackTargetArea.lua")
 require("Game/Abilities/attackEffect.lua")
 require("Game/Abilities/worldCollision.lua")
+require("Game/gameValues.lua")
 
 --this = SceneNode()
 AttackAbility = {}
@@ -17,19 +18,28 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 	local statsBilboard = Core.getBillboard("stats")
 	local userControlled = isUserControlled
 	
-	local lastSlowEffectSent = 0
-	local abilityLast = 12
-	local abilityTargetArea = 3.5
+	local damageScale = 1.2
 	local abilityDetonationRange = 6
-	local abilitySlowPercentage = 0.4
 	local abilityActivated = 0
 	local abilityGlobalPosition = Vec3()
 	local billboardStats = Core.getBillboard("stats")
 	local mapCollision = WorldCollision.new(inCamera)
 	
 	
-	--Reality check will fail due to this node being built on the player node instead of the islands
+
 	
+	
+	--Reality check will fail due to this node being built on the player node instead of the islands
+	local function init()
+		local campaingConfig = Core.getGlobalBillboard("MapInfo")
+		if campaingConfig:getBool("isCampaign") then
+			local gameValues = GameValues.new()
+			local data = gameValues.getTowerAbilityValues("Passiv","comet")
+			
+			damageScale = data.stats.damage[data.campaingUnlockedLevel]
+			abilityDetonationRange = data.stats.range[data.campaingUnlockedLevel]
+		end
+	end
 	
 	function self.getAttackHasBeenUsedThisWave()
 		return abilityHasBeenUsedThisWave
@@ -58,7 +68,7 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 	
 
 	local function getDamage()
-		return statsBilboard:getInt("npc_scorpion_hp")
+		return statsBilboard:getInt("npc_scorpion_hp") * damageScale
 	end
 	
 	local function impact(shieldIndex)
@@ -78,13 +88,13 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 				
 				--if the NPC is outside the shield then do damage calculation
 				if (shieldPosition-targetPosition):length() > SHIELD_RANGE then
-					comUnit:sendTo(targetIndex,"attack",tostring(abilityDamage * 1.2 * distance))
+					comUnit:sendTo(targetIndex,"attack",tostring(abilityDamage * distance))
 					comUnit:sendTo(targetIndex,"physicPushIfDead",abilityGlobalPosition)
 				end
 			end
 		else
 			for targetIndex,distance in pairs(targetTable) do
-				comUnit:sendTo(targetIndex,"attack",tostring(abilityDamage * 1.2 * distance))
+				comUnit:sendTo(targetIndex,"attack",tostring(abilityDamage * distance))
 				comUnit:sendTo(targetIndex,"physicPushIfDead",abilityGlobalPosition)
 			end
 		end
@@ -129,6 +139,7 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 			if collision and Core.getInput():getMouseDown(MouseKey.left) and mouseInGameArea() then
 				comUnit:sendNetworkSync("NetActivateAttackAbility", tostring(globalposition))
 				self.activate(globalposition)
+				self.setAnotherAbilityButtonPressed()
 			else
 				AttackArea.update(collision, globalposition)			
 			end
@@ -136,6 +147,8 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 			AttackArea.update(false, Vec3())
 		end
 	end
+	
+	init()
 	
 	return self
 end

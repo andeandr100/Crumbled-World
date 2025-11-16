@@ -1,5 +1,6 @@
 require("Game/Abilities/slowFieldTargetArea.lua")
 require("Game/Abilities/worldCollision.lua")
+require("Game/gameValues.lua")
 
 --this = SceneNode()
 SlowfieldAbility = {}
@@ -22,6 +23,18 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 	local billboardStats = Core.getBillboard("stats")
 	local oldCollisionPosition = Vec3()
 	local mapCollision = WorldCollision.new(inCamera)
+	
+	
+	local function init()
+		local campaingConfig = Core.getGlobalBillboard("MapInfo")
+		if campaingConfig:getBool("isCampaign") then
+			local gameValues = GameValues.new()
+			local data = gameValues.getTowerAbilityValues("Passiv","slow")
+			
+			abilitySlowPercentage = data.stats.slow[data.campaingUnlockedLevel]
+			abilityLast = data.stats.slowTimer[data.campaingUnlockedLevel]
+		end
+	end
 	
 	function self.getSlowFieldHasBeenUsedThisWave()
 		return abilityHasBeenUsedThisWave
@@ -51,7 +64,7 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 	
 	function self.isActive()
 		local activeTime = Core.getGameTime() - abilityActivated
-		return activeTime > 0 and activeTime < 12
+		return activeTime > 0 and activeTime < abilityLast
 	end
 	
 	function self.activate(globalPosition)
@@ -87,6 +100,8 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 			end
 		end
 	end
+	
+	init()
 	
 	return self
 end

@@ -1,5 +1,6 @@
 require("Game/Abilities/boostTargetArea.lua") 
 require("Game/Abilities/worldCollision.lua")
+require("Game/gameValues.lua")
 --this = SceneNode()
 
 BoostAbility = {}
@@ -20,8 +21,20 @@ function BoostAbility.new(inCamera, inComUnit)
 	local mapCollision = WorldCollision.new(inCamera)
 	local buildNode = this:getRootNode():findNodeByType(NodeId.buildNode)
 	--buildNode = BuildNode()
-	local targetArea = boostTargetArea.new(buildNode)
+	local targetArea = nil
+	local boostRadius = 2.0
 
+	local function init()
+
+		local campaingConfig = Core.getGlobalBillboard("MapInfo")
+		if campaingConfig:getBool("isCampaign") then
+			local gameValues = GameValues.new()
+			local data = gameValues.getTowerAbilityValues("Passiv","boost")
+			boostRadius = data.stats.boostRange[data.campaingUnlockedLevel]
+		end
+		
+		targetArea = boostTargetArea.new(buildNode, boostRadius)
+	end
 	
 	function self.getBoostHasBeenUsedThisWave()
 		return abilityHasBeenUsedThisWave
@@ -115,25 +128,23 @@ function BoostAbility.new(inCamera, inComUnit)
 			targetArea.update(collision, globalposition, false)
 			
 			if buildingNodeBillboard:getBool("inBuildMode") == false then
-						
 				buildingNodeBillboard:setBool("AbilitesBeingPlaced", boostSelected)
-	
 				if Core.getInput():getMouseDown(MouseKey.left) and boostSelected and buildingNodeBillboard:getBool("canBuildAndSelect") and isMouseInMainPanel()then
-	
-					
 					local playerNode = this:findNodeByType(NodeId.playerNode)
 					local buildNode = playerNode:findNodeByType(NodeId.buildNode)
 					--buildNode = buildNode()
 					if buildNode then
-						
-						local building = buildNode:getBuldingFromLine(camera:getWorldLineFromScreen(Core.getInput():getMousePos()))
-						if building then
-							boostTower(building)
-							setGlowColor( building, Vec3(0.05,0.15,0.05) )
-							abilityHasBeenUsedThisWave = true
-							abilityGlobalPosition = globalposition
-							abilityActivated = Core.getGameTime()
-							buildingNodeBillboard:setBool("AbilitesBeingPlaced", false)
+						local buildings = buildNode:getAllBuildingFromPoint(globalposition,boostRadius)
+						for i=1, #buildings do
+							if buildings[i] then
+								boostTower(buildings[i])
+								setGlowColor( buildings[i], Vec3(0.05,0.15,0.05) )
+								abilityHasBeenUsedThisWave = true
+								abilityGlobalPosition = globalposition
+								abilityActivated = Core.getGameTime()
+								buildingNodeBillboard:setBool("AbilitesBeingPlaced", false)
+								boostSelected = false
+							end
 						end
 					end
 	
@@ -147,12 +158,10 @@ function BoostAbility.new(inCamera, inComUnit)
 				buildingNodeBillboard:setBool("AbilitesBeingPlaced", false)
 				targetArea.update(false, Vec3(), false)
 			end
-			
 		end
-		
-		
-		
 	end
+	
+	init()
 	
 	return self
 end

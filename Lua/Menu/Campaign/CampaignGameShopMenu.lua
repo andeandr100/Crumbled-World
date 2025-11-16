@@ -230,20 +230,16 @@ function CampaignGameShopMenu.new(parentPanel)
 		local leftPanel = mainPanel:add(Panel(PanelSize(Vec2(-1, -1))))
 		leftPanel:setLayout(FallLayout())
 		
-		
-		
 		local towerBorderMenu = leftPanel:add(Panel(PanelSize(Vec2(-1, -1),Vec2(9.5,1))))
 		towerBorderMenu:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
 		towerButtonMenu = towerBorderMenu:add(Panel(PanelSize(Vec2(-1, -0.95),Vec2(10,1))))
 		towerButtonMenu:setLayout(GridLayout(1,10, Alignment.MIDDLE_CENTER))
 
-
 		local breakline = leftPanel:add(Panel(PanelSize(Vec2(-1,MainMenuStyle.borderSize))))
 		breakline:setBackground(Sprite(MainMenuStyle.borderColor))
 		
 		local skillPanel = leftPanel:add(Panel(PanelSize(Vec2(-1, -1))))
-		
-		
+
 		--
 		
 		local towerTexture = Core.getTexture("icon_tower_table")
@@ -286,8 +282,6 @@ function CampaignGameShopMenu.new(parentPanel)
 			button:setTag(""..i)
 			button:setImageColor(Vec4(Vec3(colorScale),1.0))
 			
-			
-			
 			buttons[i] = {}
 			buttons[i].button = button
 		end
@@ -301,9 +295,7 @@ function CampaignGameShopMenu.new(parentPanel)
 			buttons[n].panel:setLayout(FreeFormLayout(PanelSize(Vec2(-1))))
 			buttons[n].towerName = towerName
 
-
 			local localSkillPanel = buttons[n].panel 
-			
 			
 			local panelBorder = Vec2(0.003,0.003)
 			local panelOffset = Vec2(0.03,0.03) + panelBorder
@@ -321,8 +313,6 @@ function CampaignGameShopMenu.new(parentPanel)
 			lineSkillLevelSeperator:addLine(Vec2(0,-0.35), Vec2(-1,-0.35))
 			lineSkillLevelSeperator:addLine(Vec2(0,-0.65), Vec2(-1,-0.65))
 			
-			
-			
 			local lineHandler = FreeFormLine()	
 			FreeFormDesign.setLineDesign(lineHandler)
 			localSkillPanel:add(lineHandler)
@@ -331,9 +321,7 @@ function CampaignGameShopMenu.new(parentPanel)
 			FreeFormDesign.setLineDesignSelected(lineSelectedHandler)
 			localSkillPanel:add(lineSelectedHandler)
 			
-			
 			local skillButtonDesign = FreeFormDesign.getSkillButton()
-			
 			
 			local towerData = gameValues.getTowerValues(towerName)
 			towerData.lineSelectedHandler = lineSelectedHandler
@@ -341,8 +329,6 @@ function CampaignGameShopMenu.new(parentPanel)
 			towers[towerName] = towerData	
 			towers[towerName].towerButton = buttons[n].button
 
-			
-			
 			local skillCount = #towerData.upgradeNames
 			local skillDistance = 1 / (skillCount+1)
 			local iconTexture = Core.getTexture("icon_table")
@@ -391,8 +377,6 @@ function CampaignGameShopMenu.new(parentPanel)
 					abilityData.buttons[y] = button
 					abilityData.buttonsPosition[y] = position
 					
-					
-					
 					-- add ToolTip
 					local toolTipPanel = FreeFormDesign.buildToolTipPanelForAbility(abilityData, y, false)
 					local toolTipPanelWarning = FreeFormDesign.buildToolTipPanelForAbility(abilityData, y, true)
@@ -415,11 +399,7 @@ function CampaignGameShopMenu.new(parentPanel)
 					end
 					oldPosition = position
 				end
-				
 			end	
-			
-					
-			
 		end
 	end
 	init()
