@@ -56,17 +56,17 @@ function AbilitesMenu.new()
 			slowfieldAbility = SlowfieldAbility.new(camera, comUnit, true)
 			boostAbility = BoostAbility.new(camera, comUnit)
 			attackAbility = AttackAbility.new(camera, comUnit, true)
-			posterForm = Form(camera, PanelSize(Vec2(1,0.1), Vec2(3.4,1)), "AbilitiesMenuForm");
+			posterForm = Form(camera, PanelSize(Vec2(1,0.09), Vec2(3.4,1)), "AbilitiesMenuForm");
 			
 			posterForm:setName("Abilities form")
-			posterForm:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor));
+			--posterForm:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor));
 			posterForm:setLayout(FlowLayout());
-			posterForm:getLayout():setPanelSpacing(PanelSize(Vec2(0.001)));
 			posterForm:setRenderLevel(1)
 			posterForm:setVisible(true)
-			posterForm:getPanelSize():setFitChildren(true, true);
 			posterForm:setFormOffset(PanelSize(Vec2(0.0, 0.0025)))
 			posterForm:setAlignment(Alignment.BOTTOM_CENTER)
+			
+			--posterForm:add(FreeFormSprite(PanelSizeType.ParentPercent, Vec2(0,0.5), Vec2(1,0), Vec3(1,0,0)))
 			
 			
 			--
@@ -74,7 +74,9 @@ function AbilitesMenu.new()
 			--
 			local towerTexture = Core.getTexture("abilities.tga")
 				
-			boostButton = posterForm:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0.5,0.0), Vec2(1,0.5) ))
+			local panel = posterForm:add(Panel(PanelSize(Vec2(-0.33333,-1))))
+			panel:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
+			boostButton = panel:add(Button(PanelSize(Vec2(-0.85,-0.85), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0.5,0.0), Vec2(1,0.5) ))
 			--BoostButton:setBackground( Sprite( towerTexture ));
 			boostButton:setInnerColor(Vec4(0,0,0,0.15),Vec4(0.2,0.2,0.2,0.35), Vec4(0.1,0.1,0.1,0.3))
 			boostButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
@@ -85,7 +87,9 @@ function AbilitesMenu.new()
 			boostButton:setToolTip(Text("Boos tower, [<b>" .. keyBindBoostBuilding:getKeyBindName(0) .. "</b>]"))
 			boostButton:setTag("boost")
 			
-			slowButton = posterForm:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0,0), Vec2(0.5,0.5) ))
+			panel = posterForm:add(Panel(PanelSize(Vec2(-0.5,-1))))
+			panel:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
+			slowButton = panel:add(Button(PanelSize(Vec2(-0.85,-0.85), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0,0), Vec2(0.5,0.5) ))
 			slowButton:setInnerColor(Vec4(0,0,0,0.15),Vec4(0.2,0.2,0.2,0.35), Vec4(0.1,0.1,0.1,0.3))
 			slowButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
 			slowButton:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))
@@ -95,7 +99,9 @@ function AbilitesMenu.new()
 			slowButton:setToolTip(Text("Slowfield, [<b>" .. keyBindSlowAbility:getKeyBindName(0) .. "</b>]"))
 			slowButton:setTag("slow")
 			
-			attackButton = posterForm:add(Button(PanelSize(Vec2(1,0.07), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0.5,0.5), Vec2(1,1) ))
+			panel = posterForm:add(Panel(PanelSize(Vec2(-1,-1))))
+			panel:setLayout(FlowLayout(Alignment.MIDDLE_CENTER))
+			attackButton = panel:add(Button(PanelSize(Vec2(-0.85,-0.85), Vec2(1,1)), ButtonStyle.SIMPLE, towerTexture, Vec2(0.5,0.5), Vec2(1,1) ))
 			attackButton:setInnerColor(Vec4(0,0,0,0.15),Vec4(0.2,0.2,0.2,0.35), Vec4(0.1,0.1,0.1,0.3))
 			attackButton:setInnerHoverColor(Vec4(0,0,0,0),Vec4(0.2,0.2,0.2,0.5), Vec4(0.1,0.1,0.1,0.5))
 			attackButton:setInnerDownColor(Vec4(0,0,0,0.3),Vec4(0.2,0.2,0.2,0.7), Vec4(0.1,0.1,0.1,0.6))	
@@ -104,6 +110,9 @@ function AbilitesMenu.new()
 			attackButton:setEdgeDownColor(Vec4(0.8,0.8,0.8,1),Vec4(0.6,0.6,0.6,1))
 			attackButton:setToolTip(Text("Attack, [<b>" .. keyAttackAbility:getKeyBindName(0) .. "</b>]"))
 			attackButton:setTag("attack")
+
+
+			
 			
 			posterForm:update();
 		end

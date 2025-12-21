@@ -62,39 +62,39 @@ function BoostAbility.new(inCamera, inComUnit)
 		abilityHasBeenUsedThisWave = false
 	end
 
-	local function setGlowColor(node, color)
-		if node then
-			local meshList = node:findAllNodeByTypeTowardsLeaf({NodeId.mesh, NodeId.animatedMesh})
-			for aKey, mesh in pairs(meshList) do
-				local shader = mesh:getShader()
-				local definitions = shader:getDefinitions()
-				definitions[#definitions+1] = "GLOW"
-				
-				shader = Core.getShader( shader:getName(), definitions )
-				mesh:setShader( shader )
-				mesh:setUniform(shader, "glowColor", color )		
-			end
-		end
-	end
-	
-	local function setNodeNotBoostable(node)
-		if node then
-			local meshList = node:findAllNodeByTypeTowardsLeaf({NodeId.mesh, NodeId.animatedMesh})
-			for aKey, mesh in pairs(meshList) do
-				local shader = mesh:getShader()
-				local definitions = shader:getDefinitions()
-				local i = 1
-				while #definitions >= i do
-					if definitions[i] == "GLOW" then
-						table.remove(definitions, i)
-					else
-						i = i + 1
-					end
-				end
-				mesh:setShader( Core.getShader( mesh:getShader():getName(), definitions ) )
-			end
-		end
-	end
+--	local function setGlowColor(node, color)
+--		if node then
+--			local meshList = node:findAllNodeByTypeTowardsLeaf({NodeId.mesh, NodeId.animatedMesh})
+--			for aKey, mesh in pairs(meshList) do
+--				local shader = mesh:getShader()
+--				local definitions = shader:getDefinitions()
+--				definitions[#definitions+1] = "GLOW"
+--				
+--				shader = Core.getShader( shader:getName(), definitions )
+--				mesh:setShader( shader )
+--				mesh:setUniform(shader, "glowColor", color )		
+--			end
+--		end
+--	end
+--	
+--	local function setNodeNotBoostable(node)
+--		if node then
+--			local meshList = node:findAllNodeByTypeTowardsLeaf({NodeId.mesh, NodeId.animatedMesh})
+--			for aKey, mesh in pairs(meshList) do
+--				local shader = mesh:getShader()
+--				local definitions = shader:getDefinitions()
+--				local i = 1
+--				while #definitions >= i do
+--					if definitions[i] == "GLOW" then
+--						table.remove(definitions, i)
+--					else
+--						i = i + 1
+--					end
+--				end
+--				mesh:setShader( Core.getShader( mesh:getShader():getName(), definitions ) )
+--			end
+--		end
+--	end
 	
 	
 	local function handleUpgrade(building,buyMessage,paramMessage)
@@ -138,7 +138,7 @@ function BoostAbility.new(inCamera, inComUnit)
 						for i=1, #buildings do
 							if buildings[i] then
 								boostTower(buildings[i])
-								setGlowColor( buildings[i], Vec3(0.05,0.15,0.05) )
+								--setGlowColor( buildings[i], Vec3(0.05,0.15,0.05) )
 								abilityHasBeenUsedThisWave = true
 								abilityGlobalPosition = globalposition
 								abilityActivated = Core.getGameTime()
