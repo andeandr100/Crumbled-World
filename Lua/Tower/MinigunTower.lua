@@ -836,9 +836,10 @@ function MinigunTower.new()
 			for index=0, model:getNumMesh()-1 do
 				local mesh = model:getMesh(index)
 				local shader = mesh:getShader()
-				local texture = Core.getTexture( not data.getBoostActive() and "towergroup_a" or "towergroup_boost_a")
+				local texture = Core.getTexture( data.getBoostActive() and "towergroup_boost_a" or "towergroup_a")
 				
 				mesh:setTexture(shader,texture,4)
+				-- Set the GLOW as a texure
 			end
 		end
 		
