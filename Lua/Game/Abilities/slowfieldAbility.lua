@@ -23,6 +23,7 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 	local billboardStats = Core.getBillboard("stats")
 	local oldCollisionPosition = Vec3()
 	local mapCollision = WorldCollision.new(inCamera)
+	local abilitesBeingPlacedFrameId = 0
 	
 	
 	local function init()
@@ -46,6 +47,10 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 	
 	function self.setAnotherAbilityButtonPressed()
 		boostSelected = false
+	end
+	
+	function self.getAbilitesBeingPlaced()
+		return abilitesBeingPlacedFrameId > Core.getFrameNumber()
 	end
 	
 	function self.restartWave()
@@ -78,6 +83,8 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 		
 		
 		if boostSelected and abilityHasBeenUsedThisWave == false then
+			
+			abilitesBeingPlacedFrameId = Core.getFrameNumber() + 1
 				
 			local collision, globalposition = mapCollision.mouseWorldCollision(true)
 			slowFieldTargetArea.update(collision, globalposition, false)
@@ -99,6 +106,7 @@ function SlowfieldAbility.new(inCamera, inComUnit, isUserControlled)
 				slowFieldTargetArea.update(false, Vec3(), false)
 			end
 		end
+		
 	end
 	
 	init()

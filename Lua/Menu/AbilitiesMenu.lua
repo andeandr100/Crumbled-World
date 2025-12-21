@@ -21,6 +21,7 @@ function AbilitesMenu.new()
 	local boostButton
 	local slowButton
 	local attackButton
+	local buildingNodeBillboard = Core.getBillboard("buildings")
 	local billboardStats = Core.getBillboard("stats")
 	local keyBinds = Core.getBillboard("keyBind");
 	local keyBindRevertWave = keyBinds:getKeyBind("Revert wave")
@@ -252,6 +253,11 @@ function AbilitesMenu.new()
 		boostAbility.update()
 		slowfieldAbility.update()
 		attackAbility.update()
+		
+		
+		
+		
+		buildingNodeBillboard:setBool("AbilitesBeingPlaced", boostAbility.getAbilitesBeingPlaced() or slowfieldAbility.getAbilitesBeingPlaced() or attackAbility.getAbilitesBeingPlaced() )
 		
 		for i=1, #slowFieldAbilityList do
 			slowFieldAbilityList[i].update()

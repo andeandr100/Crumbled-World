@@ -24,6 +24,7 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 	local abilityGlobalPosition = Vec3()
 	local billboardStats = Core.getBillboard("stats")
 	local mapCollision = WorldCollision.new(inCamera)
+	local abilitesBeingPlacedFrameId = 0
 	
 	
 
@@ -64,6 +65,10 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 	
 	function self.waveChanged()
 		abilityHasBeenUsedThisWave = false
+	end
+	
+	function self.getAbilitesBeingPlaced()
+		return abilitesBeingPlacedFrameId > Core.getFrameNumber()
 	end
 	
 
@@ -133,6 +138,8 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 		end
 
 		if boostSelected and abilityHasBeenUsedThisWave == false then
+			
+			abilitesBeingPlacedFrameId = Core.getFrameNumber() + 1
 				
 			local collision, globalposition = mapCollision.mouseWorldCollision(false)
 			
@@ -146,6 +153,7 @@ function AttackAbility.new(inCamera, inComUnit, isUserControlled)
 		else
 			AttackArea.update(false, Vec3())
 		end
+		
 	end
 	
 	init()

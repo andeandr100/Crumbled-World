@@ -17,6 +17,7 @@ function BoostAbility.new(inCamera, inComUnit)
 	local billboardStats = Core.getBillboard("stats")
 	local abilityActivated = -100
 	local abilityGlobalPosition = Vec3()
+	local abilitesBeingPlacedFrameId = 0
 	
 	local mapCollision = WorldCollision.new(inCamera)
 	local buildNode = this:getRootNode():findNodeByType(NodeId.buildNode)
@@ -51,6 +52,10 @@ function BoostAbility.new(inCamera, inComUnit)
 	
 	function self.setAnotherAbilityButtonPressed()
 		boostSelected = false
+	end
+	
+	function self.getAbilitesBeingPlaced()
+		return abilitesBeingPlacedFrameId > Core.getFrameNumber()
 	end
 	
 	function self.restartWave()
@@ -123,12 +128,14 @@ function BoostAbility.new(inCamera, inComUnit)
 	end
 	
 	function self.update()
+
 		if boostSelected and abilityHasBeenUsedThisWave == false then
 			local collision, globalposition = mapCollision.mouseWorldCollision(true)
 			targetArea.update(collision, globalposition, false)
 			
 			if buildingNodeBillboard:getBool("inBuildMode") == false then
-				buildingNodeBillboard:setBool("AbilitesBeingPlaced", boostSelected)
+				abilitesBeingPlacedFrameId = Core.getFrameNumber() + 1
+
 				if Core.getInput():getMouseDown(MouseKey.left) and boostSelected and buildingNodeBillboard:getBool("canBuildAndSelect") and isMouseInMainPanel()then
 					local playerNode = this:findNodeByType(NodeId.playerNode)
 					local buildNode = playerNode:findNodeByType(NodeId.buildNode)
@@ -142,7 +149,6 @@ function BoostAbility.new(inCamera, inComUnit)
 								abilityHasBeenUsedThisWave = true
 								abilityGlobalPosition = globalposition
 								abilityActivated = Core.getGameTime()
-								buildingNodeBillboard:setBool("AbilitesBeingPlaced", false)
 								boostSelected = false
 							end
 						end
@@ -155,10 +161,10 @@ function BoostAbility.new(inCamera, inComUnit)
 			if self.isActive() then
 				targetArea.update(true, abilityGlobalPosition, true)
 			else
-				buildingNodeBillboard:setBool("AbilitesBeingPlaced", false)
 				targetArea.update(false, Vec3(), false)
 			end
 		end
+		
 	end
 	
 	init()
