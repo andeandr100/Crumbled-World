@@ -1,5 +1,6 @@
 require("Game/mapInfo.lua")
 require("Game/campaignData.lua")
+require("Game/SpawnSystem/spawnGroups.lua")
 --this = SceneNode()
 SPAWN_PATTERN = {
 	Random = 1,	--enemies comes out of a random game
@@ -14,6 +15,7 @@ function SpawnManager.new()
 	
 	local totalNpcSpawned = 0
 	
+	local spawnGroups = SpawnGroups.new()
 	local mapInfo = MapInfo.new()
 	local STARTWAVE = mapInfo.getStartWave()
 	local waveCount = STARTWAVE		--what wave we are currently playing
@@ -39,7 +41,7 @@ function SpawnManager.new()
 	--local soundWind = Sound("wind1",SoundType.STEREO)
 	local spawnListPopulated = false
 	local spawnPattern = Core.isInMultiplayer() and SPAWN_PATTERN.Clone or SPAWN_PATTERN.Grouped
-	local npcPathOffset
+	local npcFlipOffset = 1.0
 	--keybinds
 	local keyBinds = Core.getBillboard("keyBind")
 	local keyBindRevertWave
@@ -138,7 +140,7 @@ function SpawnManager.new()
 		comUnit:sendTo("stats", "setNPCSpawnsThisWave", count)
 		comUnit:sendTo("stats", "setNPCSpawnedThisWave", 0)
 	end
-	local function spawnCurrentUnit(currentWave,portalId)
+	local function spawnCurrentUnit(currentWave,portalId, pathOffset, npcScale)
 		--make sure that it is a real npc
 		if npc[currentSpawn.npc] then
 			--counter for multiplayer
@@ -149,10 +151,12 @@ function SpawnManager.new()
 			local node = createNpcNode(portalId)
 			local script = node:loadLuaScript( npc[currentSpawn.npc].script )
 			script:setScriptNetworkId(netName)
+			
 			local billboard = script:getBillboard()
 --			billboard:setDouble("pathOffset",npcPathOffset:randFloat()*2.0-1.0)
-			billboard:setDouble("pathOffset",offsetFlip)
-			offsetFlip = offsetFlip * -1.0
+			billboard:setDouble("pathOffset", ( pathOffset ~= nil and pathOffset or 0.2 ) * npcFlipOffset)
+			billboard:setDouble("npcScale",npcScale ~= nil and npcScale or 1.0)
+			npcFlipOffset = npcFlipOffset * -1.0
 
 
 			--print("NPC->setNetName() == "..netName.."\n")
@@ -262,6 +266,7 @@ function SpawnManager.new()
 				if not currentSpawn then
 					eraseCurrentWave(i)
 				else
+					local  currentSpawningNPC = currentSpawn
 					--count down untill spawn
 					currentSpawn.delay =  currentSpawn.delay - Core.getDeltaTime()
 					if  currentSpawn.delay<0.0 then
@@ -283,7 +288,8 @@ function SpawnManager.new()
 								currentPortalId = ((current.waveCount+current.groupCounter)%(#spawns))+1
 								current.groupCounter = current.groupCounter + 1
 							end
-							spawnCurrentUnit(current,currentPortalId)
+							
+							spawnCurrentUnit(current,currentPortalId, currentSpawn.pathOffset, currentSpawn.npcScale)
 						else
 							abort("Not implemented\n")
 							spawnCurrentUnit(current,math.randomInt(1, #spawns))
@@ -548,240 +554,13 @@ function SpawnManager.new()
 			--hero waves or pre selected spawns should be available
 			--selection of the wave should be window based in a normaly distributed curve that moves down the spawn options of size 10 or similar
 			--what script to use
-			npc = 	{	rat =			{hp=275,	size=0.8,	script="NPC/npc_rat.lua"},--fast units
-						skeleton =		{hp=450,	size=0.8,	script="NPC/npc_skeleton.lua"},
-						scorpion =		{hp=600,	size=0.8,	script="NPC/npc_scorpion.lua"},
-						rat_tank =		{hp=600,	size=0.8,	script="NPC/npc_rat_tank.lua"},--fast units
-						fireSpirit =	{hp=750,	size=0.8,	script="NPC/npc_fireSpirit.lua"},--imune to fire, and restore some amount of hp by fire damage
-						electroSpirit =	{hp=750,	size=0.8,	script="NPC/npc_electroSpirit.lua"},--imune to electricity, and restore some amount of hp by fire damage
-						skeleton_cf =	{hp=1000,	size=0.8,	script="NPC/npc_skeleton_champion_front.lua"},--blocks physical damage
-						skeleton_cb =	{hp=1000,	size=0.8,	script="NPC/npc_skeleton_champion_back.lua"},--blocks physical damage
-						turtle =		{hp=2750,	size=0.8,	script="NPC/npc_turtle.lua"},--shield that abosorb all incoming damage
-						dino =			{hp=1200,	size=0.8,	script="NPC/npc_dino.lua"},--heal itself if untoutched
-						reaper =		{hp=1200,	size=0.8,	script="NPC/npc_reaper.lua"},--spawns npc_skeleton
-						stoneSpirit =	{hp=2500,	size=0.8,	script="NPC/npc_stonespirit.lua"},
-						hydra1 =		{hp=300,	size=0.8,	script="NPC/npc_hydra1.lua"},
-						hydra2 =		{hp=350,	size=0.8,	script="NPC/npc_hydra2.lua"},--L2 totalHP = 350+(300*2) == 950
-						hydra3 =		{hp=400,	size=0.8,	script="NPC/npc_hydra3.lua"},--L3 totalHP = 400+(350*2)+(300*4) == 2300
-						hydra4 =		{hp=450,	size=0.8,	script="NPC/npc_hydra4.lua"},--L4 totalHP = 450+(400*2)+(350*4)+(300*8) == 5050
-						hydra5 =		{hp=550,	size=0.8,	script="NPC/npc_hydra5.lua"},--L5 totalHP = 550+(450*2)+(400*4)+(350*8)+(300*16) == 9050
-					}
-			local groupCompOriginal = {
-				{{npc="hydra5",delay=0.0}},
-				{{npc="hydra5",delay=0.0}},
-				{{npc="hydra5",delay=0.0}},
-				{{npc="hydra5",delay=0.0}},
-				--{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="turtle",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
-		--		{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
-		--		{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
-		--		{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
---				{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
---				{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
---				{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
---				{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
---				{{npc="rat",delay=0.0},{npc="rat_tank",delay=1},{npc="skeleton",delay=1},{npc="scorpion",delay=1},{npc="fireSpirit",delay=1},{npc="electroSpirit",delay=1},{npc="turtle",delay=1},{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1},{npc="dino",delay=1},{npc="reaper",delay=1},{npc="stoneSpirit",delay=1},{npc="hydra5",delay=1}},
-				--{{npc="rat",delay=0.0},{npc="rat",delay=1},{npc="rat_tank",delay=1},{npc="rat_tank",delay=1},{npc="scorpion",delay=1},{npc="scorpion",delay=1},{npc="turtle",delay=3},{npc="turtle",delay=3},{npc="dino",delay=1},{npc="dino",delay=1},{npc="hydra5",delay=1}},--blood npc
-				--{{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15},{npc="rat_tank",delay=0.15}},
-				--{{npc="scorpion",delay=0.0},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35}},
-				--{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
-
-				{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}},
-				{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}},
-				{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}},
-				{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}},
-
-				--{{npc="skeleton_cf",delay=1}},
-				--{{npc="reaper",delay=0.0}},
-				--{{npc="dino",delay=0.0}},
-				
-				--{{npc="electroSpirit",delay=0.0}},
-				--{{npc="fireSpirit",delay=0.0}},
-				--{{npc="turtle",delay=0.0}},
---				{{npc="turtle",delay=0.0}},
---				{{npc="turtle",delay=0.0}},
-				{{npc="stoneSpirit",delay=0.0}},
-				{{npc="stoneSpirit",delay=0.0}},
---				{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
---				{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
---				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
---				{{npc="turtle",delay=0.0}},
---				{{npc="turtle",delay=0.0}},
---				{{npc="turtle",delay=0.0}},
---				{{npc="turtle",delay=0.0}},
---				{{npc="turtle",delay=0.0}},
---				{{npc="turtle",delay=0.0}},
---				{{npc="turtle",delay=0.0}},
---				{{npc="turtle",delay=0.0}},
-				--{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
---				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
---				{{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
-				--{{npc="skeleton",delay=0.0},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="turtle",delay=0.4},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
-				--{{npc="rat",delay=0.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},--2000/2s <-> 1000ps
-				--{{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
---				{{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1}},
---				{{npc="skeleton_cf",delay=1},{npc="skeleton_cb",delay=1}},
-				--{{npc="scorpion",delay=0.0},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="turtle",delay=0.4},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35}},
-				--debug above
-				--default hp/s that can be killed on straight line is == (650*0.7) == 455
-				--(waveHP)/((bypasTime+spawnTime)*455) == value
-				-- - --value>1.0 cant be killed on a straigth line with level 1 towers, and difficult set to 1.0
-				-- - --value>2.0 cant be killed on 2 clean bypasses with level 1 towers, and difficult set to 1.0
-				-- - --value difficult is offcourse lessen by that upgrades have a 10% damage incrase
-				-- - --and of course that some tower can slow enemy speed that gives more time to kill them
-				--(275*8)/(((12/4)+(7*0.25))*455) == 1.018
-				--
-				--===
-				--===	parameters
-				--===
-				--waveMin				== can only spawn after this wave
-				--waveMax				== can only spawn before this wave
-				--waveUseLimit			== how many can spawn per wave
-				--groupSpawnDepthMin	== can only spawn after x groups have spawn on active wave
-				--groupSpawnDepthMax	== can only spawn before x groups have spawn on active wave
-				{waveUseLimit=0},
-				{waveUseLimit=1, groupSpawnDepthMin=1,{npc="rat",delay=0.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},--2000/2s <-> 1000ps
-				--(450*8)/(((12/2)+(7*0.25))*455) == 1.021
-				{{npc="skeleton",delay=0.0},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
-				--(600*6)/(((12/2)+(5*0.35))*455) == 1.021
-				{{npc="scorpion",delay=0.0},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35}},
-				--(800+(2*600)+(4*450))/(((12/2)+(2*0.4)+(4*0.3))*455) == 1.044
-				{{npc="scorpion",delay=0.0},{npc="scorpion",delay=0.4},{npc="fireSpirit",delay=0.4},{npc="skeleton",delay=0.35},{npc="skeleton",delay=0.3},{npc="skeleton",delay=0.3},{npc="skeleton",delay=0.3}},
-				--((600*2)+(450*6))/(((12/2)+((2*0.35)+(6*0.25)))*455) == 1.045
-				{{npc="scorpion",delay=0.0},{npc="scorpion",delay=0.35},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
-				{{npc="scorpion",delay=0.0},{npc="scorpion",delay=0.35},{npc="electroSpirit",delay=0.4},{npc="electroSpirit",delay=0.5},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35}},
-				--((1200)+(450*6))/(((12/2)+((0.35)+(5*0.25)))*455) == 1.071
-				{{npc="skeleton",delay=0.0},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="reaper",delay=0.4}},
-				--((1200)+(450*6))/(((12/2)+((0.75)+(5*0.25)))*455) == 1.031
-				{{npc="dino",delay=0.0},{npc="skeleton",delay=0.75},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
-				--?
-				{{npc="skeleton",delay=0.0},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="turtle",delay=0.4},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
-				--(800*5)/(((12/2)+(4*0.5))*455) == 1.099
-				{{npc="electroSpirit",delay=0.0},{npc="electroSpirit",delay=0.5},{npc="electroSpirit",delay=0.5},{npc="electroSpirit",delay=0.5},{npc="electroSpirit",delay=0.5}},
-				--(800*5)/(((12/2)+(4*0.5))*455) == 1.099
-				{{npc="fireSpirit",delay=0.0},{npc="fireSpirit",delay=0.5},{npc="fireSpirit",delay=0.5},{npc="fireSpirit",delay=0.5},{npc="fireSpirit",delay=0.5}},
-				--((3*600)+(6*275))/(((12/3.65)+(2*0.4)+(5*0.25)+1.25)*455) == 1.15
-				{waveMin=10, groupSpawnDepthMin=1,{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.4},{npc="rat_tank",delay=0.4},{npc="rat",delay=1.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},
-				--((800)+(8*450))/(((12/2)+(7*0.25))*455) == 1.248
-				{{npc="electroSpirit",delay=0.0},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
-				--
-				{{npc="skeleton_cf",delay=0.0},{npc="dino",delay=0.75},{npc="fireSpirit",delay=0.75},{npc="fireSpirit",delay=0.5},{npc="fireSpirit",delay=0.5},{npc="fireSpirit",delay=0.5}},
-				--(1200*4)/(((12/2)+(3*0.75))*455) == 1.279
-				{waveUseLimit=1,{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
-				--((2*1000)+(8*450))/(((12/2)+(9*0.4))*455) == 1.282
-				{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}},
-				--(600*6)/(((12/3.25)+(5*0.40))*455) == 1.390
-				{groupSpawnDepthMin=1,{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
-				--?
-				{{npc="scorpion",delay=0.0},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="turtle",delay=0.4},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35}},
-				--((2*1000)+(6*450)+(2*800))/(((12/2)+(9*0.4))*455) == 1.442
-				{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="fireSpirit",delay=0.4},{npc="electroSpirit",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}},
-				--((1200*4)+(275*6))/(((12/2)+((3*0.75)+(6*0.25)))*455) == 1.454
-				--{waveUseLimit=1,{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="rat",delay=3.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}},
-				--(275*16)/(((12/4)+(16*0.2))*455) == 1.560
-				{groupSpawnDepthMin=1,{npc="rat",delay=0.0},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2},{npc="rat",delay=0.2}},
-				--A*B*C == ?
-				{waveUseLimit=1,{npc="skeleton_cf",delay=0.0},{npc="reaper",delay=0.75}},
-				--A*B*C == ?
-				{waveUseLimit=1,{npc="reaper",delay=0.0},{npc="reaper",delay=1.5}},
-				--((1*2500)+(4*800))/(((12/2)+(4*0.5))*455) == 1.56
-				{waveUseLimit=1,{npc="stoneSpirit",delay=0.0},{npc="fireSpirit",delay=0.5},{npc="fireSpirit",delay=0.5},{npc="electroSpirit",delay=0.5},{npc="electroSpirit",delay=0.5}},
-				--((2*1000)+(6*450)+(1000))*1.2/(((12/2)+(9*0.4))*455) == 1.56
-				{waveUseLimit=1,{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="turtle",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}},
-				--(2*2500)/(((12/2)+1)*455) == 1.57
-				{waveUseLimit=1,{npc="stoneSpirit",delay=0.0},{npc="stoneSpirit",delay=1.0}},
-				--((1200*3)+(600*6))/(((12/2)+((5*0.35)+(3*0.75)))*455) == 1.58
-				{waveUseLimit=1,{npc="dino",delay=0.0},{npc="scorpion",delay=0.75},{npc="scorpion",delay=0.35},{npc="dino",delay=0.65},{npc="scorpion",delay=0.75},{npc="scorpion",delay=0.35},{npc="dino",delay=0.65},{npc="scorpion",delay=0.75},{npc="scorpion",delay=0.35}},
-				--(10800*0.70)/(((12/1.5)+0.75)*455) = 1.89
-				{waveUseLimit=1,groupSpawnDepthMax=2,{npc="hydra5",delay=0.0}},
-				{waveUseLimit=1,groupSpawnDepthMax=2,{npc="hydra5",delay=0.0}},
-				{waveUseLimit=1,groupSpawnDepthMax=2,{npc="hydra5",delay=0.0}},
-				--
-				{waveUseLimit=1,{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="turtle",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
-				--
-				{waveUseLimit=1,{npc="skeleton_cf",delay=0.0},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75}},
-				--((1*2500)+(8*450))/(((12/2)+(7*0.25)+0.5)*455) == 1.625
-				{waveUseLimit=1,{npc="stoneSpirit",delay=0.0},{npc="skeleton",delay=0.5},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
-				--((1*2500)+(8*600))/(((12/2)+(7*0.35)+0.5)*455) == 1.793
-				{waveUseLimit=1,{npc="stoneSpirit",delay=0.0},{npc="scorpion",delay=0.5},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35},{npc="scorpion",delay=0.35}},
-				--(600*10)/(((12/3.25)+(9*0.40))*455) == 1.808
-				{waveUseLimit=1,groupSpawnDepthMin=1,{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
-				--
-				{waveUseLimit=1,{npc="stoneSpirit",delay=0.0},{npc="turtle",delay=1.0},{npc="stoneSpirit",delay=1.0}},
-				--(4*2500)/(((12/2)+(3*1))*455) == 2.254(unbeatable)
-				--{{npc="stoneSpirit",delay=0.0},{npc="stoneSpirit",delay=1.25},{npc="stoneSpirit",delay=1.25},{npc="stoneSpirit",delay=1.25}}
-			}
-			local endWave = {
-				maxScriptedGroups = 2,
-				selected = 0,
-				count=0,
-				{	waves={[1]=true,[2]=true},
-					odds=function() return 0.4 end,
-					group={
-						{{npc="hydra5",delay=0.0}}
-						},
-					},
-					followupOdds=function() return 1.0 end,
-					followup={
-						{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="turtle",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
-						{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
-						{{npc="stoneSpirit",delay=0.0},{npc="turtle",delay=1.0},{npc="stoneSpirit",delay=1.0}},
-						{{npc="stoneSpirit",delay=0.0},{npc="stoneSpirit",delay=1.0}},
-					},
-				{	waves={[3]=true,[4]=true},
-					odds=function(selected) local ret={[0]=1.0, 0.25, 0.0} return ret[math.clamp(selected,0,#ret)] end,
-					group={
-						{{npc="skeleton_cf",delay=0.0},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75}},
-						{{npc="skeleton_cf",delay=0.0},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75},{npc="reaper",delay=0.75}}
-						},
-					followupOdds=function(selected) local ret={1.0, 0.5, 0.0} return ret[math.clamp(selected,1,#ret)] end,
-					followup={
-						{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="turtle",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
-						{{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="turtle",delay=0.4},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25},{npc="skeleton",delay=0.25}},
-						{{npc="skeleton_cf",delay=0.0},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="turtle",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton",delay=0.4},{npc="skeleton_cb",delay=0.4}}
-						},
-					},
-				{	waves={[4]=true,[5]=true},
-					odds=function(selected) return 0.1 end,
-					group={
-						{{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}},
-						{{npc="rat",delay=0.0},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25},{npc="rat",delay=0.25}}
-						}
-					},
-				["LAST"] ={	
-					waves={["LAST"]=true},
-					odds=function() return 1.0 end,
-					group={
-						{{npc="stoneSpirit",delay=0.0},{npc="turtle",delay=1.0},{npc="stoneSpirit",delay=1.0}},
-						{{npc="stoneSpirit",delay=0.0},{npc="stoneSpirit",delay=1.0}},
-						{{npc="dino",delay=0.0},{npc="dino",delay=0.75},{npc="turtle",delay=0.75},{npc="dino",delay=0.75},{npc="dino",delay=0.75}},
-						{{npc="rat_tank",delay=0.0},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40},{npc="rat_tank",delay=0.40}}
-						},
-					},
-					
-			}
+			npc = 	spawnGroups.getNPCValueList()
+			local groupCompOriginal = spawnGroups.getNPCGroupList()
+			local endWave = spawnGroups.getEndWaveList()
 			local hydraSpawnedLastOnWave = 0
 			endWave.count = #endWave
 			--How many of each npc type that is allowed to spawn, this is so you dont get a wave of only dinos for example
-			local waveUnitLimitOriginal = {
-				rat = 16,
-				skeleton =	math.huge,
-				scorpion =	math.huge,
-				rat_tank =	10,
-				fireSpirit = 8,
-				electroSpirit =	8,
-				skeleton_cf = 2,
-				skeleton_cb = 2,
-				turtle = 2,
-				dino =	5,
-				reaper = 2,
-				stoneSpirit = 2,
-				hydra1 = 1,
-				hydra2 = 1,
-				hydra3 = 1,
-				hydra4 = 1,
-				hydra5 = 1,
-				superHeavy = 4		--superheavys are valued as following hydra=1, stonespirit=1, turtle=1, reaper=0.51, dino=0.26
-			}
+			local waveUnitLimitOriginal = spawnGroups.getWaveUnitLimit()
 			--
 			--
 			--
@@ -900,7 +679,7 @@ function SpawnManager.new()
 						--limits
 						if waveUnitLimit[groupUnit.npc] then waveUnitLimit[groupUnit.npc] = waveUnitLimit[groupUnit.npc]-1 end
 						--add unit to be spawned
-						waveDetails[itemCount] = {npc=groupUnit.npc, delay=groupUnit.delay}--add the unit (creating new table to avoid using the same refference)
+						waveDetails[itemCount] = {npc=groupUnit.npc, delay=groupUnit.delay, pathOffset=groupUnit.pathOffset, npcScale=groupUnit.npcScale}--add the unit (creating new table to avoid using the same refference)
 						cost = cost + (npc[groupUnit.npc].hp*hpMultiplyer)--calculate the cost
 						itemCount = itemCount + 1
 						--
@@ -1127,6 +906,11 @@ function SpawnManager.new()
 				comUnit:sendTo("stats", "setWave", mapInfo.getStartWave())
 				comUnit:sendTo("stats", "setMaxWave", numWaves)
 			end
+			
+			local localwaves = waves
+			print("waves: " + tostring(waves))
+			
+			abort("tada")
 		end
 	
 		return true

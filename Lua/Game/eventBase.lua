@@ -1,4 +1,4 @@
-require("Game/spawnManager.lua")
+require("Game/SpawnSystem/spawnManager.lua")
 --this = SceneNode()
 
 EventBase = {}

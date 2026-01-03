@@ -144,7 +144,7 @@ function BuilderFunctions.new(keyBinds, inCamera)
 	function self.updateSelectedTower(currentTower)
 		local mouseInGamePanel = billboardStats:getPanel("MainPanel") == Core.getPanelWithMouseFocus()
 		local canBuildAndSelect = buildingBillboard:getBool("canBuildAndSelect")
-		local abilitiesInUse = billboardStats:getBool("AbilityBeingUsed")
+		local abilitiesInUse = billboardStats:getBool("AbilitesBeingPlaced")
 		local mouseTower = (not currentTower and mouseInGamePanel and canBuildAndSelect and not abilitiesInUse ) and this:getBuldingFromLine(camera:getWorldLineFromScreen(Core.getInput():getMousePos())) or nil
 		if previousTower ~= mouseTower then
 			if previousTower then

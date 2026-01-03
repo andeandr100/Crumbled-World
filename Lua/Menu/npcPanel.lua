@@ -2,6 +2,8 @@ require("Game/mapInfo.lua")
 --this = SceneNode()
 NpcPanel = {}
 
+--comUnit = ComUnit()
+
 function NpcPanel.new(panel)
 	local self = {}
 	
@@ -102,7 +104,7 @@ function NpcPanel.new(panel)
 	-- purpose:		updates the icon data, for a given npc
 	local function updateNpcIcon(npc)
 		local heightData = targetPanel:getPanelContentPixelSize().y
-		local height = heightData * getSize(npc)
+		local height = heightData * getSize(npc) * ((npc.npcScale and npc.npcScale > 1.5) and 1.3 or 1.0)
 		--
 		if not (npc.name=="turtle" or npc.name=="background" or npc.name=="none") then
 			npc.icon:setRenderLevel(2)
@@ -407,6 +409,7 @@ function NpcPanel.new(panel)
 					startAlpha = 1.0,
 					waveIndex = param,
 					name = currentWave[i].npc,
+					npcScale = currentWave[i].npcScale,
 					icon = Sprite(Core.getTexture("icon_table.tga"))
 				}
 			else
@@ -416,6 +419,7 @@ function NpcPanel.new(panel)
 				npc.startDelay = 0.0
 				npc.startAlpha = 1.0
 				npc.waveIndex = param
+				npc.npcScale = currentWave[i].npcScale
 				npc.name = currentWave[i].npc
 				if not (npc.name=="none" and i==2 and param==1) then
 					spawListExistingPosIterator = spawListExistingPosIterator + 1
@@ -501,7 +505,7 @@ function NpcPanel.new(panel)
 			else
 				updateNpcIcon(npc)
 				--
-				npc.delay = currentWave[i].delay
+				npc.delay = math.min( currentWave[i].delay, 0.4)
 				--check if we need to add a delay to the first npc (to move it away from the left edge)
 				local sizeDelay = math.max(0.5,(height*0.5+5.0)/getPixelsPerSecond() + noneDelayBuff)
 				if npc.delay<sizeDelay and startDelayBuff>=sizeDelay then

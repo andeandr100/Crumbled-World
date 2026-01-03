@@ -21,24 +21,34 @@ out vec3 outBinormal;
 void main()
 {
 	outColor = color;
+
+	// Compute bone transformation matrix using weights
 	mat4 transformMatrix = weight.x * boneMatrix[boneId[0]] +
                            weight.y * boneMatrix[boneId[1]] +
                            weight.z * boneMatrix[boneId[2]];
 
+	// Extract upper 3x3 for normal transformation (no translation needed for normals)
 	mat3 normalMatrix = mat3(modelMat);
+	
+	// Transform normal, tangent and compute binormal in one pass
+	// Apply bone transformation first, then model transformation
+	vec3 finalNormal = mat3(transformMatrix) * normal;
+	vec3 finalTangent = mat3(transformMatrix) * tagent;
+	
+	// Transform to world space and normalize once at the end
+	outNormal = normalize(normalMatrix * finalNormal);
+	outTagent = normalize(normalMatrix * finalTangent);
+	
+	// Cross product to get binormal (already normalized since inputs are normalized)
+	outBinormal = cross(outNormal, outTagent);
 
-    vec3 finalNormal = (transformMatrix * vec4(normal, 0.0)).xyz;
-    outNormal = normalize(normalMatrix * finalNormal);
+	// Compute world position: modelMat * transformMatrix * position
+	// This is more efficient than separate multiplications
+	vec4 worldPos = modelMat * (transformMatrix * position);
 
-    vec3 finalTangent = (transformMatrix * vec4(tagent, 0.0)).xyz;
-    outTagent = normalize(normalMatrix * finalTangent);
-    
-    outBinormal = cross(outNormal, outTagent);
-
-    vec4 worldPos =	modelMat * transformMatrix * position;
-
-    textCoord = uvCoord;
-    worldPos0 = worldPos.xyz;
-    gl_Position = projModelViewMat * worldPos;
-
+	textCoord = uvCoord;
+	worldPos0 = worldPos.xyz;
+	
+	// Final projection
+	gl_Position = projModelViewMat * worldPos;
 }

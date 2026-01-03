@@ -84,6 +84,25 @@ function NpcBase.new()
 		end
 		centerOffset = Vec3(0.0,aimHeight,0.0)
 		
+		local npcScale = Core.getBillboard():getDouble("npcScale")
+		
+		if npcScale ~= 1 then
+			for i=0, model:getNumMesh()-1 do
+				local mesh = model:getMesh(i)
+				local mat = mesh:getLocalMatrix()
+				mat:setAtVec(mat:getAtVec() * npcScale)
+				mat:setUpVec(mat:getUpVec() * npcScale)
+				mat:setRightVec(mat:getRightVec() * npcScale)
+				mesh:setLocalMatrix( mat )
+			end
+		end
+		
+		local hpScale = Core.getBillboard():getDouble("hpScale")
+		local animationSpeed = Core.getBillboard():getDouble("animationSpeed")
+		
+		model:getAnimation():setAnimationSpeed(animationSpeed)
+		
+		
 		aResusedInfo[aReusedCounter].modelName = modelName
 		aResusedInfo[aReusedCounter].name = name
 		aResusedInfo[aReusedCounter].launcWave = launcWave
@@ -97,7 +116,7 @@ function NpcBase.new()
 		
 		--stats
 		local billboardStats = Core.getBillboard("stats")
-		local hpMax = math.max(1.0,billboardStats:getInt("npc_"..name.."_hp"))
+		local hpMax = math.max(1.0,billboardStats:getInt("npc_"..name.."_hp")) * hpScale
 		local val1 = billboardStats:getInt("npc_"..name.."_gold")
 		value = tostring(val1)
 		--

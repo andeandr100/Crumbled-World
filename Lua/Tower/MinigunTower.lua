@@ -438,10 +438,7 @@ function MinigunTower.new()
 			--
 			soundLaser:play(0.25,false)
 			--
-			print("Damage " .. billboard:getFloat("damage"))
-			print("Damage " .. billboard:getFloat("damage"))
-			print("Damage " .. billboard:getFloat("damage"))
-			print("Damage " .. billboard:getFloat("damage"))
+--			print("Damage " .. billboard:getFloat("damage"))
 			projectiles.launch(LaserBullet,{target,bulletStartPos})
 		end
 	end

@@ -43,7 +43,7 @@ function BoostAbility.new(inCamera, inComUnit)
 	
 	function self.isActive()
 		local activeTime = Core.getGameTime() - abilityActivated
-		return activeTime > 0 and activeTime < 12
+		return activeTime > 0 and activeTime < 10
 	end
 	
 	function self.setBoostButtonPressed()
