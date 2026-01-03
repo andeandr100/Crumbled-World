@@ -253,11 +253,9 @@ function AbilitesMenu.new()
 		boostAbility.update()
 		slowfieldAbility.update()
 		attackAbility.update()
-		
-		
-		
-		
-		buildingNodeBillboard:setBool("AbilitesBeingPlaced", boostAbility.getAbilitesBeingPlaced() or slowfieldAbility.getAbilitesBeingPlaced() or attackAbility.getAbilitesBeingPlaced() )
+
+		local boostBeingPlaced = boostAbility.getAbilitesBeingPlaced() or slowfieldAbility.getAbilitesBeingPlaced() or attackAbility.getAbilitesBeingPlaced()
+		buildingNodeBillboard:setBool("AbilitesBeingPlaced",boostBeingPlaced )
 		
 		for i=1, #slowFieldAbilityList do
 			slowFieldAbilityList[i].update()
