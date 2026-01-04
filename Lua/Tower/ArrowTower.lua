@@ -31,7 +31,9 @@ function ArrowTower.new()
 	local crossbowMesh
 	local defaultRotaterMeshMatrix
 	--Sound
-	local soundNode
+	--local soundNode
+	local soundHandler = Core.getSoundHandler()
+	soundHandler:setSoundLimitation("bow_release", 8)
 	
 	local data = TowerData.new()
 	--attack
@@ -290,7 +292,8 @@ function ArrowTower.new()
 			model:getAnimation():play("attack",animationSpeed,PlayMode.stopSameLayer)
 			crossbowMesh:rotate(Vec3(1.0, 0.0, 0.0),RECOIL_ON_ATTACK )--add some recoil for more kick in the tower
 			
-			soundNode:play(1.1,false)
+--			soundNode:play(1.1,false)
+			soundHandler:playSound("bow_release",1.0,model:getGlobalPosition())
 		end
 	end
 	local function NetSyncTarget(param)
@@ -501,8 +504,10 @@ function ArrowTower.new()
 		model = Core.getModel("tower_crossbow_l1.mym")
 		this:addChild(model:toSceneNode())
 		
-		soundNode = SoundNode.new("bow_release")
-		this:addChild(soundNode:toSceneNode())
+--		soundNode = SoundNode.new("bow_release")
+--		this:addChild(soundNode:toSceneNode())
+		
+		
 	
 		--
 		--

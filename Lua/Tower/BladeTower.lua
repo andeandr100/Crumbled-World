@@ -60,7 +60,8 @@ function BladeTower.new()
 	local billboardWaveStats
 
 	--sound
-	local soundRelease = SoundNode.new("bladeTower_attack")
+	--local soundRelease = SoundNode.new("bladeTower_attack")
+	local soundHandler = Core.getSoundHandler()
 	--other
 	local upgradeElectricScale = 0.0
 	local staticNodes--used for range tests
@@ -452,7 +453,8 @@ function BladeTower.new()
 					blade:setVisible(data.getBoostActive() == false)
 					spear:setVisible(data.getBoostActive())
 					--play sound
-					soundRelease:play(1.0,false)
+--					soundRelease:play(1.0,false)
+					soundHandler:playSound("bladeTower_attack",1.0,model:getGlobalPosition())
 				else
 					reloadTimeLeft = TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION
 				end
@@ -613,9 +615,9 @@ function BladeTower.new()
 		targetSelector.setPosition(this:getGlobalPosition())
 		targetSelector.setRange(data.getValue("range"))
 		--
-		this:addChild(soundRelease:toSceneNode())
-		soundRelease:setSoundPlayLimit(4)
-		soundRelease:setLocalSoundPLayLimit(3)
+--		this:addChild(soundRelease:toSceneNode())
+--		soundRelease:setSoundPlayLimit(4)
+--		soundRelease:setLocalSoundPLayLimit(3)
 		
 		initModel(true)--resets the model
 		updateMeshesAndparticlesForSubUpgrades()

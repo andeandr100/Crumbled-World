@@ -6,7 +6,7 @@ require("Game/graphicParticleSystems.lua")
 require("Game/particleEffect.lua")
 require("Game/targetSelector.lua")
 require("Game/mapInfo.lua")
-require("Game/soundManager.lua")
+--require("Game/soundManager.lua")
 require("Tower/TowerData.lua")
 require("Game/gameValues.lua")
 
@@ -25,12 +25,15 @@ function MinigunTower.new()
 	local ROTATEPIPETIMEAFTERFIERING = 1.0
 	local TIME_BETWEEN_RETARGETING_ON_FAILED_SELECTION = 0.2
 	--sound
-	local soundLaser = nil
-	local soundGun = nil
-	local soundTarget = 0	--what target we are playing the sound for
-	local soundManager = SoundManager.new(this)
-	local attackCounter = 0
-	local CONTINUES_SOUND_MIN_TIME = 1.0
+--	local soundLaser = nil
+--	local soundGun = nil
+--	local soundTarget = 0	--what target we are playing the sound for
+--	local soundManager = SoundManager.new(this)
+	local soundHandler = Core.getSoundHandler()
+	soundHandler:setSoundLimitation("minigun_attack", 10)
+	soundHandler:setSoundLimitation("laser_bullet1", 8)
+--	local attackCounter = 0
+--	local CONTINUES_SOUND_MIN_TIME = 1.0
 	--Mesh
 	local model
 	local engineMesh
@@ -303,24 +306,24 @@ function MinigunTower.new()
 			end
 		end
 	end
-	local function isUsingMultipleAttackSoundsInOneSound()
-		if Core.getTimeSpeed()>1.5 then
-			return targetTime.average3>CONTINUES_SOUND_MIN_TIME
-		else
-			return targetTime.average>CONTINUES_SOUND_MIN_TIME
-		end
-		return false
-	end
-	local function stopAllAttackSound()
-	--latest version
-		if not soundManager.isAllStopped() then
-			local attacksPerSec = (data.getTowerLevel()==3 and 5 or 2.5)*(Core.getTimeSpeed()>1.5 and 3 or 1)
-			soundManager.stopAll(1.0/attacksPerSec*0.5)
-		end
-		
-		attackCounter = 0
-		soundAttackActive = nil
-	end
+--	local function isUsingMultipleAttackSoundsInOneSound()
+--		if Core.getTimeSpeed()>1.5 then
+--			return targetTime.average3>CONTINUES_SOUND_MIN_TIME
+--		else
+--			return targetTime.average>CONTINUES_SOUND_MIN_TIME
+--		end
+--		return false
+--	end
+--	local function stopAllAttackSound()
+--	--latest version
+--		if not soundManager.isAllStopped() then
+--			local attacksPerSec = (data.getTowerLevel()==3 and 5 or 2.5)*(Core.getTimeSpeed()>1.5 and 3 or 1)
+--			soundManager.stopAll(1.0/attacksPerSec*0.5)
+--		end
+--		
+--		attackCounter = 0
+--		soundAttackActive = nil
+--	end
 	local function attack()
 		local target = targetSelector.getTarget()
 		if target>0 then
@@ -389,31 +392,36 @@ function MinigunTower.new()
 			particleEffectTracer[activePipe]:setCutOfTime(lengthToTarget / 80)
 			particleEffectTracer[activePipe]:activate()
 			
-			
+			if data.getTowerLevel()==3 then
+				soundHandler:playSound("minigun_attack",0.7,model:getGlobalPosition())
+				--"minigun_attack_5"
+			else
+				soundHandler:playSound("minigun_attack",0.7,model:getGlobalPosition())
+			end
 			
 			--particleEffectHitt:activate( (this:getGlobalMatrix():inverseM()*targetPosition)+Vec3(0.0,0.45,0.0) )
 			--
-			if isUsingMultipleAttackSoundsInOneSound() then
-				local attackCountMax = (data.getTowerLevel()==3 and 8 or 3)*(Core.getTimeSpeed()>1.5 and 2 or 1)
-				local currentTab = (data.getTowerLevel()==3 and "5" or "2")..(Core.getTimeSpeed()>1.5 and "_3x" or "")
-				local currentSound = "minigun_attack_"..(data.getTowerLevel()==3 and "5" or "2_5")..(Core.getTimeSpeed()>1.5 and "_3x" or "")
-				attackCounter = attackCounter==attackCountMax and 1 or attackCounter + 1
-				soundTarget = target
-				
-				if soundAttackActive~=currentTab and soundAttackActive then
-					--we are going to play a new sound, stop all old and prep for the new
-					stopAllAttackSound()
-					attackCounter = 1
-				end
-				if attackCounter==1 then
-					--play new sound
-					soundAttackActive = currentTab--name of current sound
-					soundManager.play(currentSound, 1.0, false)
-					--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(-0.2,3.5,-0.2),0.1,Vec3(0,0,1))
-				end
-			else
-				soundGun:play(0.35,false)
-			end
+--			if isUsingMultipleAttackSoundsInOneSound() then
+--				local attackCountMax = (data.getTowerLevel()==3 and 8 or 3)*(Core.getTimeSpeed()>1.5 and 2 or 1)
+--				local currentTab = (data.getTowerLevel()==3 and "5" or "2")..(Core.getTimeSpeed()>1.5 and "_3x" or "")
+--				local currentSound = "minigun_attack_"..(data.getTowerLevel()==3 and "5" or "2_5")..(Core.getTimeSpeed()>1.5 and "_3x" or "")
+--				attackCounter = attackCounter==attackCountMax and 1 or attackCounter + 1
+--				soundTarget = target
+--				
+--				if soundAttackActive~=currentTab and soundAttackActive then
+--					--we are going to play a new sound, stop all old and prep for the new
+--					stopAllAttackSound()
+--					attackCounter = 1
+--				end
+--				if attackCounter==1 then
+--					--play new sound
+--					soundAttackActive = currentTab--name of current sound
+--					soundManager.play(currentSound, 1.0, false)
+--					--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(-0.2,3.5,-0.2),0.1,Vec3(0,0,1))
+--				end
+--			else
+--				soundGun:play(0.35,false)
+--			end
 --			["2"]=	{	{sound=SoundNode.new("minigun_attack_2_5"),		counter=0,	totalAttackSounds=3},
 --						{sound=SoundNode.new("minigun_attack_2_5"),		counter=0,	totalAttackSounds=3}},
 		end
@@ -436,7 +444,8 @@ function MinigunTower.new()
 				particleEffectGunLaser[activePipe]:activate(Vec3(0.17-(activePipe*0.34), -0.45, 0.17), Vec3(0,-1,0))
 			end
 			--
-			soundLaser:play(0.25,false)
+--			soundLaser:play(0.25,false)
+			soundHandler:playSound("laser_bullet1",0.25,model:getGlobalPosition())
 			--
 --			print("Damage " .. billboard:getFloat("damage"))
 			projectiles.launch(LaserBullet,{target,bulletStartPos})
@@ -681,30 +690,30 @@ function MinigunTower.new()
 
 
 		--Sound
-		soundLaser = SoundNode.new("laser_bullet1")
-		soundLaser:setSoundPlayLimit(8)
-		soundLaser:setLocalSoundPLayLimit(4)
-		this:addChild(soundLaser:toSceneNode())
-		soundGun = SoundNode.new("minigun_attack")
-		soundGun:setSoundPlayLimit(8)
-		soundGun:setLocalSoundPLayLimit(4)
-		this:addChild(soundGun:toSceneNode())
+--		soundLaser = SoundNode.new("laser_bullet1")
+--		soundLaser:setSoundPlayLimit(8)
+--		soundLaser:setLocalSoundPLayLimit(4)
+--		this:addChild(soundLaser:toSceneNode())
+--		soundGun = SoundNode.new("minigun_attack")
+--		soundGun:setSoundPlayLimit(8)
+--		soundGun:setLocalSoundPLayLimit(4)
+--		this:addChild(soundGun:toSceneNode())
 		--
-		soundAttackTarget = 0
-		local m2 = SoundNode.new("minigun_attack_2_5")
-		local m23 = SoundNode.new("minigun_attack_2_5_3x")
-		local m5 = SoundNode.new("minigun_attack_5")
-		local m53 = SoundNode.new("minigun_attack_5_3x")
-		soundGun:setSoundPlayLimit(8)
-		soundGun:setLocalSoundPLayLimit(8)
-		m2:setSoundPlayLimit(3)
-		m23:setSoundPlayLimit(3)
-		m5:setSoundPlayLimit(3)
-		m53:setSoundPlayLimit(3)
-		m2:setLocalSoundPLayLimit(3)
-		m23:setLocalSoundPLayLimit(3)
-		m5:setLocalSoundPLayLimit(3)
-		m53:setLocalSoundPLayLimit(3)
+--		soundAttackTarget = 0
+--		local m2 = SoundNode.new("minigun_attack_2_5")
+--		local m23 = SoundNode.new("minigun_attack_2_5_3x")
+--		local m5 = SoundNode.new("minigun_attack_5")
+--		local m53 = SoundNode.new("minigun_attack_5_3x")
+--		soundGun:setSoundPlayLimit(8)
+--		soundGun:setLocalSoundPLayLimit(8)
+--		m2:setSoundPlayLimit(3)
+--		m23:setSoundPlayLimit(3)
+--		m5:setSoundPlayLimit(3)
+--		m53:setSoundPlayLimit(3)
+--		m2:setLocalSoundPLayLimit(3)
+--		m23:setLocalSoundPLayLimit(3)
+--		m5:setLocalSoundPLayLimit(3)
+--		m53:setLocalSoundPLayLimit(3)
 		
 		for i=1,2 do
 			local pipeMesh = model:getMesh( "pipe"..i )
@@ -855,18 +864,18 @@ function MinigunTower.new()
 		updateTarget()
 		updateSync()
 				
-		if not soundManager.isAllStopped() then
-			if targetSelector.isTargetAvailable() then
-				local attacksPerSec = ((data.getTowerLevel()==3 and 5 or 2.5)*(Core.getTimeSpeed()>1.5 and 3 or 1))
-				if soundTarget~=targetSelector.getTarget() and rotator.isReadyToFireIn()>(1.0/attacksPerSec)*1.5 then
-					stopAllAttackSound()
-					--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0.2,3.5,0.2),1.0/attacksPerSec,Vec3(0,1,0))
-				end
-			else
-				stopAllAttackSound()
-				--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),0,Vec3(1,0,0))
-			end
-		end
+--		if not soundManager.isAllStopped() then
+--			if targetSelector.isTargetAvailable() then
+--				local attacksPerSec = ((data.getTowerLevel()==3 and 5 or 2.5)*(Core.getTimeSpeed()>1.5 and 3 or 1))
+--				if soundTarget~=targetSelector.getTarget() and rotator.isReadyToFireIn()>(1.0/attacksPerSec)*1.5 then
+--					stopAllAttackSound()
+--					--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0.2,3.5,0.2),1.0/attacksPerSec,Vec3(0,1,0))
+--				end
+--			else
+--				stopAllAttackSound()
+--				--Core.addDebugLine(this:getGlobalPosition(),this:getGlobalPosition()+Vec3(0,3,0),0,Vec3(1,0,0))
+--			end
+--		end
 		if overheated==false and targetSelector.getTargetIfAvailable()>0 then
 			local targetAt = targetSelector.getTargetPosition()-engineMesh:getGlobalPosition()
 			

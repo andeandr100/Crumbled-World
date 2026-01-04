@@ -55,7 +55,8 @@ function ElectricTower.new()
 	local billboardWaveStats
 	--sound
 	local attackSounds = {"electric_attack1", "electric_attack2", "electric_attack3", "electric_attack4"}
-	local soundManager = SoundManager.new(this)
+--	local soundManager = SoundManager.new(this)
+	local soundHandler = Core.getSoundHandler()
 	--other
 	local isAnyInRange = {timer=0.0, isAnyInRange=false}
 	local syncTimer = 0.0 
@@ -405,7 +406,8 @@ function ElectricTower.new()
 			local targetPosition = targetSelector.getTargetPosition(target)
 			local ringCenterPos = ring[1]:getGlobalPosition()
 			--
-			soundManager.play(attackSounds[math.randomInt(1,#attackSounds)], 1.0, false)
+--			soundManager.play(attackSounds[math.randomInt(1,#attackSounds)], 1.0, false)
+			soundHandler:playSound(attackSounds[math.randomInt(1,#attackSounds)],0.75,model:getGlobalPosition())
 			--
 			if targetSelector.getIndexOfShieldCovering(targetPosition)==targetSelector.getIndexOfShieldCovering(ringCenterPos) then
 				--direct hitt
