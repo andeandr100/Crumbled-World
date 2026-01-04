@@ -111,7 +111,7 @@ function spawnWaveBuilder.new()
 		else
 			if cloneSkip ~= nil then
 				if position <= grupCount-cloneSkip then
-					return isUnitUpgraded(grupCount-cloneSkip,upgradedCount-1,position, false)
+					return isUnitUpgraded(grupCount-cloneSkip,upgradedCount-1,position)
 				else
 					return position == (grupCount-cloneSkip+1)
 				end
@@ -150,7 +150,7 @@ function spawnWaveBuilder.new()
 					currentWave[#currentWave+1] = {npc=npcName, delay=upgradeDelay, pathOffset=upgradeInfo.pathOffset, npcScale=upgradeInfo.npcScale, hpScale=upgradeInfo.hpScale, animationSpeed=upgradeInfo.animationSpeed}
 				else
 					--if previous unit has a upgradeDelay we use the biggest dealy
-					local dealy = math.max( upgradeDelay or 0, groupUnit.delay )
+					local dealy = math.max( upgradeDelay or 0, groupUnit.delay or 0 )
 					upgradeDelay = nil
 					currentWave[#currentWave+1] = {npc=npcName, delay=dealy, pathOffset=groupUnit.pathOffset, npcScale=groupUnit.npcScale, hpScale=groupUnit.hpScale, animationSpeed=groupUnit.animationSpeed}
 				end

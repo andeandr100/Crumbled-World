@@ -67,7 +67,7 @@ function SpawnGroups.new()
 			--(1000 + 450*8)/(4.5 + 8*0.25) == 707 hp/s
 			{waveMin=6, {npc="skeleton_cf", pathOffset=0},{npc="skeleton",delay=0.25,count=8}},
 			--(1000 + 450*8 + 1000)/(4.5 + 8*0.25+0.25) == 829 hp/s
-			{waveMin=7, {npc="skeleton_cf", pathOffset=0},{npc="skeleton",delay=0.25,count=8},{npc="skeleton_cb", pathOffset=0}},
+			{waveMin=7, {npc="skeleton_cf", pathOffset=0},{npc="skeleton",delay=0.25,count=8},{npc="skeleton_cb",delay=0.25, pathOffset=0}},
 			--(450*6 + (1200 + 450*3))/(4.5 + 5*0.25 + 0.4) == 853 hp/s
 			{waveMin=8, {npc="skeleton",delay=0.25,count=6},{npc="reaper",delay=0.4,pathOffset=0}},
 			--(2500)/(4.5) == 555 hp/s 

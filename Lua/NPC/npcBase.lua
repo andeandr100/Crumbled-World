@@ -100,8 +100,9 @@ function NpcBase.new()
 		local hpScale = Core.getBillboard():getDouble("hpScale")
 		local animationSpeed = Core.getBillboard():getDouble("animationSpeed")
 		
-		model:getAnimation():setAnimationSpeed(animationSpeed)
-		
+		if model then
+			model:getAnimation():setAnimationSpeed(animationSpeed)
+		end
 		
 		aResusedInfo[aReusedCounter].modelName = modelName
 		aResusedInfo[aReusedCounter].name = name
