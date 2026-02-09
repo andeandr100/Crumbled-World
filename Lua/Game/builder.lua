@@ -198,9 +198,10 @@ function sendHightScoreToTheServer()
 	highScoreBillBoard:setInt("score", statsBilboard:getInt("score"))
 	highScoreBillBoard:setInt("life", statsBilboard:getInt("life"))
 	highScoreBillBoard:setDouble("gold", statsBilboard:getInt("gold"))
+	highScoreBillBoard:setInt("difficulty", statsBilboard:getInt("level"))
 	
 	--TODO
-	--highScore.addScore( tabToStrMinimal(towerBuildInfo) )
+	highScore.addScore( tabToStrMinimal(towerBuildInfo) )
 end
 
 function addRebuildTowerEvent(textData)
@@ -939,9 +940,9 @@ function update()
 		towerBuildInfo[#towerBuildInfo+1] = {wave=curentWave,cost=0,buildTimeFromBeginingOfWave = (Core.getGameTime()-waveTime),add=nil,restore=nil,data=data}
 	end
 	
---	if Core.getInput():getKeyDown(Key.y) then
---		sendHightScoreToTheServer()
---	end
+	if Core.getInput():getKeyDown(Key.y) then
+		sendHightScoreToTheServer()
+	end
 	
 	if isAReplay then
 		local timeoffset = (Core.getGameTime()-waveTime)

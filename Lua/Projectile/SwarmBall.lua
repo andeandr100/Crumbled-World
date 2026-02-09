@@ -24,6 +24,10 @@ function SwarmBall.new(pTargetSelector)
 	node:addChild(fireBallEffect:toSceneNode())
 	fireBallEffect:deactivate()
 	
+	hittExplosion:setRenderLevel(15)
+	explosion:setRenderLevel(15)
+	fireBallEffect:setRenderLevel(15)
+	
 	local velocity = Vec3()
 	local position = Vec3()
 	local towerPosition = Vec3()

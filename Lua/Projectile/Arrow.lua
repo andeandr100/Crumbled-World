@@ -26,6 +26,7 @@ function Arrow.new()
 	--model
 	local model = Core.getModel("arrow.mym")
 	node:addChild(model:toSceneNode())
+	model:setRenderLevel(16)
 	
 	function self.init()
 		targetSelector.setPosition(this:getGlobalPosition())

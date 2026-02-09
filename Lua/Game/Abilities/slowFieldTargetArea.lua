@@ -43,6 +43,7 @@ function slowFieldTargetArea.new()
 			particleEffect:addparticle( Vec3(math.randomFloat(-1,1),0,math.randomFloat(-1,1)):normalizeV() * math.randomFloat(0,3.5) + Vec3(0,0.1,0),Vec3(),Vec2(0.75,0), Vec4(0.80,1.20,2.00,0.9), Vec4(0.42,0.65,1.00,-1.5), 0.05, 2, i/particleEffect:getMaxParticles() )
 		end
 		particleEffect:compile()
+		particleEffect:setRenderLevel(15)
 		nodeArea:addChild(particleEffect:toSceneNode())
 		nodeArea:setVisible(false)
 
@@ -53,6 +54,7 @@ function slowFieldTargetArea.new()
 		
 		for i=1, 6 do
 			electric[i] = ParticleEffectElectricFlash.new("Lightning_D.tga")
+			electric[i]:setRenderLevel(15)
 			nodeArea:addChild(electric[i]:toSceneNode())
 		end
 		

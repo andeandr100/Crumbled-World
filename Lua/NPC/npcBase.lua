@@ -102,6 +102,7 @@ function NpcBase.new()
 		
 		if model then
 			model:getAnimation():setAnimationSpeed(animationSpeed)
+			model:setRenderLevel(7)
 		end
 		
 		aResusedInfo[aReusedCounter].modelName = modelName

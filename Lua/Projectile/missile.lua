@@ -41,6 +41,7 @@ function Missile.new()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
 	--model
 	local model = Core.getModel("missile.mym")
+	model:setRenderLevel(16)
 	node:addChild(model:toSceneNode())
 	--particleEffect
 	local explosion = ParticleSystem.new( ParticleEffect.Explosion )
@@ -48,6 +49,12 @@ function Missile.new()
 	local smokeTrail = ParticleSystem.new( ParticleEffect.ShellTrail )
 	local missileTrail = ParticleSystem.new( ParticleEffect.missileTale )
 	local missileTrail2 = ParticleSystem.new( ParticleEffect.missileTaleBlue )
+	
+	explosion:setRenderLevel(15)
+	smokeTrail:setRenderLevel(15)
+	missileTrail:setRenderLevel(15)
+	missileTrail2:setRenderLevel(15)
+	
 	node:addChild(smokeTrail:toSceneNode())
 	node:addChild(missileTrail:toSceneNode())
 	node:addChild(missileTrail2:toSceneNode())

@@ -75,6 +75,7 @@ function DeathPhysic.new()
 			local rotationSpeed = math.randomFloat(5,15)
 			
 			local mesh = Mesh.new(subMeshList:item(i))
+			mesh:setRenderLevel(16)--set the mesh to be a npc model
 			physicNode:addRigidBody(mesh:toSceneNode(), rVec, rotation, rotationSpeed, getDeadBodyStartTime() )
 		end
 	end
@@ -103,6 +104,7 @@ function DeathPhysic.new()
 			end
 			local mesh = Mesh.new(subMesh)
 			mesh:setEnableShadow(false)
+			mesh:setRenderLevel(16)--set the mesh to be a npc model
 			physicNode:addRigidBody(mesh:toSceneNode(), velocity, rotation, rotationSpeed, getDeadBodyStartTime() * math.randomFloat(0.5, 1.0) )
 		end
 	end

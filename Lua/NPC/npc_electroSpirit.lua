@@ -39,6 +39,7 @@ function create()
 	electricEffect = ParticleSystem.new(ParticleEffect.SparkSpirit)
 	this:addChild(electricEffect:toSceneNode())
 	electricEffect:activate(Vec3(0,0.65,0))
+	electricEffect:setRenderLevel(15)
 	-- DEBUG START
 	electricEffect:setEmitterLine(Line3D(Vec3(0,0.65,0),Vec3(0,0.65,0)))--this should not be needed
 	-- DEBUG END

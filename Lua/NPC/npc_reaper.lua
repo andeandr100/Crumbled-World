@@ -50,8 +50,10 @@ function create()
 	this:addChild(soundReaperSpawn:toSceneNode())
 	reaperSpawnEffect:setSpawnRate(0.0)
 	reaperSpawnEffect:activate(Vec3(0,0,0))
+	reaperSpawnEffect:setRenderLevel(15)
 	npcBase.addParticleEffect(reaperSpawnEffect,0.1)
 	reaperCloud:activate(Vec3(0,0.75,0))
+	reaperCloud:setRenderLevel(15)
 	npcBase.addParticleEffect(reaperCloud,0.5)
 	--
 	npcBase.createDeadBody = createDeadBody

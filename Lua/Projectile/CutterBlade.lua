@@ -39,6 +39,7 @@ function CutterBlade.new(pTargetSelector)
 	local damageDone = 0.0
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
 	node:addChild(model:toSceneNode())
+	model:setRenderLevel(16)
 	
 	blade:setShader(Core.getShader("minigunPipe"))	
 	blade:setUniform(blade:getShader(), "heatUvCoordOffset", Vec2(256/blade:getTexture(blade:getShader(),0):getSize().x,0))
@@ -146,6 +147,7 @@ function CutterBlade.new(pTargetSelector)
 				sparkCenter = {}
 				for i=1, 4, 1 do
 					sparkCenter[i] = ParticleSystem.new(ParticleEffect.SparkSpirit)
+					sparkCenter[i]:setRenderLevel(15)
 					blade:addChild(sparkCenter[i]:toSceneNode())
 				end
 				sparkCenter[2]:setLocalPosition(Vec3(0.05,0.28,0.0)*0.66)

@@ -46,6 +46,10 @@ function ElectricTower.new()
 	local electric2 = ParticleEffectElectricFlash.new("Lightning_D.tga")
 	local pointLight = PointLight.new(Vec3(0,2.5,0),Vec3(0.0,4.0,4.0),pointLightBaseRange)
 	local pointLightAttack = PointLight.new(Vec3(),Vec3(0.0,3.0,3.0),3.0)
+	
+	electric1:setRenderLevel(15)
+	electric2:setRenderLevel(15)
+	
 	--upgrades
 	local energyOffers = {size=0,frameCounter=0,depth=0}
 	--communication

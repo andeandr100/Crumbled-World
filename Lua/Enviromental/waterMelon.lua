@@ -10,22 +10,41 @@ end
 function create()
 	--find the camera
 	camera = this:getRootNode():findNodeByName("MainCamera")
+	
+	currentSelected = false
+	model = this:findNodeByName("watermelon")
+	
+	if model == nil then
+		return false
+	end
+	--model = Model()
+	mesh = model:getMesh(0)
+	
+	bSphere = mesh:getGlobalBoundingSphere()
+	defaultShader = model:getMesh(0):getShader()
+	SelectedShader = Core.getShader(defaultShader:getName(),"SELECTED")
 	return true
 end
 
 function update()
-
-	if Core.getInput():getMousePressed(MouseKey.left) and camera then	
-		local cameraLine = camera:getWorldLineFromScreen(Core.getInput():getMousePos())
-		local collisionMesh = this:collisionTree(cameraLine)
-		if collisionMesh then
-			print( "collision mesh name: "..collisionMesh:getSceneName().."\n")
+	
+	local cameraLine = camera:getWorldLineFromScreen(Core.getInput():getMousePos())
+	
+	
+	local collisionMesh = mesh:collision(cameraLine)
+	if collisionMesh then
+		if not currentSelected then
+			mesh:setShader(SelectedShader)
+			currentSelected = true
 		end
-		if collisionMesh and collisionMesh:getSceneName()=="watermelon" then
+
+		if Core.getInput():getMousePressed(MouseKey.left) then	
 			destroyWatermelon(collisionMesh)
 		end
+	elseif currentSelected then
+		currentSelected = false
+		mesh:setShader(defaultShader)
 	end
-	
 	
 	return true
 end
@@ -35,6 +54,8 @@ function destroyWatermelon(watermelonNode)
 	--physic
 	local watermelonModel=Core.getModel("watermelonCracked.mym")
 	local island = this:findNodeByType(NodeId.island)
+	
+	
 	
 	
 	watermelonModel:setLocalMatrix( island:getGlobalMatrix():inverseM() * watermelonNode:getGlobalMatrix())

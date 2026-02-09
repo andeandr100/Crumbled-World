@@ -44,6 +44,7 @@ function boostTargetArea.new(inBuildNode, radius)
 		local shader = Core.getShader("ParticleEffectBasic")
 		particleEffect:setShader(shader)
 		particleEffect:setRenderBlendMode(GL_Blend.SRC_ALPHA, GL_Blend.ONE)
+		particleEffect:setRenderLevel(15)
 		local radius = boostRadius * 0.95
 		for i=1, particleEffect:getMaxParticles() do 
 			local randAngle = math.randomFloat(0.0, 3.1459 * 2.0)

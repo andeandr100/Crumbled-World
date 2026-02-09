@@ -31,10 +31,12 @@ function ArrowMortar.new()
 	this:findNodeByTypeTowardsRoot(NodeId.playerNode):addChild(node)
 	--model
 	local model = Core.getModel("projectile_mortar.mym")
+	model:setRenderLevel(16)
 	node:addChild(model:toSceneNode())
 	
 	--Particle effect
 	local explosion = ParticleSystem.new( ParticleEffect.ExplosionMedium )
+	explosion:setRenderLevel(15)
 	node:addChild(explosion:toSceneNode())
 	
 	--pointLight

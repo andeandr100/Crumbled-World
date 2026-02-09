@@ -11,7 +11,7 @@ require("NPC/state.lua")
 --setVisibleClass = Function()
 
 selectedNpcMenu = {}
-function selectedNpcMenu.new(inCamera)
+function selectedNpcMenu.new(inCamera, menuCamera)
 	local self = {}
 	--variabels from outside
 	local form = nil
@@ -20,6 +20,7 @@ function selectedNpcMenu.new(inCamera)
 	local soulListener
 	local souls = {}
 	local camera = inCamera
+	local towerCamera = menuCamera
 	local lastSelectedMeshList = nil
 	local previousSelectedNode = nil
 	local currentNode = nil

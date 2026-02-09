@@ -40,6 +40,7 @@ function create()
 	frame = 0
 	towerMenuVisible = false
 	SelectedMenuVisible = false
+
 	
 	--Protection in multiplayer environment where multiple instances of this script is loaded
 	local node = this:findNodeByTypeTowardsRoot(NodeId.playerNode)
@@ -70,6 +71,7 @@ function create()
 		selectedCamera:setAmbientLight(Core.getAmbientLight(this))
 		selectedCamera:setRenderScript("Camera/selectedTowerRender.lua")
 		selectedCamera:setActive(false)
+		
 		
 		--keybinds
 		keyBinds = Core.getBillboard("keyBind");
@@ -124,6 +126,16 @@ function settingsChanged()
 	selectedCamera:setUseGlow(Settings.glow.getEnabled())
 	selectedCamera:setUseAntiAliasing(false)
 	selectedCamera:setUseSelectedRender(false)
+	
+	animatedCamera = Settings.menuCamera.getIsAnimated()
+	
+	selectedCamera:enableAllRenderLayers()
+	if not animatedCamera then
+		selectedCamera:disableRenderLayer(6) -- Ability effect
+		selectedCamera:disableRenderLayer(7) -- NPC
+		selectedCamera:disableRenderLayer(15) -- Attack effects
+		selectedCamera:disableRenderLayer(16) -- Attack models
+	end
 end
 
 
@@ -171,7 +183,11 @@ function update()
 	end
 	
 	
-	if forceRender or ( ( towerMenu.getVisible() or npcMenu.getVisible() ) and Core.getRealDeltaTime() < 0.0333 and cameraRenderFrame+2 < frame ) then
+	local render = towerMenu.getReRenderCamera()
+	if animatedCamera == false and render then
+		cameraRenderFrame = frame
+		selectedCamera:render()
+	elseif animatedCamera and ( forceRender or ( ( towerMenu.getVisible() or npcMenu.getVisible() ) and Core.getRealDeltaTime() < 0.0333 and cameraRenderFrame+2 < frame ) ) then
 		cameraRenderFrame = frame
 		selectedCamera:render()
 	end

@@ -33,6 +33,10 @@ function LaserBullet.new(targetSelector)
 	particleEffectBullet2:setVisible(false)
 	particleEffectBullet3:setVisible(false)
 	
+	particleEffectBullet:setRenderLevel(15)
+	particleEffectBullet2:setRenderLevel(15)
+	particleEffectBullet3:setRenderLevel(15)
+	
 	--targetingSystem
 	targetSelector.setPosition(this:getGlobalPosition())
 	

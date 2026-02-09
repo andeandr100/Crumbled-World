@@ -1,7 +1,7 @@
 require("Game/builderUpgrader.lua")
 require("Game/targetArea.lua")
 require("Menu/MainMenu/mainMenuStyle.lua")
-require("Menu/MainMenu/settingsCombobox.lua")
+--require("Menu/MainMenu/settingsCombobox.lua")
 require("Menu/settings.lua")
 require("Menu/SelectedMenu/WallTowerPanel.lua")
 require("Menu/SelectedMenu/UpgradePanel.lua")
@@ -54,6 +54,7 @@ function selectedtowerMenu.new(inCamera, menuCamera)
 	local callChangeWave = -1
 	local targetArea = TargetArea.new()
 	local updateBoostTimer = {}
+	local reRenderCamera = false
 	
 	local billboardStats = Core.getBillboard("stats")
 	
@@ -335,6 +336,7 @@ function selectedtowerMenu.new(inCamera, menuCamera)
 		--called from tower builder 
 		if self.getVisible() then
 			initSelectedMenu()
+			reRenderCamera = true
 		end
 	end
 	
@@ -386,11 +388,18 @@ function selectedtowerMenu.new(inCamera, menuCamera)
 		return formTower:getVisible() or formWallTower:getVisible()
 	end
 	
+	function self.getReRenderCamera()
+		local outValue = reRenderCamera
+		reRenderCamera = false
+		return  outValue
+	end
+	
 	function self.setVisible(visible)
 		if visible and ( selectedBuildingType == 1 or selectedBuildingType == 2 ) then
 			formTower:setVisible(selectedBuildingType == 1)
 			formWallTower:setVisible(selectedBuildingType == 2)
 			towerCamera:setActive(true)
+			reRenderCamera = true
 		else
 			towerCamera:setActive(false)
 			formTower:setVisible(false)
@@ -434,6 +443,7 @@ function selectedtowerMenu.new(inCamera, menuCamera)
 			
 			if building then
 				if buildingLastSelected ~= building then
+					reRenderCamera = true
 					if keyBindUpgradeBuilding:getHeld() then
 						upgradeTower(building)
 					else

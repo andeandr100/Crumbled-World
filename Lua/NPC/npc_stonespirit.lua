@@ -15,6 +15,7 @@ function create()
 	--particle effect
 	sparkCenter = ParticleSystem.new(ParticleEffect.SpiritStone)
 	sparkCenter:activate(Vec3(0.0,0.75,0.0))
+	sparkCenter:setRenderLevel(15)
 	this:addChild(sparkCenter:toSceneNode())
 	npcBase.addParticleEffect(sparkCenter,0.5)
 	--pointlight

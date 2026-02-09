@@ -37,12 +37,9 @@ function MissileTower.new()
 	local billboard = comUnit:getBillboard()
 	local comUnitTable = {}
 	local billboardWaveStats
-	--Events
 	--other
 	local lastRestored = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
-	--local soulManager
-	--local targetingSystem
 	--stats
 	local isCircleMap = MapInfo.new().isCricleMap()
 	local mapName = MapInfo.new().getMapName()

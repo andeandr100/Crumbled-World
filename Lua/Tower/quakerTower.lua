@@ -64,6 +64,8 @@ function QuakeTower.new()
 	local lastRestored = -1
 	local isThisReal = this:findNodeByTypeTowardsRoot(NodeId.island)
 	
+	quakeDust:setRenderLevel(15)
+	
 	local function canSyncTower()
 		return (Core.isInMultiplayer()==false or self.getCurrentIslandPlayerId()==0 or networkSyncPlayerId==Core.getPlayerId())
 	end
@@ -91,6 +93,8 @@ function QuakeTower.new()
 				blasterFlame = ParticleSystem.new(ParticleEffect.quakeBlaster)
 				log:addChild(blasterFlame:toSceneNode())
 				this:addChild(quakeDustBlast:toSceneNode())
+				quakeDustBlast:setRenderLevel(15)
+				blasterFlame:setRenderLevel(15)
 			end
 			for i=1, data.getTowerLevel() do
 				model:getMesh("blaster"..i):setVisible(data.getLevel("fireCrit") == i)
@@ -122,6 +126,8 @@ function QuakeTower.new()
 				this:addChild( quakeFlameBlast:toSceneNode() )
 				this:addChild( fireBall:toSceneNode() )
 				this:addChild( firePointLigth:toSceneNode() )
+				quakeFlameBlast:setRenderLevel(15)
+				fireBall:setRenderLevel(15)
 			end
 			fireBall:activate(Vec3(0,0.75,0))
 			firePointLigth:setLocalPosition( Vec3(0,0.75,0) )
@@ -153,6 +159,8 @@ function QuakeTower.new()
 				electrikStrike = {token=0}
 				this:addChild( electricBall:toSceneNode() )
 				this:addChild( electricPointLigth:toSceneNode() )
+				electricBall:setRenderLevel(15)
+				electricPointLigth:setRenderLevel(15)
 				for i=1, 6 do
 					electrikStrike[i] = {effect=ParticleEffectElectricFlash.new("Lightning_D.tga"), light=PointLight.new(Vec3(0.0,1.0,1.0),2.5)}
 					this:addChild(electrikStrike[i].effect:toSceneNode())

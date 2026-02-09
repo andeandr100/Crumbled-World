@@ -22,6 +22,10 @@ function FireStorm.new(pNode)
 	local range = 0.0
 	local slow = 0.0
 	local position = Vec3()
+	
+	fireStorm1:setRenderLevel(15)
+	fireStorm2:setRenderLevel(15)
+	fireStorm3:setRenderLevel(15)
 	--
 	local soundFireStorm = SoundNode.new("firestorm")
 	function self.activate(pDuration,pPosition,pDamage,pSlow,pRange)

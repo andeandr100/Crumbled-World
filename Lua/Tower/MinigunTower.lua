@@ -220,6 +220,7 @@ function MinigunTower.new()
 			if not particleEffectSmoke then
 				particleEffectSmoke = {}
 				particleEffectSmoke[0] = ParticleSystem.new( ParticleEffect.MinigunOverheatSmoke )
+				particleEffectSmoke[0]:setRenderLevel(15)
 				this:addChild(particleEffectSmoke[0]:toSceneNode())
 			end
 			billboard:setFloat("overHeatPer",0.0)
@@ -236,6 +237,7 @@ function MinigunTower.new()
 			if data.getTowerLevel()==3 and overChargeLevel>0 then
 				if not heatPointLight2 then
 					particleEffectSmoke[1] = ParticleSystem.new( ParticleEffect.MinigunOverheatSmoke )
+					particleEffectSmoke[1]:setRenderLevel(15)
 					heatPointLight2 = PointLight.new(Vec3(),Vec3(3.0,0.15,0.0),0.2)
 					model:getMesh( "engine" ):addChild( heatPointLight2:toSceneNode() )
 					setPipePointLightPos(heatPointLight2,1)
@@ -670,17 +672,23 @@ function MinigunTower.new()
 --		particleEffectGun[1] = GraphicParticleSystems.new().createMinigunFireEffect()
 		particleEffectGun[0] = ParticleSystem.new( ParticleEffect.MinigunFire2 )
 		particleEffectGun[0]:setScale(0.80)
+		particleEffectGun[0]:setRenderLevel(15)
 		particleEffectGun[1] = ParticleSystem.new( ParticleEffect.MinigunFire2 )
 		particleEffectGun[1]:setScale(0.80)
+		particleEffectGun[1]:setRenderLevel(15)
 		
 		particleEffectGunLaser[0] = ParticleSystem.new( ParticleEffect.MinigunLaserBlast )
 		particleEffectGunLaser[0]:setScale(0.80)
+		particleEffectGunLaser[0]:setRenderLevel(15)
 		particleEffectGunLaser[1] = ParticleSystem.new( ParticleEffect.MinigunLaserBlast )
 		particleEffectGunLaser[1]:setScale(0.80)
+		particleEffectGunLaser[1]:setRenderLevel(15)
 		
 	
 		particleEffectTracer[0] = GraphicParticleSystems.new().createMingunAttackTraceEffect()
 		particleEffectTracer[1] = GraphicParticleSystems.new().createMingunAttackTraceEffect()
+		particleEffectTracer[0]:setRenderLevel(15)
+		particleEffectTracer[1]:setRenderLevel(15)
 		
 		
 --		pointLight:setVisible(false)

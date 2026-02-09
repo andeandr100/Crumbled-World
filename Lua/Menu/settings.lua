@@ -45,7 +45,7 @@ end
 
 
 Settings.renderScale = {}
-Settings.renderScale.options = {"50%", "75%", "100%", "150%", "200%"}
+Settings.renderScale.options = {"50%","60%","70%", "80%","90%", "100%", "150%", "200%"}
 Settings.renderScale.configName = "RenderScale"
 function Settings.renderScale.getSettings()
 	print("Settings.renderScale.getSettings()\n")
@@ -58,8 +58,14 @@ function Settings.renderScale.getValue()
 	print("text: "..option.."\n")
 	if option == "50%" then
 		return 0.5
-	elseif option == "75%" then
-		return 0.75
+	elseif option == "60%" then
+		return 0.6
+	elseif option == "70%" then
+		return 0.7
+	elseif option == "80%" then
+		return 0.8
+	elseif option == "90%" then
+		return 0.9
 	elseif option == "150%" then
 		return 1.5
 	elseif option == "200%" then
@@ -246,6 +252,18 @@ function Settings.towerMenu.getSettings()
 end
 function Settings.towerMenu.getIsVisible()
 	return Settings.config:get(Settings.towerMenu.configName, true):getBool()
+end
+
+
+
+Settings.menuCamera = {}
+Settings.menuCamera.options = {"settings.static", "settings.animated"}
+Settings.menuCamera.configName = "menuCamera"
+function Settings.menuCamera.getSettings()
+	return Settings.config:get(Settings.menuCamera.configName, true):getBool() and Settings.menuCamera.options[1] or Settings.menuCamera.options[2]
+end
+function Settings.menuCamera.getIsAnimated()
+	return Settings.config:get(Settings.menuCamera.configName, true):getBool() == false
 end
 
 

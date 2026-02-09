@@ -202,7 +202,7 @@ function spawnWaveBuilder.new()
 				local groupLeftToSpawn = groupCount-spawnedGroup
 				local info = {wave=n,spawnedGroup=spawnedGroup,groupLeftToSpawn=groupLeftToSpawn}
 				
-				if  bossSpawned == false and (spawnedGroup+1)*2 > groupCount then
+				if (g%5)==5 and bossSpawned == false and (spawnedGroup+1)*2 > groupCount then
 					bossSpawned = true
 					local bossGroup = getRandomBossGroup(info)
 					addGroupToWave(bossGroup, currentWave, waveDetails.info)

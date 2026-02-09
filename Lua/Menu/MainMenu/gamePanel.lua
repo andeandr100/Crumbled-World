@@ -123,6 +123,10 @@ function GamePanel.createGameOptions(panel)
 	conf = Settings.towerMenu
 	SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
 	
+	rowPanel = OptionsMenuStyle.addRow(panel, "options.menu camera")
+	conf = Settings.menuCamera
+	SettingsComboBox.new(rowPanel, PanelSize(Vec2(-0.45, -1)), conf.options, conf.configName, conf.getSettings(), GamePanel.changedSettingsBool )
+	
 	--Consent Options
 	OptionsMenuStyle.addOptionsHeader( panel, "consent.user consent" )
 	rowPanel = OptionsMenuStyle.addRow(panel, "consent.consent")

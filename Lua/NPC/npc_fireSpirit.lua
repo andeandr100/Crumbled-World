@@ -42,6 +42,7 @@ function create()
 	fireEffect = ParticleSystem.new(ParticleEffect.NPCSpirit)
 	this:addChild(fireEffect:toSceneNode())
 	fireEffect:activate(Vec3(0,0.65,0))
+	fireEffect:setRenderLevel(15)
 	npcBase.addParticleEffect(fireEffect,0.35)
 	--spiritPointLight
 	spiritPointLight = PointLight.new(Vec3(0,0.25,0),Vec3(3.0,1.0,0.0),pLightRange)
