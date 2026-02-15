@@ -47,8 +47,10 @@ function update()
 			levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
 		end
 		if mapInfo then
-			levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
-			levelInfo.setDifficultyBase(mapInfo.difficultyBase)
+			levelInfo.setDifficultyNormalMin(mapInfo.difficultyNormalMin)
+			levelInfo.setDifficultyNormalMax(mapInfo.difficultyNormalMax)
+			levelInfo.setDifficultyHardMin(mapInfo.difficultyHardMin)
+			levelInfo.setDifficultyHardMax(mapInfo.difficultyHardMax)
 			levelInfo.setWaveCount(mapInfo.waveCount)
 		end
 	end

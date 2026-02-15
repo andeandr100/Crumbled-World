@@ -14,7 +14,10 @@ function MapInfo.new()
 	local billboard
 	local actualLevel = 1
 	local addPerLevel = 0.0
-	local difficultyBase = 0.0
+	local difficultyNormalMin = 0.0
+	local difficultyNormalMax = 0.0
+	local difficultyHardMin = 0.0
+	local difficultyHardMax = 0.0
 	
 	
 
@@ -25,20 +28,21 @@ function MapInfo.new()
 		return {"custom-game.game-mode.default", "custom-game.game-mode.survival"}
 	end
 	
-	function self.setLevel(level,notSave)
-		--1 = 0.70
-		--2 = 0.75
-		--3 = 0.80
-		--4 = 0.85
-		--5 = 0.90
-		local actualLevel = level
+	function self.setDifficultyLevel(difficultyLevel)
+		--1 = 0
+		--2 = 1
+		--3 = 1.5
+		--4 = 2.0
+		--5 = 2.5
 		
-		level = (level+difficultyBase)+(addPerLevel*(level-1))
+		local minDiff = difficultyHardMin - difficultyNormalMin
+		local maxDiff = difficultyHardMax - difficultyNormalMax
+		local difficultyScale = difficultyLevel / 2
 		--
-		billboard:setInt("level",actualLevel)
-		billboard:setDouble("difficulty",0.75+(level*0.055))			--start difficulty
-		billboard:setDouble("difficultIncreaser",1.0160+((level+1)*0.00275))	--how fast the difficulty should accelerate
-		billboard:setInt("SpawnWindow",math.floor(2+(actualLevel*0.55)))	--how many different npc group can be spawned
+		billboard:setInt("level",difficultyLevel)
+		billboard:setDouble("difficultyMin",difficultyNormalMin + minDiff * difficultyScale)
+		billboard:setDouble("difficultyMax",difficultyNormalMax + maxDiff * difficultyScale)
+		billboard:setInt("SpawnWindow",math.floor(2+(difficultyLevel*0.55)))	--how many different npc group can be spawned
 		--
 		if billboard:exist("isCart")==false then
 			billboard:setBool("isCart",false)
@@ -67,16 +71,33 @@ function MapInfo.new()
 	function self.setIsCrystalMap(isCrystal)
 		billboard:setBool("isCrystal",isCrystal)
 	end
-	function self.setAddPerLevel(amount)
-		amount = amount or 0
-		addPerLevel = amount
-		self.setLevel(billboard:getInt("level"))
+
+	function self.setDifficultyNormalMin(value)
+		if value == nil then
+			abort("can not be null")
+		end
+		difficultyNormalMin = value
 	end
-	function self.setDifficultyBase(amount)
-		amount = amount or 0
-		difficultyBase = amount
-		self.setLevel(billboard:getInt("level"))
+	function self.setDifficultyNormalMax(value)
+		if value == nil then
+			abort("can not be null")
+		end
+		difficultyNormalMax = value
 	end
+	function self.setDifficultyHardMin(value)
+		if value == nil then
+			abort("can not be null")
+		end
+		difficultyHardMin = value
+	end
+	function self.setDifficultyHardMax(value)
+		if value == nil then
+			abort("can not be null")
+		end
+		difficultyHardMax = value
+	end
+	
+	
 	function self.setIsCampaign(mode)
 		billboard:setBool("isCampaign",mode)
 	end
@@ -173,8 +194,10 @@ function MapInfo.new()
 						self.setIsCartMap(mapInfo.gameMode=="Cart")
 						self.setIsCircleMap(mapInfo.gameMode=="Circle")
 						self.setIsCrystalMap(mapInfo.gameMode=="Crystal")
-						self.setAddPerLevel(mapInfo.difficultyIncreaseMax)
-						self.setDifficultyBase(mapInfo.difficultyBase)
+						self.setDifficultyNormalMin(mapInfo.difficultyNormalMin)
+						self.setDifficultyNormalMax(mapInfo.difficultyNormalMax)
+						self.setDifficultyHardMin(mapInfo.difficultyHardMin)
+						self.setDifficultyHardMax(mapInfo.difficultyHardMax)
 						self.setWaveCount(mapInfo.waveCount)
 						self.setMapSize(mapInfo.mapSize)
 						--
@@ -226,7 +249,7 @@ function MapInfo.new()
 	local function init()
 		billboard = Core.getGlobalBillboard("MapInfo")
 		if billboard:exist("difficulty")==false then
-			self.setLevel(2.0)
+			self.setDifficultyLevel(2.0)
 		end
 		if billboard:exist("GameMode")==false then
 			billboard:setString("GameMode","Normal")

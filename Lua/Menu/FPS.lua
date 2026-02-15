@@ -26,8 +26,6 @@ function create()
 	
 	statistics = Statistics()
 	
-	
-	
 	Core.setScriptNetworkId("FPS")
 	local rootNode = this:getRootNode();
 	local cameras = rootNode:findAllNodeByNameTowardsLeaf("MainCamera");

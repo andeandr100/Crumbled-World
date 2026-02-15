@@ -498,19 +498,6 @@ function NpcBase.new()
 		end
 		self.deathCleanup()
 		return true
---		if deathManager.hasWork() then
---			--success, we have a death animation
---			runDeathManagerUpdate = true 
---			return true
---		else
---			--destroy this SceneNode if we can
---			if deathManager.enableSelfDestruct then
---				this:destroyTree()
---			else
---				this:removeChild(model:toSceneNode())
---			end
---			return false--destroy this script
---		end
 	end
 	local function toBits(num)
 		if num then

@@ -46,8 +46,10 @@ end
 function saveMapSettings()
 	--ops this should not be here TODO
 	MapSettings.name = nameField:getText()
-	MapSettings.difficultyMin = tonumber(difficultyFieldMin:getText())
-	MapSettings.difficultyMax = tonumber(difficultyFieldMax:getText())
+	MapSettings.difficultyNormalMin = tonumber(difficultyFieldNormalMin:getText())
+	MapSettings.difficultyNormalMax = tonumber(difficultyFieldNormalMax:getText())
+	MapSettings.difficultyHardMin = tonumber(difficultyFieldHardMin:getText())
+	MapSettings.difficultyHardMax = tonumber(difficultyFieldHardMax:getText())
 	MapSettings.waveCount = tonumber(waveCountField:getText())
 	MapSettings.gameMode = gameModeField:getText():toString()
 	MapSettings.players = playersField:getInt()

@@ -95,11 +95,13 @@ function CampaignGameMapMenu.new(parentPanel)
 			levelInfo.setIsCartMap(mapInfo.gameMode=="Cart")
 			levelInfo.setIsCircleMap(mapInfo.gameMode=="Circle")
 			levelInfo.setIsCrystalMap(mapInfo.gameMode=="Crystal")
-			levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
-			levelInfo.setDifficultyBase(mapInfo.difficultyBase)
+			levelInfo.setDifficultyNormalMin(mapInfo.difficultyNormalMin)
+			levelInfo.setDifficultyNormalMax(mapInfo.difficultyNormalMax)
+			levelInfo.setDifficultyHardMin(mapInfo.difficultyHardMin)
+			levelInfo.setDifficultyHardMax(mapInfo.difficultyHardMax)
 			levelInfo.setWaveCount(mapInfo.waveCount)
 			levelInfo.setMapSize(mapInfo.mapSize)
-			levelInfo.setLevel(1)
+			levelInfo.setDifficultyLevel(1)
 			--changing default selected map
 			gameValues.setSelectedMap(filePath)
 		end
@@ -154,16 +156,16 @@ function CampaignGameMapMenu.new(parentPanel)
 					levelInfo.setIsCrystalMap(mapInfo.gameMode=="Crystal")
 				end
 				if mapInfo then
-					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
-					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
+					levelInfo.setDifficultyNormalMin(mapInfo.difficultyNormalMin)
+					levelInfo.setDifficultyNormalMax(mapInfo.difficultyNormalMax)
+					levelInfo.setDifficultyHardMin(mapInfo.difficultyHardMin)
+					levelInfo.setDifficultyHardMax(mapInfo.difficultyHardMax)
 					levelInfo.setWaveCount(mapInfo.waveCount)
 					levelInfo.setMapSize(mapInfo.mapSize)
 				else
 					error("No map information was found")
 				end
-				levelInfo.setLevel(1)
-				local d1 = levelInfo.getDifficulty()
-				local d2 = levelInfo.getDifficultyIncreaser()
+				levelInfo.setDifficultyLevel(1)
 			end
 			--save default selection
 			menuPrevSelect:save()
@@ -194,7 +196,7 @@ function CampaignGameMapMenu.new(parentPanel)
 	
 	local function changeDifficulty(tag, index)
 		if difficutyBox.isEnabled()==true then
-			levelInfo.setLevel(index)
+			levelInfo.setDifficultyLevel(index)
 			--
 			gameValues.setSelectedMapDifficulty(index)
 			--

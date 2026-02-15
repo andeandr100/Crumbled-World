@@ -21,6 +21,7 @@ function NpcPanel.new(panel)
 	local loadBarIcon1
 	local loadBarIcon2
 	local startTimeIcone
+	local render = 5
 	--
 	local bilboardStats
 	--
@@ -624,6 +625,8 @@ function NpcPanel.new(panel)
 				--set frame buffer size
 				--this will only change the buffer if the buffer size changes
 				selectedCamera:setFrameBufferSize(frameBufferSize)
+				print("NPC camera Size, " .. frameBufferSize.x .. "x".. frameBufferSize.y)
+				render = 5
 			end
 			if spawnList and bilboardStats:getInt("life")>=0 then
 				--make sure there is enough npc's to fill the menu
@@ -651,6 +654,9 @@ function NpcPanel.new(panel)
 						setStartTimeIconPer(npc.startDelay/originalStartDelay)
 						--
 						updatePosition()
+						
+						print("NPC Camera Update position")
+						render = 1
 					end
 				end
 				--removed deleted icons
@@ -661,8 +667,13 @@ function NpcPanel.new(panel)
 				npcToBeRemoved.size = 0
 			end
 			
-			--only render when the images changes
-			selectedCamera:render()
+			if render > 0 then
+			
+				--only render when the images changes
+				selectedCamera:render()
+				print("NPC Camera Render()")
+				render = render - 1
+			end
 		end
 	end
 	

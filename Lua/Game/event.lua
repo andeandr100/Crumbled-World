@@ -1,6 +1,20 @@
 require("Game/eventBase.lua")
 --this = SceneNode()
-local event = EventBase.new()
+local eventBase = EventBase.new()
+
+CheatMenu = {}
+
+
+
+function regenerateWaves(data)
+	local mapInfo = MapInfo.new()
+	if not(Core.isInMultiplayer() and Core.getNetworkClient():isAdmin()==false) then
+		eventBase.getSpawnManager().generateWaves(mapInfo.getWaveCount(),data.difficulty,data.difficultIncreaser,mapInfo.getSpawnWindow(),mapInfo.getSead()	)--generate the actual waves
+		restartListener:pushEvent("restart")
+	end
+end
+
+
 function create()
 	local mapInfo = MapInfo.new()
 	local numWaves = mapInfo.getWaveCount()						--how many waves must be beaten to win
@@ -14,6 +28,9 @@ function create()
 	local waveFinishedGold = 200								--how much gold you get to finish a wave
 	local difficult = mapInfo.getDifficulty()					--(>0.70 the lower this value is the more time you have to collect on the interest that does not exist anymore
 	local difficultIncreaser = mapInfo.getDifficultyIncreaser()	--how large the exponential difficulty increase should be
+	local comUnit = Core.getComUnit()
+	cheatListener = Listener("cheatEvent")
+	restartListener = Listener("Restart")
 	--
 	if mapInfo.isCartMap() then
 		startLives = 1
@@ -35,8 +52,8 @@ function create()
 	if mapInfo.isCricleMap() then
 		--rats can spawn in a number of upto 16 in 1 grouop
 		--and there difficulty comes from there speed, which does nothing in this mode
-		event.getSpawnManager().disableUnit("rat")
-		event.getSpawnManager().disableUnit("rat_tank")
+		eventBase.getSpawnManager().disableUnit("rat")
+		eventBase.getSpawnManager().disableUnit("rat_tank")
 	end
 	--
 	if Core.isInMultiplayer() then
@@ -45,18 +62,20 @@ function create()
 	--
 	--
 	--create event system
-	if not event.init(startGold,waveFinishedGold,startLives,level) then
+	if not eventBase.init(startGold,waveFinishedGold,startLives,level) then
 		return false
 	end
+	
 	--
-	if not(Core.isInMultiplayer() and Core.getNetworkClient():isAdmin()==false) then
-		event.getSpawnManager().generateWaves(numWaves,difficult,difficultIncreaser,startSpawnWindow,seed)--generate the actual waves
-	end
+	
+	cheatListener:registerEvent("ReloadWaves",regenerateWaves)
+	regenerateWaves({difficulty=difficult,difficultIncreaser=difficultIncreaser,ignore=true})
+
 	--
 	if Core.isInMultiplayer() then
-		event.getSpawnManager().spawnUnitsPattern(SPAWN_PATTERN.Clone)
+		eventBase.getSpawnManager().spawnUnitsPattern(SPAWN_PATTERN.Clone)
 	else
-		event.getSpawnManager().spawnUnitsPattern(SPAWN_PATTERN.Grouped)
+		eventBase.getSpawnManager().spawnUnitsPattern(SPAWN_PATTERN.Grouped)
 	end
 	--
 	if mapInfo.getGameMode()=="survival" then
@@ -72,8 +91,8 @@ function create()
 	
 	--Disable gold gain on kill
 	--this is due to the new bank tower
-	event.setDefaultGold(startGold,waveFinishedGold,goldMultiplayerOnKills)
+	eventBase.setDefaultGold(startGold,waveFinishedGold,goldMultiplayerOnKills)
 	--
-	update = event.update
+	update = eventBase.update
 	return true
 end

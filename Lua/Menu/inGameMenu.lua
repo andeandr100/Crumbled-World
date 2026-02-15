@@ -190,14 +190,14 @@ function create()
 	end
 	
 	mainPanel = form:add(Panel(PanelSize(Vec2(0.17,1))))
-	mainPanel:getPanelSize():setFitChildren(false, true);
+	mainPanel:getPanelSize():setFitChildren(true, true);
 	mainPanel:setLayout(FallLayout( Alignment.TOP_CENTER, PanelSize(Vec2(0,0.01))))
 	mainPanel:setBackground(Gradient(MainMenuStyle.backgroundTopColor, MainMenuStyle.backgroundDownColor))
 	mainPanel:setBorder(Border(BorderSize(Vec4(MainMenuStyle.borderSize)), MainMenuStyle.borderColor))
 	mainPanel:setVisible(false)
 	backgroundPanel = mainPanel
 
-	textPanels[1] = mainPanel:add(Label(PanelSize(Vec2(0.17,1), Vec2(5,1)), language:getText("ingame.button.menu"), MainMenuStyle.textColorHighLighted, Alignment.MIDDLE_CENTER ))
+	textPanels[1] = mainPanel:add(Label(PanelSize(Vec2(-1, 0.07), Vec2(5,1)), language:getText("ingame.button.menu"), MainMenuStyle.textColorHighLighted, Alignment.MIDDLE_CENTER ))
 	textPanels[1]:setTag("menu")
 	
 	MainMenuStyle.createBreakLine(mainPanel)
@@ -210,7 +210,7 @@ function create()
 	local scale = Vec2(maxXScale / 2 + 0.5, 1)
 	--0.17/5 magic number from before language support was added
 			
-	local buttonSize = Vec2(-1,0.07)	
+	local buttonSize = Vec2(-0.95,0.065)	
 	
 	continueButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, "ingame.button.continue"))
 	optionsButton = mainPanel:add( MainMenuStyle.createMenuButton( buttonSize, nil, "ingame.button.options"))

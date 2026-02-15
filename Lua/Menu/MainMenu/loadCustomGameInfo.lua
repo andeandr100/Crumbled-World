@@ -144,10 +144,12 @@ function update()
 					mapTable.icon = imageName
 					mapTable.hash = file:getHash()
 					mapTable.path = file:getPath()
-					mapTable.difficultyBase = info.difficultyMin
-					mapTable.difficultyIncreaseMax = info.difficultyMax
+					mapTable.difficultyNormalMin = info.difficultyNormalMin
+					mapTable.difficultyNormalMax = info.difficultyNormalMax
+					mapTable.difficultyHardMin = info.difficultyHardMin
+					mapTable.difficultyHardMax = info.difficultyHardMax
 					mapTable.waveCount = info.waveCount
-					
+
 					
 					print("File table: table = "..tostring(mapTable))
 					print("File: "..file:getPath())

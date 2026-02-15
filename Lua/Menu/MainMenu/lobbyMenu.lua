@@ -260,10 +260,12 @@ function LobbyMenu.new(panel, aServerListPanel, aServerListObject)
 			
 			if mapFile:isFile() then
 				if mapInfoData then
-					mapInfo.setAddPerLevel(mapInfoData.difficultyIncreaseMax)
-					mapInfo.setDifficultyBase(mapInfoData.difficultyBase)
+					mapInfo.setDifficultyNormalMin(mapInfoData.difficultyNormalMin)
+					mapInfo.setDifficultyNormalMax(mapInfoData.difficultyNormalMax)
+					mapInfo.setDifficultyHardMin(mapInfoData.difficultyHardMin)
+					mapInfo.setDifficultyHardMax(mapInfoData.difficultyHardMax)
 					mapInfo.setWaveCount(mapInfoData.waveCount)
-										mapInfo.setMapSize(mapInfoData.mapSize)
+					mapInfo.setMapSize(mapInfoData.mapSize)
 				end
 			end
 			

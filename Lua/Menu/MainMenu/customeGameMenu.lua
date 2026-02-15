@@ -85,7 +85,7 @@ function CustomeGameMenu.new(panel)
 	local function changeDifficulty(tag, index)
 		if difficutyBox.isEnabled()==true then
 			--set difficulty
-			levelInfo.setLevel(index)
+			levelInfo.setDifficultyLevel(index)
 			--
 			menuPrevSelect:get("custom"):get("selectedDifficulty"):setInt(index)
 			--
@@ -145,8 +145,10 @@ function CustomeGameMenu.new(panel)
 			levelInfo.setPlayerCount(mapInfo and mapInfo.players or 1)
 			if mapInfo then
 				levelInfo.setMapSize(mapInfo.mapSize)
-				levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
-				levelInfo.setDifficultyBase(mapInfo.difficultyBase)
+				levelInfo.setDifficultyNormalMin(mapInfo.difficultyNormalMin)
+				levelInfo.setDifficultyNormalMax(mapInfo.difficultyNormalMax)
+				levelInfo.setDifficultyHardMin(mapInfo.difficultyHardMin)
+				levelInfo.setDifficultyHardMax(mapInfo.difficultyHardMax)
 			end
 			levelInfo.setLevel(difficutyBox.getIndex())
 		end
@@ -222,8 +224,10 @@ function CustomeGameMenu.new(panel)
 				levelInfo.setWaveCount(mapInfo and mapInfo.waveCount or 25)
 				if mapInfo then
 					levelInfo.setMapSize(mapInfo.mapSize)
-					levelInfo.setAddPerLevel(mapInfo.difficultyIncreaseMax)
-					levelInfo.setDifficultyBase(mapInfo.difficultyBase)
+					levelInfo.setDifficultyNormalMin(mapInfo.difficultyNormalMin or 1)
+					levelInfo.setDifficultyNormalMax(mapInfo.difficultyNormalMax or 2)
+					levelInfo.setDifficultyHardMin(mapInfo.difficultyHardMin or 1)
+					levelInfo.setDifficultyHardMax(mapInfo.difficultyHardMax or 2)
 				end
 				menuPrevSelect:get("custom"):get("selectedMap"):setString(filePath)
 				
